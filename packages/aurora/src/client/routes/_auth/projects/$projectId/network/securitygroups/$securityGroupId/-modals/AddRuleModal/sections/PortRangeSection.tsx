@@ -2,7 +2,7 @@ import { FormRow, TextInput } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
 import { useStore } from "@tanstack/react-form"
 import type { AddRuleFormApi } from "../AddRuleModal"
-import { useRuleFieldError, hideRuleFieldError, showRuleFieldError } from "../validation/fieldErrors"
+import { useRuleFieldError, hideRuleFieldError } from "../validation/fieldErrors"
 
 interface PortRangeSectionProps {
   form: AddRuleFormApi
@@ -67,12 +67,8 @@ export function PortRangeSection({ form, disabled = false, readOnly = false }: P
                 onChange={(e) => {
                   portToField.handleChange(e.target.value)
                   hideRuleFieldError(form, "portTo")
-                  hideRuleFieldError(form, "portFrom")
                 }}
-                onBlur={() => {
-                  portToField.handleBlur()
-                  showRuleFieldError(form, "portFrom")
-                }}
+                onBlur={portToField.handleBlur}
                 errortext={portToError}
                 helptext={readOnly ? undefined : t`End of the range. Leave empty for a single port.`}
                 disabled={isPortToDisabled}

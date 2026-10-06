@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach } from "vitest"
-import { render, screen, waitFor, act, fireEvent } from "@testing-library/react"
+import { render, screen, waitFor, act, fireEvent, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
@@ -44,6 +44,9 @@ function TestWrapper({
     </I18nProvider>
   )
 }
+
+// Juno TextInput renders its hints inside this wrapper, so it tells which input owns an error
+const fieldOf = (input: HTMLElement) => within(input.closest<HTMLElement>(".juno-textinput-outer-wrapper")!)
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
@@ -181,16 +184,49 @@ describe("PortRangeSection", () => {
       expect(await screen.findByText("For TCP/UDP: port must be between 1 and 65535")).toBeInTheDocument()
     })
 
-    test("shows the order error under Port (from) once Port (to) is left", async () => {
+    test("shows the order error under Port (to) once it is left", async () => {
       const user = userEvent.setup()
       render(<TestWrapper defaultPortFrom="9090" />)
 
+      const portFromInput = screen.getByLabelText(/Port \(from\)/i)
       const portToInput = screen.getByLabelText(/Port \(to\)/i)
       await user.type(portToInput, "80")
       expect(screen.queryByText('"Port (from)" must be less than "Port (to)"')).not.toBeInTheDocument()
 
       fireEvent.blur(portToInput)
-      expect(await screen.findByText('"Port (from)" must be less than "Port (to)"')).toBeInTheDocument()
+      expect(await fieldOf(portToInput).findByText('"Port (from)" must be less than "Port (to)"')).toBeInTheDocument()
+      expect(fieldOf(portFromInput).queryByText('"Port (from)" must be less than "Port (to)"')).not.toBeInTheDocument()
+    })
+
+    test("shows an out-of-range Port (to) under Port (to), not under a valid Port (from)", async () => {
+      const user = userEvent.setup()
+      render(<TestWrapper defaultPortFrom="80" />)
+
+      const portFromInput = screen.getByLabelText(/Port \(from\)/i)
+      const portToInput = screen.getByLabelText(/Port \(to\)/i)
+      fireEvent.blur(portFromInput)
+      await user.type(portToInput, "70000")
+      fireEvent.blur(portToInput)
+
+      expect(await fieldOf(portToInput).findByText("For TCP/UDP: port must be between 1 and 65535")).toBeInTheDocument()
+      expect(
+        fieldOf(portFromInput).queryByText("For TCP/UDP: port must be between 1 and 65535")
+      ).not.toBeInTheDocument()
+    })
+
+    test("shows an out-of-range Port (from) under Port (from) when a range is entered", async () => {
+      render(<TestWrapper defaultPortFrom="70000" defaultPortTo="80" />)
+
+      const portFromInput = screen.getByLabelText(/Port \(from\)/i)
+      const portToInput = screen.getByLabelText(/Port \(to\)/i)
+      fireEvent.blur(portFromInput)
+      fireEvent.blur(portToInput)
+
+      expect(
+        await fieldOf(portFromInput).findByText("For TCP/UDP: port must be between 1 and 65535")
+      ).toBeInTheDocument()
+      // The order check needs a valid Port (from), so Port (to) shows nothing
+      expect(fieldOf(portToInput).queryByText('"Port (from)" must be less than "Port (to)"')).not.toBeInTheDocument()
     })
 
     test("hides the error while the port is edited", async () => {

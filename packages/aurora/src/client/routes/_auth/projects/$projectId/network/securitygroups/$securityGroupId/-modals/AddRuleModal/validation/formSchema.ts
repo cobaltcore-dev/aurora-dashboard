@@ -94,44 +94,32 @@ export const createRuleFormSchema = z
             path: ["portFrom"],
           })
         } else {
-          // If Port (to) is empty, validate portFrom as single port
-          if (!data.portTo) {
-            const result = validatePortRange(portFrom, portFrom, data.protocol)
-            if (!result.valid) {
-              ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                message: result.error || "Invalid port",
-                path: ["portFrom"],
-              })
-            }
-          } else {
-            // Both ports are provided - validate as range
+          // Each bound is validated on its own, so the error appears under the input that holds the wrong value
+          const portFromResult = validatePortRange(portFrom, portFrom, data.protocol)
+          if (!portFromResult.valid) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: portFromResult.error || "Invalid port",
+              path: ["portFrom"],
+            })
+          }
+
+          if (data.portTo) {
             const portTo = parseInt(data.portTo, 10)
-            if (isNaN(portTo)) {
+            const portToResult = validatePortRange(portTo, portTo, data.protocol)
+            if (!portToResult.valid) {
               ctx.addIssue({
                 code: z.ZodIssueCode.custom,
-                message: "Port must be a valid number",
+                message: portToResult.error || "Invalid port",
                 path: ["portTo"],
               })
-            } else {
-              // Check that portFrom < portTo
-              if (portFrom >= portTo) {
-                ctx.addIssue({
-                  code: z.ZodIssueCode.custom,
-                  message: '"Port (from)" must be less than "Port (to)"',
-                  path: ["portFrom"],
-                })
-              } else {
-                // Validate the range
-                const result = validatePortRange(portFrom, portTo, data.protocol)
-                if (!result.valid) {
-                  ctx.addIssue({
-                    code: z.ZodIssueCode.custom,
-                    message: result.error || "Invalid port range",
-                    path: ["portFrom"],
-                  })
-                }
-              }
+            } else if (portFromResult.valid && portFrom >= portTo) {
+              // Port (to) is the field the user fills last, so the order error belongs to it
+              ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: '"Port (from)" must be less than "Port (to)"',
+                path: ["portTo"],
+              })
             }
           }
         }
