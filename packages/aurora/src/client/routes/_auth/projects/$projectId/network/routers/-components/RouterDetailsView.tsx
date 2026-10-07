@@ -1,4 +1,6 @@
 import { Fragment, ReactNode, useState } from "react"
+import { Trans, useLingui } from "@lingui/react/macro"
+import { trpcReact } from "@/client/trpcClient"
 import {
   Stack,
   DescriptionList,
@@ -8,11 +10,9 @@ import {
   TabNavigation,
   TabNavigationItem,
 } from "@cloudoperators/juno-ui-components"
-import { Trans, useLingui } from "@lingui/react/macro"
 import type { RouterDetails } from "@/server/Network/types/router"
-import ClipboardText from "@/client/components/ClipboardText"
-import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks"
+import ClipboardText from "@/client/components/ClipboardText"
 import { RouterInterfacesTable } from "./RouterInterfacesTable"
 
 type RouterDetailsTab = "external" | "internal"
