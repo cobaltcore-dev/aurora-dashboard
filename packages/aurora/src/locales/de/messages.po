@@ -2141,6 +2141,9 @@ msgstr ""
 msgid "General Image Data"
 msgstr "Allgemeine Image-Daten"
 
+msgid "General Information"
+msgstr ""
+
 msgid "Generate URL"
 msgstr "URL generieren"
 
