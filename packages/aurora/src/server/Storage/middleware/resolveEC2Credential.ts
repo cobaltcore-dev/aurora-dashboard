@@ -50,7 +50,18 @@ export async function resolveEC2Credential(ctx: AuroraPortalContext): Promise<Ec
     }
 
     const data: CredentialsResponse = await response.json()
-    const ec2Cred = data.credentials?.find((c) => c.type === "ec2" && c.project_id === projectId)
+    // A user may now hold any number of credentials in this project (see
+    // ec2CredentialRouter.create), so more than one match is possible here.
+    // Keystone's credential object carries no timestamp (`RawCredential` is only `id`,
+    // `type`, `project_id`, `blob`), so "oldest"/"newest" cannot be computed — there is no
+    // "correct" key to prefer. Sorting by `id` doesn't pick the "right" credential, only
+    // the SAME one on every request, which is all that's needed: before this feature a
+    // second key could never exist, so Keystone's (unspecified) response order never
+    // mattered.
+    const ec2Creds = (data.credentials ?? [])
+      .filter((c) => c.type === "ec2" && c.project_id === projectId)
+      .sort((a, b) => a.id.localeCompare(b.id))
+    const ec2Cred = ec2Creds[0]
 
     if (!ec2Cred) {
       return null

@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest"
 import { TRPCError } from "@trpc/server"
 import { containerRouter } from "./containerRouter"
 import { createCallerFactory, auroraRouter } from "../../../trpc"
-import { createMockContext, TEST_PROJECT_ID } from "./mockContext"
+import { createMockContext, TEST_PROJECT_ID, TEST_CEPH_REGION } from "./mockContext"
 import { S3_MAX_SCAN_PAGES } from "../../constants"
 
 // ============================================================================
@@ -610,5 +610,48 @@ describe("buckets.getState", () => {
         bucketName: TEST_BUCKET_NAME,
       })
     ).rejects.toThrow(new TRPCError({ code: "FORBIDDEN", message: "NO_CEPH_CREDENTIALS" }))
+  })
+})
+
+// ============================================================================
+// containers.status
+// ============================================================================
+
+describe("containers.status", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("returns hasCredentials: true with endpoint/region when credentials exist", async () => {
+    const ctx = createMockContext({ hasCredentials: true })
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.containers.status({ project_id: TEST_PROJECT_ID })
+
+    expect(result).toEqual({
+      hasCredentials: true,
+      endpoint: "https://test-ceph.example.com",
+      region: TEST_CEPH_REGION,
+    })
+  })
+
+  it("still returns endpoint/region when the user has no credentials", async () => {
+    const ctx = createMockContext({ hasCredentials: false })
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.containers.status({ project_id: TEST_PROJECT_ID })
+
+    expect(result.hasCredentials).toBe(false)
+    expect(result.endpoint).toBe("https://test-ceph.example.com")
+    expect(result.region).toBe(TEST_CEPH_REGION)
+  })
+
+  it("strips the Swift path suffix from the endpoint", async () => {
+    const ctx = createMockContext({ endpoint: "https://rgw.example.com/swift/v1/AUTH_x" })
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.containers.status({ project_id: TEST_PROJECT_ID })
+
+    expect(result.endpoint).toBe("https://rgw.example.com")
   })
 })

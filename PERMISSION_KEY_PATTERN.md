@@ -149,6 +149,7 @@ The operation being performed, using **consistent verbs**.
 
 // Credential Operations
 "storage:credentials:create" // Create EC2/S3 credentials for the current user
+"storage:credentials:delete" // Delete one of the current user's own EC2/S3 credentials
 ```
 
 > Note: read/list/view actions are deliberately never gated in this domain (or anywhere else in

@@ -29,6 +29,7 @@ export interface CephPermissions {
   canUpdateLifecycle: boolean
   canDeleteLifecycle: boolean
   canCreateCredential: boolean
+  canDeleteCredential: boolean
 }
 
 /**
@@ -64,6 +65,7 @@ const PERMISSION_MAP = {
   canUpdateLifecycle: "storage:container_lifecycle_rules:update",
   canDeleteLifecycle: "storage:container_lifecycle_rules:delete",
   canCreateCredential: "storage:credentials:create",
+  canDeleteCredential: "storage:credentials:delete",
 } as const satisfies Record<keyof CephPermissions, string>
 
 // Module-level constants, not computed in the hook body: this array is part of the tRPC query
@@ -81,8 +83,10 @@ const DEFAULT_PERMISSIONS: CephPermissions = Object.fromEntries(
  *
  * Defaults to all-false while loading or on error, so mutation controls stay hidden
  * (fail-closed) rather than being briefly or permanently shown for a permission the user
- * doesn't actually have - this also covers operators whose `storage.json` is missing one of
- * the newer Ceph rules.
+ * doesn't actually have. A `storage.json` missing one of the newer Ceph rules no longer needs
+ * this global fallback to stay safe: `createPermissionRouter`'s `checkSinglePermission` catches
+ * the policy engine's "rule not found" throw per key and returns `false` for just that key,
+ * so one missing rule hides only the one action it governs, not the whole Ceph permission set.
  */
 export function useCephPermissions(projectId: string) {
   const {

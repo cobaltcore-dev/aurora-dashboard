@@ -332,6 +332,36 @@ msgstr ""
 msgid "Access for project \"{targetTenant}\" was successfully revoked."
 msgstr ""
 
+msgid "Access key \"{accessKey}\" is ready to use. You can find it again any time under More Actions, Manage Credentials."
+msgstr ""
+
+msgid "Access key \"{accessKey}\" was not deleted: {reason}"
+msgstr ""
+
+msgid "Access key \"{accessKey}\" was permanently deleted."
+msgstr ""
+
+msgid "Access key <0>{accessKey}</0> will be permanently deleted."
+msgstr ""
+
+msgid "Access key created"
+msgstr ""
+
+msgid "Access key deleted"
+msgstr ""
+
+msgid "Access key ID"
+msgstr ""
+
+msgid "Access Key ID"
+msgstr ""
+
+msgid "Access key not deleted"
+msgstr ""
+
+msgid "Access Keys"
+msgstr ""
+
 msgid "Access Removed"
 msgstr ""
 
@@ -346,6 +376,9 @@ msgstr " Zugriffsstatus auf \"{newStatus}\" aktualisiert."
 
 msgid "Access Status:"
 msgstr "Zugriffsstatus:"
+
+msgid "Access to S3 Object Storage requires an access key (access key ID + secret access key)."
+msgstr ""
 
 msgid "Access Type"
 msgstr "Zugriffstyp"
@@ -465,6 +498,9 @@ msgid "Allowed Origins"
 msgstr ""
 
 msgid "Also delete all versions and all delete markers"
+msgstr ""
+
+msgid "An access key stops working the moment it is deleted. Any S3 client still configured with it loses access."
 msgstr ""
 
 msgid "An object with this name already exists at the destination and will be overwritten."
@@ -713,9 +749,6 @@ msgstr ""
 msgid "Checking if object exists..."
 msgstr "Checking if object exists..."
 
-msgid "Checking Permissions..."
-msgstr ""
-
 msgid "Checksum"
 msgstr "Prüfsumme"
 
@@ -726,9 +759,6 @@ msgid "Clear all"
 msgstr "Alle Filter löschen"
 
 msgid "Click \"Add Property\" to create one."
-msgstr ""
-
-msgid "Click the button below to automatically generate credentials for this project. You only need to do this once."
 msgstr ""
 
 msgid "Click to upload"
@@ -753,6 +783,12 @@ msgid "Confirm deletion of {displayName}. The object will be marked as deleted b
 msgstr ""
 
 msgid "Confirm deletion of {displayName}. The object will be permanently deleted. This action cannot be undone."
+msgstr ""
+
+msgid "Connection Details"
+msgstr ""
+
+msgid "Connection Details Unavailable"
 msgstr ""
 
 msgid "Container \"{containerName}\" properties were successfully updated."
@@ -968,6 +1004,12 @@ msgstr "Container \"{containerName}\" konnte nicht geleert werden: {errorMessage
 msgid "Could not enable versioning for bucket \"{bucketName}\": {errorMessage}"
 msgstr ""
 
+msgid "Could Not Load Access Keys"
+msgstr ""
+
+msgid "Could not load the secret for access key \"{access}\". Try again."
+msgstr ""
+
 msgid "Could not move \"{displayName}\": {errorMessage}"
 msgstr ""
 
@@ -1007,7 +1049,7 @@ msgstr "Container \"{containerName}\" konnte nicht aktualisiert werden: {errorMe
 msgid "Could not upload \"{objectName}\": {errorMessage}"
 msgstr "\"{objectName}\" konnte nicht hochgeladen werden: {errorMessage}"
 
-msgid "Could not verify whether you can create S3 credentials. Reload the page or try again later."
+msgid "Could not verify whether you can create access keys. Reload the page or try again later."
 msgstr ""
 
 msgid "Couldn't Open Container"
@@ -1018,6 +1060,12 @@ msgstr "Container \"{containerName}\" konnte nicht geöffnet werden — er exist
 
 msgid "Create"
 msgstr "Erstellen"
+
+msgid "Create Access Key"
+msgstr ""
+
+msgid "Create an access key to connect an S3 client to this project."
+msgstr ""
 
 msgid "Create Bucket"
 msgstr ""
@@ -1055,9 +1103,6 @@ msgstr "Neuen Ordner hier erstellen"
 msgid "Create New Image"
 msgstr "Neues Image erstellen"
 
-msgid "Create S3 Credentials"
-msgstr ""
-
 msgid "Create Security Group"
 msgstr "Security Group erstellen"
 
@@ -1066,9 +1111,6 @@ msgstr "Erstellt"
 
 msgid "Created At"
 msgstr "Erstellt am"
-
-msgid "Creating Credentials..."
-msgstr ""
 
 msgid "Creating Flavor..."
 msgstr ""
@@ -1141,6 +1183,12 @@ msgstr "Löschen"
 
 msgid "Delete {specKey}"
 msgstr "Lösche {specKey}"
+
+msgid "Delete Access Key"
+msgstr ""
+
+msgid "Delete access key {access}"
+msgstr ""
 
 msgid "Delete All Versions"
 msgstr ""
@@ -1475,6 +1523,9 @@ msgstr ""
 msgid "End of the range. Leave empty for a single port."
 msgstr ""
 
+msgid "Endpoint URL"
+msgstr ""
+
 msgid "Ensure ACL entries are valid — correct project IDs, user IDs, and formats are your responsibility. Invalid entries may silently grant or deny unintended access."
 msgstr "Stellen Sie sicher, dass ACL-Einträge gültig sind — korrekte Projekt-IDs, Benutzer-IDs und Formate liegen in Ihrer Verantwortung. Ungültige Einträge können stillschweigend unbeabsichtigten Zugriff gewähren oder verweigern."
 
@@ -1643,9 +1694,6 @@ msgstr "Fehler beim Kopieren der temporären URL in die Zwischenablage"
 msgid "Failed to Create Bucket"
 msgstr ""
 
-msgid "Failed to create credential: {errorMessage}"
-msgstr ""
-
 msgid "Failed to create extra specs. Please try again."
 msgstr "Fehler beim Erstellen des Extra-Specs. Bitte versuchen Sie es erneut."
 
@@ -1763,7 +1811,7 @@ msgstr "Fehler beim Generieren der temporären URL: {generalError}"
 msgid "Failed to Load Access"
 msgstr ""
 
-msgid "Failed to Load Buckets: {errorMessage}"
+msgid "Failed to Load Buckets"
 msgstr ""
 
 msgid "Failed to Load Container ACLs"
@@ -2105,6 +2153,9 @@ msgstr "Hardware-Spezifikationen"
 msgid "Hi"
 msgstr "Hallo"
 
+msgid "Hide"
+msgstr ""
+
 msgid "Hide ACLs Preview"
 msgstr "ACLs-Vorschau ausblenden"
 
@@ -2204,7 +2255,7 @@ msgstr ""
 msgid "Inside a project, objects are stored in containers. Containers are where you define access permissions and quotas."
 msgstr "Innerhalb eines Projekts werden Objekte in Containern gespeichert. Container sind der Ort, an dem Sie Zugriffsberechtigungen und Quotas definieren."
 
-msgid "Insufficient permissions"
+msgid "Insufficient Permissions"
 msgstr ""
 
 msgid "Invalid file format. Supported formats: {supportedFileFormats}"
@@ -2226,6 +2277,9 @@ msgid "IP Version"
 msgstr "IP-Version"
 
 msgid "IPv4 or IPv6 CIDR, e.g. 10.0.0.0/24 or ::/0. Leave empty to allow any IPv4 address."
+msgstr ""
+
+msgid "It stops working immediately: any S3 client still configured with it loses access. The key cannot be restored - a replacement is a new key, with a new secret."
 msgstr ""
 
 msgid "Keep multiple versions of objects. Cannot be fully disabled once enabled, only suspended."
@@ -2302,6 +2356,9 @@ msgstr "Zugriff auflisten"
 
 msgid "Load More"
 msgstr "Mehr laden"
+
+msgid "Loading Access Keys..."
+msgstr ""
 
 msgid "Loading Access..."
 msgstr ""
@@ -2387,6 +2444,9 @@ msgstr ""
 msgid "Loading..."
 msgstr "Lädt..."
 
+msgid "Loading…"
+msgstr ""
+
 msgid "MAC Address"
 msgstr "MAC-Adresse"
 
@@ -2398,6 +2458,12 @@ msgstr "Zugriff verwalten - {flavorName}"
 
 msgid "Manage Access for Image - {imageName}"
 msgstr "Zugriff für Image verwalten - {imageName}"
+
+msgid "Manage Credentials"
+msgstr ""
+
+msgid "Manage S3 Credentials"
+msgstr ""
 
 msgid "Max Age"
 msgstr ""
@@ -2551,6 +2617,9 @@ msgstr "new-folder-name"
 
 msgid "No"
 msgstr "Nein"
+
+msgid "No Access Keys"
+msgstr ""
 
 msgid "No buckets found"
 msgstr ""
@@ -2996,6 +3065,9 @@ msgstr "Lese-ACLs"
 msgid "Read ACLs — Preview"
 msgstr "Lese-ACLs — Vorschau"
 
+msgid "Region"
+msgstr ""
+
 msgid "Reject"
 msgstr "Ablehnen"
 
@@ -3048,6 +3120,9 @@ msgid "Restore Folder"
 msgstr ""
 
 msgid "Restore Version"
+msgstr ""
+
+msgid "Reveal"
 msgstr ""
 
 msgid "Root"
@@ -3107,6 +3182,9 @@ msgstr "RX/TX Factor"
 msgid "RX/TX Factor must be an integer ≥ 1."
 msgstr "RX/TX Faktor muss eine ganze Zahl ≥ 1 sein."
 
+msgid "S3 Authentication Failed"
+msgstr ""
+
 msgid "S3 bucket names must be 3-63 characters long and contain only lowercase letters, numbers, periods, and hyphens. They must start and end with a letter or number, and be globally unique within the cluster."
 msgstr ""
 
@@ -3163,6 +3241,12 @@ msgstr ""
 
 msgid "Search..."
 msgstr "Suchen..."
+
+msgid "Secret access key"
+msgstr ""
+
+msgid "Secret Access Key"
+msgstr ""
 
 msgid "Security"
 msgstr "Sicherheit"
@@ -3659,6 +3743,9 @@ msgstr "Das angegebene Projekt existiert nicht oder Sie haben keine Berechtigung
 msgid "The specified user has access. A token for the user (scoped to any project) must be included in the request."
 msgstr "Der angegebene Benutzer hat Zugriff. Ein Token für den Benutzer (auf ein beliebiges Projekt bezogen) muss in der Anfrage enthalten sein."
 
+msgid "The storage backend rejected the request signed with your access key. Check your keys in Manage Credentials, or contact your administrator if the problem persists."
+msgstr ""
+
 msgid "The tenant ID provided is invalid. Please check your input."
 msgstr "Die angegebene Projekt-ID ist ungültig. Bitte überprüfen Sie Ihre Eingabe."
 
@@ -3818,6 +3905,9 @@ msgstr "Dies ist ein öffentlicher Flavor. Alle Projekte haben Zugriff darauf."
 msgid "This is a public image. All users have access to it. Explicit sharing is not needed."
 msgstr "Dies ist ein öffentliches Image. Alle Benutzer haben Zugriff darauf. Eine explizite Freigabe ist nicht erforderlich."
 
+msgid "This is the last access key in this project. Without one, S3 Object Storage is out of reach here in the dashboard as well as from any S3 client. The buckets and their contents are not deleted, and creating a new key restores access to them."
+msgstr ""
+
 msgid "This key is reserved and managed separately"
 msgstr "Dieser Schlüssel ist reserviert und wird separat verwaltet"
 
@@ -3867,9 +3957,6 @@ msgid "This version will be permanently deleted and cannot be restored."
 msgstr ""
 
 msgid "This will permanently delete all objects from {totalCount} selected {totalCount, plural, one {bucket} other {buckets}}. This action cannot be undone."
-msgstr ""
-
-msgid "To access S3 Object Storage, you need EC2 credentials (access key + secret key). These credentials authenticate your requests to the Ceph storage backend."
 msgstr ""
 
 msgid "To confirm type <0>delete</0> in the field below."
@@ -4190,7 +4277,10 @@ msgstr "Sie haben keine Berechtigung, Metadata für diesen Flavor zu erstellen."
 msgid "You don't have permission to create flavors in this project."
 msgstr "Sie sind nicht berechtigt, Flavors zu erstellen. Bitte melden Sie sich erneut an."
 
-msgid "You don't have permission to create S3 credentials. Please contact your administrator to request access to S3 Object Storage."
+msgid "You don't have permission to create or delete S3 access keys. Contact your administrator to request access."
+msgstr ""
+
+msgid "You don't have permission to create S3 access keys. Contact your administrator to request access."
 msgstr ""
 
 msgid "You don't have permission to delete extra specs for this flavor."
@@ -4198,6 +4288,9 @@ msgstr "Sie haben keine Berechtigung, Metadata für diesen Flavor zu löschen."
 
 msgid "You don't have permission to delete flavors in this project."
 msgstr "Sie haben keine Berechtigung, Flavors in diesem Projekt zu löschen."
+
+msgid "You don't have permission to delete S3 access keys. Contact your administrator to request access."
+msgstr ""
 
 msgid "You don't have permission to remove tenant access from this flavor."
 msgstr "Sie haben keine Berechtigung, Projektzugriffe von diesem Flavor zu entfernen."
@@ -4214,10 +4307,7 @@ msgstr "Sie haben keine Berechtigung, die Details dieses Flavors anzuzeigen."
 msgid "Your action is required"
 msgstr "Ihre Aktion ist erforderlich"
 
-msgid "Your credentials are valid but you don't have permission to perform this operation. Please contact your administrator to grant you the necessary permissions."
-msgstr ""
-
-msgid "Your S3 credentials are invalid or expired. Please try creating new credentials or contact your administrator."
+msgid "Your credentials are valid but you don't have permission to perform this operation. Contact your administrator to grant you the necessary permissions."
 msgstr ""
 
 msgid "Your session has expired. Please log in again."
