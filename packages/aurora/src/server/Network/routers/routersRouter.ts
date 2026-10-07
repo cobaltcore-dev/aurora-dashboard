@@ -45,6 +45,7 @@ import {
   ROUTER_INTERFACE_DEVICE_OWNERS,
   isRouterInterfacePort,
   getRouterExtensionFlags,
+  requestOrThrow,
 } from "../helpers/routerHelpers"
 import { getNetworkService, parseOrThrow } from "../helpers/index"
 
@@ -175,10 +176,10 @@ export const routersRouter = {
         const network = getNetworkService(ctx)
 
         const queryParams = appendQueryParamsFromObject(openstackFilters, { keyMap: LIST_ROUTERS_QUERY_KEY_MAP })
-        const response = await network.get(withQuery(ROUTERS_BASE_URL, queryParams))
-        if (!response.ok) {
-          throw RouterErrorHandlers.list(response)
-        }
+        const response = await requestOrThrow(
+          () => network.get(withQuery(ROUTERS_BASE_URL, queryParams)),
+          RouterErrorHandlers.list
+        )
 
         const data = await response.json()
         const { routers } = parseOrThrow(RouterListResponseSchema, data, "routersRouter.list")
@@ -220,10 +221,8 @@ export const routersRouter = {
       const { router_id } = input
       const network = getNetworkService(ctx)
 
-      const response = await network.get(routerUrl(router_id))
-      if (!response.ok) {
-        throw RouterErrorHandlers.get(response, router_id)
-      }
+      const url = routerUrl(router_id)
+      const response = await requestOrThrow(() => network.get(url), RouterErrorHandlers.get, router_id)
 
       const data = await response.json()
       const router = parseOrThrow(RouterResponseSchema, data, "routersRouter.getById").router
@@ -253,10 +252,10 @@ export const routersRouter = {
         },
       }
 
-      const response = await network.post(ROUTERS_BASE_URL, requestBody)
-      if (!response.ok) {
-        throw RouterErrorHandlers.create(response)
-      }
+      const response = await requestOrThrow(
+        () => network.post(ROUTERS_BASE_URL, requestBody),
+        RouterErrorHandlers.create
+      )
 
       const data = await response.json()
       return parseOrThrow(RouterResponseSchema, data, "routersRouter.create").router
@@ -274,10 +273,12 @@ export const routersRouter = {
         throw new TRPCError({ code: "BAD_REQUEST", message: "No fields provided to update" })
       }
 
-      const response = await network.put(routerUrl(router_id), { router: updateFields })
-      if (!response.ok) {
-        throw RouterErrorHandlers.update(response, router_id)
-      }
+      const url = routerUrl(router_id)
+      const response = await requestOrThrow(
+        () => network.put(url, { router: updateFields }),
+        RouterErrorHandlers.update,
+        router_id
+      )
 
       const data = await response.json()
       return parseOrThrow(RouterResponseSchema, data, "routersRouter.update").router
@@ -295,10 +296,12 @@ export const routersRouter = {
           router: { external_gateway_info: buildExternalGatewayInfoBody(external_gateway_info) },
         }
 
-        const response = await network.put(routerUrl(router_id), requestBody)
-        if (!response.ok) {
-          throw RouterErrorHandlers.setGateway(response, router_id)
-        }
+        const url = routerUrl(router_id)
+        const response = await requestOrThrow(
+          () => network.put(url, requestBody),
+          RouterErrorHandlers.setGateway,
+          router_id
+        )
 
         const data = await response.json()
         return parseOrThrow(RouterResponseSchema, data, "routersRouter.setGateway").router
@@ -311,10 +314,12 @@ export const routersRouter = {
       const network = getNetworkService(ctx)
 
       // An empty object removes the gateway (same as `openstack router unset --external-gateway`)
-      const response = await network.put(routerUrl(router_id), { router: { external_gateway_info: {} } })
-      if (!response.ok) {
-        throw RouterErrorHandlers.clearGateway(response, router_id)
-      }
+      const url = routerUrl(router_id)
+      const response = await requestOrThrow(
+        () => network.put(url, { router: { external_gateway_info: {} } }),
+        RouterErrorHandlers.clearGateway,
+        router_id
+      )
 
       const data = await response.json()
       return parseOrThrow(RouterResponseSchema, data, "routersRouter.clearGateway").router
@@ -329,10 +334,12 @@ export const routersRouter = {
         const network = getNetworkService(ctx)
 
         const requestBody = subnet_id ? { subnet_id } : { port_id }
-        const response = await network.put(routerUrl(router_id, "add_router_interface"), requestBody)
-        if (!response.ok) {
-          throw RouterErrorHandlers.addInterface(response, router_id)
-        }
+        const url = routerUrl(router_id, "add_router_interface")
+        const response = await requestOrThrow(
+          () => network.put(url, requestBody),
+          RouterErrorHandlers.addInterface,
+          router_id
+        )
 
         const data = await response.json()
         return parseOrThrow(RouterInterfaceInfoSchema, data, "routersRouter.addInterface")
@@ -347,10 +354,12 @@ export const routersRouter = {
         const network = getNetworkService(ctx)
 
         const requestBody = subnet_id ? { subnet_id } : { port_id }
-        const response = await network.put(routerUrl(router_id, "remove_router_interface"), requestBody)
-        if (!response.ok) {
-          throw RouterErrorHandlers.removeInterface(response, router_id)
-        }
+        const url = routerUrl(router_id, "remove_router_interface")
+        const response = await requestOrThrow(
+          () => network.put(url, requestBody),
+          RouterErrorHandlers.removeInterface,
+          router_id
+        )
 
         const data = await response.json()
         return parseOrThrow(RouterInterfaceInfoSchema, data, "routersRouter.removeInterface")
@@ -363,10 +372,8 @@ export const routersRouter = {
       const network = getNetworkService(ctx)
 
       // OpenStack DELETE returns 204 No Content on success; 409 if interfaces are still attached
-      const response = await network.del(routerUrl(router_id))
-      if (!response.ok) {
-        throw RouterErrorHandlers.delete(response, router_id)
-      }
+      const url = routerUrl(router_id)
+      await requestOrThrow(() => network.del(url), RouterErrorHandlers.delete, router_id)
 
       return true
     }, "delete router")
@@ -386,10 +393,11 @@ export const routersRouter = {
           device_id: router_id,
           fields: ["id", "name", "network_id", "device_owner", "status", "admin_state_up", "mac_address", "fixed_ips"],
         })
-        const portsResponse = await network.get(withQuery(PORTS_BASE_URL, portParams))
-        if (!portsResponse.ok) {
-          throw RouterErrorHandlers.listInterfaces(portsResponse, router_id)
-        }
+        const portsResponse = await requestOrThrow(
+          () => network.get(withQuery(PORTS_BASE_URL, portParams)),
+          RouterErrorHandlers.listInterfaces,
+          router_id
+        )
 
         const portsData = await portsResponse.json()
         const { ports } = parseOrThrow(RouterPortListResponseSchema, portsData, "routersRouter.listInterfaces")
@@ -414,10 +422,10 @@ export const routersRouter = {
       return withErrorHandling(async () => {
         const network = getNetworkService(ctx)
 
-        const response = await network.get(EXTENSIONS_BASE_URL)
-        if (!response.ok) {
-          throw RouterErrorHandlers.listExtensions(response)
-        }
+        const response = await requestOrThrow(
+          () => network.get(EXTENSIONS_BASE_URL),
+          RouterErrorHandlers.listExtensions
+        )
 
         const data = await response.json()
         const { extensions } = parseOrThrow(ExtensionListResponseSchema, data, "routersRouter.listExtensions")

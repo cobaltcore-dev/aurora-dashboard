@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { TRPCError } from "@trpc/server"
+import { SignalOpenstackApiError } from "@cobaltcore-dev/signal-openstack"
 import { createCallerFactory, auroraRouter } from "../../trpc"
 import { routersRouter } from "./routersRouter"
 import { AuroraPortalContext } from "@/server/context"
@@ -101,6 +102,8 @@ const createMockContext = (opts?: {
   mockPorts?: unknown[]
   mockSubnets?: unknown[]
   mockExtensions?: unknown[]
+  /** "throw" (default) mirrors signal-openstack: non-2xx rejects with SignalOpenstackApiError. "response" resolves with ok: false. */
+  errorMode?: "throw" | "response"
 }) => {
   const {
     noNetworkService = false,
@@ -115,6 +118,7 @@ const createMockContext = (opts?: {
     mockPorts = defaultPorts,
     mockSubnets = defaultSubnets,
     mockExtensions = defaultExtensions,
+    errorMode = "throw",
   } = opts || {}
 
   const ok = httpStatus >= 200 && httpStatus < 300
@@ -125,19 +129,21 @@ const createMockContext = (opts?: {
     json: vi.fn().mockResolvedValue(parseError ? { invalid: "data" } : body),
   })
 
+  const reply = (body: unknown, overrides: { ok?: boolean; status?: number } = {}) => {
+    const res = response(body, overrides)
+    if (!res.ok && errorMode === "throw") return Promise.reject(new SignalOpenstackApiError(res.statusText, res.status))
+    return Promise.resolve(res)
+  }
+
   const networkGetMock = vi.fn().mockImplementation((url: string) => {
     if (url.startsWith("v2.0/subnets")) {
-      return Promise.resolve(
-        subnetsFail ? response({}, { ok: false, status: 500 }) : response({ subnets: mockSubnets }, { ok: true })
-      )
+      return subnetsFail ? reply({}, { ok: false, status: 500 }) : reply({ subnets: mockSubnets }, { ok: true })
     }
     if (url.startsWith("v2.0/networks")) {
-      return Promise.resolve(
-        networksFail ? response({}, { ok: false, status: 403 }) : response({ networks: defaultNetworks }, { ok: true })
-      )
+      return networksFail ? reply({}, { ok: false, status: 403 }) : reply({ networks: defaultNetworks }, { ok: true })
     }
     if (url.startsWith("v2.0/ports")) {
-      if (portsFail) return Promise.resolve(response({}, { ok: false, status: 500 }))
+      if (portsFail) return reply({}, { ok: false, status: 500 })
       // Honour device_id / device_owner filters like Neutron does
       const params = new URLSearchParams(url.split("?")[1])
       const deviceIds = params.getAll("device_id")
@@ -147,25 +153,25 @@ const createMockContext = (opts?: {
           (deviceIds.length === 0 || deviceIds.includes(port.device_id ?? "")) &&
           (deviceOwners.length === 0 || deviceOwners.includes(port.device_owner))
       )
-      return Promise.resolve(response({ ports }))
+      return reply({ ports })
     }
-    if (url.startsWith("v2.0/extensions")) return Promise.resolve(response({ extensions: mockExtensions }))
-    if (url.startsWith("v2.0/routers/")) return Promise.resolve(response({ router: mockRouters[0] }))
-    return Promise.resolve(response({ routers: mockRouters }))
+    if (url.startsWith("v2.0/extensions")) return reply({ extensions: mockExtensions })
+    if (url.startsWith("v2.0/routers/")) return reply({ router: mockRouters[0] })
+    return reply({ routers: mockRouters })
   })
 
-  const networkPostMock = vi.fn().mockImplementation(() => Promise.resolve(response({ router: mockRouters[0] })))
+  const networkPostMock = vi.fn().mockImplementation(() => reply({ router: mockRouters[0] }))
 
   const networkPutMock = vi.fn().mockImplementation((url: string) => {
     const isInterfaceAction = url.endsWith("/add_router_interface") || url.endsWith("/remove_router_interface")
-    return Promise.resolve(response(isInterfaceAction ? defaultInterfaceInfo : { router: mockRouters[0] }))
+    return reply(isInterfaceAction ? defaultInterfaceInfo : { router: mockRouters[0] })
   })
 
-  const networkDelMock = vi
-    .fn()
-    .mockImplementation(() =>
-      Promise.resolve({ ok, status: httpStatus, statusText: statusText ?? (ok ? "No Content" : "Error") })
-    )
+  const networkDelMock = vi.fn().mockImplementation(() => {
+    const res = { ok, status: httpStatus, statusText: statusText ?? (ok ? "No Content" : "Error") }
+    if (!ok && errorMode === "throw") return Promise.reject(new SignalOpenstackApiError(res.statusText, res.status))
+    return Promise.resolve(res)
+  })
 
   const mockOpenstackSession = {
     getToken: vi.fn().mockReturnValue({
@@ -985,5 +991,61 @@ describe("routersRouter.listExtensions", () => {
     await expect(caller.routers.listExtensions({ project_id: TEST_PROJECT_ID })).rejects.toThrow(
       new TRPCError({ code: "PARSE_ERROR", message: "Failed to parse response in routersRouter.listExtensions" })
     )
+  })
+})
+
+describe("routersRouter error mapping", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("maps a SignalOpenstackApiError to the router handler instead of INTERNAL_SERVER_ERROR", async () => {
+    const caller = createCaller(
+      createMockContext({ httpStatus: 404, statusText: "Router router-x could not be found" })
+    )
+
+    await expect(caller.routers.getById({ project_id: TEST_PROJECT_ID, router_id: "router-x" })).rejects.toThrow(
+      new TRPCError({ code: "NOT_FOUND", message: "Router router-x was not found." })
+    )
+  })
+
+  it.each([401, 403, 404, 409])("preserves status %i thrown by signal-openstack", async (status) => {
+    const caller = createCaller(createMockContext({ httpStatus: status, statusText: "Neutron error" }))
+
+    await expect(
+      caller.routers.delete({ project_id: TEST_PROJECT_ID, router_id: "router-1" })
+    ).rejects.not.toMatchObject({ code: "INTERNAL_SERVER_ERROR" })
+  })
+
+  it("detects OverQuota from the thrown error message", async () => {
+    const caller = createCaller(
+      createMockContext({ httpStatus: 409, statusText: "Quota exceeded for resources: ['router']." })
+    )
+
+    await expect(caller.routers.create({ project_id: TEST_PROJECT_ID, name: "r1" })).rejects.toMatchObject({
+      code: "CONFLICT",
+      message: expect.stringMatching(/quota exceeded/i),
+    })
+  })
+
+  it("still maps non-ok responses from clients that resolve instead of throwing", async () => {
+    const caller = createCaller(createMockContext({ httpStatus: 409, statusText: "Conflict", errorMode: "response" }))
+
+    await expect(caller.routers.delete({ project_id: TEST_PROJECT_ID, router_id: "router-1" })).rejects.toThrow(
+      new TRPCError({
+        code: "CONFLICT",
+        message: "The router still has attached interfaces. Remove all interfaces before deleting it.",
+      })
+    )
+  })
+
+  it("rethrows unrelated errors unchanged to withErrorHandling", async () => {
+    const ctx = createMockContext()
+    ctx.__networkGetMock.mockRejectedValueOnce(new Error("socket hang up"))
+    const caller = createCaller(ctx)
+
+    await expect(caller.routers.list({ project_id: TEST_PROJECT_ID })).rejects.toMatchObject({
+      code: "INTERNAL_SERVER_ERROR",
+    })
   })
 })

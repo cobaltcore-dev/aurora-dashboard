@@ -564,9 +564,15 @@ type RouterInterface = {
 
 `RouterErrorHandlers` in `routerHelpers.ts` is built on the shared network `ErrorHandler("Router", overrides)`:
 
-- Default handlers (400, 401, 403, 404, 409, 412) come from `errorHandling.ts` and include Neutron's `statusText`.
+- Default handlers (400, 401, 403, 404, 409, 412) come from `errorHandling.ts` and include Neutron's error message.
 - Router-specific overrides provide clearer messages for 404/409 (and 400 on `addInterface`).
-- **Quota detection:** Neutron returns `OverQuota` as `409 Conflict` (not 413). Every 409 override checks `statusText` for "quota" and returns a quota message instead of the operation-specific one.
+- **Quota detection:** Neutron returns `OverQuota` as `409 Conflict` (not 413). Every 409 override checks the error message for "quota" and returns a quota message instead of the operation-specific one.
+
+`requestOrThrow(request, handler, resourceLabel?)` wraps every Neutron call of the main (non best-effort) requests:
+
+- signal-openstack does not resolve non-2xx responses. It rejects with `SignalOpenstackApiError(message, statusCode)`, where `message` is Neutron's message parsed from the JSON body (`NeutronError.message`). `requestOrThrow` catches it and passes `{ status: statusCode, statusText: message }` to the operation's handler, so the status code and router-specific messages reach the UI instead of a generic `INTERNAL_SERVER_ERROR`.
+- Network failures are wrapped by the client as `SignalOpenstackApiError` with status 500 and map to the default error.
+- Other errors (e.g. `SignalOpenstackError` for an invalid resource ID or a canceled request) are rethrown unchanged to `withErrorHandling`.
 
 ### Response Shaping
 
@@ -617,9 +623,9 @@ UI actions are gated via `network.canUser` using the existing keys in `permissio
 
 ### Backend Tests
 
-- `routers/routersRouter.test.ts` - procedure tests for all endpoints: success paths, request URLs and bodies, input validation, session/service errors, parse errors and Neutron error mapping
+- `routers/routersRouter.test.ts` - procedure tests for all endpoints: success paths, request URLs and bodies, input validation, session/service errors, parse errors and Neutron error mapping. The network service mock rejects non-2xx responses with `SignalOpenstackApiError`, like the real client (`errorMode: "response"` resolves with `ok: false` instead)
 - `types/router.test.ts` - response and input schema validation, IP/CIDR validators, interface and gateway refinements
-- `helpers/routerHelpers.test.ts` - error handler overrides (404/409, OverQuota detection, 400 detail), BFF filters, interface building, extension flags
+- `helpers/routerHelpers.test.ts` - error handler overrides (404/409, OverQuota detection, 400 detail), `requestOrThrow` error dispatch, BFF filters, interface building, extension flags
 - `helpers/errorHandling.test.ts` - `Router` resource name in the shared error handler
 
 ### Frontend Tests
