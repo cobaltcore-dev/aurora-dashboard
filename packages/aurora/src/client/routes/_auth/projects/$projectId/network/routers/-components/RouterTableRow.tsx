@@ -6,6 +6,7 @@ import {
   PopupMenu,
   PopupMenuItem,
   PopupMenuOptions,
+  Stack,
 } from "@cloudoperators/juno-ui-components"
 import type { RouterListItem } from "@/server/Network/types/router"
 import { useProjectId } from "@/client/hooks"
@@ -16,10 +17,10 @@ interface RouterTableRowProps {
 
 /** Primary value on top, optional secondary value below in a lighter color. */
 const TwoLineCell = ({ primary, secondary }: { primary: string; secondary?: string }) => (
-  <div className="flex min-w-0 flex-col">
+  <Stack direction="vertical" gap="0.5" className="min-w-0">
     <span className="break-all">{primary}</span>
     {secondary && <span className="text-theme-light text-sm break-all">{secondary}</span>}
-  </div>
+  </Stack>
 )
 
 /**
@@ -50,28 +51,28 @@ export const RouterTableRow = ({ router }: RouterTableRowProps) => {
       </DataGridCell>
       <DataGridCell>
         {gateway?.external_fixed_ips && gateway.external_fixed_ips.length > 0 ? (
-          <div className="flex flex-col gap-1">
+          <Stack direction="vertical" gap="1">
             {gateway.external_fixed_ips.map((fixedIp) => (
               <TwoLineCell
                 key={`${fixedIp.subnet_id}-${fixedIp.ip_address}`}
                 primary={fixedIp.ip_address}
-                secondary={fixedIp.subnet_name}
+                secondary={fixedIp.subnet_name || fixedIp.subnet_id}
               />
             ))}
-          </div>
+          </Stack>
         ) : (
           "–"
         )}
       </DataGridCell>
       <DataGridCell>
         {router.private_networks && router.private_networks.length > 0 ? (
-          <div className="flex flex-col gap-1">
+          <Stack direction="vertical" gap="1">
             {router.private_networks.map((privateNetwork) => (
               <span key={privateNetwork.network_id} className="break-all">
                 {privateNetwork.network_name || privateNetwork.network_id}
               </span>
             ))}
-          </div>
+          </Stack>
         ) : (
           "–"
         )}

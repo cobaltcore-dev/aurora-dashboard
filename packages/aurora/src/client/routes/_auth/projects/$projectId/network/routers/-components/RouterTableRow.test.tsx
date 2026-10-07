@@ -134,7 +134,7 @@ describe("RouterTableRow", () => {
       expect(screen.queryByText("ext-subnet-1")).not.toBeInTheDocument()
     })
 
-    it("renders only the external IP when the subnet name is unknown", async () => {
+    it("falls back to the subnet ID when the subnet name is unknown", async () => {
       renderComponent({
         ...mockRouter,
         external_gateway_info: {
@@ -146,7 +146,7 @@ describe("RouterTableRow", () => {
       await waitFor(() => {
         expect(screen.getByText("172.24.4.10")).toBeInTheDocument()
       })
-      expect(screen.queryByText("ext-subnet-1")).not.toBeInTheDocument()
+      expect(screen.getByText("ext-subnet-1")).toBeInTheDocument()
     })
 
     it("renders all external fixed IPs", async () => {
