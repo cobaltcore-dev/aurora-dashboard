@@ -1,5 +1,12 @@
-import { DataGrid, DataGridCell, DataGridHeadCell, DataGridRow, Status } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
+import {
+  DataGrid,
+  DataGridCell,
+  DataGridHeadCell,
+  DataGridRow,
+  Stack,
+  Status,
+} from "@cloudoperators/juno-ui-components"
 import type { RouterInterface } from "@/server/Network/types/router"
 
 interface RouterInterfacesTableProps {
@@ -33,21 +40,23 @@ export const RouterInterfacesTable = ({ interfaces, isLoading, isError, error }:
         interfaces.map((routerInterface) => (
           <DataGridRow key={routerInterface.port_id} data-testid={`router-interface-row-${routerInterface.port_id}`}>
             <DataGridCell>
-              <div className="flex min-w-0 flex-col">
+              <Stack direction="vertical" gap="0.5" className="min-w-0">
                 <span className="break-all">{routerInterface.network_name || routerInterface.network_id}</span>
                 {routerInterface.network_name && (
                   <span className="text-theme-light text-sm break-all">{routerInterface.network_id}</span>
                 )}
-              </div>
+              </Stack>
             </DataGridCell>
             <DataGridCell>
-              <div className="flex flex-col">
-                {routerInterface.fixed_ips.length > 0
-                  ? routerInterface.fixed_ips.map((fixedIp) => (
-                      <span key={`${fixedIp.subnet_id}-${fixedIp.ip_address}`}>{fixedIp.ip_address}</span>
-                    ))
-                  : "—"}
-              </div>
+              {routerInterface.fixed_ips.length > 0 ? (
+                <Stack direction="vertical" gap="0.5">
+                  {routerInterface.fixed_ips.map((fixedIp) => (
+                    <span key={`${fixedIp.subnet_id}-${fixedIp.ip_address}`}>{fixedIp.ip_address}</span>
+                  ))}
+                </Stack>
+              ) : (
+                "—"
+              )}
             </DataGridCell>
             <DataGridCell>{routerInterface.device_owner}</DataGridCell>
             <DataGridCell>
