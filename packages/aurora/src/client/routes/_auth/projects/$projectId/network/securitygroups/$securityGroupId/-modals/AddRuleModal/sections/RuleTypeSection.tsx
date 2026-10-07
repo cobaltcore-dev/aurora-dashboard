@@ -1,6 +1,7 @@
 import { FormRow, Select, SelectOption } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
 import { RULE_PRESETS } from "../rulePresets"
+import { useRuleFieldError } from "../validation/fieldErrors"
 import type { AddRuleFormApi } from "../AddRuleModal"
 
 interface RuleTypeSectionProps {
@@ -10,11 +11,12 @@ interface RuleTypeSectionProps {
 
 export function RuleTypeSection({ form, disabled = false }: RuleTypeSectionProps) {
   const { t } = useLingui()
+  const ruleTypeError = useRuleFieldError(form, "ruleType")
 
   return (
     <form.Field name="ruleType" mode="value">
       {(field) => (
-        <FormRow className="mb-6">
+        <FormRow>
           <Select
             id="ruleType"
             label={t`Rule Type`}
@@ -22,16 +24,6 @@ export function RuleTypeSection({ form, disabled = false }: RuleTypeSectionProps
             onChange={(value) => {
               const newRuleType = String(value || "")
               field.handleChange(newRuleType)
-
-              // Don't update dependent fields if no preset is selected
-              if (!newRuleType) {
-                form.setFieldValue("protocol", null)
-                form.setFieldValue("portFrom", "")
-                form.setFieldValue("portTo", "")
-                form.setFieldValue("icmpType", "")
-                form.setFieldValue("icmpCode", "")
-                return
-              }
 
               // Update dependent fields when preset changes
               const selectedPreset = RULE_PRESETS.find((p) => p.value === newRuleType)
@@ -43,9 +35,15 @@ export function RuleTypeSection({ form, disabled = false }: RuleTypeSectionProps
               // For TCP/UDP presets: update port fields
               if (selectedPreset.protocol === "tcp" || selectedPreset.protocol === "udp") {
                 if (selectedPreset.portRangeMin !== null && selectedPreset.portRangeMax !== null) {
-                  // Preset has predefined ports (e.g., HTTP = 80)
+                  // Preset has predefined ports (e.g., HTTP = 80). A single port leaves "Port (to)" empty,
+                  // the same way a custom rule enters one
                   form.setFieldValue("portFrom", String(selectedPreset.portRangeMin))
-                  form.setFieldValue("portTo", String(selectedPreset.portRangeMax))
+                  form.setFieldValue(
+                    "portTo",
+                    selectedPreset.portRangeMax !== selectedPreset.portRangeMin
+                      ? String(selectedPreset.portRangeMax)
+                      : ""
+                  )
                 } else {
                   // Custom rule - clear ports so user can enter them
                   form.setFieldValue("portFrom", "")
@@ -57,21 +55,20 @@ export function RuleTypeSection({ form, disabled = false }: RuleTypeSectionProps
                 form.setFieldValue("portTo", "")
               }
 
-              // Clear ICMP fields for non-ICMP protocols
-              if (selectedPreset.protocol !== "icmp" && selectedPreset.protocol !== "ipv6-icmp") {
-                form.setFieldValue("icmpType", "")
-                form.setFieldValue("icmpCode", "")
-              }
+              // No preset carries an ICMP type/code: start from "all types and codes" on every change
+              form.setFieldValue("icmpType", "")
+              form.setFieldValue("icmpCode", "")
             }}
+            onBlur={field.handleBlur}
             disabled={disabled}
+            placeholder={t`Select a rule type...`}
+            required
+            errortext={ruleTypeError}
+            helptext={t`Service presets fill in the protocol and port. Use a custom TCP or UDP rule to set the ports, a custom ICMP rule to set the ICMP type and code, or Other Protocol for any other protocol.`}
           >
-            {RULE_PRESETS.map((preset) => {
-              // Render placeholder option with translation
-              if (preset.value === "") {
-                return <SelectOption key={preset.value} value={preset.value} label={t`Select a rule type...`} />
-              }
-              return <SelectOption key={preset.value} value={preset.value} label={preset.label} />
-            })}
+            {RULE_PRESETS.map((preset) => (
+              <SelectOption key={preset.value} value={preset.value} label={preset.label} />
+            ))}
           </Select>
         </FormRow>
       )}

@@ -134,6 +134,20 @@ function RouteComponent() {
     onFilterChange: handleFilterChange,
   }
 
+  // Fetch the project's security groups: they name rule remotes in the table, the delete dialog and the search,
+  // and fill the Add Rule dropdown. The current group stays in the list:
+  // a rule whose remote is its own group lets the group's instances reach each other (like Neutron's "default" group).
+  const { data: securityGroups } = trpcReact.network.securityGroup.list.useQuery({ project_id: projectId })
+  const availableSecurityGroups = useMemo(() => {
+    return (securityGroups || []).map((sg) => {
+      const name = sg.name || sg.id
+      return {
+        id: sg.id,
+        name: sg.id === securityGroupId ? t`${name} (this group)` : name,
+      }
+    })
+  }, [securityGroups, securityGroupId, t])
+
   // Use custom hook for logic (now includes filtering/sorting)
   const {
     securityGroup,
@@ -159,23 +173,15 @@ function RouteComponent() {
     handleDeleteSecurityGroup,
     handleDeleteRule,
     handleCreateRule,
+    clearCreateRuleError,
+    clearDeleteRuleError,
   } = useSecurityGroupDetails({
     securityGroupId,
     filterControls,
+    securityGroups: availableSecurityGroups,
   })
 
   useSetBreadcrumb(Route.id, securityGroup?.name ?? undefined)
-
-  // Fetch available security groups for the Add Rule dropdown
-  const { data: securityGroups } = trpcReact.network.securityGroup.list.useQuery({ project_id: projectId })
-  const availableSecurityGroups = useMemo(() => {
-    return (securityGroups || [])
-      .filter((sg) => sg.id !== securityGroupId) // Exclude current group
-      .map((sg) => ({
-        id: sg.id,
-        name: sg.name || sg.id,
-      }))
-  }, [securityGroups, securityGroupId])
 
   const handleBack = () => {
     navigate({
@@ -244,8 +250,10 @@ function RouteComponent() {
   // Groups owned by another project are shared read-only copies: they cannot be edited or deleted,
   // the same rule the list applies to its row actions.
   const isReadOnly = Boolean(securityGroup.project_id && securityGroup.project_id !== projectId)
-  const canEdit = safePermissions.canUpdate && !isReadOnly
-  const canDelete = safePermissions.canDelete && !isReadOnly
+  // Neutron does not let the project's default group be renamed, and only an admin can delete it
+  const canModify = !isReadOnly && securityGroup.name !== "default"
+  const canEdit = safePermissions.canUpdate && canModify
+  const canDelete = safePermissions.canDelete && canModify
 
   const headerActions = (canEdit || canDelete) && (
     <Stack gap="0.5" alignment="center">
@@ -273,7 +281,7 @@ function RouteComponent() {
       await handleDeleteSecurityGroup()
       handleBack()
     } catch {
-      // onError surfaces the toast; the dialog keeps showing deleteError
+      // The dialog stays open and shows deleteError
     }
   }
 
@@ -292,6 +300,8 @@ function RouteComponent() {
         onCreateRule={handleCreateRule}
         isCreatingRule={isCreatingRule}
         createRuleError={createRuleError}
+        onClearCreateRuleError={clearCreateRuleError}
+        onClearDeleteRuleError={clearDeleteRuleError}
         availableSecurityGroups={availableSecurityGroups}
         currentProjectId={projectId}
         permissions={safePermissions}

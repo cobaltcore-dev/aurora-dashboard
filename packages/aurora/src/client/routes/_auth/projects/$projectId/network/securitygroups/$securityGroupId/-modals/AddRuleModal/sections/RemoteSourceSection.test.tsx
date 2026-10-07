@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach } from "vitest"
-import { render, screen, waitFor, act } from "@testing-library/react"
+import { render, screen, waitFor, act, fireEvent } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
@@ -8,6 +8,7 @@ import { useForm } from "@tanstack/react-form"
 import { RemoteSourceSection } from "./RemoteSourceSection"
 import { DEFAULT_VALUES } from "../types"
 import { createRuleFormSchema } from "../validation/formSchema"
+import { showAllRuleFieldErrors } from "../validation/fieldErrors"
 
 // ─── Test wrapper component ───────────────────────────────────────────────────
 
@@ -44,6 +45,10 @@ function TestWrapper({
     <I18nProvider i18n={i18n}>
       <PortalProvider>
         <RemoteSourceSection form={form} disabled={disabled} availableSecurityGroups={availableSecurityGroups} />
+        {/* Stands in for the modal's submit, which reveals the errors of all rendered fields */}
+        <button type="button" onClick={() => showAllRuleFieldErrors(form)}>
+          Show errors
+        </button>
       </PortalProvider>
     </I18nProvider>
   )
@@ -60,9 +65,9 @@ describe("RemoteSourceSection", () => {
   })
 
   describe("Rendering", () => {
-    test("renders Remote Source label", () => {
+    test("renders Remote label", () => {
       render(<TestWrapper />)
-      expect(screen.getByText("Remote Source")).toBeInTheDocument()
+      expect(screen.getByText("Remote")).toBeInTheDocument()
     })
 
     test("renders CIDR and Security Group radio options", () => {
@@ -105,16 +110,40 @@ describe("RemoteSourceSection", () => {
       expect(cidrInput).toHaveValue("192.168.1.0/24")
     })
 
-    test("shows IPv4 placeholder when ethertype is IPv4", () => {
-      render(<TestWrapper defaultEthertype="IPv4" defaultRemoteCidr="" />)
-      const cidrInput = screen.getByLabelText(/Remote IP Prefix/i)
-      expect(cidrInput).toHaveAttribute("placeholder", "0.0.0.0/0")
+    test("explains the CIDR format and what an empty field means", () => {
+      render(<TestWrapper />)
+      expect(
+        screen.getByText("IPv4 or IPv6 CIDR, e.g. 10.0.0.0/24 or ::/0. Leave empty to allow any IPv4 address.")
+      ).toBeInTheDocument()
+      expect(
+        screen.getByText(
+          "The other end of the traffic: where it comes from (ingress) or where it goes to (egress). CIDR is recommended."
+        )
+      ).toBeInTheDocument()
     })
 
-    test("shows IPv6 placeholder when ethertype is IPv6", () => {
-      render(<TestWrapper defaultEthertype="IPv6" defaultRemoteCidr="" />)
+    test("shows the format error once the field is left", async () => {
+      const user = userEvent.setup()
+      render(<TestWrapper defaultRemoteCidr="" />)
+
       const cidrInput = screen.getByLabelText(/Remote IP Prefix/i)
-      expect(cidrInput).toHaveAttribute("placeholder", "::/0")
+      await user.type(cidrInput, "10.0.0")
+      expect(screen.queryByText(/Invalid CIDR format/)).not.toBeInTheDocument()
+
+      fireEvent.blur(cidrInput)
+      expect(await screen.findByText(/Invalid CIDR format/)).toBeInTheDocument()
+    })
+
+    test("hides the format error while the field is edited", async () => {
+      const user = userEvent.setup()
+      render(<TestWrapper defaultRemoteCidr="10.0.0" />)
+
+      const cidrInput = screen.getByLabelText(/Remote IP Prefix/i)
+      fireEvent.blur(cidrInput)
+      expect(await screen.findByText(/Invalid CIDR format/)).toBeInTheDocument()
+
+      await user.type(cidrInput, ".")
+      expect(screen.queryByText(/Invalid CIDR format/)).not.toBeInTheDocument()
     })
   })
 
@@ -154,6 +183,56 @@ describe("RemoteSourceSection", () => {
       expect(screen.getByText("Group 1")).toBeInTheDocument()
       expect(screen.getByText("Group 2")).toBeInTheDocument()
       expect(screen.getByText("sg-3")).toBeInTheDocument() // Falls back to ID when name is null
+    })
+
+    test("is required and explains what the group grants", () => {
+      render(<TestWrapper defaultRemoteSourceType="security_group" />)
+      expect(screen.getByText("Applies to traffic to or from any instance in the selected group.")).toBeInTheDocument()
+    })
+
+    test("shows the required error on submit when no group is selected", async () => {
+      const user = userEvent.setup()
+      render(<TestWrapper defaultRemoteSourceType="security_group" />)
+      expect(screen.queryByText("Remote security group is required")).not.toBeInTheDocument()
+
+      await user.click(screen.getByRole("button", { name: "Show errors" }))
+
+      expect(await screen.findByText("Remote security group is required")).toBeInTheDocument()
+    })
+
+    test("shows the required error when the select is left without a choice", async () => {
+      const user = userEvent.setup()
+      const mockGroups = [{ id: "sg-1", name: "Group 1" }]
+      render(<TestWrapper defaultRemoteSourceType="security_group" availableSecurityGroups={mockGroups} />)
+
+      // Opening the list is not leaving the field
+      await user.click(screen.getByLabelText(/Remote Security Group/i))
+      expect(screen.queryByText("Remote security group is required")).not.toBeInTheDocument()
+
+      await user.keyboard("{Escape}")
+      await user.tab()
+
+      expect(await screen.findByText("Remote security group is required")).toBeInTheDocument()
+    })
+
+    test("does not require a group in CIDR mode", async () => {
+      const user = userEvent.setup()
+      render(<TestWrapper />)
+
+      await user.click(screen.getByRole("button", { name: "Show errors" }))
+
+      expect(screen.queryByText("Remote security group is required")).not.toBeInTheDocument()
+    })
+
+    test("does not offer the placeholder as an option", async () => {
+      const user = userEvent.setup()
+      const mockGroups = [{ id: "sg-1", name: "Group 1" }]
+      render(<TestWrapper defaultRemoteSourceType="security_group" availableSecurityGroups={mockGroups} />)
+
+      await user.click(screen.getByLabelText(/Remote Security Group/i))
+
+      expect(screen.getByRole("option", { name: "Group 1" })).toBeInTheDocument()
+      expect(screen.queryByRole("option", { name: "Select a security group..." })).not.toBeInTheDocument()
     })
 
     test("shows placeholder option", () => {

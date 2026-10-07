@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach } from "vitest"
-import { render, screen, act } from "@testing-library/react"
+import { render, screen, act, fireEvent } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
@@ -23,6 +23,8 @@ function TestWrapper({
   const form = useForm({
     defaultValues: {
       ...DEFAULT_VALUES,
+      ruleType: "custom-icmp",
+      protocol: "icmp" as string | null,
       icmpType: defaultIcmpType,
       icmpCode: defaultIcmpCode,
     },
@@ -58,13 +60,10 @@ describe("IcmpSection", () => {
       expect(screen.getByLabelText(/ICMP Code/i)).toBeInTheDocument()
     })
 
-    test("renders placeholder text for both inputs", () => {
+    test("explains the range and what an empty field means", () => {
       render(<TestWrapper />)
-      const typeInput = screen.getByLabelText(/ICMP Type/i)
-      const codeInput = screen.getByLabelText(/ICMP Code/i)
-
-      expect(typeInput).toHaveAttribute("placeholder", "Leave empty for all types")
-      expect(codeInput).toHaveAttribute("placeholder", "Leave empty for all codes")
+      expect(screen.getByText("0-255. Leave empty to allow all types.")).toBeInTheDocument()
+      expect(screen.getByText("0-255. Leave empty to allow all codes. Requires an ICMP type.")).toBeInTheDocument()
     })
 
     test("both inputs are empty by default", () => {
@@ -130,6 +129,45 @@ describe("IcmpSection", () => {
       render(<TestWrapper disabled={true} />)
       const codeInput = screen.getByLabelText(/ICMP Code/i)
       expect(codeInput).toBeDisabled()
+    })
+  })
+
+  describe("Validation", () => {
+    test("shows the range error once the field is left", async () => {
+      const user = userEvent.setup()
+      render(<TestWrapper defaultIcmpType="" />)
+
+      const typeInput = screen.getByLabelText(/ICMP Type/i)
+      await user.type(typeInput, "256")
+      expect(screen.queryByText("ICMP type must be between 0 and 255")).not.toBeInTheDocument()
+
+      fireEvent.blur(typeInput)
+      expect(await screen.findByText("ICMP type must be between 0 and 255")).toBeInTheDocument()
+    })
+
+    test("hides the error while the field is edited", async () => {
+      const user = userEvent.setup()
+      render(<TestWrapper defaultIcmpType="256" />)
+
+      const typeInput = screen.getByLabelText(/ICMP Type/i)
+      fireEvent.blur(typeInput)
+      expect(await screen.findByText("ICMP type must be between 0 and 255")).toBeInTheDocument()
+
+      await user.clear(typeInput)
+      expect(screen.queryByText("ICMP type must be between 0 and 255")).not.toBeInTheDocument()
+    })
+    test("asks for a type under Code when a code is entered first", async () => {
+      const user = userEvent.setup()
+      render(<TestWrapper />)
+
+      const codeInput = screen.getByLabelText(/ICMP Code/i)
+      await user.type(codeInput, "0")
+      fireEvent.blur(codeInput)
+      expect(await screen.findByText("ICMP type is required when ICMP code is specified")).toBeInTheDocument()
+
+      // Entering the type resolves it
+      await user.type(screen.getByLabelText(/ICMP Type/i), "3")
+      expect(screen.queryByText("ICMP type is required when ICMP code is specified")).not.toBeInTheDocument()
     })
   })
 

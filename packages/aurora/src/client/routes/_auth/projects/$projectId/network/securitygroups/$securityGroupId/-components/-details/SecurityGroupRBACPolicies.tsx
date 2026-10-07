@@ -19,10 +19,7 @@ import { RBACPolicyRow } from "./RBACPolicyRow"
 import { AddRBACPolicyModal } from "../../-modals/AddRBACPolicyModal"
 import { DeleteRBACPolicyDialog } from "../../-modals/DeleteRBACPolicyDialog"
 import { useModal } from "@/client/utils/useModal"
-import {
-  getRBACPolicyDeletedToast,
-  getRBACPolicyDeleteErrorToast,
-} from "../../../-components/SecurityGroupToastNotifications"
+import { getRBACPolicyDeletedToast } from "../../../-components/SecurityGroupToastNotifications"
 
 const RBAC_COLUMN_COUNT = 3
 
@@ -63,10 +60,6 @@ export function SecurityGroupRBACPolicies({ securityGroupId, canManageAccess }: 
       utils.network.rbacPolicy.list.invalidate({ project_id: projectId, securityGroupId })
       utils.network.securityGroup.getById.invalidate({ project_id: projectId, securityGroupId })
     },
-    onError: (error) => {
-      const { message, ...options } = getRBACPolicyDeleteErrorToast(error.message)
-      toast.error(message, options)
-    },
   })
 
   const handleDeleteClick = (policy: RBACPolicy) => {
@@ -89,6 +82,7 @@ export function SecurityGroupRBACPolicies({ securityGroupId, canManageAccess }: 
   const handleCloseDeleteDialog = () => {
     if (!deleteMutation.isPending) {
       setPolicyToDelete(null)
+      deleteMutation.reset()
     }
   }
 

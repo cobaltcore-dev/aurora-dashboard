@@ -1,21 +1,13 @@
 import React from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { useForm } from "@tanstack/react-form"
-import {
-  Modal,
-  Form,
-  FormSection,
-  Button,
-  ButtonRow,
-  Spinner,
-  ModalFooter,
-  Message,
-  Status,
-} from "@cloudoperators/juno-ui-components"
+import { useForm, useStore } from "@tanstack/react-form"
+import { Modal, Form, FormRow, FormSection, Message, Status } from "@cloudoperators/juno-ui-components"
 import type { CreateSecurityGroupRuleInput } from "@/server/Network/types/securityGroup"
 import { createRuleFormSchema } from "./validation/formSchema"
+import { showAllRuleFieldErrors } from "./validation/fieldErrors"
+import { detectCIDRFamily } from "./validation/validationHelpers"
 import { DEFAULT_VALUES } from "./types"
-import { CUSTOM_TCP_RULE, CUSTOM_UDP_RULE, OTHER_PROTOCOL_RULE } from "./constants"
+import { CUSTOM_TCP_RULE, CUSTOM_UDP_RULE, OTHER_PROTOCOL_RULE, hasIcmpFields, normalizeProtocol } from "./constants"
 import { RuleTypeSection } from "./sections/RuleTypeSection"
 import { DirectionSection, EthertypeSection } from "./sections/DirectionEthertypeSection"
 import { ProtocolSection } from "./sections/ProtocolSection"
@@ -81,13 +73,15 @@ export const AddRuleModal: React.FC<AddRuleModalProps> = ({
         return
       }
 
-      // Build API payload from form values (without project_id - added by parent)
+      const ethertype =
+        value.remoteSourceType === "cidr" ? (detectCIDRFamily(value.remoteCidr) ?? "IPv4") : value.ethertype
+
       const payload: Omit<CreateSecurityGroupRuleInput, "project_id"> = {
         security_group_id: securityGroupId,
         direction: value.direction,
-        ethertype: value.ethertype,
-        description: value.description || undefined,
-        protocol: value.protocol || null,
+        ethertype,
+        description: value.description.trim() || undefined,
+        protocol: normalizeProtocol(value.protocol),
         // Initialize remote fields as undefined (will be set below if applicable)
         remote_ip_prefix: undefined,
         remote_group_id: undefined,
@@ -112,8 +106,7 @@ export const AddRuleModal: React.FC<AddRuleModalProps> = ({
       }
 
       // Add ICMP type/code (maps to port_range_min/max)
-      const isIcmp = value.protocol === "icmp" || value.protocol === "ipv6-icmp"
-      if (isIcmp) {
+      if (hasIcmpFields(value.ruleType, value.protocol)) {
         if (value.icmpType) {
           payload.port_range_min = parseInt(value.icmpType, 10)
         }
@@ -129,10 +122,25 @@ export const AddRuleModal: React.FC<AddRuleModalProps> = ({
         payload.remote_group_id = value.remoteSecurityGroupId
       }
 
-      await onCreate(payload)
-      handleClose()
+      try {
+        await onCreate(payload)
+        handleClose()
+      } catch {
+        // Keep the modal open with the user's input; the parent passes the message via `error`
+      }
     },
   })
+
+  const isFormValid = useStore(form.store, (state) => createRuleFormSchema.safeParse(state.values).success)
+  const isSubmitting = useStore(form.store, (state) => state.isSubmitting)
+
+  const handleSubmit = () => {
+    if (isLoading) {
+      return
+    }
+    showAllRuleFieldErrors(form)
+    form.handleSubmit()
+  }
 
   const handleClose = () => {
     form.reset()
@@ -145,103 +153,95 @@ export const AddRuleModal: React.FC<AddRuleModalProps> = ({
       onCancel={handleClose}
       size="large"
       title={t`Add Security Group Rule`}
-      modalFooter={
-        <ModalFooter className="flex justify-end">
-          <form.Subscribe>
-            {(state: { isSubmitting: boolean; values: { ruleType: string } }) => {
-              const isRuleTypeSelected = Boolean(state.values.ruleType)
-              return (
-                <ButtonRow>
-                  <Button variant="default" onClick={handleClose} disabled={isLoading || state.isSubmitting}>
-                    <Trans>Cancel</Trans>
-                  </Button>
-                  <Button
-                    variant="primary"
-                    type="button"
-                    onClick={() => form.handleSubmit()}
-                    disabled={isLoading || state.isSubmitting || !isRuleTypeSelected}
-                    data-testid="add-rule-button"
-                  >
-                    {state.isSubmitting || isLoading ? <Spinner size="small" /> : <Trans>Add Rule</Trans>}
-                  </Button>
-                </ButtonRow>
-              )
-            }}
-          </form.Subscribe>
-        </ModalFooter>
-      }
+      onConfirm={handleSubmit}
+      cancelButtonLabel={t`Cancel`}
+      confirmButtonLabel={t`Add Rule`}
+      disableConfirmButton={!isFormValid || isLoading || isSubmitting}
+      disableCancelButton={isLoading || isSubmitting}
+      disableCloseButton={isLoading || isSubmitting}
     >
-      {/* Error Message */}
-      {error && (
-        <Message dismissible={false} variant="error" className="mb-4">
-          {error}
-        </Message>
-      )}
-
       {isLoading && <Status status="progress" title={t`Creating Security Group Rule...`} className="mt-0" />}
 
-      <Form
-        className="mb-6"
-        onSubmit={(e) => {
-          e.preventDefault()
-          form.handleSubmit()
-        }}
-      >
-        <FormSection className="mb-6">
-          {/* Rule Type Preset */}
-          <RuleTypeSection form={form} disabled={isLoading} />
+      {!isLoading && (
+        <Form
+          onSubmit={(e) => {
+            e.preventDefault()
+            handleSubmit()
+          }}
+        >
+          {error && (
+            <FormRow>
+              <Message dismissible={false} variant="error" text={error} />
+            </FormRow>
+          )}
 
-          {/* Show other fields only when rule type is selected */}
-          <form.Subscribe>
-            {(state: {
-              values: { ruleType: string; protocol: string | null; remoteSourceType: "cidr" | "security_group" }
-            }) => {
-              const isRuleTypeSelected = Boolean(state.values.ruleType)
+          <p className="mb-4">
+            <Trans>
+              Rules define which traffic is allowed to instances assigned to the security group. A security group rule
+              consists of three main parts: Type, Port Range and Remote.
+            </Trans>
+          </p>
 
-              if (!isRuleTypeSelected) {
-                return null
-              }
+          <FormSection>
+            {/* Rule Type Preset */}
+            <RuleTypeSection form={form} disabled={isLoading} />
 
-              const isTcpUdp = state.values.protocol === "tcp" || state.values.protocol === "udp"
-              const showPortFields = isTcpUdp && [CUSTOM_TCP_RULE, CUSTOM_UDP_RULE].includes(state.values.ruleType)
-              const showIcmpFields = state.values.protocol === "icmp" || state.values.protocol === "ipv6-icmp"
+            {/* Show other fields only when rule type is selected */}
+            <form.Subscribe>
+              {(state: {
+                values: { ruleType: string; protocol: string | null; remoteSourceType: "cidr" | "security_group" }
+              }) => {
+                const isRuleTypeSelected = Boolean(state.values.ruleType)
 
-              return (
-                <>
-                  {/* Direction */}
-                  <DirectionSection form={form} disabled={isLoading} />
+                if (!isRuleTypeSelected) {
+                  return null
+                }
 
-                  {/* Protocol (conditional for "Other Protocol") */}
-                  {state.values.ruleType === OTHER_PROTOCOL_RULE && (
-                    <ProtocolSection form={form} disabled={isLoading} />
-                  )}
+                const isTcpUdp = state.values.protocol === "tcp" || state.values.protocol === "udp"
+                // TCP/UDP presets show their ports read-only; only custom TCP/UDP rules let the user set them
+                const showPortFields = isTcpUdp && state.values.ruleType !== OTHER_PROTOCOL_RULE
+                const arePortsEditable = [CUSTOM_TCP_RULE, CUSTOM_UDP_RULE].includes(state.values.ruleType)
+                const showIcmpFields = hasIcmpFields(state.values.ruleType, state.values.protocol)
 
-                  {/* Port Range (conditional for Custom TCP/UDP) */}
-                  {showPortFields && <PortRangeSection form={form} disabled={isLoading} />}
+                return (
+                  <>
+                    {/* Direction */}
+                    <DirectionSection form={form} disabled={isLoading} />
 
-                  {/* ICMP Fields (conditional for ICMP protocols) */}
-                  {showIcmpFields && <IcmpSection form={form} disabled={isLoading} />}
+                    {/* Protocol (conditional for "Other Protocol") */}
+                    {state.values.ruleType === OTHER_PROTOCOL_RULE && (
+                      <ProtocolSection form={form} disabled={isLoading} />
+                    )}
 
-                  {/* Remote Source (CIDR or Security Group) */}
-                  <RemoteSourceSection
-                    form={form}
-                    disabled={isLoading}
-                    availableSecurityGroups={availableSecurityGroups}
-                  />
+                    {/* Port Range (conditional for TCP/UDP rule types; editable for Custom TCP/UDP only) */}
+                    {showPortFields && (
+                      <PortRangeSection form={form} disabled={isLoading} readOnly={!arePortsEditable} />
+                    )}
 
-                  {/* Ethertype (conditional for Security Group remote source) */}
-                  {state.values.remoteSourceType === "security_group" && (
-                    <EthertypeSection form={form} disabled={isLoading} />
-                  )}
+                    {/* ICMP Fields (conditional for Custom ICMP, or Other Protocol with an ICMP protocol) */}
+                    {showIcmpFields && <IcmpSection form={form} disabled={isLoading} />}
 
-                  {/* Description */}
-                  <DescriptionSection form={form} disabled={isLoading} />
-                </>
-              )
-            }}
-          </form.Subscribe>
-        </FormSection>
-      </Form>
+                    {/* Remote Source (CIDR or Security Group) */}
+                    <RemoteSourceSection
+                      form={form}
+                      disabled={isLoading}
+                      availableSecurityGroups={availableSecurityGroups}
+                    />
+
+                    {/* Ethertype (Security Group remote only; a CIDR remote implies it) */}
+                    {state.values.remoteSourceType === "security_group" && (
+                      <EthertypeSection form={form} disabled={isLoading} />
+                    )}
+
+                    {/* Description */}
+                    <DescriptionSection form={form} disabled={isLoading} />
+                  </>
+                )
+              }}
+            </form.Subscribe>
+          </FormSection>
+        </Form>
+      )}
     </Modal>
   )
 }

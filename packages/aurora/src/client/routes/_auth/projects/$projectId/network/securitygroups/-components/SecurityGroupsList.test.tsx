@@ -56,9 +56,7 @@ vi.mock("./-modals/CreateSecurityGroupModal", () => ({
 
 vi.mock("./SecurityGroupToastNotifications", () => ({
   getSecurityGroupDeletedToast: (name: string) => ({ message: "deleted", description: name }),
-  getSecurityGroupDeleteErrorToast: (errorMessage: string) => ({ message: "delete error", description: errorMessage }),
   getSecurityGroupUpdatedToast: (name: string) => ({ message: "updated", description: name }),
-  getSecurityGroupUpdateErrorToast: (errorMessage: string) => ({ message: "update error", description: errorMessage }),
 }))
 
 vi.mock("@/client/hooks", () => ({

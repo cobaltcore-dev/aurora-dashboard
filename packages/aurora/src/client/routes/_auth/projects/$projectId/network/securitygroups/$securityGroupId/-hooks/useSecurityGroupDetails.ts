@@ -4,23 +4,25 @@ import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks"
 import type { UpdateSecurityGroupInput, CreateSecurityGroupRuleInput } from "@/server/Network/types/securityGroup"
 import type { RulesFilterControls } from "../-components/SecurityGroupDetailsView"
+import { getRuleRemote, useFormatRuleRemote, type SecurityGroupOption } from "../-components/ruleRemote"
 import {
   getSecurityGroupDeletedToast,
-  getSecurityGroupDeleteErrorToast,
   getSecurityGroupUpdatedToast,
-  getSecurityGroupUpdateErrorToast,
   getSecurityGroupRuleCreatedToast,
-  getSecurityGroupRuleCreateErrorToast,
   getSecurityGroupRuleDeletedToast,
-  getSecurityGroupRuleDeleteErrorToast,
 } from "../../-components/SecurityGroupToastNotifications"
 
 interface UseSecurityGroupDetailsParams {
   securityGroupId: string
   filterControls: RulesFilterControls
+  securityGroups?: SecurityGroupOption[]
 }
 
-export function useSecurityGroupDetails({ securityGroupId, filterControls }: UseSecurityGroupDetailsParams) {
+export function useSecurityGroupDetails({
+  securityGroupId,
+  filterControls,
+  securityGroups = [],
+}: UseSecurityGroupDetailsParams) {
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const projectId = useProjectId()
@@ -43,6 +45,8 @@ export function useSecurityGroupDetails({ securityGroupId, filterControls }: Use
   )
 
   // Client-side filtering and sorting of rules
+  const formatRuleRemote = useFormatRuleRemote()
+
   const filteredAndSortedRules = useMemo(() => {
     const allRules = securityGroupQuery.data?.security_group_rules || []
     let result = allRules
@@ -80,7 +84,9 @@ export function useSecurityGroupDetails({ securityGroupId, filterControls }: Use
         (rule) =>
           rule.description?.toLowerCase().includes(searchLower) ||
           rule.protocol?.toLowerCase().includes(searchLower) ||
-          rule.ethertype?.toLowerCase().includes(searchLower)
+          rule.ethertype?.toLowerCase().includes(searchLower) ||
+          // The remote as the Remote column shows it, so whatever the table displays can be searched for
+          formatRuleRemote(getRuleRemote(rule, securityGroups)).toLowerCase().includes(searchLower)
       )
     }
 
@@ -96,7 +102,7 @@ export function useSecurityGroupDetails({ securityGroupId, filterControls }: Use
     }
 
     return result
-  }, [securityGroupQuery.data?.security_group_rules, filterControls])
+  }, [securityGroupQuery.data?.security_group_rules, filterControls, securityGroups, formatRuleRemote])
 
   // Update mutation
   const updateMutation = trpcReact.network.securityGroup.update.useMutation({
@@ -109,10 +115,6 @@ export function useSecurityGroupDetails({ securityGroupId, filterControls }: Use
       toast.success(message, options)
       setEditModalOpen(false)
     },
-    onError: (error) => {
-      const { message, ...options } = getSecurityGroupUpdateErrorToast(error.message)
-      toast.error(message, options)
-    },
   })
 
   // Delete security group mutation
@@ -122,10 +124,6 @@ export function useSecurityGroupDetails({ securityGroupId, filterControls }: Use
       const { message, ...options } = getSecurityGroupDeletedToast(securityGroupQuery.data?.name || securityGroupId)
       toast.success(message, options)
       setDeleteModalOpen(false)
-    },
-    onError: (error) => {
-      const { message, ...options } = getSecurityGroupDeleteErrorToast(error.message)
-      toast.error(message, options)
     },
   })
 
@@ -138,10 +136,6 @@ export function useSecurityGroupDetails({ securityGroupId, filterControls }: Use
       const { message, ...options } = getSecurityGroupRuleDeletedToast()
       toast.success(message, options)
     },
-    onError: (error) => {
-      const { message, ...options } = getSecurityGroupRuleDeleteErrorToast(error.message)
-      toast.error(message, options)
-    },
   })
 
   // Create rule mutation
@@ -152,10 +146,6 @@ export function useSecurityGroupDetails({ securityGroupId, filterControls }: Use
       const { message, ...options } = getSecurityGroupRuleCreatedToast()
       toast.success(message, options)
     },
-    onError: (error) => {
-      const { message, ...options } = getSecurityGroupRuleCreateErrorToast(error.message)
-      toast.error(message, options)
-    },
   })
 
   // Handlers
@@ -165,6 +155,7 @@ export function useSecurityGroupDetails({ securityGroupId, filterControls }: Use
 
   const handleCloseEditModal = () => {
     setEditModalOpen(false)
+    updateMutation.reset()
   }
 
   const handleDelete = () => {
@@ -173,6 +164,7 @@ export function useSecurityGroupDetails({ securityGroupId, filterControls }: Use
 
   const handleCloseDeleteModal = () => {
     setDeleteModalOpen(false)
+    deleteMutation.reset()
   }
 
   const handleDeleteSecurityGroup = async () => {
@@ -187,8 +179,8 @@ export function useSecurityGroupDetails({ securityGroupId, filterControls }: Use
     })
   }
 
-  const handleDeleteRule = async (ruleId: string) => {
-    await deleteRuleMutation.mutateAsync({ project_id: projectId, ruleId })
+  const handleDeleteRule = (ruleId: string) => {
+    deleteRuleMutation.mutate({ project_id: projectId, ruleId })
   }
 
   const handleCreateRule = async (ruleData: Omit<CreateSecurityGroupRuleInput, "project_id">) => {
@@ -228,5 +220,7 @@ export function useSecurityGroupDetails({ securityGroupId, filterControls }: Use
     handleDeleteSecurityGroup,
     handleDeleteRule,
     handleCreateRule,
+    clearCreateRuleError: createRuleMutation.reset,
+    clearDeleteRuleError: deleteRuleMutation.reset,
   }
 }

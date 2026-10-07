@@ -131,6 +131,7 @@ vi.mock("@/client/trpcClient", async (importOriginal) => {
           delete: {
             useMutation: vi.fn(() => ({
               mutate: vi.fn(),
+              reset: vi.fn(),
               isPending: false,
             })),
           },
@@ -549,6 +550,42 @@ describe("SecurityGroupRBACPolicies", () => {
       })
     })
 
+    it("discards the delete error when the dialog closes", async () => {
+      vi.mocked(trpcReact.network.rbacPolicy.list.useQuery).mockReturnValue(
+        createMockQueryResult<RBACPolicy[]>({
+          data: mockPolicies,
+        })
+      )
+
+      const reset = vi.fn()
+      vi.mocked(trpcReact.network.rbacPolicy.delete.useMutation).mockReturnValue({
+        mutate: vi.fn(),
+        reset,
+        isPending: false,
+        error: { message: "Forbidden" },
+      } as unknown as ReturnType<typeof trpcReact.network.rbacPolicy.delete.useMutation>)
+
+      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" canManageAccess={true} />, {
+        wrapper: createWrapper(),
+      })
+
+      const deleteButtons = screen.getAllByRole("button", { name: /Delete/i })
+      const user = userEvent.setup()
+      await user.click(deleteButtons[0])
+
+      await waitFor(() => {
+        expect(screen.getByText("Delete Dialog Open")).toBeInTheDocument()
+      })
+
+      const cancelButton = screen.getByRole("button", { name: /Cancel/i })
+      await user.click(cancelButton)
+
+      await waitFor(() => {
+        expect(screen.queryByText("Delete Dialog Open")).not.toBeInTheDocument()
+      })
+      expect(reset).toHaveBeenCalled()
+    })
+
     it("calls delete mutation when confirm clicked", async () => {
       vi.mocked(trpcReact.network.rbacPolicy.list.useQuery).mockReturnValue(
         createMockQueryResult<RBACPolicy[]>({
@@ -587,22 +624,6 @@ describe("SecurityGroupRBACPolicies", () => {
       mutationOptions.onSuccess()
 
       expect(successSpy).toHaveBeenCalledWith(expect.anything(), expect.anything())
-    })
-
-    it("registers an error toast handler for delete failures", () => {
-      vi.mocked(trpcReact.network.rbacPolicy.list.useQuery).mockReturnValue(
-        createMockQueryResult<RBACPolicy[]>({
-          data: mockPolicies,
-        })
-      )
-
-      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" canManageAccess={true} />, {
-        wrapper: createWrapper(),
-      })
-
-      expect(trpcReact.network.rbacPolicy.delete.useMutation).toHaveBeenCalledWith(
-        expect.objectContaining({ onError: expect.any(Function) })
-      )
     })
   })
 
