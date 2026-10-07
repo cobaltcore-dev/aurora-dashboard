@@ -49,6 +49,7 @@ export function RouterDetailsView({ router }: RouterDetailsViewProps) {
     isLoading: isLoadingInterfaces,
     isError: isInterfacesError,
     error: interfacesError,
+    refetch: refetchInterfaces,
   } = trpcReact.network.routers.listInterfaces.useQuery({ project_id: projectId, router_id: router.id })
 
   const gateway = router.external_gateway_info
@@ -135,6 +136,7 @@ export function RouterDetailsView({ router }: RouterDetailsViewProps) {
             isLoading={isLoadingInterfaces}
             isError={isInterfacesError}
             error={interfacesError}
+            onRetry={() => refetchInterfaces()}
           />
         )}
       </Stack>

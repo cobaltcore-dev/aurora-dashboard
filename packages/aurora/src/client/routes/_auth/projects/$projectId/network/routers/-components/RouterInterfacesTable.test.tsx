@@ -1,5 +1,6 @@
 import { cleanup, render, screen } from "@testing-library/react"
-import { describe, it, expect, beforeAll, afterEach } from "vitest"
+import userEvent from "@testing-library/user-event"
+import { describe, it, expect, vi, beforeAll, afterEach } from "vitest"
 import { act, ReactNode } from "react"
 import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
@@ -54,6 +55,22 @@ describe("RouterInterfacesTable", () => {
       renderTable({ isError: true, error: null })
 
       expect(screen.getByText("Failed to Load Internal Networks")).toBeInTheDocument()
+    })
+
+    it("offers a retry in the error state", async () => {
+      const user = userEvent.setup()
+      const onRetry = vi.fn()
+      renderTable({ isError: true, error: { message: "Ports could not be loaded" }, onRetry })
+
+      await user.click(screen.getByRole("button", { name: "Try Again" }))
+
+      expect(onRetry).toHaveBeenCalledTimes(1)
+    })
+
+    it("renders no retry action without onRetry", () => {
+      renderTable({ isError: true, error: null })
+
+      expect(screen.queryByRole("button", { name: "Try Again" })).not.toBeInTheDocument()
     })
 
     it("renders the empty state inside the table", () => {

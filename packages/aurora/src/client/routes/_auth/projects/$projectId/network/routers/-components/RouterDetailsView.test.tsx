@@ -8,7 +8,10 @@ import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import type { RouterDetails, RouterInterface } from "@/server/Network/types/router"
 import { RouterDetailsView } from "./RouterDetailsView"
 
-const { mockListInterfacesQuery } = vi.hoisted(() => ({ mockListInterfacesQuery: vi.fn() }))
+const { mockListInterfacesQuery, mockRefetch } = vi.hoisted(() => ({
+  mockListInterfacesQuery: vi.fn(),
+  mockRefetch: vi.fn(),
+}))
 
 vi.mock("@/client/trpcClient", () => ({
   trpcReact: {
@@ -26,15 +29,18 @@ vi.mock("./RouterInterfacesTable", () => ({
     isLoading,
     isError,
     error,
+    onRetry,
   }: {
     interfaces: RouterInterface[]
     isLoading: boolean
     isError: boolean
     error: { message?: string } | null
+    onRetry?: () => void
   }) => (
     <div data-testid="router-interfaces-table" data-loading={isLoading} data-error={isError}>
       {interfaces.map((i) => i.port_id).join(",")}
       {error?.message}
+      <button onClick={onRetry}>Retry interfaces</button>
     </div>
   ),
 }))
@@ -82,6 +88,7 @@ describe("RouterDetailsView", () => {
       isLoading: false,
       isError: false,
       error: null,
+      refetch: mockRefetch,
       ...overrides,
     })
 
@@ -241,6 +248,17 @@ describe("RouterDetailsView", () => {
 
       expect(screen.getByTestId("router-interfaces-table")).toHaveAttribute("data-error", "true")
       expect(screen.getByTestId("router-interfaces-table")).toHaveTextContent("Ports could not be loaded")
+    })
+
+    it("retries the interfaces query from the table", async () => {
+      const user = userEvent.setup()
+      mockInterfacesResult({ data: undefined, isError: true, error: { message: "Ports could not be loaded" } })
+      renderView()
+
+      await user.click(screen.getByText("Internal Networks"))
+      await user.click(screen.getByRole("button", { name: "Retry interfaces" }))
+
+      expect(mockRefetch).toHaveBeenCalledTimes(1)
     })
 
     it("passes the loading state to the table", async () => {

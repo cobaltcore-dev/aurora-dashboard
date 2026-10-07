@@ -1,5 +1,6 @@
-import { useLingui } from "@lingui/react/macro"
+import { Trans, useLingui } from "@lingui/react/macro"
 import {
+  Button,
   DataGrid,
   DataGridCell,
   DataGridHeadCell,
@@ -14,10 +15,18 @@ interface RouterInterfacesTableProps {
   isLoading: boolean
   isError: boolean
   error: { message?: string } | null
+  /** Re-runs the interfaces query; shown as "Try Again" in the error state */
+  onRetry?: () => void
 }
 
 /** Internal networks of a router: one row per interface port. */
-export const RouterInterfacesTable = ({ interfaces, isLoading, isError, error }: RouterInterfacesTableProps) => {
+export const RouterInterfacesTable = ({
+  interfaces,
+  isLoading,
+  isError,
+  error,
+  onRetry,
+}: RouterInterfacesTableProps) => {
   const { t } = useLingui()
   const columns = [t`Name`, t`Fixed IPs`, t`Type`, t`Admin State`]
 
@@ -26,7 +35,19 @@ export const RouterInterfacesTable = ({ interfaces, isLoading, isError, error }:
   }
 
   if (isError) {
-    return <Status status="error" title={error?.message || t`Failed to Load Internal Networks`} />
+    return (
+      <Status
+        status="error"
+        title={error?.message || t`Failed to Load Internal Networks`}
+        action={
+          onRetry && (
+            <Button onClick={onRetry}>
+              <Trans>Try Again</Trans>
+            </Button>
+          )
+        }
+      />
+    )
   }
 
   return (
