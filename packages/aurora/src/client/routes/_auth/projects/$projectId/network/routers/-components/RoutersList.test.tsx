@@ -197,6 +197,61 @@ describe("Routers", () => {
     })
   })
 
+  describe("Retry", () => {
+    it("loads the routers again when Try Again is clicked", async () => {
+      const user = userEvent.setup()
+      const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined)
+      const query = vi.fn().mockRejectedValueOnce(new Error("Neutron is unavailable")).mockResolvedValue(mockRouters)
+      await renderList(query)
+
+      await user.click(await screen.findByRole("button", { name: "Try Again" }))
+
+      expect(await screen.findByTestId("router-router-1")).toBeInTheDocument()
+      expect(screen.queryByText("Failed to Load Routers")).not.toBeInTheDocument()
+      expect(query).toHaveBeenCalledTimes(2)
+      expect(query).toHaveBeenLastCalledWith({
+        project_id: "proj-1",
+        sort_key: "name",
+        sort_dir: "asc",
+        searchTerm: undefined,
+      })
+
+      consoleError.mockRestore()
+    })
+
+    it("recovers when the URL changes after a failure", async () => {
+      const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined)
+      const query = vi.fn().mockRejectedValueOnce(new Error("Neutron is unavailable")).mockResolvedValue(mockRouters)
+      await renderList(query)
+      await screen.findByText("Failed to Load Routers")
+
+      await act(async () => {
+        setUrlSearch({ search: "edge" })
+      })
+
+      expect(await screen.findByTestId("router-list-container")).toBeInTheDocument()
+      expect(query).toHaveBeenLastCalledWith(expect.objectContaining({ searchTerm: "edge" }))
+
+      consoleError.mockRestore()
+    })
+
+    it("does not offer a retry for a forbidden list", async () => {
+      const forbidden = new TRPCClientError("You are not allowed to list routers", {
+        result: {
+          error: {
+            code: -32603,
+            message: "You are not allowed to list routers",
+            data: { code: "FORBIDDEN", httpStatus: 403 },
+          },
+        },
+      } as never)
+      await renderList(vi.fn().mockRejectedValue(forbidden))
+
+      await screen.findByText("You are not allowed to list routers")
+      expect(screen.queryByRole("button", { name: "Try Again" })).not.toBeInTheDocument()
+    })
+  })
+
   describe("Search", () => {
     it("refetches with the search term and updates the URL on submit", async () => {
       const user = userEvent.setup()

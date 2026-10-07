@@ -1,9 +1,9 @@
 import { use, Suspense, useState, useRef, useEffect, useCallback, useMemo, useDeferredValue } from "react"
 import { ErrorBoundary } from "react-error-boundary"
-import { useLingui } from "@lingui/react/macro"
+import { Trans, useLingui } from "@lingui/react/macro"
 import { useSearch, useNavigate } from "@tanstack/react-router"
 import { TRPCClientError } from "@trpc/client"
-import { Stack, DataGridToolbar, SearchInput, Status } from "@cloudoperators/juno-ui-components"
+import { Button, Stack, DataGridToolbar, SearchInput, Status } from "@cloudoperators/juno-ui-components"
 import { SortInput } from "@/client/components/ListToolbar/SortInput"
 import { SortSettings } from "@/client/components/ListToolbar/types"
 import { TrpcClient } from "@/client/trpcClient"
@@ -165,9 +165,13 @@ export const Routers = ({ client, project }: RoutersProps) => {
     sortDirection,
   }
 
+  // Bumped by "Try Again" to create a fresh query with the same parameters
+  const [retryCount, setRetryCount] = useState(0)
+
   const routersPromise = useMemo(
     () => createRoutersPromise(client, project, sortBy, sortDirection, searchTerm),
-    [client, project, sortBy, sortDirection, searchTerm]
+    // retryCount is not used in the factory, it only forces a new promise on "Try Again"
+    [client, project, sortBy, sortDirection, searchTerm, retryCount]
   )
   // Keeps the current list (and the search input) on screen while the next query loads,
   // instead of falling back to the Suspense loading state on every search or sort change
@@ -211,13 +215,20 @@ export const Routers = ({ client, project }: RoutersProps) => {
   return (
     <div className="relative">
       <ErrorBoundary
-        // Retry with the new query when the URL changes after an error
+        // Resets the boundary whenever the query changes: on "Try Again" and when the URL
+        // (project, search, sort) changes. Keyed on the deferred promise, so the reset happens
+        // together with the render that uses the new query instead of re-throwing the failed one.
         resetKeys={[deferredRoutersPromise]}
         fallbackRender={({ error }) => (
           <Status
             status="error"
             title={t`Failed to Load Routers`}
             body={error instanceof Error ? error.message : t`An unexpected error occurred.`}
+            action={
+              <Button onClick={() => setRetryCount((count) => count + 1)}>
+                <Trans>Try Again</Trans>
+              </Button>
+            }
           />
         )}
       >
