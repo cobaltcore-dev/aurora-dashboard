@@ -71,5 +71,10 @@ describe("CredentialToastNotifications", () => {
       expect(screen.getByText(/AKIAIOSFODNN7EXAMPLE/)).toBeInTheDocument()
       expect(screen.getByText(/Credential not found/)).toBeInTheDocument()
     })
+
+    // A failed revocation leaves the key working - not something to time out unread.
+    it("stays on screen until dismissed", () => {
+      expect(getCredentialDeleteErrorToast("AKIAIOSFODNN7EXAMPLE", "Forbidden").duration).toBe(Infinity)
+    })
   })
 })

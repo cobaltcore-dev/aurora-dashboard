@@ -24,8 +24,10 @@ interface InvalidateCredentialQueriesOptions {
  * creating a new one — because the second mutation can settle before the first one's refetch has
  * landed, leaving the component holding a list that still shows the deleted key.
  *
- * Returns the combined promise for callers that need to await the refetch; the rest may ignore
- * it, as the tRPC invalidate calls it wraps already were.
+ * Resolves once the key table has been refreshed (or its refresh has failed), and no later: the
+ * bucket listing below is started, not waited for. `ManageCredentialsModal` awaits this to keep a
+ * delete's controls locked until the table is current, and that wait should not stretch over the
+ * listing's per-bucket scan.
  */
 export async function invalidateCredentialQueries(
   utils: CephUtils,
@@ -83,7 +85,7 @@ export async function invalidateCredentialQueries(
     // project, not of which key signs for them, and all of a user's keys map to one RGW identity.
     // The only transition that matters is 0 <-> 1, when the procedure behind this query flips
     // between throwing `NO_CEPH_CREDENTIALS` and returning a listing.
-    await utils.storage.ceph.containers.list.invalidate()
+    void utils.storage.ceph.containers.list.invalidate()
   } else {
     // The count above says the page behind the modal is unaffected. That holds for a page showing
     // a listing; it does not hold for one showing an error, and this screen has an entry point
@@ -94,7 +96,7 @@ export async function invalidateCredentialQueries(
     //
     // Only the errored ones, so the optimisation above survives intact: a page that is showing
     // buckets is not re-scanned, and one that is showing a failure has nothing worth keeping.
-    await utils.storage.ceph.containers.list.invalidate(undefined, {
+    void utils.storage.ceph.containers.list.invalidate(undefined, {
       predicate: (query) => query.state.status === "error",
     })
   }

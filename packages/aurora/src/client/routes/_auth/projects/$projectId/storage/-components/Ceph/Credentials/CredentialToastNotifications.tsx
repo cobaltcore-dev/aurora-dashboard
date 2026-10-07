@@ -48,4 +48,8 @@ export const getCredentialDeleteErrorToast = (accessKey: string, reason: string)
       Access key "{accessKey}" was not deleted: {reason}
     </Trans>
   ),
+  // Stays until dismissed. Unless the reason is NOT_FOUND, the key is still active and still works
+  // for every S3 client configured with it - a revocation that did not happen is not something to
+  // let slip by on a four-second timer while the user is looking at the table.
+  duration: Infinity,
 })

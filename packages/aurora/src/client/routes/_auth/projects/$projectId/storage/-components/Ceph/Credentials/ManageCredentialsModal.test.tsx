@@ -85,13 +85,16 @@ const {
     // The tRPC error code that comes with `deleteError`. Only the component's NOT_FOUND branch
     // reads it - that is the one failure where the key is gone all the same.
     deleteErrorCode: null as string | null,
+    // Holds the helper's key-table refresh open until resolved. `null` settles it at once, which is
+    // what every test but the one about the window before the refresh lands wants.
+    listRefreshGate: null as Promise<void> | null,
     createOptions: {} as {
       onSuccess?: (cred: Credential) => void
       onError?: (err: { message: string }) => void
     },
     deleteOptions: {} as {
-      onSuccess?: () => void
-      onError?: (err: { message: string; data?: { code: string } }) => void
+      onSuccess?: () => Promise<void>
+      onError?: (err: { message: string; data?: { code: string } }) => Promise<void>
     },
   }
 
@@ -163,7 +166,7 @@ vi.mock("@/client/trpcClient", () => ({
               // so resolving with it is what a settled refetch would have answered.
               fetch: (...args: unknown[]) => {
                 mockRefetchList(...args)
-                return Promise.resolve(mockState.credentials)
+                return (mockState.listRefreshGate ?? Promise.resolve()).then(() => mockState.credentials)
               },
               // The helper cancels whatever request is already in flight before reading the list,
               // so that `fetch` starts one rather than joining a request that predates the
@@ -259,6 +262,7 @@ describe("ManageCredentialsModal", () => {
     mockState.isDeletePending = false
     mockState.deleteError = null
     mockState.deleteErrorCode = null
+    mockState.listRefreshGate = null
     mockState.createOptions = {}
     mockState.deleteOptions = {}
     await act(async () => {
@@ -534,6 +538,91 @@ describe("ManageCredentialsModal", () => {
       expect(screen.getByTestId(`secret-${TEST_CREDENTIAL_ID}`)).not.toHaveValue(TEST_SECRET)
     })
 
+    // A key can leave the list without any delete outcome here saying so - removed from another
+    // tab, or deleted by a request whose response was lost. Its row goes, and with it the Hide that
+    // could reach the secret; the list is what has to drop it. Observed, as above, by putting the
+    // row back, the only way to see a value the UI no longer shows.
+    test("drops a revealed secret once a refreshed list no longer has its key", async () => {
+      const user = userEvent.setup()
+      const modal = () => (
+        <I18nProvider i18n={i18n}>
+          <PortalProvider>
+            <ManageCredentialsModal isOpen onClose={vi.fn()} />
+          </PortalProvider>
+        </I18nProvider>
+      )
+      const credential = mockState.credentials[0]
+      const { rerender } = render(modal())
+
+      await user.click(toggle())
+      await waitFor(() => expect(secretField()).toHaveValue(TEST_SECRET))
+
+      mockState.credentials = []
+      rerender(modal())
+      mockState.credentials = [credential]
+      rerender(modal())
+
+      expect(secretField()).not.toHaveValue(TEST_SECRET)
+    })
+
+    test("drops a secret that arrives after a refreshed list stopped naming its key", async () => {
+      let resolveReveal: (value: CredentialWithSecret) => void = () => {}
+      mockRevealMutateAsync.mockImplementationOnce(
+        () => new Promise<CredentialWithSecret>((resolve) => (resolveReveal = resolve))
+      )
+
+      const user = userEvent.setup()
+      const modal = () => (
+        <I18nProvider i18n={i18n}>
+          <PortalProvider>
+            <ManageCredentialsModal isOpen onClose={vi.fn()} />
+          </PortalProvider>
+        </I18nProvider>
+      )
+      const credential = mockState.credentials[0]
+      const { rerender } = render(modal())
+
+      await user.click(toggle())
+      await waitFor(() => expect(mockRevealMutateAsync).toHaveBeenCalledTimes(1))
+
+      mockState.credentials = []
+      rerender(modal())
+
+      await act(async () => {
+        resolveReveal({ ...credential, secret: TEST_SECRET })
+      })
+
+      mockState.credentials = [credential]
+      rerender(modal())
+
+      expect(secretField()).not.toHaveValue(TEST_SECRET)
+    })
+
+    // The other half of the rule: a list that has not arrived says nothing about which keys exist.
+    // Read as "no keys", it would discard every secret on screen whenever a refresh fails.
+    test("keeps revealed secrets while the list has no answer", async () => {
+      const user = userEvent.setup()
+      const modal = () => (
+        <I18nProvider i18n={i18n}>
+          <PortalProvider>
+            <ManageCredentialsModal isOpen onClose={vi.fn()} />
+          </PortalProvider>
+        </I18nProvider>
+      )
+      const credential = mockState.credentials[0]
+      const { rerender } = render(modal())
+
+      await user.click(toggle())
+      await waitFor(() => expect(secretField()).toHaveValue(TEST_SECRET))
+
+      mockState.credentials = undefined as unknown as Credential[]
+      rerender(modal())
+      mockState.credentials = [credential]
+      rerender(modal())
+
+      expect(secretField()).toHaveValue(TEST_SECRET)
+    })
+
     // `handleClose` is not the only way out: Escape reaches Juno's Modal through the focus trap's
     // `escapeDeactivates`, which ignores `disableCancelButton`/`disableCloseButton`, and a parent
     // may drop `isOpen` on its own. Either way the next opening has to be able to fetch again.
@@ -778,6 +867,41 @@ describe("ManageCredentialsModal", () => {
 
       expect(screen.getByRole("button", { name: "Delete Access Key" })).toBeInTheDocument()
       expect(screen.queryByText(/This is the last access key in this project/)).not.toBeInTheDocument()
+    })
+
+    // Until the key table has been refreshed, `credentials` is the list from before the delete. A
+    // control released any earlier would let the remaining one of two keys be deleted with the
+    // count still reading two - and so without the last-key warning.
+    test("keeps the controls locked until the key table has been refreshed", async () => {
+      const user = userEvent.setup()
+      const remaining = { id: "cred-2", access: "AKIASECONDKEY000000", user_id: "user-1", project_id: mockProjectId }
+      mockState.credentials = [
+        { id: TEST_CREDENTIAL_ID, access: TEST_ACCESS, user_id: "user-1", project_id: mockProjectId },
+        remaining,
+      ]
+      let releaseRefresh = () => {}
+      mockState.listRefreshGate = new Promise<void>((resolve) => {
+        releaseRefresh = resolve
+      })
+      // The server has answered; the refresh it triggers has not. The default mock drops the row
+      // up front, as if the refetch had already landed - here it lands only on `releaseRefresh`.
+      mockDeleteMutate.mockImplementationOnce(() => {
+        void mockState.deleteOptions.onSuccess?.()
+      })
+      renderModal()
+
+      await user.click(screen.getByTestId(`delete-credential-${TEST_CREDENTIAL_ID}`))
+      await user.click(confirmDelete())
+
+      expect(screen.getByTestId(`delete-credential-${remaining.id}`)).toBeDisabled()
+      expect(screen.getByRole("button", { name: "Create Access Key" })).toBeDisabled()
+
+      mockState.credentials = [remaining]
+      await act(async () => releaseRefresh())
+
+      await waitFor(() => expect(screen.getByTestId(`delete-credential-${remaining.id}`)).toBeEnabled())
+      await user.click(screen.getByTestId(`delete-credential-${remaining.id}`))
+      expect(screen.getByText(/This is the last access key in this project/)).toBeInTheDocument()
     })
 
     test("cancelling the confirmation leaves the key alone", async () => {

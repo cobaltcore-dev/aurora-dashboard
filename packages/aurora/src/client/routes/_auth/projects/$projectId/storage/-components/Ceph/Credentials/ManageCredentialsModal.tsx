@@ -78,13 +78,16 @@ export const ManageCredentialsModal = ({ isOpen, onClose }: ManageCredentialsMod
   const permissionsKnown = !isLoadingPermissions && !isPermissionsError
 
   const {
-    data: credentials = [],
+    data: listedCredentials,
     isLoading: isLoadingCredentials,
     error: listError,
   } = trpcReact.storage.ceph.ec2Credentials.list.useQuery(
     { project_id: projectId ?? "" },
     { enabled: isOpen && !!projectId, retry: false }
   )
+  // `listedCredentials` itself stays reachable: `undefined` there means "no list yet", which the
+  // reconciliation below must not mistake for "no keys".
+  const credentials = listedCredentials ?? []
 
   // staleTime: Infinity - endpoint/region are deployment constants, not per-session state.
   const { data: s3Status, error: statusError } = trpcReact.storage.ceph.containers.status.useQuery(
@@ -109,8 +112,9 @@ export const ManageCredentialsModal = ({ isOpen, onClose }: ManageCredentialsMod
   // gone, where no Hide can reach it and only closing the modal clears it. The delete's own cleanup
   // cannot catch it either: it can only drop a secret that has already arrived.
   //
-  // Filled once a delete has established that the key is gone - on success, and on the `NOT_FOUND`
-  // that means someone else removed it first - rather than when one is started, so a delete that
+  // Filled once a delete has established that the key is gone - on success, on the `NOT_FOUND`
+  // that means someone else removed it first, and when a refreshed list no longer has it (see the
+  // reconciliation below) - rather than when one is started, so a delete that
   // fails and leaves the key in place still shows the secret its Reveal was fetching. An id is
   // dropped again when that row's Reveal is clicked, which is what keeps this from outliving the
   // key's id.
@@ -159,8 +163,9 @@ export const ManageCredentialsModal = ({ isOpen, onClose }: ManageCredentialsMod
   // than one because a secret can be in either of two places: already here, or still in flight -
   // and the second one can only be refused on arrival, not erased.
   //
-  // Called from the two delete outcomes that mean the key is gone, and from nowhere else: Hide
-  // clears the first half only, deliberately, because that row is still there to reveal again.
+  // Called from the two delete outcomes that mean the key is gone, and its effect is repeated by
+  // the list reconciliation below for keys that went some other way. Hide clears the first half
+  // only, deliberately, because that row is still there to reveal again.
   const discardSecretOf = (credentialId: string) => {
     setRevealedSecrets((prev) => {
       const next = { ...prev }
@@ -189,20 +194,26 @@ export const ManageCredentialsModal = ({ isOpen, onClose }: ManageCredentialsMod
     },
   })
 
+  // Both outcomes hold the row's delete open until the key table has been refreshed, rather than
+  // releasing it as soon as the server has answered: until then `credentials` is the list from
+  // before the delete. Released earlier, the controls come back over a table that still shows the
+  // removed key, and deleting the remaining one of two opens the confirmation without its
+  // last-key warning, since `isLastKey` is read off that stale count.
   const deleteMutation = trpcReact.storage.ceph.ec2Credentials.delete.useMutation({
-    onSuccess: () => {
-      invalidateCredentialQueries(utils, { projectId: projectId ?? "", mutation: "delete" })
-
+    onSuccess: async () => {
       const deleted = deletingRef.current
       if (deleted) {
         discardSecretOf(deleted.id)
         const { message, ...options } = getCredentialDeletedToast(deleted.access)
         toast.success(message, options)
       }
+
+      await invalidateCredentialQueries(utils, { projectId: projectId ?? "", mutation: "delete" })
+
       deletingRef.current = null
       setDeletingId(null)
     },
-    onError: (err) => {
+    onError: async (err) => {
       const failed = deletingRef.current
 
       // A toast, not the modal's error Message: a delete reports its outcome in one place
@@ -220,7 +231,7 @@ export const ManageCredentialsModal = ({ isOpen, onClose }: ManageCredentialsMod
       // Refreshed even though nothing was deleted. The commonest failure is NOT_FOUND - the key
       // was already gone - and leaving its row on screen would be a worse lie than the silent
       // success this replaces. A failure that leaves the key in place costs one list refetch.
-      invalidateCredentialQueries(utils, { projectId: projectId ?? "", mutation: "delete" })
+      await invalidateCredentialQueries(utils, { projectId: projectId ?? "", mutation: "delete" })
 
       deletingRef.current = null
       setDeletingId(null)
@@ -229,7 +240,10 @@ export const ManageCredentialsModal = ({ isOpen, onClose }: ManageCredentialsMod
 
   // Deliberately excludes the secret fetches below: those belong to one row's Reveal, and blocking
   // Close/Create/Delete on them would gate the whole modal behind one row's request.
-  const isBusy = createMutation.isPending || deleteMutation.isPending
+  //
+  // `deletingId` rather than `deleteMutation.isPending` alone: it is set when a delete starts and
+  // cleared only once the refresh above has settled (see the delete callbacks).
+  const isBusy = createMutation.isPending || deleteMutation.isPending || deletingId !== null
 
   const handleClose = () => {
     trackClose()
@@ -269,6 +283,33 @@ export const ManageCredentialsModal = ({ isOpen, onClose }: ManageCredentialsMod
     deletingRef.current = null
     abandonedRevealsRef.current.clear()
   }, [isOpen])
+
+  // The list, not the delete outcomes, is what says which keys still exist. A row can go without
+  // either outcome reporting it: a delete whose response was lost after Keystone had removed the
+  // key ends in a network error, and a key removed from another tab, or by an administrator, just
+  // drops out of the next refresh. Either way its row - and with it the only Hide that could reach
+  // its secret - is gone, while the secret stays in state and an in-flight Reveal for it would
+  // still be accepted. So every list that arrives drops what it no longer names.
+  //
+  // Only a list that has arrived: `undefined` (still loading, or the first request failed) says
+  // nothing about which keys exist, and read as "none" it would discard every secret on screen.
+  useEffect(() => {
+    if (!listedCredentials) return
+    const listedIds = new Set(listedCredentials.map((credential) => credential.id))
+    const isGone = (credentialId: string) => !listedIds.has(credentialId)
+
+    setRevealedSecrets((prev) => {
+      const goneIds = Object.keys(prev).filter(isGone)
+      if (goneIds.length === 0) return prev
+      const next = { ...prev }
+      goneIds.forEach((credentialId) => delete next[credentialId])
+      return next
+    })
+    // Refused on arrival, the same way a deleted row's pending Reveal is.
+    Object.keys(loadingSecretIds)
+      .filter(isGone)
+      .forEach((credentialId) => abandonedRevealsRef.current.add(credentialId))
+  }, [listedCredentials, loadingSecretIds])
 
   // The only place a secret is fetched. Guarded on the two states that mean "already have it or
   // already asking", so a double click costs one request. A failure goes to the modal's single
@@ -518,7 +559,7 @@ export const ManageCredentialsModal = ({ isOpen, onClose }: ManageCredentialsMod
                         </InputGroup>
                       </DataGridCell>
                       <DataGridCell>
-                        {deleteMutation.isPending && deletingId === credential.id ? (
+                        {deletingId === credential.id ? (
                           <Spinner variant="primary" size="small" />
                         ) : (
                           (!permissionsKnown || permissions.canDeleteCredential) && (
