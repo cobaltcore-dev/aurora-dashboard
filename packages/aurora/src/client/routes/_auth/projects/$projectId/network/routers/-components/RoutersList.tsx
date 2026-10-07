@@ -54,6 +54,7 @@ function RoutersContent({
   handleSortChange,
   currentPage,
   onPageChange,
+  isStale,
 }: {
   routersPromise: Promise<RoutersResult>
   searchTerm: string
@@ -62,6 +63,8 @@ function RoutersContent({
   handleSortChange: (settings: SortSettings) => void
   currentPage: number
   onPageChange: (page: number) => void
+  /** True while the shown routers are from the previous query and the next one is still loading */
+  isStale: boolean
 }) {
   const { t } = useLingui()
   const { routers, listError } = use(routersPromise)
@@ -89,9 +92,11 @@ function RoutersContent({
     setLocalSearchTerm(searchTerm)
   }, [searchTerm])
 
+  // Validate the page only against the current query's result: while the previous result is still shown,
+  // its page count says nothing about the URL's page (e.g. back/forward from a filtered to an unfiltered list).
   useEffect(() => {
-    if (currentPage > totalPages) onPageChange(1)
-  }, [totalPages, currentPage, onPageChange])
+    if (!isStale && currentPage > totalPages) onPageChange(1)
+  }, [isStale, totalPages, currentPage, onPageChange])
 
   if (listError) {
     return <Status status="error" title={t`Failed to Load Routers`} body={listError} />
@@ -177,6 +182,7 @@ export const Routers = ({ client, project }: RoutersProps) => {
   // Keeps the current list (and the search input) on screen while the next query loads,
   // instead of falling back to the Suspense loading state on every search or sort change
   const deferredRoutersPromise = useDeferredValue(routersPromise)
+  const isStale = deferredRoutersPromise !== routersPromise
 
   const handleSortChange = (newSortSettings: SortSettings) => {
     navigate({
@@ -242,6 +248,7 @@ export const Routers = ({ client, project }: RoutersProps) => {
             handleSortChange={handleSortChange}
             currentPage={currentPage}
             onPageChange={handlePageChange}
+            isStale={isStale}
           />
         </Suspense>
       </ErrorBoundary>

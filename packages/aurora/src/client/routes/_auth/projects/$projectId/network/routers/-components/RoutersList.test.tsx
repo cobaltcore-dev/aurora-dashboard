@@ -400,6 +400,34 @@ describe("Routers", () => {
       expect(container).toHaveAttribute("data-current-page", "2")
     })
 
+    it("keeps a valid page while the next query loads (e.g. back from a filtered list)", async () => {
+      let resolveNext: (routers: RouterListItem[]) => void = () => undefined
+      const manyRouters = Array.from({ length: 200 }, (_, i) => makeRouter(`router-${i}`))
+      const query = vi
+        .fn()
+        .mockResolvedValueOnce([makeRouter("router-1")])
+        .mockImplementationOnce(() => new Promise((resolve) => (resolveNext = resolve)))
+      searchStore.params = { search: "edge" }
+      await renderList(query)
+      await screen.findByTestId("router-list-container")
+
+      // Back to the unfiltered list on page 4: the filtered result (1 page) is still shown
+      await act(async () => {
+        setUrlSearch({ page: 4 })
+      })
+      expect(mockNavigate).not.toHaveBeenCalled()
+
+      await act(async () => {
+        resolveNext(manyRouters)
+      })
+
+      const container = await screen.findByTestId("router-list-container")
+      await waitFor(() => {
+        expect(container).toHaveAttribute("data-current-page", "4")
+      })
+      expect(mockNavigate).not.toHaveBeenCalled()
+    })
+
     it("resets to the first page when the page in the URL is out of range", async () => {
       searchStore.params = { page: 5 }
       await renderList()
