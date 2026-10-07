@@ -1328,9 +1328,6 @@ msgstr "Das Trennen dieser Floating IP hebt die Zuordnung zum aktuellen Port auf
 msgid "Detaching..."
 msgstr ""
 
-msgid "Details"
-msgstr "Details"
-
 msgid "Device ID"
 msgstr "Geräte-ID"
 
@@ -1430,14 +1427,8 @@ msgstr ""
 msgid "e.g. PROJECT_ID:USER_ID"
 msgstr "z. B. PROJECT_ID:USER_ID"
 
-msgid "e.g. Ubuntu 22.04 LTS"
-msgstr ""
-
 msgid "e.g., b90f9c4bc76140e18540b2cec1299e2a"
 msgstr "z. B. b90f9c4bc76140e18540b2cec1299e2a"
-
-msgid "e.g., production, linux, ubuntu"
-msgstr "z. B. production, linux, ubuntu"
 
 msgid "Edit"
 msgstr "Bearbeiten"
@@ -3014,9 +3005,6 @@ msgstr ""
 msgid "Property Deleted"
 msgstr ""
 
-msgid "Property Key"
-msgstr ""
-
 msgid "Property Updated"
 msgstr ""
 
@@ -3247,9 +3235,6 @@ msgstr "Flavors suchen..."
 
 msgid "Search floating IPs..."
 msgstr ""
-
-msgid "Search images..."
-msgstr "Images suchen..."
 
 msgid "Search lifecycle rules..."
 msgstr ""

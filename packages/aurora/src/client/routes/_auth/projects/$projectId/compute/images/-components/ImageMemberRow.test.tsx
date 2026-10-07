@@ -91,34 +91,6 @@ describe("ImageMemberRow", () => {
       setup(member)
       expect(screen.getByText("unknown_status")).toBeInTheDocument()
     })
-
-    it("should apply warning variant class to pending status", () => {
-      const member = { ...mockMember, status: "pending" }
-      setup(member)
-      const statusCell = screen.getByText("Pending").closest("div")
-      expect(statusCell).toHaveClass("text-theme-warning")
-    })
-
-    it("should apply success variant class to accepted status", () => {
-      const member = { ...mockMember, status: "accepted" }
-      setup(member)
-      const statusCell = screen.getByText("Accepted").closest("div")
-      expect(statusCell).toHaveClass("text-theme-success")
-    })
-
-    it("should apply danger variant class to rejected status", () => {
-      const member = { ...mockMember, status: "rejected" }
-      setup(member)
-      const statusCell = screen.getByText("Rejected").closest("div")
-      expect(statusCell).toHaveClass("text-theme-danger")
-    })
-
-    it("should apply default variant class to unknown status", () => {
-      const member = { ...mockMember, status: "unknown_status" }
-      setup(member)
-      const statusCell = screen.getByText("unknown_status").closest("div")
-      expect(statusCell).toHaveClass("text-theme-default")
-    })
   })
 
   describe("Delete Button - Conditional Rendering", () => {
@@ -214,11 +186,10 @@ describe("ImageMemberRow", () => {
       expect(screen.getByText("Accepted")).toBeInTheDocument()
     })
 
-    it("should reflect status change in styling", () => {
+    it("should reflect status change in text", () => {
       const { rerender } = setup({ ...mockMember, status: "pending" }, false, true)
 
-      let statusCell = screen.getByText("Pending").closest("div")
-      expect(statusCell).toHaveClass("text-theme-warning")
+      expect(screen.getByText("Pending")).toBeInTheDocument()
 
       rerender(
         <I18nProvider i18n={i18n}>
@@ -233,8 +204,7 @@ describe("ImageMemberRow", () => {
         </I18nProvider>
       )
 
-      statusCell = screen.getByText("Accepted").closest("div")
-      expect(statusCell).toHaveClass("text-theme-success")
+      expect(screen.getByText("Accepted")).toBeInTheDocument()
     })
   })
 

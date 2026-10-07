@@ -99,6 +99,7 @@ export function ImageTableRow({
   }
 
   const isExternalImage = isPending || isAccepted
+  const isOwnImage = image.owner === projectId
   const isMutating = updateMemberMutation.isPending
 
   return (
@@ -134,8 +135,18 @@ export function ImageTableRow({
         ) : (
           <PopupMenu>
             <PopupMenuOptions>
-              {isExternalImage && permissions.canUpdateMember && (
+              {isExternalImage && !isOwnImage && permissions.canUpdateMember && (
                 <>
+                  <PopupMenuItem
+                    label={t`Show Details`}
+                    onClick={() =>
+                      navigate({
+                        to: "/projects/$projectId/compute/images/$imageId",
+                        params: { projectId, imageId: id },
+                      })
+                    }
+                  />
+                  <PopupMenuSectionSeparator />
                   {isPending && (
                     <PopupMenuItem
                       label={t`Accept`}
@@ -181,17 +192,6 @@ export function ImageTableRow({
                     onClick={() => onActivationStatusChange(image)}
                   />
                 </>
-              )}
-              {isExternalImage && (
-                <PopupMenuItem
-                  label={t`Show Details`}
-                  onClick={() =>
-                    navigate({
-                      to: "/projects/$projectId/compute/images/$imageId",
-                      params: { projectId, imageId: id },
-                    })
-                  }
-                />
               )}
               {!isExternalImage && permissions.canDelete && !image.protected && (
                 <>

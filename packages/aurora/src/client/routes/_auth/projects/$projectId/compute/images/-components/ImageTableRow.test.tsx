@@ -194,7 +194,11 @@ describe("ImageTableRow", () => {
 
   describe("shared-image member actions", () => {
     it("offers Accept and Reject for a pending external image when canUpdateMember", async () => {
-      renderRow({ isPending: true, permissions: { ...noPermissions, canUpdateMember: true } })
+      renderRow({
+        image: makeImage({ owner: "other-project" }),
+        isPending: true,
+        permissions: { ...noPermissions, canUpdateMember: true },
+      })
 
       openRowMenu()
 
@@ -203,7 +207,11 @@ describe("ImageTableRow", () => {
     })
 
     it("offers only Reject for an already-accepted external image", async () => {
-      renderRow({ isAccepted: true, permissions: { ...noPermissions, canUpdateMember: true } })
+      renderRow({
+        image: makeImage({ owner: "other-project" }),
+        isAccepted: true,
+        permissions: { ...noPermissions, canUpdateMember: true },
+      })
 
       openRowMenu()
 
@@ -215,6 +223,7 @@ describe("ImageTableRow", () => {
       mockMutateAsync.mockResolvedValueOnce({})
       const onMemberStatusChanged = vi.fn()
       renderRow({
+        image: makeImage({ owner: "other-project" }),
         isPending: true,
         permissions: { ...noPermissions, canUpdateMember: true },
         onMemberStatusChanged,
@@ -235,6 +244,7 @@ describe("ImageTableRow", () => {
       mockMutateAsync.mockRejectedValueOnce(new Error("Permission denied"))
       const onMemberStatusChanged = vi.fn()
       renderRow({
+        image: makeImage({ owner: "other-project" }),
         isPending: true,
         permissions: { ...noPermissions, canUpdateMember: true },
         onMemberStatusChanged,
