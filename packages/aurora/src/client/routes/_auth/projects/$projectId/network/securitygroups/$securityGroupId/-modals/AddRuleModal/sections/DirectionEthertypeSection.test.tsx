@@ -87,6 +87,13 @@ describe("DirectionSection", () => {
       expect(screen.getByLabelText(/Egress/i)).toBeInTheDocument()
     })
 
+    test("explains both directions", () => {
+      render(<DirectionTestWrapper />)
+      expect(
+        screen.getByText("Ingress: traffic coming in to the instances. Egress: traffic going out of them.")
+      ).toBeInTheDocument()
+    })
+
     test("Ingress is selected by default", () => {
       render(<DirectionTestWrapper />)
       const ingressRadio = screen.getByLabelText(/Ingress/i) as HTMLInputElement
@@ -142,6 +149,11 @@ describe("EthertypeSection", () => {
     test("renders IP Version label", () => {
       render(<EthertypeTestWrapper />)
       expect(screen.getByText("IP Version")).toBeInTheDocument()
+    })
+
+    test("explains what the IP version applies to", () => {
+      render(<EthertypeTestWrapper />)
+      expect(screen.getByText("Whether the rule applies to IPv4 or IPv6 traffic.")).toBeInTheDocument()
     })
 
     test("renders IPv4 and IPv6 radio options", () => {

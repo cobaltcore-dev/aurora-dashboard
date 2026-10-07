@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach } from "vitest"
-import { render, screen, act } from "@testing-library/react"
+import { render, screen, act, fireEvent } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
@@ -54,10 +54,15 @@ describe("DescriptionSection", () => {
       expect(screen.getByLabelText(/Description/i)).toBeInTheDocument()
     })
 
-    test("renders with placeholder text", () => {
+    test("explains that it is optional and its limit", () => {
+      render(<TestWrapper />)
+      expect(screen.getByText("Optional. Up to 255 characters.")).toBeInTheDocument()
+    })
+
+    test("renders without placeholder text", () => {
       render(<TestWrapper />)
       const textarea = screen.getByLabelText(/Description/i)
-      expect(textarea).toHaveAttribute("placeholder", "Optional description")
+      expect(textarea.getAttribute("placeholder") ?? "").toBe("")
     })
 
     test("renders empty by default", () => {
@@ -96,6 +101,33 @@ describe("DescriptionSection", () => {
       await user.clear(textarea)
 
       expect(textarea).toHaveValue("")
+    })
+  })
+
+  describe("Validation", () => {
+    test("rejects a description longer than 255 characters once the field is left", async () => {
+      const user = userEvent.setup()
+      render(<TestWrapper />)
+
+      const textarea = screen.getByLabelText(/Description/i)
+      await user.click(textarea)
+      await user.paste("d".repeat(256))
+      expect(screen.queryByText("Description must be at most 255 characters long.")).not.toBeInTheDocument()
+
+      fireEvent.blur(textarea)
+      expect(await screen.findByText("Description must be at most 255 characters long.")).toBeInTheDocument()
+    })
+
+    test("accepts a description of exactly 255 characters", async () => {
+      const user = userEvent.setup()
+      render(<TestWrapper />)
+
+      const textarea = screen.getByLabelText(/Description/i)
+      await user.click(textarea)
+      await user.paste("d".repeat(255))
+      fireEvent.blur(textarea)
+
+      expect(screen.queryByText("Description must be at most 255 characters long.")).not.toBeInTheDocument()
     })
   })
 

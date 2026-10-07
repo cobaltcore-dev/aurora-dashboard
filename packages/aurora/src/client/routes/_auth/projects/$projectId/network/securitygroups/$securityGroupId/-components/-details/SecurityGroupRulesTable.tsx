@@ -23,14 +23,8 @@ import { SortInput } from "@/client/components/ListToolbar/SortInput"
 import { SelectedFilters } from "@/client/components/ListToolbar/SelectedFilters"
 import { FiltersInput } from "@/client/components/ListToolbar/FiltersInput"
 import { useModal } from "@/client/utils/useModal"
-
-// Neutron accepts a protocol as a name, as the legacy icmpv6 alias, or as an IANA number,
-// so every spelling of ICMP has to be recognised before reading the port range fields.
-const ICMP_PROTOCOLS = new Set(["icmp", "1", "ipv6-icmp", "icmpv6", "58"])
-
-function isIcmpProtocol(protocol: string | null | undefined): boolean {
-  return protocol != null && ICMP_PROTOCOLS.has(protocol.toLowerCase())
-}
+import { isIcmpProtocol } from "../../-modals/AddRuleModal/constants"
+import { getRuleRemote, useFormatRuleRemote } from "../ruleRemote"
 
 interface SecurityGroupRulesTableProps {
   rules: SecurityGroupRule[] // Filtered rules
@@ -49,6 +43,8 @@ interface SecurityGroupRulesTableProps {
   onCreateRule?: (ruleData: Omit<CreateSecurityGroupRuleInput, "project_id">) => Promise<void>
   isCreatingRule?: boolean
   createRuleError?: string | null
+  onClearCreateRuleError?: () => void
+  onClearDeleteRuleError?: () => void
   availableSecurityGroups?: Array<{ id: string; name: string | null }>
   canCreateRule: boolean
   canDeleteRule: boolean
@@ -69,11 +65,14 @@ export function SecurityGroupRulesTable({
   onCreateRule,
   isCreatingRule = false,
   createRuleError = null,
+  onClearCreateRuleError,
+  onClearDeleteRuleError,
   availableSecurityGroups = [],
   canCreateRule,
   canDeleteRule,
 }: SecurityGroupRulesTableProps) {
   const { t } = useLingui()
+  const formatRuleRemote = useFormatRuleRemote()
   const [ruleToDelete, setRuleToDelete] = useState<SecurityGroupRule | null>(null)
   const [isAddRuleModalOpen, toggleAddRuleModal] = useModal()
   const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm)
@@ -92,6 +91,7 @@ export function SecurityGroupRulesTable({
   const handleCloseDeleteDialog = () => {
     if (!isDeletingRule) {
       setRuleToDelete(null)
+      onClearDeleteRuleError?.()
     }
   }
 
@@ -135,7 +135,7 @@ export function SecurityGroupRulesTable({
     return `${portRangeMin}-${portRangeMax}`
   }
 
-  const columnCount = canDeleteRule ? 6 : 5
+  const columnCount = canDeleteRule ? 7 : 6
 
   return (
     <>
@@ -232,10 +232,11 @@ export function SecurityGroupRulesTable({
       <DataGrid columns={columnCount} className="security-group-rules-table">
         <DataGridRow>
           <DataGridHeadCell>{t`Direction`}</DataGridHeadCell>
-          <DataGridHeadCell>{t`Description`}</DataGridHeadCell>
           <DataGridHeadCell>{t`Ethertype`}</DataGridHeadCell>
           <DataGridHeadCell>{t`Protocol`}</DataGridHeadCell>
-          <DataGridHeadCell>{t`Range`}</DataGridHeadCell>
+          <DataGridHeadCell>{t`Port Range`}</DataGridHeadCell>
+          <DataGridHeadCell>{t`Remote`}</DataGridHeadCell>
+          <DataGridHeadCell>{t`Description`}</DataGridHeadCell>
           {canDeleteRule && <DataGridHeadCell />}
         </DataGridRow>
         {rules.length === 0 ? (
@@ -248,10 +249,11 @@ export function SecurityGroupRulesTable({
           rules.map((rule) => (
             <DataGridRow key={rule.id} data-testid={`rule-row-${rule.id}`}>
               <DataGridCell>{rule.direction || t`—`}</DataGridCell>
-              <DataGridCell>{rule.description || t`—`}</DataGridCell>
               <DataGridCell>{rule.ethertype}</DataGridCell>
               <DataGridCell>{rule.protocol || t`—`}</DataGridCell>
               <DataGridCell>{formatPortRange(rule)}</DataGridCell>
+              <DataGridCell>{formatRuleRemote(getRuleRemote(rule, availableSecurityGroups))}</DataGridCell>
+              <DataGridCell>{rule.description || t`—`}</DataGridCell>
               {canDeleteRule && (
                 <DataGridCell onClick={(e) => e.stopPropagation()} className="items-end pr-0">
                   <PopupMenu>
@@ -275,6 +277,7 @@ export function SecurityGroupRulesTable({
           onConfirm={handleConfirmDelete}
           isLoading={isDeletingRule}
           error={deleteError}
+          availableSecurityGroups={availableSecurityGroups}
         />
       )}
 
@@ -283,7 +286,10 @@ export function SecurityGroupRulesTable({
         <AddRuleModal
           securityGroupId={securityGroupId}
           open={isAddRuleModalOpen}
-          onClose={toggleAddRuleModal}
+          onClose={() => {
+            toggleAddRuleModal()
+            onClearCreateRuleError?.()
+          }}
           onCreate={onCreateRule}
           isLoading={isCreatingRule}
           error={createRuleError}

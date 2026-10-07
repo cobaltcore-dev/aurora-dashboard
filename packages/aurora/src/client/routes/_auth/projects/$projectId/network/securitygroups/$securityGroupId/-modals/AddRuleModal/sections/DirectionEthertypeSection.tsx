@@ -21,6 +21,7 @@ export function DirectionSection({ form, disabled = false }: DirectionSectionPro
             onChange={(value) => directionField.handleChange(String(value) as "ingress" | "egress")}
             required
             disabled={disabled}
+            helptext={t`Ingress: traffic coming in to the instances. Egress: traffic going out of them.`}
           >
             <div className="flex gap-4">
               <Radio value="ingress" label={t`Ingress`} />
@@ -52,6 +53,7 @@ export function EthertypeSection({ form, disabled = false }: EthertypeSectionPro
             onChange={(value) => ethertypeField.handleChange(String(value) as "IPv4" | "IPv6")}
             required
             disabled={disabled}
+            helptext={t`Whether the rule applies to IPv4 or IPv6 traffic.`}
           >
             <div className="flex gap-4">
               <Radio value="IPv4" label="IPv4" />

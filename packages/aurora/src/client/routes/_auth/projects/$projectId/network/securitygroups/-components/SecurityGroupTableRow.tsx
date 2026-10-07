@@ -47,6 +47,9 @@ export function SecurityGroupTableRow({
 
   const BooleanValue = ({ value }: { value: boolean | undefined }) => <span>{value ? t`Yes` : t`No`}</span>
 
+  // Neutron does not let the project's default group be renamed, and only an admin can delete it
+  const canModify = !isReadOnly && sg.name !== "default"
+
   const handleShowDetails = () => {
     if (onViewDetails) {
       onViewDetails(sg)
@@ -82,8 +85,8 @@ export function SecurityGroupTableRow({
         <PopupMenu>
           <PopupMenuOptions>
             <PopupMenuItem label={t`Show Details`} onClick={() => handleShowDetails()} />
-            {permissions.canUpdate && !isReadOnly && <PopupMenuItem label={t`Edit Group`} onClick={() => onEdit(sg)} />}
-            {permissions.canDelete && !isReadOnly && (
+            {permissions.canUpdate && canModify && <PopupMenuItem label={t`Edit Group`} onClick={() => onEdit(sg)} />}
+            {permissions.canDelete && canModify && (
               <PopupMenuItem label={t`Delete Group`} onClick={() => onDelete(sg)} />
             )}
           </PopupMenuOptions>

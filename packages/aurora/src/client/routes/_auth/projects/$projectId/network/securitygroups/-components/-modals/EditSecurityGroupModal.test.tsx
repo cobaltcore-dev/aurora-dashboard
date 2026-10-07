@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach } from "vitest"
-import { render, screen, waitFor, act } from "@testing-library/react"
+import { render, screen, waitFor, act, fireEvent } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
@@ -51,6 +51,10 @@ const renderModal = ({
       </PortalProvider>
     </I18nProvider>
   )
+
+const getConfirmButton = () => screen.getByRole("button", { name: "Update Security Group" })
+
+const blurField = (label: RegExp) => fireEvent.blur(screen.getByLabelText(label))
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
@@ -145,12 +149,101 @@ describe("EditSecurityGroupModal", () => {
 
     test("displays 'Update Security Group' button text", () => {
       renderModal()
-      expect(screen.getByTestId("update-security-group-button")).toHaveTextContent("Update Security Group")
+      expect(getConfirmButton()).toBeInTheDocument()
     })
 
     test("shows 'Updating Security Group...' when loading", () => {
       renderModal({ isLoading: true })
       expect(screen.getByText(/Updating Security Group.../i)).toBeInTheDocument()
+    })
+  })
+
+  describe("Help text and validation", () => {
+    test("explains the name limits", () => {
+      renderModal()
+      expect(screen.getByText('1-255 characters. "default" is reserved.')).toBeInTheDocument()
+    })
+
+    test("disables the confirm button when the name is cleared", async () => {
+      const user = userEvent.setup()
+      renderModal()
+
+      await user.clear(screen.getByLabelText(/Name/i))
+
+      expect(getConfirmButton()).toBeDisabled()
+    })
+
+    test('rejects renaming a group to "default"', async () => {
+      const user = userEvent.setup()
+      renderModal()
+
+      const nameInput = screen.getByLabelText(/Name/i)
+      await user.clear(nameInput)
+      await user.type(nameInput, "Default")
+      blurField(/Name/i)
+
+      expect(screen.getByText('The name "default" is reserved for the default security group.')).toBeInTheDocument()
+      expect(getConfirmButton()).toBeDisabled()
+    })
+
+    test('allows editing a group that is already named "default"', async () => {
+      const onUpdate = vi.fn().mockResolvedValue(undefined)
+      const user = userEvent.setup()
+      renderModal({ securityGroup: { ...mockSecurityGroup, name: "default" }, onUpdate })
+
+      const descriptionTextarea = screen.getByLabelText(/Description/i)
+      await user.clear(descriptionTextarea)
+      await user.type(descriptionTextarea, "new description")
+      blurField(/Name/i)
+
+      expect(
+        screen.queryByText('The name "default" is reserved for the default security group.')
+      ).not.toBeInTheDocument()
+      await user.click(getConfirmButton())
+
+      await waitFor(() => {
+        expect(onUpdate).toHaveBeenCalledWith("sg-123", { name: "default", description: "new description" })
+      })
+    })
+
+    test("rejects a name longer than 255 characters", async () => {
+      const user = userEvent.setup()
+      renderModal()
+
+      const nameInput = screen.getByLabelText(/Name/i)
+      await user.clear(nameInput)
+      await user.paste("a".repeat(256))
+      blurField(/Name/i)
+
+      expect(screen.getByText("Name must be at most 255 characters long.")).toBeInTheDocument()
+      expect(getConfirmButton()).toBeDisabled()
+    })
+
+    test("rejects a description longer than 255 characters", async () => {
+      const user = userEvent.setup()
+      renderModal()
+
+      const descriptionTextarea = screen.getByLabelText(/Description/i)
+      await user.clear(descriptionTextarea)
+      await user.paste("d".repeat(256))
+      blurField(/Description/i)
+
+      expect(screen.getByText("Description must be at most 255 characters long.")).toBeInTheDocument()
+      expect(getConfirmButton()).toBeDisabled()
+    })
+
+    test("clears the field error as soon as the user edits the field", async () => {
+      const user = userEvent.setup()
+      renderModal()
+
+      const nameInput = screen.getByLabelText(/Name/i)
+      await user.clear(nameInput)
+      blurField(/Name/i)
+      expect(screen.getByText("Security group name is required")).toBeInTheDocument()
+
+      await user.type(nameInput, "m")
+
+      expect(screen.queryByText("Security group name is required")).not.toBeInTheDocument()
     })
   })
 
@@ -169,7 +262,7 @@ describe("EditSecurityGroupModal", () => {
       await user.clear(descriptionTextarea)
       await user.type(descriptionTextarea, "updated description")
 
-      const submitButton = screen.getByTestId("update-security-group-button")
+      const submitButton = getConfirmButton()
       await user.click(submitButton)
 
       await waitFor(() => {
@@ -177,6 +270,20 @@ describe("EditSecurityGroupModal", () => {
           name: "updated-name",
           description: "updated description",
         })
+      })
+    })
+
+    test("removes the description when the field is cleared", async () => {
+      const onUpdate = vi.fn().mockResolvedValue(undefined)
+      const user = userEvent.setup()
+      renderModal({ onUpdate })
+
+      expect(screen.getByText("Optional. Up to 255 characters.")).toBeInTheDocument()
+      await user.clear(screen.getByLabelText(/Description/i))
+      await user.click(getConfirmButton())
+
+      await waitFor(() => {
+        expect(onUpdate).toHaveBeenCalledWith("sg-123", { name: "existing-sg", description: "" })
       })
     })
 
@@ -193,7 +300,7 @@ describe("EditSecurityGroupModal", () => {
       await user.clear(descriptionTextarea)
       await user.type(descriptionTextarea, "  updated description  ")
 
-      const submitButton = screen.getByTestId("update-security-group-button")
+      const submitButton = getConfirmButton()
       await user.click(submitButton)
 
       await waitFor(() => {
@@ -204,36 +311,32 @@ describe("EditSecurityGroupModal", () => {
       })
     })
 
-    test("calls onUpdate with undefined description when empty", async () => {
-      const onUpdate = vi.fn().mockResolvedValue(undefined)
-      const user = userEvent.setup()
-      renderModal({ onUpdate })
-
-      const descriptionTextarea = screen.getByLabelText(/Description/i)
-      await user.clear(descriptionTextarea)
-
-      const submitButton = screen.getByTestId("update-security-group-button")
-      await user.click(submitButton)
-
-      await waitFor(() => {
-        expect(onUpdate).toHaveBeenCalledWith("sg-123", {
-          name: "existing-sg",
-          description: undefined,
-        })
-      })
-    })
-
     test("does not call onUpdate when onUpdate prop is undefined", async () => {
       const user = userEvent.setup()
       renderModal({ onUpdate: undefined })
 
-      const submitButton = screen.getByTestId("update-security-group-button")
+      const submitButton = getConfirmButton()
       await user.click(submitButton)
 
       // Should not throw error, just do nothing
       await waitFor(() => {
         expect(submitButton).toBeInTheDocument()
       })
+    })
+    test("stays open and keeps the input when the update fails", async () => {
+      const onUpdate = vi.fn().mockRejectedValue(new Error("Conflict"))
+      const onClose = vi.fn()
+      const user = userEvent.setup()
+      renderModal({ onUpdate, onClose })
+
+      const nameInput = screen.getByLabelText(/Name/i)
+      await user.clear(nameInput)
+      await user.type(nameInput, "renamed")
+      await user.click(getConfirmButton())
+
+      await waitFor(() => expect(onUpdate).toHaveBeenCalled())
+      expect(onClose).not.toHaveBeenCalled()
+      expect(screen.getByLabelText(/Name/i)).toHaveValue("renamed")
     })
   })
 
@@ -256,15 +359,10 @@ describe("EditSecurityGroupModal", () => {
       renderModal({ onClose })
 
       // Trigger validation error
-      const nameInput = screen.getByLabelText(/Name/i)
-      await user.clear(nameInput)
+      await user.clear(screen.getByLabelText(/Name/i))
+      blurField(/Name/i)
 
-      const submitButton = screen.getByTestId("update-security-group-button")
-      await user.click(submitButton)
-
-      await waitFor(() => {
-        expect(screen.getByText(/Security group name is required/i)).toBeInTheDocument()
-      })
+      expect(screen.getByText(/Security group name is required/i)).toBeInTheDocument()
 
       // Close modal
       const cancelButton = screen.getByRole("button", { name: /Cancel/i })

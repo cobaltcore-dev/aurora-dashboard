@@ -375,5 +375,32 @@ describe("SecurityGroupTableRow", () => {
       expect(screen.queryByText("Edit Group")).not.toBeInTheDocument()
       expect(screen.queryByText("Delete Group")).not.toBeInTheDocument()
     })
+
+    it("offers only Show Details for the default group, which Neutron does not let be renamed", async () => {
+      const user = userEvent.setup()
+      const router = createTestRouter(
+        <SecurityGroupTableRow
+          securityGroup={{ ...mockSecurityGroup, name: "default" }}
+          permissions={{ ...defaultPermissions, canUpdate: true, canDelete: true }}
+          onEdit={mockOnEdit}
+          onDelete={mockOnDelete}
+        />
+      )
+      render(<RouterProvider router={router} />)
+
+      await waitFor(() => {
+        expect(screen.getByTestId("security-group-row-sg-123")).toBeInTheDocument()
+      })
+
+      const row = screen.getByTestId("security-group-row-sg-123")
+      await user.click(row.querySelector("button")!)
+
+      await waitFor(() => {
+        expect(screen.getByText("Show Details")).toBeInTheDocument()
+      })
+
+      expect(screen.queryByText("Edit Group")).not.toBeInTheDocument()
+      expect(screen.queryByText("Delete Group")).not.toBeInTheDocument()
+    })
   })
 })

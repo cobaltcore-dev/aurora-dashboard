@@ -27,6 +27,9 @@ function TestWrapper({ disabled = false, defaultRuleType = "ssh" }: { disabled?:
     <I18nProvider i18n={i18n}>
       <PortalProvider>
         <RuleTypeSection form={form} disabled={disabled} />
+        <form.Subscribe selector={(state) => [state.values.portFrom, state.values.portTo]}>
+          {([portFrom, portTo]) => <output data-testid="ports">{`${portFrom}|${portTo}`}</output>}
+        </form.Subscribe>
       </PortalProvider>
     </I18nProvider>
   )
@@ -48,6 +51,15 @@ describe("RuleTypeSection", () => {
       expect(screen.getByLabelText(/Rule Type/i)).toBeInTheDocument()
     })
 
+    test("explains what a preset does", () => {
+      render(<TestWrapper />)
+      expect(
+        screen.getByText(
+          "Service presets fill in the protocol and port. Use a custom TCP or UDP rule to set the ports, a custom ICMP rule to set the ICMP type and code, or Other Protocol for any other protocol."
+        )
+      ).toBeInTheDocument()
+    })
+
     test("renders with default SSH rule type", () => {
       render(<TestWrapper />)
       // Check that SSH is visible in the button (Juno Select renders button + dropdown)
@@ -64,6 +76,37 @@ describe("RuleTypeSection", () => {
       // Check some key options are available by checking they exist in the document
       const sshElements = screen.getAllByText(/SSH/i)
       expect(sshElements.length).toBeGreaterThan(0)
+    })
+  })
+
+  describe("Placeholder", () => {
+    test("shows the placeholder when no rule type is selected", () => {
+      render(<TestWrapper defaultRuleType="" />)
+      expect(screen.getByText("Select a rule type...")).toBeInTheDocument()
+    })
+
+    test("does not offer the placeholder as an option", async () => {
+      const user = userEvent.setup()
+      render(<TestWrapper defaultRuleType="" />)
+
+      await user.click(screen.getByLabelText(/^Rule Type/i))
+
+      expect(screen.getByRole("option", { name: "Custom TCP Rule" })).toBeInTheDocument()
+      expect(screen.queryByRole("option", { name: "Select a rule type..." })).not.toBeInTheDocument()
+    })
+
+    test("shows the required error when the select is left without a choice", async () => {
+      const user = userEvent.setup()
+      render(<TestWrapper defaultRuleType="" />)
+
+      // Opening the list is not leaving the field
+      await user.click(screen.getByLabelText(/^Rule Type/i))
+      expect(screen.queryByText("Rule type is required")).not.toBeInTheDocument()
+
+      await user.keyboard("{Escape}")
+      await user.tab()
+
+      expect(await screen.findByText("Rule type is required")).toBeInTheDocument()
     })
   })
 
@@ -90,6 +133,39 @@ describe("RuleTypeSection", () => {
       render(<TestWrapper disabled={true} />)
       const select = screen.getByLabelText(/Rule Type/i) as HTMLSelectElement
       expect(select).toBeDisabled()
+    })
+  })
+
+  describe("Preset ports", () => {
+    const choose = async (label: string) => {
+      const user = userEvent.setup()
+      await user.click(screen.getByLabelText(/^Rule Type/i))
+      await user.click(screen.getByRole("option", { name: label }))
+    }
+
+    test("leaves Port (to) empty for a single-port preset", async () => {
+      render(<TestWrapper defaultRuleType="" />)
+
+      await choose("HTTP")
+
+      expect(screen.getByTestId("ports")).toHaveTextContent("80|")
+    })
+
+    test("fills both ports for a range preset", async () => {
+      render(<TestWrapper defaultRuleType="" />)
+
+      await choose("All TCP")
+
+      expect(screen.getByTestId("ports")).toHaveTextContent("1|65535")
+    })
+
+    test("clears the ports for a custom rule", async () => {
+      render(<TestWrapper defaultRuleType="" />)
+
+      await choose("HTTP")
+      await choose("Custom TCP Rule")
+
+      expect(screen.getByTestId("ports")).toHaveTextContent(/^\|$/)
     })
   })
 
