@@ -2693,8 +2693,11 @@ msgstr "No projects available."
 msgid "No projects have access to this image yet. Click \"Add Project Access\" to grant access."
 msgstr "No projects have access to this image yet. Click \"Add Project Access\" to grant access."
 
-msgid "No routers found"
-msgstr "No routers found"
+msgid "No Routers Found"
+msgstr "No Routers Found"
+
+msgid "No routers match your search. Clear the search to view all routers."
+msgstr "No routers match your search. Clear the search to view all routers."
 
 msgid "No Rules Found"
 msgstr "No Rules Found"
@@ -3764,8 +3767,8 @@ msgstr "There Are No Lifecycle Rules for This Bucket"
 msgid "There are no RBAC policies for this security group"
 msgstr "There are no RBAC policies for this security group"
 
-msgid "There are no routers available for this project with the current filters applied. Try adjusting your filter criteria."
-msgstr "There are no routers available for this project with the current filters applied. Try adjusting your filter criteria."
+msgid "There are no routers in this project."
+msgstr "There are no routers in this project."
 
 msgid "There are no rules for this security group"
 msgstr "There are no rules for this security group"

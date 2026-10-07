@@ -2693,7 +2693,10 @@ msgstr "Keine Projekte verfügbar."
 msgid "No projects have access to this image yet. Click \"Add Project Access\" to grant access."
 msgstr "Noch kein Projekt hat Zugriff auf dieses Image. Klicken Sie auf \"Projektzugriff hinzufügen\", um Zugriff zu gewähren."
 
-msgid "No routers found"
+msgid "No Routers Found"
+msgstr ""
+
+msgid "No routers match your search. Clear the search to view all routers."
 msgstr ""
 
 msgid "No Rules Found"
@@ -3764,7 +3767,7 @@ msgstr ""
 msgid "There are no RBAC policies for this security group"
 msgstr "Für diese Security Group sind keine RBAC-Richtlinien vorhanden"
 
-msgid "There are no routers available for this project with the current filters applied. Try adjusting your filter criteria."
+msgid "There are no routers in this project."
 msgstr ""
 
 msgid "There are no rules for this security group"

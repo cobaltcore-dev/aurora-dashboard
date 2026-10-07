@@ -98,7 +98,7 @@ describe("RouterListContainer", () => {
     it("does not render the empty state when routers are present", () => {
       render(<RouterListContainer routers={mockRouters} />, { wrapper: TestWrapper })
 
-      expect(screen.queryByText("No routers found")).not.toBeInTheDocument()
+      expect(screen.queryByText("No Routers Found")).not.toBeInTheDocument()
     })
   })
 
@@ -106,14 +106,24 @@ describe("RouterListContainer", () => {
     it("renders the empty state when there are no routers", () => {
       render(<RouterListContainer routers={[]} />, { wrapper: TestWrapper })
 
-      expect(screen.getByText("No routers found")).toBeInTheDocument()
-      expect(screen.getByText(/There are no routers available for this project/)).toBeInTheDocument()
+      expect(screen.getByText("No Routers Found")).toBeInTheDocument()
+      expect(screen.getByText("There are no routers in this project.")).toBeInTheDocument()
+    })
+
+    it("suggests clearing the search when a search is applied", () => {
+      render(<RouterListContainer routers={[]} hasSearch />, { wrapper: TestWrapper })
+
+      expect(screen.getByText("No Routers Found")).toBeInTheDocument()
+      expect(
+        screen.getByText("No routers match your search. Clear the search to view all routers.")
+      ).toBeInTheDocument()
+      expect(screen.queryByText("There are no routers in this project.")).not.toBeInTheDocument()
     })
 
     it("renders the empty state when routers are undefined", () => {
       render(<RouterListContainer routers={undefined} />, { wrapper: TestWrapper })
 
-      expect(screen.getByText("No routers found")).toBeInTheDocument()
+      expect(screen.getByText("No Routers Found")).toBeInTheDocument()
     })
 
     it("renders the empty state inside the table", () => {

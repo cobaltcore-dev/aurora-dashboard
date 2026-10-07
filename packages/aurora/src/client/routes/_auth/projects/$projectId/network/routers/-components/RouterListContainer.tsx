@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react"
+import { Trans, useLingui } from "@lingui/react/macro"
 import {
   DataGrid,
   DataGridHeadCell,
@@ -5,14 +7,15 @@ import {
   DataGridCell,
   Status,
   Pagination,
+  Stack,
 } from "@cloudoperators/juno-ui-components"
-import { Trans, useLingui } from "@lingui/react/macro"
-import { useEffect, useState } from "react"
 import type { RouterListItem } from "@/server/Network/types/router"
 import { RouterTableRow } from "./RouterTableRow"
 
 interface RouterListContainerProps {
   routers?: RouterListItem[]
+  /** Whether a search term is applied, to tell "no matches" apart from "no routers in this project" */
+  hasSearch?: boolean
   currentPage?: number
   totalPages?: number
   onPageChange?: (page: number) => void
@@ -20,6 +23,7 @@ interface RouterListContainerProps {
 
 export const RouterListContainer = ({
   routers,
+  hasSearch = false,
   currentPage = 1,
   totalPages = 1,
   onPageChange,
@@ -74,15 +78,19 @@ export const RouterListContainer = ({
             <DataGridCell colSpan={6}>
               <Status
                 status="empty"
-                title={t`No routers found`}
-                body={t`There are no routers available for this project with the current filters applied. Try adjusting your filter criteria.`}
+                title={t`No Routers Found`}
+                body={
+                  hasSearch
+                    ? t`No routers match your search. Clear the search to view all routers.`
+                    : t`There are no routers in this project.`
+                }
               />
             </DataGridCell>
           </DataGridRow>
         )}
       </DataGrid>
       {totalPages > 1 && (
-        <div className="flex justify-center py-4">
+        <Stack distribution="center" className="py-4">
           <Pagination
             variant="input"
             currentPage={currentPage}
@@ -104,7 +112,7 @@ export const RouterListContainer = ({
               }
             }}
           />
-        </div>
+        </Stack>
       )}
     </>
   )
