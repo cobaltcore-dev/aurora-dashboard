@@ -1,9 +1,9 @@
 import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router"
-import { RouteIdLevelDefaultError } from "@/client/components/Errors/RouteIdLevelDefaultError"
-import { Button } from "@cloudoperators/juno-ui-components"
 import { msg } from "@lingui/core/macro"
 import { useLingui } from "@lingui/react/macro"
+import { Button } from "@cloudoperators/juno-ui-components"
 import type { RouteInfo } from "@/client/routes/routeInfo"
+import { RouteIdLevelDefaultError } from "@/client/components/Errors/RouteIdLevelDefaultError"
 
 const RoutersErrorComponent = () => {
   const { t } = useLingui()

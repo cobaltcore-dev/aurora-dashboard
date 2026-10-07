@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { z } from "zod"
 import { t } from "@lingui/core/macro"
 import { useLingui } from "@lingui/react/macro"
+import { z } from "zod"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import { Routers } from "./-components/RoutersList"
@@ -50,6 +50,7 @@ function RouteComponent() {
   return (
     <>
       <ContentHeader title={t`Routers`} projectId={projectId} />
+      {/* Remount on project change, so the previous project's routers are not shown while the new list loads */}
       <Routers key={projectId} project={projectId} client={trpcClient!} />
     </>
   )
