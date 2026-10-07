@@ -205,30 +205,22 @@ function ImagesContent({
 
   // Bulk mutations are available only for images owned by the current project
   const ownedSelectedImages = selectedImageObjects.filter((image) => image.owner === projectId)
+  const unownedSelectedImages = selectedImageObjects.filter((image) => image.owner !== projectId)
 
   const deletableImages = ownedSelectedImages.filter((image) => image.protected !== true)
   const protectedImages = ownedSelectedImages.filter((image) => image.protected === true)
   const activeImages = ownedSelectedImages.filter((image) => image.status === IMAGE_STATUSES.ACTIVE)
   const deactivatedImages = ownedSelectedImages.filter((image) => image.status === IMAGE_STATUSES.DEACTIVATED)
 
-  const isDeleteAllDisabled =
-    !permissions.canDelete ||
-    validSelectedImages.length === 0 ||
-    pageImages
-      .filter((image: GlanceImage) => validSelectedImages.includes(image.id))
-      .every((image: GlanceImage) => image.protected)
+  // For activate/deactivate modals, also track the unowned images' statuses for display
+  const unownedActiveImages = unownedSelectedImages.filter((image) => image.status === IMAGE_STATUSES.ACTIVE)
+  const unownedDeactivatedImages = unownedSelectedImages.filter((image) => image.status === IMAGE_STATUSES.DEACTIVATED)
+
+  const isDeleteAllDisabled = !permissions.canDelete || validSelectedImages.length === 0 || deletableImages.length === 0
   const isDeactivateAllDisabled =
-    !permissions.canUpdate ||
-    validSelectedImages.length === 0 ||
-    pageImages
-      .filter((image: GlanceImage) => validSelectedImages.includes(image.id))
-      .every((image: GlanceImage) => image.status === IMAGE_STATUSES.DEACTIVATED)
+    !permissions.canUpdate || validSelectedImages.length === 0 || activeImages.length === 0
   const isActivateAllDisabled =
-    !permissions.canUpdate ||
-    validSelectedImages.length === 0 ||
-    pageImages
-      .filter((image: GlanceImage) => validSelectedImages.includes(image.id))
-      .every((image: GlanceImage) => image.status === IMAGE_STATUSES.ACTIVE)
+    !permissions.canUpdate || validSelectedImages.length === 0 || deactivatedImages.length === 0
 
   const memberStatusTabs = {
     items: [
@@ -348,7 +340,7 @@ function ImagesContent({
               />
               <PopupMenu>
                 <PopupMenuToggle as="div">
-                  <Button size="small" icon="moreVert" label={t`Actions`} />
+                  <Button disabled={validSelectedImages.length === 0} size="small" icon="moreVert" label={t`Actions`} />
                 </PopupMenuToggle>
                 <PopupMenuOptions>
                   {permissions.canUpdate && (
@@ -402,12 +394,15 @@ function ImagesContent({
         protectedImages={protectedImages}
         activeImages={activeImages}
         deactivatedImages={deactivatedImages}
+        unownedActiveImages={unownedActiveImages}
+        unownedDeactivatedImages={unownedDeactivatedImages}
         onImageUpdated={onImageUpdated}
         onImageDeleted={onImageDeleted}
         onMemberStatusChanged={onMemberStatusChanged}
         hasAnyBulkAction={permissions.canDelete || permissions.canUpdate}
         pendingSharedIds={pendingSharedIds}
         acceptedSharedIds={acceptedSharedIds}
+        memberStatusView={memberStatusView}
       />
     </>
   )

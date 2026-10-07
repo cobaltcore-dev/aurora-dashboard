@@ -65,7 +65,7 @@ export function ImageTableRow({
 }: ImageTableRowProps) {
   const { t } = useLingui()
   const { id, name, status, visibility, size, disk_format, created_at } = image
-  const imageName = name || t`Unnamed`
+  const imageName = name || "—"
 
   const { projectId } = useParams({
     from: "/_auth/projects/$projectId/compute/images/",

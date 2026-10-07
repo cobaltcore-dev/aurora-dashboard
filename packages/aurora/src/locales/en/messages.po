@@ -224,6 +224,9 @@ msgstr "{totalItemCount, plural, one {{totalItemCount} item} other {{totalItemCo
 msgid "{unlisted} further {unlisted, plural, one {failure is} other {failures are}} not listed here."
 msgstr "{unlisted} further {unlisted, plural, one {failure is} other {failures are}} not listed here."
 
+msgid "{unownedCount, plural, one {Shared image cannot be modified (#)} other {Shared images cannot be modified (#)}}"
+msgstr "{unownedCount, plural, one {Shared image cannot be modified (#)} other {Shared images cannot be modified (#)}}"
+
 msgid "<0>Edit metadata:</0> <1>{displayName}</1>"
 msgstr "<0>Edit metadata:</0> <1>{displayName}</1>"
 
@@ -2618,6 +2621,9 @@ msgstr "new-folder-name"
 msgid "No"
 msgstr "No"
 
+msgid "No Accepted Images Found"
+msgstr "No Accepted Images Found"
+
 msgid "No Access Keys"
 msgstr "No Access Keys"
 
@@ -2654,8 +2660,8 @@ msgstr "No flavors found"
 msgid "No Floating IPs Found"
 msgstr "No Floating IPs Found"
 
-msgid "No images found"
-msgstr "No images found"
+msgid "No Images Found"
+msgstr "No Images Found"
 
 msgid "No Lifecycle Rules Matching the Current Search Criteria."
 msgstr "No Lifecycle Rules Matching the Current Search Criteria."
@@ -2710,6 +2716,9 @@ msgstr "No security groups found"
 
 msgid "No services available for this project."
 msgstr "No services available for this project."
+
+msgid "No Suggested Images Found"
+msgstr "No Suggested Images Found"
 
 msgid "No Temp URL key configured. A temporary URL key must be set at the account or container level before temporary URLs can be generated. Contact your administrator to configure X-Account-Meta-Temp-URL-Key or X-Container-Meta-Temp-URL-Key."
 msgstr "No Temp URL key configured. A temporary URL key must be set at the account or container level before temporary URLs can be generated. Contact your administrator to configure X-Account-Meta-Temp-URL-Key or X-Container-Meta-Temp-URL-Key."
@@ -3761,6 +3770,9 @@ msgstr "The text must match \"release\" in lowercase."
 msgid "There are {bucketsCount} buckets, start typing to search"
 msgstr "There are {bucketsCount} buckets, start typing to search"
 
+msgid "There are no accepted shared images for this project with the current filters applied. Try adjusting your filter criteria or check the Suggested Images tab."
+msgstr "There are no accepted shared images for this project with the current filters applied. Try adjusting your filter criteria or check the Suggested Images tab."
+
 msgid "There are no buckets available with the current search criteria. Try adjusting your search term."
 msgstr "There are no buckets available with the current search criteria. Try adjusting your search term."
 
@@ -3784,6 +3796,9 @@ msgstr "There are no items to display."
 
 msgid "There Are No Lifecycle Rules for This Bucket"
 msgstr "There Are No Lifecycle Rules for This Bucket"
+
+msgid "There are no pending shared images for this project with the current filters applied. Try adjusting your filter criteria or check the All Images tab."
+msgstr "There are no pending shared images for this project with the current filters applied. Try adjusting your filter criteria or check the All Images tab."
 
 msgid "There are no RBAC policies for this security group"
 msgstr "There are no RBAC policies for this security group"

@@ -83,12 +83,15 @@ interface ImagePageProps {
   protectedImages: Array<GlanceImage>
   activeImages: Array<GlanceImage>
   deactivatedImages: Array<GlanceImage>
+  unownedActiveImages: Array<GlanceImage>
+  unownedDeactivatedImages: Array<GlanceImage>
   onImageUpdated: (image: GlanceImage) => void
   onImageDeleted: (imageIds: string | string[]) => void
   onMemberStatusChanged: () => void
   hasAnyBulkAction: boolean
   pendingSharedIds: Set<string>
   acceptedSharedIds: Set<string>
+  memberStatusView: "all" | "pending" | "accepted"
 }
 
 export function ImageListView({
@@ -113,12 +116,15 @@ export function ImageListView({
   protectedImages,
   activeImages,
   deactivatedImages,
+  unownedActiveImages,
+  unownedDeactivatedImages,
   onImageUpdated,
   onImageDeleted,
   onMemberStatusChanged,
   hasAnyBulkAction,
   pendingSharedIds,
   acceptedSharedIds,
+  memberStatusView,
 }: ImagePageProps) {
   const projectId = useProjectId()
 
@@ -678,8 +684,20 @@ export function ImageListView({
                 <DataGridCell colSpan={hasAnyBulkAction ? 9 : 8}>
                   <Status
                     status="empty"
-                    title={t`No images found`}
-                    body={t`There are no images available for this project with the current filters applied. Try adjusting your filter criteria or create a new image.`}
+                    title={
+                      memberStatusView === "accepted"
+                        ? t`No Accepted Images Found`
+                        : memberStatusView === "pending"
+                          ? t`No Suggested Images Found`
+                          : t`No Images Found`
+                    }
+                    body={
+                      memberStatusView === "accepted"
+                        ? t`There are no accepted shared images for this project with the current filters applied. Try adjusting your filter criteria or check the Suggested Images tab.`
+                        : memberStatusView === "pending"
+                          ? t`There are no pending shared images for this project with the current filters applied. Try adjusting your filter criteria or check the All Images tab.`
+                          : t`There are no images available for this project with the current filters applied. Try adjusting your filter criteria or create a new image.`
+                    }
                   />
                 </DataGridCell>
               </DataGridRow>
@@ -777,6 +795,7 @@ export function ImageListView({
           isOpen={deactivateAllModalOpen}
           activeImages={activeImages}
           deactivatedImages={deactivatedImages}
+          unownedImages={unownedActiveImages.concat(unownedDeactivatedImages)}
           isLoading={isLoading}
           onClose={() => setDeactivateAllModalOpen(false)}
           onDeactivate={handleBulkDeactivate}
@@ -785,6 +804,7 @@ export function ImageListView({
           isOpen={activateAllModalOpen}
           deactivatedImages={deactivatedImages}
           activeImages={activeImages}
+          unownedImages={unownedActiveImages.concat(unownedDeactivatedImages)}
           isLoading={isLoading}
           onClose={() => setActivateAllModalOpen(false)}
           onActivate={handleBulkActivate}

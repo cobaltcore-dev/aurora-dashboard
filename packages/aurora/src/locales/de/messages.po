@@ -224,6 +224,9 @@ msgstr "{totalItemCount, plural, one {{totalItemCount} Element} other {{totalIte
 msgid "{unlisted} further {unlisted, plural, one {failure is} other {failures are}} not listed here."
 msgstr ""
 
+msgid "{unownedCount, plural, one {Shared image cannot be modified (#)} other {Shared images cannot be modified (#)}}"
+msgstr ""
+
 msgid "<0>Edit metadata:</0> <1>{displayName}</1>"
 msgstr "<0>Metadaten bearbeiten:</0> <1>{displayName}</1>"
 
@@ -2618,6 +2621,9 @@ msgstr "new-folder-name"
 msgid "No"
 msgstr "Nein"
 
+msgid "No Accepted Images Found"
+msgstr ""
+
 msgid "No Access Keys"
 msgstr ""
 
@@ -2654,8 +2660,8 @@ msgstr "Keine Flavors gefunden"
 msgid "No Floating IPs Found"
 msgstr ""
 
-msgid "No images found"
-msgstr "Keine Images gefunden"
+msgid "No Images Found"
+msgstr ""
 
 msgid "No Lifecycle Rules Matching the Current Search Criteria."
 msgstr ""
@@ -2710,6 +2716,9 @@ msgstr "Keine Sicherheitsgruppen gefunden"
 
 msgid "No services available for this project."
 msgstr "Keine Dienste für dieses Projekt verfügbar."
+
+msgid "No Suggested Images Found"
+msgstr ""
 
 msgid "No Temp URL key configured. A temporary URL key must be set at the account or container level before temporary URLs can be generated. Contact your administrator to configure X-Account-Meta-Temp-URL-Key or X-Container-Meta-Temp-URL-Key."
 msgstr "Kein Temp-URL-Schlüssel konfiguriert. Ein temporärer URL-Schlüssel muss auf Account- oder Container-Ebene gesetzt werden, bevor temporäre URLs generiert werden können. Wenden Sie sich an Ihren Administrator, um X-Account-Meta-Temp-URL-Key oder X-Container-Meta-Temp-URL-Key zu konfigurieren."
@@ -3761,6 +3770,9 @@ msgstr ""
 msgid "There are {bucketsCount} buckets, start typing to search"
 msgstr ""
 
+msgid "There are no accepted shared images for this project with the current filters applied. Try adjusting your filter criteria or check the Suggested Images tab."
+msgstr ""
+
 msgid "There are no buckets available with the current search criteria. Try adjusting your search term."
 msgstr ""
 
@@ -3777,12 +3789,15 @@ msgid "There are no Floating IPs available for this project. Floating IPs allow 
 msgstr "Für dieses Projekt sind keine Floating IPs verfügbar. Floating IPs ermöglichen es, öffentliche IP-Adressen Instanzen zuzuordnen."
 
 msgid "There are no images available for this project with the current filters applied. Try adjusting your filter criteria or create a new image."
-msgstr "Für dieses Projekt sind mit den aktuellen Filtern keine Images verfügbar. Passen Sie Ihre Filterkriterien an oder erstellen Sie ein neues Image."
+msgstr ""
 
 msgid "There are no items to display."
 msgstr "Es gibt keine Elemente zum Anzeigen."
 
 msgid "There Are No Lifecycle Rules for This Bucket"
+msgstr ""
+
+msgid "There are no pending shared images for this project with the current filters applied. Try adjusting your filter criteria or check the All Images tab."
 msgstr ""
 
 msgid "There are no RBAC policies for this security group"

@@ -30,7 +30,8 @@ describe("DeactivateImagesModal", () => {
     isOpen: boolean,
     isLoading = false,
     activeImages = mockActiveImages,
-    deactivatedImages = [] as Array<GlanceImage>
+    deactivatedImages = [] as Array<GlanceImage>,
+    unownedImages = [] as Array<GlanceImage>
   ) => {
     render(
       <I18nProvider i18n={i18n}>
@@ -42,6 +43,7 @@ describe("DeactivateImagesModal", () => {
             onDeactivate={mockOnDeactivate}
             activeImages={activeImages}
             deactivatedImages={deactivatedImages}
+            unownedImages={unownedImages}
           />
         </PortalProvider>
       </I18nProvider>
