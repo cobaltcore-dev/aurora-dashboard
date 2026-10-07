@@ -4,6 +4,7 @@ import { Modal, Stack, Message, Form, FormSection, TextInput } from "@cloudopera
 import { Trans, useLingui } from "@lingui/react/macro"
 import type { SecurityGroupRule } from "@/server/Network/types/securityGroup"
 import { useModalTracking } from "@/client/hooks/useModalTracking"
+import { getRuleRemote, useFormatRuleRemote, type SecurityGroupOption } from "../-components/ruleRemote"
 
 interface DeleteRuleDialogProps {
   rule: SecurityGroupRule | null
@@ -12,10 +13,20 @@ interface DeleteRuleDialogProps {
   onConfirm: (ruleId: string) => void
   isLoading: boolean
   error: string | null
+  availableSecurityGroups?: SecurityGroupOption[]
 }
 
-export function DeleteRuleDialog({ rule, open, onClose, onConfirm, isLoading, error }: DeleteRuleDialogProps) {
+export function DeleteRuleDialog({
+  rule,
+  open,
+  onClose,
+  onConfirm,
+  isLoading,
+  error,
+  availableSecurityGroups = [],
+}: DeleteRuleDialogProps) {
   const { t } = useLingui()
+  const formatRuleRemote = useFormatRuleRemote()
 
   const { trackClose, markSubmitted, resetTracking } = useModalTracking({
     isOpen: open,
@@ -104,16 +115,9 @@ export function DeleteRuleDialog({ rule, open, onClose, onConfirm, isLoading, er
                   : `${rule.port_range_min}-${rule.port_range_max}`}
               </li>
             )}
-            {rule.remote_ip_prefix && (
-              <li>
-                <Trans>Remote IP</Trans>: {rule.remote_ip_prefix}
-              </li>
-            )}
-            {rule.remote_group_id && (
-              <li>
-                <Trans>Remote Security Group</Trans>: {rule.remote_group_id}
-              </li>
-            )}
+            <li>
+              <Trans>Remote</Trans>: {formatRuleRemote(getRuleRemote(rule, availableSecurityGroups))}
+            </li>
           </ul>
         </div>
 

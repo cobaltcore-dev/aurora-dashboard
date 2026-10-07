@@ -155,6 +155,9 @@ msgstr ""
 msgid "{filteredCount, plural, one {{filteredCount} of {totalCount} container} other {{filteredCount} of {totalCount} containers}}"
 msgstr "{filteredCount, plural, one {{filteredCount} von {totalCount} Container} other {{filteredCount} von {totalCount} Containern}}"
 
+msgid "{name} (this group)"
+msgstr ""
+
 msgid "{numberDeleted} object was permanently deleted."
 msgstr "{numberDeleted} Objekt wurde dauerhaft gelöscht."
 
@@ -245,11 +248,20 @@ msgstr "<0>Sicher & Zuverlässig:</0> Ihre Daten und Operationen sind mit Sicher
 msgid "<0>Unified Cloud Management:</0> Consolidates all your cloud assets into one intuitive interface."
 msgstr "<0>Vereinheitlichtes Cloud-Management:</0> Konsolidiert alle Ihre Cloud-Ressourcen in einer intuitiven Oberfläche."
 
+msgid "0-255. Leave empty to allow all codes. Requires an ICMP type."
+msgstr ""
+
+msgid "0-255. Leave empty to allow all types."
+msgstr ""
+
 msgid "1 hour"
 msgstr "1 Stunde"
 
 msgid "1 minute"
 msgstr "1 Minute"
+
+msgid "1-255 characters. \"default\" is reserved."
+msgstr ""
 
 msgid "2-50 characters."
 msgstr ""
@@ -404,6 +416,9 @@ msgstr "Regel hinzufügen"
 msgid "Add Security Group Rule"
 msgstr "Sicherheitsgruppenregel hinzufügen"
 
+msgid "Address group: {id}"
+msgstr ""
+
 msgid "Admin State"
 msgstr ""
 
@@ -467,6 +482,9 @@ msgstr ""
 msgid "An unexpected error occurred. Please try again."
 msgstr "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
 
+msgid "Any"
+msgstr ""
+
 msgid "Any file type"
 msgstr "Beliebiger Dateityp"
 
@@ -478,6 +496,9 @@ msgstr "Jeder Benutzer kann eine HEAD- oder GET-Operation auf dem Container ausf
 
 msgid "Any user has read access to objects. No token is required in the request."
 msgstr "Jeder Benutzer hat Lesezugriff auf Objekte. Es ist kein Token in der Anfrage erforderlich."
+
+msgid "Applies to traffic to or from any instance in the selected group."
+msgstr ""
 
 msgid "Apply this rule only to objects with specific tags. Cannot be combined with Abort Incomplete Multipart Uploads."
 msgstr ""
@@ -887,9 +908,6 @@ msgstr "Ordner \"{folderName}\" konnte nicht erstellt werden: {errorMessage}"
 msgid "Could not create folder \"{folderPath}\": {errorMessage}"
 msgstr ""
 
-msgid "Could not create security group rule: {errorMessage}"
-msgstr ""
-
 msgid "Could not delete \"{displayName}\": {errorMessage}"
 msgstr ""
 
@@ -929,12 +947,6 @@ msgstr ""
 msgid "Could not delete rule \"{ruleId}\" from bucket \"{bucketName}\": {errorMessage}"
 msgstr ""
 
-msgid "Could not delete security group rule: {errorMessage}"
-msgstr ""
-
-msgid "Could not delete security group: {errorMessage}"
-msgstr ""
-
 msgid "Could not delete version of \"{displayName}\": {errorMessage}"
 msgstr ""
 
@@ -965,9 +977,6 @@ msgstr ""
 msgid "Could not restore \"{displayName}\": {errorMessage}"
 msgstr ""
 
-msgid "Could not revoke access: {errorMessage}"
-msgstr ""
-
 msgid "Could not save bucket policy for \"{bucketName}\": {errorMessage}"
 msgstr ""
 
@@ -975,9 +984,6 @@ msgid "Could not save CORS configuration for bucket \"{bucketName}\": {errorMess
 msgstr ""
 
 msgid "Could not save lifecycle rule for bucket \"{bucketName}\": {errorMessage}"
-msgstr ""
-
-msgid "Could not share security group: {errorMessage}"
 msgstr ""
 
 msgid "Could not suspend versioning for bucket \"{bucketName}\": {errorMessage}"
@@ -994,9 +1000,6 @@ msgstr "ACLs für Container \"{containerName}\" konnten nicht aktualisiert werde
 
 msgid "Could not update container \"{containerName}\": {errorMessage}"
 msgstr "Container \"{containerName}\" konnte nicht aktualisiert werden: {errorMessage}"
-
-msgid "Could not update security group: {errorMessage}"
-msgstr ""
 
 msgid "Could not upload \"{objectName}\": {errorMessage}"
 msgstr "\"{objectName}\" konnte nicht hochgeladen werden: {errorMessage}"
@@ -1259,6 +1262,9 @@ msgstr "Beschreibung"
 msgid "Description must be at least 1 character."
 msgstr "Die Beschreibung muss mindestens 1 Zeichen lang sein."
 
+msgid "Description must be at most 255 characters long."
+msgstr ""
+
 msgid "Description must be at most 255 characters."
 msgstr "Die Beschreibung darf höchstens 255 Zeichen lang sein."
 
@@ -1379,9 +1385,6 @@ msgstr ""
 msgid "e.g. PROJECT_ID:USER_ID"
 msgstr "z. B. PROJECT_ID:USER_ID"
 
-msgid "e.g., b90f9c4bc76140e18540b2cec1299e2a"
-msgstr "z. B. b90f9c4bc76140e18540b2cec1299e2a"
-
 msgid "Edit"
 msgstr "Bearbeiten"
 
@@ -1472,6 +1475,9 @@ msgstr ""
 msgid "Enabled"
 msgstr ""
 
+msgid "End of the range. Leave empty for a single port."
+msgstr ""
+
 msgid "Ensure ACL entries are valid — correct project IDs, user IDs, and formats are your responsibility. Invalid entries may silently grant or deny unintended access."
 msgstr "Stellen Sie sicher, dass ACL-Einträge gültig sind — korrekte Projekt-IDs, Benutzer-IDs und Formate liegen in Ihrer Verantwortung. Ungültige Einträge können stillschweigend unbeabsichtigten Zugriff gewähren oder verweigern."
 
@@ -1493,9 +1499,6 @@ msgstr ""
 msgid "Enter a name for the new folder."
 msgstr ""
 
-msgid "Enter a single port, or define a range by also filling \"Port (to)\". \"Port (to)\" is optional."
-msgstr "Geben Sie einen einzelnen Port ein oder definieren Sie einen Bereich, indem Sie auch \"Port (bis)\" ausfüllen. \"Port (bis)\" ist optional."
-
 msgid "Enter a tag and press Enter or click Add"
 msgstr "Geben Sie ein Tag ein und drücken Sie Enter oder klicken Sie auf Hinzufügen"
 
@@ -1507,6 +1510,9 @@ msgstr ""
 
 msgid "Enter a valid PQDN or FQDN (max 63 characters) to associate with the floating IP. A and PTR records are created automatically."
 msgstr "Gültige PQDN oder FQDN (max. 63 Zeichen) eingeben, um sie der Floating IP zuzuordnen. A- und PTR-Einträge werden automatisch erstellt."
+
+msgid "Enter a valid project ID: 32 hexadecimal characters, dashes optional."
+msgstr ""
 
 msgid "Enter a whole number of days greater than 0"
 msgstr ""
@@ -1525,9 +1531,6 @@ msgstr "Key eingeben"
 
 msgid "Enter project ID"
 msgstr "Projekt-ID eingeben"
-
-msgid "Enter the ID of the project you want to share this security group with. You can find project IDs in the account/project switcher or in the Identity service."
-msgstr "Geben Sie die ID des Projekts ein, mit dem Sie diese Sicherheitsgruppe teilen möchten. Sie finden Projekt-IDs im Konto-/Projekt-Umschalter oder im Identity-Service."
 
 msgid "Enter value"
 msgstr "Value eingeben"
@@ -1670,9 +1673,6 @@ msgstr "Fehler beim Erstellen des Ordners"
 msgid "Failed to create image. Please try again."
 msgstr "Image konnte nicht erstellt werden. Bitte versuchen Sie es erneut."
 
-msgid "Failed to Create Rule"
-msgstr ""
-
 msgid "Failed to create security group"
 msgstr "Security Group konnte nicht erstellt werden"
 
@@ -1727,14 +1727,8 @@ msgstr ""
 msgid "Failed to delete rule"
 msgstr ""
 
-msgid "Failed to Delete Rule"
-msgstr ""
-
 msgid "Failed to delete security group"
 msgstr "Security Group konnte nicht gelöscht werden"
-
-msgid "Failed to Delete Security Group"
-msgstr ""
 
 msgid "Failed to delete the extra spec. Please try again."
 msgstr "Fehler beim Löschen des Extra-Specs. Bitte versuchen Sie es erneut."
@@ -1880,9 +1874,6 @@ msgstr ""
 msgid "Failed to restore version: {errorMessage}"
 msgstr ""
 
-msgid "Failed to Revoke Access"
-msgstr ""
-
 msgid "Failed to Save Bucket Policy"
 msgstr ""
 
@@ -1896,9 +1887,6 @@ msgid "Failed to Save Lifecycle Rule"
 msgstr ""
 
 msgid "Failed to Save Policy"
-msgstr ""
-
-msgid "Failed to Share Security Group"
 msgstr ""
 
 msgid "Failed to Suspend Versioning"
@@ -1927,9 +1915,6 @@ msgstr "Fehler beim Aktualisieren des Objekts: {mutationErrorMessage}"
 
 msgid "Failed to update security group"
 msgstr "Security Group konnte nicht aktualisiert werden"
-
-msgid "Failed to Update Security Group"
-msgstr ""
 
 msgid "Failed to update visibility for \"{imageName}\": {errorMessage}"
 msgstr "Fehler beim Aktualisieren der Sichtbarkeit für \"{imageName}\": {errorMessage}"
@@ -2174,6 +2159,9 @@ msgstr "ID"
 msgid "ID must only contain alphanumeric characters, hyphens, underscores, and dots."
 msgstr "Die ID darf nur alphanumerische Zeichen, Bindestriche, Unterstriche und Punkte enthalten."
 
+msgid "ID of the project to share with: 32 hexadecimal characters, dashes optional. It is shown as Project ID at the top of that project's pages."
+msgstr ""
+
 msgid "If the port has multiple IPs, select the desired fixed IP address."
 msgstr ""
 
@@ -2234,6 +2222,9 @@ msgstr "Images gelöscht"
 msgid "Ingress"
 msgstr "Ingress"
 
+msgid "Ingress: traffic coming in to the instances. Egress: traffic going out of them."
+msgstr ""
+
 msgid "Inside a project, objects are stored in containers. Containers are where you define access permissions and quotas."
 msgstr "Innerhalb eines Projekts werden Objekte in Containern gespeichert. Container sind der Ort, an dem Sie Zugriffsberechtigungen und Quotas definieren."
 
@@ -2252,9 +2243,6 @@ msgstr "Ungültige Formatkombination für das ausgewählte Festplattenformat"
 msgid "Invalid JSON format"
 msgstr ""
 
-msgid "Invalid project ID format. Must be 32 hexadecimal characters (e.g., b90f9c4bc76140e18540b2cec1299e2a) or UUID format (e.g., 12345678-1234-1234-1234-123456789abc)"
-msgstr "Ungültiges Projekt-ID-Format. Muss 32 hexadezimale Zeichen sein (z. B. b90f9c4bc76140e18540b2cec1299e2a) oder UUID-Format (z. B. 12345678-1234-1234-1234-123456789abc)"
-
 msgid "Invalid value for public flavor setting."
 msgstr "Ungültiger Wert für die Einstellung des öffentlichen Flavors."
 
@@ -2265,6 +2253,9 @@ msgid "IP Version"
 msgstr "IP-Version"
 
 msgid "IP:"
+msgstr ""
+
+msgid "IPv4 or IPv6 CIDR, e.g. 10.0.0.0/24 or ::/0. Leave empty to allow any IPv4 address."
 msgstr ""
 
 msgid "Keep multiple versions of objects. Cannot be fully disabled once enabled, only suspended."
@@ -2308,12 +2299,6 @@ msgstr "Zuletzt aktualisiert: {formattedDate}"
 
 msgid "Latest"
 msgstr ""
-
-msgid "Leave empty for all codes"
-msgstr "Leer lassen für alle Codes"
-
-msgid "Leave empty for all types"
-msgstr "Leer lassen für alle Typen"
 
 msgid "Leave unchecked to save without activating."
 msgstr ""
@@ -2579,6 +2564,9 @@ msgstr "Name"
 msgid "Name must be 2-50 characters long."
 msgstr "Der Name muss 2-50 Zeichen lang sein."
 
+msgid "Name must be at most 255 characters long."
+msgstr ""
+
 msgid "Network"
 msgstr "Netzwerk"
 
@@ -2840,13 +2828,13 @@ msgstr "{displayName} öffnen"
 msgid "Open in new tab"
 msgstr "In neuem Tab öffnen"
 
-msgid "Optional description"
-msgstr "Optionale Beschreibung"
-
 msgid "Optional identifier for this rule (max 255 characters)."
 msgstr ""
 
 msgid "Optional unique identifier for the rule (max 255 characters)"
+msgstr ""
+
+msgid "Optional. Up to 255 characters."
 msgstr ""
 
 msgid "or drag and drop"
@@ -3020,6 +3008,9 @@ msgstr "Geschützt"
 msgid "Protocol"
 msgstr "Protokoll"
 
+msgid "Protocol name (e.g. tcp, udp, icmp, gre) or IP protocol number 0-255."
+msgstr ""
+
 msgid "Public"
 msgstr "Öffentlich"
 
@@ -3053,9 +3044,6 @@ msgstr "RAM (MiB)"
 msgid "RAM must be an integer ≥ 128 MB."
 msgstr "RAM muss eine ganze Zahl ≥ 128 MB sein."
 
-msgid "Range"
-msgstr "Bereich"
-
 msgid "RBAC Policies"
 msgstr "RBAC-Richtlinien"
 
@@ -3083,17 +3071,14 @@ msgstr ""
 msgid "Remaining Quota:"
 msgstr "Verfügbare Quota:"
 
-msgid "Remote IP"
-msgstr "Entfernte IP"
+msgid "Remote"
+msgstr ""
 
 msgid "Remote IP Prefix"
 msgstr "Entferntes IP-Präfix"
 
 msgid "Remote Security Group"
 msgstr "Entfernte Sicherheitsgruppe"
-
-msgid "Remote Source"
-msgstr "Entfernte Quelle"
 
 msgid "Remove"
 msgstr "Entfernen"
@@ -3172,6 +3157,9 @@ msgstr ""
 
 msgid "Rules"
 msgstr "Regeln"
+
+msgid "Rules define which traffic is allowed to instances assigned to the security group. A security group rule consists of three main parts: Type, Port Range and Remote."
+msgstr ""
 
 msgid "Rules to delete:"
 msgstr ""
@@ -3380,6 +3368,9 @@ msgstr "Der Server hat ein unerwartetes Datenformat zurückgegeben."
 msgid "Service Not Found"
 msgstr ""
 
+msgid "Service presets fill in the protocol and port. Use a custom TCP or UDP rule to set the ports, a custom ICMP rule to set the ICMP type and code, or Other Protocol for any other protocol."
+msgstr ""
+
 msgid "Services"
 msgstr "Services"
 
@@ -3388,6 +3379,9 @@ msgstr ""
 
 msgid "Session expires in"
 msgstr "Sitzung läuft ab in"
+
+msgid "Set by the preset. Use a custom TCP or UDP rule to change the ports."
+msgstr ""
 
 msgid "Set to \"Shared\""
 msgstr "Auf \"Geteilt\" setzen"
@@ -3415,6 +3409,9 @@ msgstr "Vom Projekt geteilt"
 
 msgid "Shared:"
 msgstr "Geteilt:"
+
+msgid "Sharing Security Group..."
+msgstr ""
 
 msgid "Show ACLs Preview"
 msgstr "ACLs-Vorschau anzeigen"
@@ -3445,6 +3442,9 @@ msgstr "Einloggen"
 
 msgid "Sign In to Your Account"
 msgstr "Bei Ihrem Konto anmelden"
+
+msgid "Single port or start of a range, 1-65535."
+msgstr ""
 
 msgid "Size"
 msgstr "Größe"
@@ -3485,7 +3485,7 @@ msgstr "Beginnen Sie mit der Eingabe, um nach einem Container zu suchen"
 msgid "Stateful"
 msgstr "Stateful"
 
-msgid "Stateful security groups track connection state. This setting cannot be changed after creation."
+msgid "Stateful groups track connections, so return traffic is allowed automatically. In a stateless group, return traffic needs its own rules. Cannot be changed after creation."
 msgstr ""
 
 msgid "Static large object support"
@@ -3593,9 +3593,6 @@ msgstr "Zielprojekt-ID"
 msgid "Target project ID is required"
 msgstr "Zielprojekt-ID ist erforderlich"
 
-msgid "tcp, udp, icmp, or protocol number"
-msgstr "tcp, udp, icmp oder Protokollnummer"
-
 msgid "Temporary URL"
 msgstr "Temporäre URL"
 
@@ -3680,11 +3677,17 @@ msgstr ""
 msgid "The lifecycle configuration has changed. Please refresh and try again."
 msgstr ""
 
+msgid "The name \"default\" is reserved for the default security group."
+msgstr ""
+
 msgid "The object will be copied to this path. Navigate folders above to change the destination."
 msgstr "Das Objekt wird zu diesem Pfad kopiert. Navigieren Sie oben durch die Ordner, um das Ziel zu ändern."
 
 msgid "The object will be moved to this path. Navigate folders above to change the destination."
 msgstr "Das Objekt wird zu diesem Pfad verschoben. Navigieren Sie oben durch die Ordner, um das Ziel zu ändern."
+
+msgid "The other end of the traffic: where it comes from (ingress) or where it goes to (egress). CIDR is recommended."
+msgstr ""
 
 msgid "The page you are looking for does not exist."
 msgstr "Die gesuchte Seite existiert nicht."
@@ -3992,9 +3995,6 @@ msgstr "\"release\" zur Bestätigung eingeben"
 msgid "Type \"remove\" to confirm"
 msgstr "\"remove\" zur Bestätigung eingeben"
 
-msgid "Type name"
-msgstr "Name eingeben"
-
 msgid "Type the bucket name to confirm"
 msgstr ""
 
@@ -4200,6 +4200,9 @@ msgid "What happens when suspended:"
 msgstr ""
 
 msgid "When checked, all tenants can use this flavor. Otherwise, grant access explicitly."
+msgstr ""
+
+msgid "Whether the rule applies to IPv4 or IPv6 traffic."
 msgstr ""
 
 msgid "Why Choose Aurora?"

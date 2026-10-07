@@ -277,11 +277,11 @@ describe("SecurityGroupListContainer", () => {
       render(<RouterProvider router={router} />)
 
       await waitFor(() => {
-        expect(screen.getByTestId("security-group-row-sg-1")).toBeInTheDocument()
+        expect(screen.getByTestId("security-group-row-sg-3")).toBeInTheDocument()
       })
 
-      const firstRow = screen.getByTestId("security-group-row-sg-1")
-      const popupMenuButton = firstRow.querySelector("button")
+      const row = screen.getByTestId("security-group-row-sg-3")
+      const popupMenuButton = row.querySelector("button")
       await user.click(popupMenuButton!)
 
       await waitFor(() => {
@@ -291,7 +291,7 @@ describe("SecurityGroupListContainer", () => {
       await user.click(screen.getByText("Edit Group"))
 
       await waitFor(() => {
-        expect(screen.getByTestId("edit-modal-sg-id")).toHaveTextContent("sg-1")
+        expect(screen.getByTestId("edit-modal-sg-id")).toHaveTextContent("sg-3")
       })
     })
 
@@ -310,11 +310,11 @@ describe("SecurityGroupListContainer", () => {
       render(<RouterProvider router={router} />)
 
       await waitFor(() => {
-        expect(screen.getByTestId("security-group-row-sg-1")).toBeInTheDocument()
+        expect(screen.getByTestId("security-group-row-sg-3")).toBeInTheDocument()
       })
 
-      const firstRow = screen.getByTestId("security-group-row-sg-1")
-      const popupMenuButton = firstRow.querySelector("button")
+      const row = screen.getByTestId("security-group-row-sg-3")
+      const popupMenuButton = row.querySelector("button")
       await user.click(popupMenuButton!)
 
       await waitFor(() => {
@@ -333,6 +333,49 @@ describe("SecurityGroupListContainer", () => {
       await waitFor(() => {
         expect(screen.queryByTestId("edit-modal-sg-id")).not.toBeInTheDocument()
       })
+    })
+
+    it("discards the update error when the edit modal closes", async () => {
+      const user = userEvent.setup()
+      const onClearUpdateError = vi.fn()
+
+      const router = createTestRouter(
+        <SecurityGroupListContainer
+          securityGroups={mockSecurityGroups}
+          isLoading={false}
+          isError={false}
+          error={null}
+          permissions={defaultPermissions}
+          onClearUpdateError={onClearUpdateError}
+        />
+      )
+      render(<RouterProvider router={router} />)
+
+      await waitFor(() => {
+        expect(screen.getByTestId("security-group-row-sg-3")).toBeInTheDocument()
+      })
+
+      const row = screen.getByTestId("security-group-row-sg-3")
+      const popupMenuButton = row.querySelector("button")
+      await user.click(popupMenuButton!)
+
+      await waitFor(() => {
+        expect(screen.getByText("Edit Group")).toBeInTheDocument()
+      })
+
+      await user.click(screen.getByText("Edit Group"))
+
+      await waitFor(() => {
+        expect(screen.getByTestId("edit-modal-sg-id")).toBeInTheDocument()
+      })
+
+      const closeButton = screen.getByText("Close Edit")
+      await user.click(closeButton)
+
+      await waitFor(() => {
+        expect(screen.queryByTestId("edit-modal-sg-id")).not.toBeInTheDocument()
+      })
+      expect(onClearUpdateError).toHaveBeenCalled()
     })
   })
 })
