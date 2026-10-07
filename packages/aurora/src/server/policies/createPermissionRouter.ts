@@ -6,6 +6,13 @@ import { projectScopedProcedure, projectScopedInputSchema } from "../trpc"
 import type { PolicyEngine } from "@cobaltcore-dev/policy-engine"
 
 /**
+ * policy-engine's wording when a rule name isn't present in the loaded file and there is no
+ * `_default` to fall back on (`policyEngine.ts`). Matched on the message because the engine
+ * throws a plain `Error` and exposes no way to ask whether a rule exists.
+ */
+const MISSING_RULE_MESSAGE = /not found and no _default rule available/
+
+/**
  * Configuration for a single policy engine
  */
 export interface EngineDef {
@@ -108,7 +115,23 @@ export function createPermissionRouter<TMappings extends Record<string, PolicyMa
     .transform((value) => value as keyof TMappings)
 
   /**
-   * Check a single permission for the current user
+   * Check a single permission for the current user.
+   *
+   * A rule that the loaded policy file doesn't define is answered with `false` for that one
+   * key instead of failing the request. The engine throws in that case, and `canUser` below
+   * evaluates every requested key through `.map`, so an uncaught throw would take down the
+   * *entire* batch: for a caller like `useCephPermissions`, which asks for ~20 keys in one
+   * call, a single missing rule would hide every action in the domain rather than the one it
+   * actually governs. Fail-closed has to be per key.
+   *
+   * This is a legitimate deployment state, not only a mistake. `policyDir` is a consumer
+   * supplied parameter of `createServer()`, so operators run their own policy files, and a
+   * file written before a newly added key simply won't have that rule until they adopt it.
+   * The denial is logged (at `warn`) so it stays diagnosable from the server side.
+   *
+   * Only that one failure is absorbed. Any other error out of `policy.check` — a malformed
+   * rule expression, a bug in the evaluator — is rethrown: answering "no permission" would
+   * turn a real fault into a plausible-looking UI with no signal anywhere.
    */
   const checkSinglePermission = (
     ctx: AuroraPortalContext,
@@ -127,7 +150,22 @@ export function createPermissionRouter<TMappings extends Record<string, PolicyMa
     }
 
     const policy = getPolicy(ctx, engine)
-    return policy.check(mapping.rule)
+    try {
+      return policy.check(mapping.rule)
+    } catch (error) {
+      if (error instanceof Error && MISSING_RULE_MESSAGE.test(error.message)) {
+        // `warn`, not `error`: the docblock above calls this a legitimate deployment state, and a
+        // caller like `useCephPermissions` asks for ~20 keys per page load, so an operator one
+        // rule behind would otherwise produce an error-level line on every page view. Matches how
+        // the codebase already logs expected-but-notable states (`s3ErrorMapper`'s unmapped-code
+        // fallback, `context.ts`'s missing-catalog warning).
+        console.warn(
+          `Permission '${String(permission)}' denied: rule '${mapping.rule}' is not defined in the loaded policy file, which also has no '_default' rule.`
+        )
+        return false
+      }
+      throw error
+    }
   }
 
   return {
@@ -145,6 +183,8 @@ export function createPermissionRouter<TMappings extends Record<string, PolicyMa
      *
      * Invalid keys are rejected with a `BAD_REQUEST` error before the handler runs.
      * Empty array input returns an empty array (`[]`).
+     * A key whose rule is missing from the loaded policy file (and that file has no `_default`
+     * rule) evaluates to `false` for that key alone — the rest of the batch is unaffected.
      * Always returns `boolean[]` for consistent destructuring on the client.
      */
     canUser: projectScopedProcedure

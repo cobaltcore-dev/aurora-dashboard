@@ -63,6 +63,7 @@ function resolveS3Config(ctx: AuroraPortalContext): { endpoint: string; region: 
  * Adds to context:
  *   - cephCredentials: EC2CredentialResult | null
  *   - cephRegion: string - Ceph-compatible region identifier
+ *   - cephEndpoint: string - base S3 endpoint (Swift path suffix stripped)
  *   - getCephClient: () => S3Client - factory function that throws FORBIDDEN if credentials missing
  *
  * Use this for procedures that need to check credential status without failing immediately.
@@ -78,6 +79,7 @@ const cephCredentialMiddleware = projectScopedProcedure.use(async function resol
       ...ctx,
       cephCredentials: credentials,
       cephRegion: region,
+      cephEndpoint: endpoint,
       getCephClient: (): S3Client => {
         if (!credentials) {
           throw new TRPCError({
@@ -131,6 +133,12 @@ export const cephProtectedProcedure = cephCredentialMiddleware.use(async functio
  * The project id must arrive as a header rather than a tRPC input because the
  * request body is the file stream. Credentials and S3 config are resolved
  * against the rescoped session, so the S3 client targets the right project.
+ *
+ * Adds to context:
+ *   - cephCredentials: EC2CredentialResult
+ *   - cephRegion: string - Ceph-compatible region identifier
+ *   - cephEndpoint: string - base S3 endpoint (Swift path suffix stripped)
+ *   - getCephClient: () => S3Client
  */
 export const cephUploadProcedure = protectedProcedure.use(async function resolveCephForUpload(opts) {
   const { ctx, next } = opts
@@ -172,6 +180,7 @@ export const cephUploadProcedure = protectedProcedure.use(async function resolve
       ...scopedCtx,
       cephCredentials: credentials,
       cephRegion: region,
+      cephEndpoint: endpoint,
       getCephClient: (): S3Client => createS3Client(credentials.access, credentials.secret, endpoint, region),
     },
   })

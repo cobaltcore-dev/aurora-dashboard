@@ -160,10 +160,11 @@ Instead of a tRPC input, it takes the project id from the `x-upload-project-id` 
 storage.ceph
   ├── ec2Credentials
   │   ├── list()        → Ec2Credential[]
-  │   ├── create()      → Ec2CredentialWithSecret
+  │   ├── create()      → Ec2Credential (no secret — only `reveal` returns one)
+  │   ├── reveal(id)    → Ec2CredentialWithSecret (mutation, not query — see below)
   │   └── delete(id)    → { success: true }
   ├── containers
-  │   ├── status()      → { hasCredentials: boolean }
+  │   ├── status()      → { hasCredentials: boolean, endpoint: string, region: string }
   │   ├── list()        → Container[]
   │   ├── getDetails()  → ContainerDetails
   │   ├── create()      → { success: boolean }
@@ -234,7 +235,9 @@ const credentials = await trpc.storage.ceph.ec2Credentials.list.query({
 
 #### `create`
 
-Creates a new EC2 credential for the current user scoped to the given project. **The secret key is returned exactly once** in this response and never stored or shown again.
+Creates a new EC2 credential for the current user scoped to the given project. **The secret key is not returned.** It is generated here and handed to Keystone, but the response carries only the public half: a new key is read back through [`reveal`](#reveal) like any other, so returning it here would be a secret crossing the wire that nothing consumes.
+
+No ceiling on how many credentials a user may hold. Neither Keystone nor RGW imposes one, and every key a user holds in a project maps to the same RGW identity, so an extra key grants no extra access and costs no quota — a limit here would only be this router refusing what the backend allows. (An earlier version capped this at two per project and answered `CONFLICT` / `EC2_CREDENTIAL_LIMIT_REACHED`; both the constant and that error are gone.) Nothing is read before the create either, so it costs one Keystone call.
 
 **Input:**
 
@@ -247,11 +250,7 @@ Creates a new EC2 credential for the current user scoped to the given project. *
 **Output:**
 
 ```typescript
-Ec2CredentialWithSecret
-
-interface Ec2CredentialWithSecret extends Ec2Credential {
-  secret: string // Secret access key (returned ONLY on creation)
-}
+Ec2Credential // same shape as `list` returns: { id, access, user_id, project_id }
 ```
 
 **Example:**
@@ -261,18 +260,52 @@ const credential = await trpc.storage.ceph.ec2Credentials.create.mutate({
   project_id: "abc123",
 })
 
-// Save the secret immediately!
 console.log("Access Key:", credential.access)
-console.log("Secret Key:", credential.secret) // ONLY shown here
+// The secret is read separately, when and if it is wanted:
+const { secret } = await trpc.storage.ceph.ec2Credentials.reveal.mutate({
+  project_id: "abc123",
+  credentialId: credential.id,
+})
 ```
 
-**Important:** Display the secret key to the user immediately and instruct them to save it securely. It cannot be retrieved later.
+**Important:** there is nothing to catch here. Unlike an Application Credential's secret, an EC2 credential's is not unrecoverable — `reveal` returns it to its owner at any later point, which is why `create` does not have to.
+
+---
+
+#### `reveal`
+
+Returns one credential **including its secret**, for its owner only. Unlike an Application Credential (whose secret is hashed and never recoverable), an EC2 credential's blob is stored encrypted and decrypted on every read — the BFF already reads this exact secret on every single Ceph request (see `middleware/resolveEC2Credential.ts`), so exposing it back to its own owner on request adds no new disclosure surface.
+
+Modelled as a **mutation**, not a query, on purpose: a query is the shape React Query caches by default, and the secret would then survive the UI that requested it being closed and show up in React Query Devtools. (Same pattern as `objects.generatePresignedUrl`.) That alone is not enough on the client, though — `useMutation` keeps its answer in the **MutationCache** for `gcTime` (five minutes by default) after `reset()` detaches the observer — so `ManageCredentialsModal` calls this procedure through the vanilla tRPC client, which caches nothing at all.
+
+Ownership is checked the same way as `delete` (see below). The status Keystone answered with is the status the caller gets — a 404 is "no such credential", a 403 a permission problem, a 401 an authentication one. The one answer this router decides for itself is a credential Keystone _does_ return whose `user_id`/`project_id` are not the caller's (possible under a permissive legacy policy): that is refused as `NOT_FOUND` rather than read, so no secret of somebody else's leaves the server.
+
+**Input:**
+
+```typescript
+{
+  project_id: string,
+  credentialId: string
+}
+```
+
+**Output:** `Ec2CredentialWithSecret` (same shape as `create`'s output).
+
+**Example:**
+
+```typescript
+const credential = await trpc.storage.ceph.ec2Credentials.reveal.mutate({
+  project_id: "abc123",
+  credentialId: "cred-uuid",
+})
+console.log("Secret Key:", credential.secret)
+```
 
 ---
 
 #### `delete`
 
-Deletes an EC2 credential by ID. Returns success even if the credential is not found (idempotent).
+Deletes an EC2 credential by ID. Deliberately **not** idempotent: a credential that is not there answers `NOT_FOUND`. Reporting a deletion that did not happen is a lie the UI repeats in a toast naming a key nobody deleted, and it hides the one case worth seeing — somebody else removing that key while the screen was open. `NOT_FOUND` is also the answer for a credential owned by someone else, so the two stay indistinguishable.
 
 **Input:**
 
@@ -298,6 +331,7 @@ await trpc.storage.ceph.ec2Credentials.delete.mutate({
   project_id: "abc123",
   credentialId: "cred-uuid",
 })
+// Throws NOT_FOUND if that credential is already gone.
 ```
 
 ---
@@ -306,7 +340,7 @@ await trpc.storage.ceph.ec2Credentials.delete.mutate({
 
 #### `status`
 
-Checks whether the current user has EC2 credentials configured for Ceph S3 access. **Does not throw** on missing credentials.
+Checks whether the current user has EC2 credentials configured for Ceph S3 access, and reports the S3 endpoint/region for this region regardless. **Does not throw** on missing credentials — it deliberately runs on `cephProcedure`, not `cephProtectedProcedure`, precisely so a UI (e.g. the credentials-management modal's "Connection Details" section) can show endpoint/region even for a user who has no credentials yet.
 
 **Input:**
 
@@ -321,18 +355,20 @@ Checks whether the current user has EC2 credentials configured for Ceph S3 acces
 ```typescript
 {
   hasCredentials: boolean
+  endpoint: string // Base S3 endpoint of the Ceph RGW for this region (Swift path suffix stripped)
+  region: string // Ceph-compatible region identifier the S3 client signs with
 }
 ```
 
 **Example:**
 
 ```typescript
-const { hasCredentials } = await trpc.storage.ceph.containers.status.query({
+const { hasCredentials, endpoint, region } = await trpc.storage.ceph.containers.status.query({
   project_id: "abc123",
 })
 
 if (!hasCredentials) {
-  // Prompt user to create credentials
+  // Prompt user to create credentials — endpoint/region are still available to display
 }
 ```
 
