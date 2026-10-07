@@ -1,5 +1,5 @@
-import { Button, ButtonRow, Container, Status } from "@cloudoperators/juno-ui-components"
-import { createFileRoute, useNavigate, useParams } from "@tanstack/react-router"
+import { Button, ButtonRow, Status } from "@cloudoperators/juno-ui-components"
+import { createFileRoute, useNavigate, useParams, useRouter, type ErrorComponentProps } from "@tanstack/react-router"
 import { Trans, useLingui } from "@lingui/react/macro"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { trpcReact } from "@/client/trpcClient"
@@ -9,26 +9,81 @@ import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import { RouteIdLevelDefaultError } from "@/client/components/Errors/RouteIdLevelDefaultError"
 import { RouterDetailsView } from "./-components/RouterDetailsView"
 
-function RouterErrorComponent() {
+const ROUTE_ID = "/_auth/projects/$projectId/network/routers/$routerId"
+
+const HTTP_STATUS_BY_TRPC_CODE: Record<string, number> = {
+  BAD_REQUEST: 400,
+  UNAUTHORIZED: 401,
+  FORBIDDEN: 403,
+  NOT_FOUND: 404,
+  CONFLICT: 409,
+  PRECONDITION_FAILED: 412,
+  INTERNAL_SERVER_ERROR: 500,
+}
+
+/**
+ * tRPC error code (e.g. NOT_FOUND) from a TRPCClientError.
+ * The message can't be used for this: the BFF returns readable messages like "Router x was not found."
+ */
+const getTrpcErrorCode = (error: unknown): string =>
+  (error as { data?: { code?: string } } | null)?.data?.code ?? "UNKNOWN_ERROR"
+
+interface RouterLoadErrorProps {
+  error: unknown
+  onRetry: () => void
+}
+
+/** Error state for the router details, shared by the route error component and the query error state. */
+function RouterLoadError({ error, onRetry }: RouterLoadErrorProps) {
   const { t } = useLingui()
   const navigate = useNavigate()
-  const { projectId } = Route.useParams()
+  const { projectId } = useParams({ from: ROUTE_ID })
+  const { translateError, isRetryableError } = useErrorTranslation()
+
+  const errorCode = getTrpcErrorCode(error)
+  const statusCode: number | undefined = HTTP_STATUS_BY_TRPC_CODE[errorCode]
 
   return (
     <RouteIdLevelDefaultError
+      // null, not undefined: undefined would fall back to the component's default 404
+      code={statusCode ?? null}
+      errorTitle={statusCode === 404 ? t`Router Not Found` : t`Error Loading Router`}
+      errorDescription={translateError(errorCode)}
       action={
-        <Button
-          variant="primary"
-          onClick={() => navigate({ to: "/projects/$projectId/network/routers", params: { projectId } })}
-        >
-          {t`Back to Routers`}
-        </Button>
+        <ButtonRow>
+          <Button
+            variant="primary"
+            onClick={() => navigate({ to: "/projects/$projectId/network/routers", params: { projectId } })}
+          >
+            <Trans>Back to Routers</Trans>
+          </Button>
+          <Button onClick={() => navigate({ to: "/projects/$projectId", params: { projectId } })}>
+            <Trans>Home</Trans>
+          </Button>
+          {isRetryableError(errorCode) && (
+            <Button onClick={onRetry}>
+              <Trans>Try Again</Trans>
+            </Button>
+          )}
+        </ButtonRow>
       }
     />
   )
 }
 
-export const Route = createFileRoute("/_auth/projects/$projectId/network/routers/$routerId")({
+/** Errors thrown while rendering the route (the loader itself does not throw, see below). */
+function RouterErrorComponent({ error, reset }: ErrorComponentProps) {
+  const tanstackRouter = useRouter()
+
+  const handleRetry = () => {
+    reset()
+    tanstackRouter.invalidate()
+  }
+
+  return <RouterLoadError error={error} onRetry={handleRetry} />
+}
+
+export const Route = createFileRoute(ROUTE_ID)({
   staticData: {
     section: "network",
     service: "routers",
@@ -36,12 +91,18 @@ export const Route = createFileRoute("/_auth/projects/$projectId/network/routers
       name: "network.routers.detail",
     },
   } satisfies RouteInfo,
+  // Only resolves the page title. Failures are rendered by the component's query,
+  // which knows the actual tRPC error code and supports retry.
   loader: async ({ context, params }) => {
-    const router = await context.trpcClient?.network.routers.getById.query({
-      project_id: params.projectId,
-      router_id: params.routerId,
-    })
-    return { routerName: router?.name || null }
+    try {
+      const router = await context.trpcClient?.network.routers.getById.query({
+        project_id: params.projectId,
+        router_id: params.routerId,
+      })
+      return { routerName: router?.name || null }
+    } catch {
+      return { routerName: null }
+    }
   },
   head: ({ loaderData }) => ({
     meta: [{ title: loaderData?.routerName ?? "Router Details" }],
@@ -51,12 +112,8 @@ export const Route = createFileRoute("/_auth/projects/$projectId/network/routers
 })
 
 function RouteComponent() {
-  const { projectId, routerId } = useParams({
-    from: "/_auth/projects/$projectId/network/routers/$routerId",
-  })
-  const navigate = useNavigate()
+  const { projectId, routerId } = useParams({ from: ROUTE_ID })
   const { t } = useLingui()
-  const { translateError, isRetryableError } = useErrorTranslation()
 
   const {
     data: router,
@@ -70,89 +127,12 @@ function RouteComponent() {
 
   useSetBreadcrumb(Route.id, router?.name || router?.id)
 
-  const handleBack = () => {
-    navigate({
-      to: "/projects/$projectId/network/routers",
-      params: { projectId },
-    })
-  }
-
-  const handleHome = () => {
-    navigate({
-      to: "/projects/$projectId",
-      params: { projectId },
-    })
-  }
-
-  const handleRetry = () => {
-    refetch()
-  }
-
   if (status === "pending") {
     return <Status status="progress" title={t`Loading Router Details...`} />
   }
 
   if (status === "error") {
-    const errorCode = error?.message || "UNKNOWN_ERROR"
-    const translatedError = translateError(errorCode)
-    const canRetry = isRetryableError(errorCode)
-
-    const getStatusCode = (code: string): number | undefined => {
-      if (code.includes("UNAUTHORIZED")) return 401
-      if (code.includes("FORBIDDEN")) return 403
-      if (code.includes("NOT_FOUND")) return 404
-      if (code.includes("SERVER_ERROR")) return 500
-      return undefined
-    }
-
-    return (
-      <Container className="py-8">
-        <Status
-          status="error"
-          code={getStatusCode(errorCode)}
-          title={t`Error Loading Router`}
-          body={translatedError}
-          action={
-            <ButtonRow>
-              <Button variant="primary" onClick={handleBack}>
-                <Trans>Back</Trans>
-              </Button>
-              <Button onClick={handleHome}>
-                <Trans>Home</Trans>
-              </Button>
-              {canRetry && (
-                <Button onClick={handleRetry}>
-                  <Trans>Try Again</Trans>
-                </Button>
-              )}
-            </ButtonRow>
-          }
-        />
-      </Container>
-    )
-  }
-
-  if (!router) {
-    return (
-      <Container className="py-8">
-        <Status
-          status="error"
-          code={404}
-          title={t`Router Not Found`}
-          body={t`The requested router could not be found. It may have been deleted or you may not have access to it.`}
-          action={
-            <ButtonRow>
-              <Button variant="primary" onClick={handleBack}>
-                <Trans>Back</Trans>
-              </Button>
-              <Button onClick={handleHome}>
-                <Trans>Home</Trans>
-              </Button>
-            </ButtonRow>
-          }
-        />
-      </Container>
-    )
+    return <RouterLoadError error={error} onRetry={() => refetch()} />
   }
 
   return (
