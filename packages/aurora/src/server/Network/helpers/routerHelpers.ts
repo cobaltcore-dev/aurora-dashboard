@@ -17,7 +17,7 @@ import type {
 type ErrorResponse = { status?: number; statusText?: string }
 
 const QUOTA_EXCEEDED_MESSAGE =
-  "Router quota exceeded. Please delete unused resources or contact your administrator to increase your quota."
+  "Router quota exceeded. Delete unused resources or contact an administrator to increase the quota."
 
 /**
  * Neutron reports OverQuota as 409 Conflict (not 413), so every router 409 override
