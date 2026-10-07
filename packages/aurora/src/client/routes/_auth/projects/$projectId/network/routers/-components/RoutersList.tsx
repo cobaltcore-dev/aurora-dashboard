@@ -1,4 +1,4 @@
-import { use, Suspense, useState, useRef, startTransition, useEffect, useCallback } from "react"
+import { use, Suspense, useState, useRef, useEffect, useCallback, useMemo, useDeferredValue } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import { useLingui } from "@lingui/react/macro"
 import { useSearch, useNavigate } from "@tanstack/react-router"
@@ -67,12 +67,27 @@ function RoutersContent({
   const { routers, listError } = use(routersPromise)
   const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm)
   const debounceTimer = useRef<number | undefined>(undefined)
+  // Last term this input sent to the URL, so only external URL changes (back/forward, links) overwrite the input
+  const submittedSearchTerm = useRef(searchTerm)
+
+  const submitSearchTerm = (term: string) => {
+    clearTimeout(debounceTimer.current)
+    submittedSearchTerm.current = term
+    setSearchTerm(term)
+  }
 
   const totalPages = Math.max(1, Math.ceil(routers.length / PAGE_SIZE))
   const safePage = Math.min(currentPage, totalPages)
   const paginatedRouters = routers.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
 
   useEffect(() => () => clearTimeout(debounceTimer.current), [])
+
+  useEffect(() => {
+    if (searchTerm === submittedSearchTerm.current) return
+    clearTimeout(debounceTimer.current)
+    submittedSearchTerm.current = searchTerm
+    setLocalSearchTerm(searchTerm)
+  }, [searchTerm])
 
   useEffect(() => {
     if (currentPage > totalPages) onPageChange(1)
@@ -108,16 +123,12 @@ function RoutersContent({
               const v = e.currentTarget.value
               setLocalSearchTerm(v)
               clearTimeout(debounceTimer.current)
-              debounceTimer.current = window.setTimeout(() => setSearchTerm(v), 500)
+              debounceTimer.current = window.setTimeout(() => submitSearchTerm(v), 500)
             }}
-            onSearch={(v) => {
-              clearTimeout(debounceTimer.current)
-              setSearchTerm(typeof v === "string" ? v : "")
-            }}
+            onSearch={(v) => submitSearchTerm(typeof v === "string" ? v : "")}
             onClear={() => {
-              clearTimeout(debounceTimer.current)
               setLocalSearchTerm("")
-              setSearchTerm("")
+              submitSearchTerm("")
             }}
           />
         </Stack>
@@ -138,47 +149,43 @@ export const Routers = ({ client, project }: RoutersProps) => {
   const navigate = useNavigate()
   const searchParams = useSearch({ strict: false }) as RoutersSearchParams
 
-  const [sortSettings, setSortSettings] = useState<RequiredSortSettings>({
+  // The URL is the single source of truth for search, sort and page, so back/forward navigation
+  // and links with different search params update the controls and the query.
+  const searchTerm = searchParams.search ?? ""
+  const sortBy: RouterSortKey = searchParams.sortBy || "name"
+  const sortDirection = searchParams.sortDirection || "asc"
+  const currentPage = searchParams.page ?? 1
+
+  const sortSettings: RequiredSortSettings = {
     options: [
       { label: t`Name`, value: "name" },
       { label: t`Status`, value: "status" },
     ],
-    sortBy: searchParams.sortBy || "name",
-    sortDirection: searchParams.sortDirection || "asc",
-  })
+    sortBy,
+    sortDirection,
+  }
 
-  const [searchTerm, setSearchTerm] = useState(searchParams.search || "")
-  const currentPage = searchParams.page ?? 1
-
-  const [routersPromise, setRoutersPromise] = useState(() =>
-    createRoutersPromise(client, project, sortSettings.sortBy, sortSettings.sortDirection, searchTerm)
+  const routersPromise = useMemo(
+    () => createRoutersPromise(client, project, sortBy, sortDirection, searchTerm),
+    [client, project, sortBy, sortDirection, searchTerm]
   )
+  // Keeps the current list (and the search input) on screen while the next query loads,
+  // instead of falling back to the Suspense loading state on every search or sort change
+  const deferredRoutersPromise = useDeferredValue(routersPromise)
 
   const handleSortChange = (newSortSettings: SortSettings) => {
-    const settings: RequiredSortSettings = {
-      options: newSortSettings.options,
-      sortBy: (newSortSettings.sortBy?.toString() || "name") as RouterSortKey,
-      sortDirection: newSortSettings.sortDirection || "asc",
-    }
-
-    setSortSettings(settings)
     navigate({
       search: ((prev: RoutersSearchParams) => ({
         ...prev,
-        sortBy: settings.sortBy,
-        sortDirection: settings.sortDirection,
+        sortBy: (newSortSettings.sortBy?.toString() || "name") as RouterSortKey,
+        sortDirection: newSortSettings.sortDirection || "asc",
         page: undefined,
       })) as unknown as true,
       replace: true,
     })
-    startTransition(() => {
-      setRoutersPromise(createRoutersPromise(client, project, settings.sortBy, settings.sortDirection, searchTerm))
-    })
   }
 
   const handleSearchChange = (term: string) => {
-    setSearchTerm(term)
-
     navigate({
       search: ((prev: RoutersSearchParams) => ({
         ...prev,
@@ -186,9 +193,6 @@ export const Routers = ({ client, project }: RoutersProps) => {
         page: undefined,
       })) as unknown as true,
       replace: true,
-    })
-    startTransition(() => {
-      setRoutersPromise(createRoutersPromise(client, project, sortSettings.sortBy, sortSettings.sortDirection, term))
     })
   }
 
@@ -207,6 +211,8 @@ export const Routers = ({ client, project }: RoutersProps) => {
   return (
     <div className="relative">
       <ErrorBoundary
+        // Retry with the new query when the URL changes after an error
+        resetKeys={[deferredRoutersPromise]}
         fallbackRender={({ error }) => (
           <Status
             status="error"
@@ -217,7 +223,7 @@ export const Routers = ({ client, project }: RoutersProps) => {
       >
         <Suspense fallback={<Status status="progress" title={t`Loading Routers...`} />}>
           <RoutersContent
-            routersPromise={routersPromise}
+            routersPromise={deferredRoutersPromise}
             searchTerm={searchTerm}
             setSearchTerm={handleSearchChange}
             sortSettings={sortSettings}

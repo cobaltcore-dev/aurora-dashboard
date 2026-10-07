@@ -9,21 +9,41 @@ import type { TrpcClient } from "@/client/trpcClient"
 import type { RouterListItem } from "@/server/Network/types/router"
 import { Routers } from "./RoutersList"
 
-// Mock useSearch / useNavigate; navigate applies search updaters to the mocked URL search params
-let mockSearchParams: Record<string, unknown> = {}
+// Mocked URL search params as a small external store, so navigate() re-renders like the real router
+const { searchStore } = vi.hoisted(() => {
+  const listeners = new Set<() => void>()
+  return {
+    searchStore: {
+      params: {} as Record<string, unknown>,
+      subscribe: (listener: () => void) => {
+        listeners.add(listener)
+        return () => listeners.delete(listener)
+      },
+      set(params: Record<string, unknown>) {
+        this.params = params
+        listeners.forEach((listener) => listener())
+      },
+    },
+  }
+})
+
+const setUrlSearch = (params: Record<string, unknown>) => searchStore.set(params)
 
 const mockNavigate = vi.fn(
   (opts: { search: (prev: Record<string, unknown>) => Record<string, unknown>; replace?: boolean }) => {
     if (typeof opts.search === "function") {
-      mockSearchParams = opts.search(mockSearchParams)
+      setUrlSearch(opts.search(searchStore.params))
     }
   }
 )
 
-vi.mock("@tanstack/react-router", () => ({
-  useSearch: vi.fn(() => mockSearchParams),
-  useNavigate: vi.fn(() => mockNavigate),
-}))
+vi.mock("@tanstack/react-router", async () => {
+  const { useSyncExternalStore } = await import("react")
+  return {
+    useSearch: () => useSyncExternalStore(searchStore.subscribe, () => searchStore.params),
+    useNavigate: () => mockNavigate,
+  }
+})
 
 vi.mock("./RouterListContainer", () => ({
   RouterListContainer: ({
@@ -88,7 +108,7 @@ const lastNavigateSearch = () => {
 describe("Routers", () => {
   beforeEach(() => {
     i18n.activate("en")
-    mockSearchParams = {}
+    searchStore.params = {}
   })
 
   afterEach(() => {
@@ -125,7 +145,7 @@ describe("Routers", () => {
     })
 
     it("uses search, sort and direction from the URL for the initial query", async () => {
-      mockSearchParams = { search: "edge", sortBy: "status", sortDirection: "desc" }
+      searchStore.params = { search: "edge", sortBy: "status", sortDirection: "desc" }
       const { query } = await renderList()
 
       await screen.findByTestId("router-list-container")
@@ -193,6 +213,78 @@ describe("Routers", () => {
     })
   })
 
+  describe("URL changes", () => {
+    it("refetches and updates the search input when the URL search params change (e.g. back/forward)", async () => {
+      const { query } = await renderList()
+      await screen.findByTestId("router-list-container")
+
+      await act(async () => {
+        setUrlSearch({ search: "backend", sortBy: "status", sortDirection: "desc" })
+      })
+
+      await waitFor(() => {
+        expect(query).toHaveBeenLastCalledWith({
+          project_id: "proj-1",
+          sort_key: "status",
+          sort_dir: "desc",
+          searchTerm: "backend",
+        })
+      })
+      expect(screen.getByRole("searchbox")).toHaveValue("backend")
+    })
+
+    it("clears the search input when the search is removed from the URL", async () => {
+      searchStore.params = { search: "edge" }
+      await renderList()
+      await screen.findByTestId("router-list-container")
+
+      await act(async () => {
+        setUrlSearch({})
+      })
+
+      await waitFor(() => {
+        expect(screen.getByRole("searchbox")).toHaveValue("")
+      })
+    })
+
+    it("does not refetch when only the page changes", async () => {
+      const { query } = await renderList()
+      await screen.findByTestId("router-list-container")
+
+      await act(async () => {
+        setUrlSearch({ page: 2 })
+      })
+
+      expect(query).toHaveBeenCalledTimes(1)
+    })
+
+    it("keeps the list visible while the next query loads", async () => {
+      let resolveNext: (routers: RouterListItem[]) => void = () => undefined
+      const query = vi
+        .fn()
+        .mockResolvedValueOnce(mockRouters)
+        .mockImplementationOnce(() => new Promise((resolve) => (resolveNext = resolve)))
+      await renderList(query)
+      await screen.findByTestId("router-list-container")
+
+      await act(async () => {
+        setUrlSearch({ search: "internal" })
+      })
+
+      expect(screen.getByTestId("router-router-1")).toBeInTheDocument()
+      expect(screen.queryByText("Loading Routers...")).not.toBeInTheDocument()
+
+      await act(async () => {
+        resolveNext([mockRouters[1]])
+      })
+
+      await waitFor(() => {
+        expect(screen.queryByTestId("router-router-1")).not.toBeInTheDocument()
+      })
+      expect(screen.getByTestId("router-router-2")).toBeInTheDocument()
+    })
+  })
+
   describe("Pagination", () => {
     it("shows 50 routers per page", async () => {
       const manyRouters = Array.from({ length: 51 }, (_, i) => makeRouter(`router-${i}`))
@@ -207,7 +299,7 @@ describe("Routers", () => {
     })
 
     it("shows the page from the URL", async () => {
-      mockSearchParams = { page: 2 }
+      searchStore.params = { page: 2 }
       const manyRouters = Array.from({ length: 51 }, (_, i) => makeRouter(`router-${i}`))
       await renderList(vi.fn().mockResolvedValue(manyRouters))
 
@@ -229,7 +321,7 @@ describe("Routers", () => {
     })
 
     it("resets to the first page when the page in the URL is out of range", async () => {
-      mockSearchParams = { page: 5 }
+      searchStore.params = { page: 5 }
       await renderList()
 
       await screen.findByTestId("router-list-container")
