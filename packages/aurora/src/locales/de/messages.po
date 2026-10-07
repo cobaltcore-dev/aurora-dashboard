@@ -365,7 +365,7 @@ msgstr " Zugriffsstatus auf \"{newStatus}\" aktualisiert."
 msgid "Access Status:"
 msgstr "Zugriffsstatus:"
 
-msgid "Access to S3 Object Storage requires an access key (access key ID + secret access key). The key authenticates requests to the Ceph storage backend."
+msgid "Access to S3 Object Storage requires an access key (access key ID + secret access key)."
 msgstr ""
 
 msgid "Access Type"
@@ -1826,7 +1826,7 @@ msgstr "Fehler beim Generieren der temporären URL: {generalError}"
 msgid "Failed to Load Access"
 msgstr ""
 
-msgid "Failed to Load Buckets: {errorMessage}"
+msgid "Failed to Load Buckets"
 msgstr ""
 
 msgid "Failed to Load Container ACLs"
@@ -3206,10 +3206,10 @@ msgstr "RX/TX Factor"
 msgid "RX/TX Factor must be an integer ≥ 1."
 msgstr "RX/TX Faktor muss eine ganze Zahl ≥ 1 sein."
 
-msgid "S3 bucket names must be 3-63 characters long and contain only lowercase letters, numbers, periods, and hyphens. They must start and end with a letter or number, and be globally unique within the cluster."
+msgid "S3 Authentication Failed"
 msgstr ""
 
-msgid "S3 Credentials No Longer Valid"
+msgid "S3 bucket names must be 3-63 characters long and contain only lowercase letters, numbers, periods, and hyphens. They must start and end with a letter or number, and be globally unique within the cluster."
 msgstr ""
 
 msgid "S3 Object Storage: Setup Required"
@@ -3755,6 +3755,9 @@ msgstr "Das angegebene Projekt existiert nicht oder Sie haben keine Berechtigung
 msgid "The specified user has access. A token for the user (scoped to any project) must be included in the request."
 msgstr "Der angegebene Benutzer hat Zugriff. Ein Token für den Benutzer (auf ein beliebiges Projekt bezogen) muss in der Anfrage enthalten sein."
 
+msgid "The storage backend rejected the request signed with your access key. Check your keys in Manage Credentials, or contact your administrator if the problem persists."
+msgstr ""
+
 msgid "The tenant ID provided is invalid. Please check your input."
 msgstr "Die angegebene Projekt-ID ist ungültig. Bitte überprüfen Sie Ihre Eingabe."
 
@@ -3804,9 +3807,6 @@ msgid "There are no security groups available for this project with the current 
 msgstr "Für dieses Projekt sind mit den aktuellen Filtern keine Sicherheitsgruppen verfügbar. Passen Sie Ihre Filterkriterien an oder erstellen Sie eine neue Sicherheitsgruppe."
 
 msgid "These objects and all their versions will be permanently deleted and cannot be restored."
-msgstr ""
-
-msgid "They may have been deleted. Create new credentials to continue."
 msgstr ""
 
 msgid "This action cannot be undone."
@@ -4319,7 +4319,7 @@ msgstr "Sie haben keine Berechtigung, die Details dieses Flavors anzuzeigen."
 msgid "Your action is required"
 msgstr "Ihre Aktion ist erforderlich"
 
-msgid "Your credentials are valid but you don't have permission to perform this operation. Please contact your administrator to grant you the necessary permissions."
+msgid "Your credentials are valid but you don't have permission to perform this operation. Contact your administrator to grant you the necessary permissions."
 msgstr ""
 
 msgid "Your session has expired. Please log in again."

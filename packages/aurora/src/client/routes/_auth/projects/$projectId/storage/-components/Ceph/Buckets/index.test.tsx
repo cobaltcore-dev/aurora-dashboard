@@ -313,6 +313,15 @@ describe("CephBuckets (index)", () => {
       expect(screen.getByText(/Network error/i)).toBeInTheDocument()
     })
 
+    test("shows an access-denied state when RGW refuses the request", () => {
+      trpcState.error = { message: "Failed to list buckets — AccessDenied" }
+      trpcState.buckets = undefined
+      renderBuckets()
+      expect(screen.getByText("Access Denied")).toBeInTheDocument()
+      expect(screen.getByText(/you don't have permission to perform this operation/i)).toBeInTheDocument()
+      expect(screen.queryByText(/Failed to Load Buckets/i)).not.toBeInTheDocument()
+    })
+
     test("does not render table view on error", () => {
       trpcState.error = { message: "Network error" }
       renderBuckets()

@@ -33,9 +33,9 @@ import { useCephPermissions } from "../hooks/useCephPermissions"
 import { invalidateCredentialQueries } from "../hooks/invalidateCredentialQueries"
 
 /**
- * Stands in for a secret that has not been fetched. Same length as a real one (base64 of the 40
- * random bytes `create` generates), so the field doesn't change shape when the value arrives, and
- * nothing anyone reading the DOM could mistake for a key.
+ * Stands in for a secret that has not been fetched, and is nothing anyone reading the DOM could
+ * mistake for a key. Same length as a secret Aurora's `create` generates (base64 of 40 random
+ * bytes); keys created elsewhere can be shorter - the OpenStack CLI's are 32 hex characters.
  */
 const SECRET_PLACEHOLDER = "\u2022".repeat(56)
 
@@ -49,7 +49,7 @@ interface ManageCredentialsModalProps {
  * connection details (endpoint/region) any S3 client needs alongside them.
  *
  * A secret is fetched when its own Reveal is clicked and at no other time - creating a key is no
- * exception, and the secret `create` returns is dropped rather than shown. Hide discards the value
+ * exception: `create` does not return the secret, so a new key appears concealed. Hide discards the value
  * again rather than masking it; until then the field holds filler. `type="password"` only changes
  * how an input paints a value it already has, so the one thing that actually keeps a secret out of
  * reach is not having fetched it - which is also why opening this modal for the endpoint pulls no
@@ -131,6 +131,10 @@ export const ManageCredentialsModal = ({ isOpen, onClose }: ManageCredentialsMod
   // the dialog names the key and the row it came from may be gone by the time it is read.
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; access: string } | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
+  // Keys created in this opening, newest first, shown above the rest. Keystone returns the list in
+  // no meaningful order (an EC2 credential's id is a hash of its access key, and it carries no
+  // creation time), so without this a new key lands wherever its id happens to sort.
+  const [createdIds, setCreatedIds] = useState<string[]>([])
 
   const { trackClose, markSubmitted, resetTracking } = useModalTracking({
     isOpen,
@@ -168,10 +172,10 @@ export const ManageCredentialsModal = ({ isOpen, onClose }: ManageCredentialsMod
 
   const createMutation = trpcReact.storage.ceph.ec2Credentials.create.useMutation({
     onSuccess: (credential) => {
-      // The secret `create` answers with is deliberately dropped: a new key appears concealed,
-      // like every other row, and is read through its own Reveal. Showing it here would be the
-      // one place a secret lands on screen without being asked for - and it is no longer the
-      // only chance to see it, which is what used to justify that.
+      setCreatedIds((prev) => [credential.id, ...prev])
+
+      // `create` answers without the secret: a new key appears concealed, like every other row,
+      // and is read through its own Reveal.
       invalidateCredentialQueries(utils, { projectId: projectId ?? "", mutation: "create" })
 
       // Fires even though the new key is already visible in the table behind this toast: what it
@@ -261,6 +265,7 @@ export const ManageCredentialsModal = ({ isOpen, onClose }: ManageCredentialsMod
     setRevealedSecrets({})
     setLoadingSecretIds({})
     setDeleteTarget(null)
+    setCreatedIds([])
     deletingRef.current = null
     abandonedRevealsRef.current.clear()
   }, [isOpen])
@@ -328,6 +333,13 @@ export const ManageCredentialsModal = ({ isOpen, onClose }: ManageCredentialsMod
     setDeletingId(target.id)
     deleteMutation.mutate({ project_id: projectId, credentialId: target.id })
   }
+
+  const createdRank = (id: string) => {
+    const index = createdIds.indexOf(id)
+    return index === -1 ? createdIds.length : index
+  }
+  // Stable sort: keys not created in this opening keep the order the server returned them in.
+  const orderedCredentials = [...credentials].sort((a, b) => createdRank(a.id) - createdRank(b.id))
 
   return (
     <Modal
@@ -468,7 +480,7 @@ export const ManageCredentialsModal = ({ isOpen, onClose }: ManageCredentialsMod
                   </DataGridCell>
                 </DataGridRow>
               ) : (
-                credentials.map((credential) => {
+                orderedCredentials.map((credential) => {
                   const access = credential.access
 
                   return (

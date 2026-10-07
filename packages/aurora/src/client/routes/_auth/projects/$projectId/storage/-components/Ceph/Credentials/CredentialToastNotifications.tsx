@@ -21,6 +21,8 @@ export const getCredentialCreatedToast = (accessKey: string): ToastReturnType =>
       Access key "{accessKey}" is ready to use. You can find it again any time under More Actions, Manage Credentials.
     </Trans>
   ),
+  // Longer than the 4s default: long enough to match the key named here against the table.
+  duration: 10000,
 })
 
 export const getCredentialDeletedToast = (accessKey: string): ToastReturnType => ({

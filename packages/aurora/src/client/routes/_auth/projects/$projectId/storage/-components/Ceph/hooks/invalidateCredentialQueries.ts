@@ -87,11 +87,10 @@ export async function invalidateCredentialQueries(
   } else {
     // The count above says the page behind the modal is unaffected. That holds for a page showing
     // a listing; it does not hold for one showing an error, and this screen has an entry point
-    // that is reached from exactly that state: "S3 Credentials No Longer Valid"
-    // (Buckets/index.tsx), shown when Keystone still has the key but RGW answers
-    // `InvalidAccessKeyId`. Creating a replacement takes the count 1 -> 2 and deleting the broken
-    // key takes it 2 -> 1, so neither is a transition by the rule above - and the page would sit
-    // on its cached error, over a project that now has a working key, until a manual reload.
+    // that is reached from exactly that state: "S3 Authentication Failed" (Buckets/index.tsx),
+    // shown when Keystone still has the key but RGW rejects it. Creating a replacement takes the
+    // count 1 -> 2 and deleting the broken key takes it 2 -> 1, so neither is a transition by the
+    // rule above - and the page would sit on its cached error until a manual reload.
     //
     // Only the errored ones, so the optimisation above survives intact: a page that is showing
     // buckets is not re-scanned, and one that is showing a failure has nothing worth keeping.

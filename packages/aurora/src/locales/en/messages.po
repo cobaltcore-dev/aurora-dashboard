@@ -365,8 +365,8 @@ msgstr "Access status updated to \"{newStatus}\"."
 msgid "Access Status:"
 msgstr "Access Status:"
 
-msgid "Access to S3 Object Storage requires an access key (access key ID + secret access key). The key authenticates requests to the Ceph storage backend."
-msgstr "Access to S3 Object Storage requires an access key (access key ID + secret access key). The key authenticates requests to the Ceph storage backend."
+msgid "Access to S3 Object Storage requires an access key (access key ID + secret access key)."
+msgstr "Access to S3 Object Storage requires an access key (access key ID + secret access key)."
 
 msgid "Access Type"
 msgstr "Access Type"
@@ -1826,8 +1826,8 @@ msgstr "Failed to generate temporary URL: {generalError}"
 msgid "Failed to Load Access"
 msgstr "Failed to Load Access"
 
-msgid "Failed to Load Buckets: {errorMessage}"
-msgstr "Failed to Load Buckets: {errorMessage}"
+msgid "Failed to Load Buckets"
+msgstr "Failed to Load Buckets"
 
 msgid "Failed to Load Container ACLs"
 msgstr "Failed to Load Container ACLs"
@@ -3206,11 +3206,11 @@ msgstr "RX/TX Factor"
 msgid "RX/TX Factor must be an integer ≥ 1."
 msgstr "RX/TX Factor must be an integer ≥ 1."
 
+msgid "S3 Authentication Failed"
+msgstr "S3 Authentication Failed"
+
 msgid "S3 bucket names must be 3-63 characters long and contain only lowercase letters, numbers, periods, and hyphens. They must start and end with a letter or number, and be globally unique within the cluster."
 msgstr "S3 bucket names must be 3-63 characters long and contain only lowercase letters, numbers, periods, and hyphens. They must start and end with a letter or number, and be globally unique within the cluster."
-
-msgid "S3 Credentials No Longer Valid"
-msgstr "S3 Credentials No Longer Valid"
 
 msgid "S3 Object Storage: Setup Required"
 msgstr "S3 Object Storage: Setup Required"
@@ -3755,6 +3755,9 @@ msgstr "The specified project does not exist or you don't have permission to sha
 msgid "The specified user has access. A token for the user (scoped to any project) must be included in the request."
 msgstr "The specified user has access. A token for the user (scoped to any project) must be included in the request."
 
+msgid "The storage backend rejected the request signed with your access key. Check your keys in Manage Credentials, or contact your administrator if the problem persists."
+msgstr "The storage backend rejected the request signed with your access key. Check your keys in Manage Credentials, or contact your administrator if the problem persists."
+
 msgid "The tenant ID provided is invalid. Please check your input."
 msgstr "The tenant ID provided is invalid. Please check your input."
 
@@ -3805,9 +3808,6 @@ msgstr "There are no security groups available for this project with the current
 
 msgid "These objects and all their versions will be permanently deleted and cannot be restored."
 msgstr "These objects and all their versions will be permanently deleted and cannot be restored."
-
-msgid "They may have been deleted. Create new credentials to continue."
-msgstr "They may have been deleted. Create new credentials to continue."
 
 msgid "This action cannot be undone."
 msgstr "This action cannot be undone."
@@ -4319,8 +4319,8 @@ msgstr "You don't have permission to view this flavor's details."
 msgid "Your action is required"
 msgstr "Your action is required"
 
-msgid "Your credentials are valid but you don't have permission to perform this operation. Please contact your administrator to grant you the necessary permissions."
-msgstr "Your credentials are valid but you don't have permission to perform this operation. Please contact your administrator to grant you the necessary permissions."
+msgid "Your credentials are valid but you don't have permission to perform this operation. Contact your administrator to grant you the necessary permissions."
+msgstr "Your credentials are valid but you don't have permission to perform this operation. Contact your administrator to grant you the necessary permissions."
 
 msgid "Your session has expired. Please log in again."
 msgstr "Your session has expired. Please log in again."

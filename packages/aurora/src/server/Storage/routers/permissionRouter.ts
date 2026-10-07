@@ -33,7 +33,7 @@ import { createPermissionRouter } from "../../policies/createPermissionRouter"
  *   `storage_viewer` unable to list buckets.
  * - `storage:credentials:delete` is viewer-tier for the same reason as `create`: a user's
  *   EC2 credential is their own self-service artifact, and gating deletion above creation
- *   would trap a `storage_viewer` at the two-key limit with no way to rotate.
+ *   would leave a `storage_viewer` unable to revoke a leaked or unused key.
  * - Operators forking `storage.json` should keep these two rules at viewer tier unless they
  *   deliberately want to lock read-only users out of S3 entirely.
  */

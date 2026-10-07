@@ -238,18 +238,18 @@ export const CephBuckets = () => {
       content = <CredentialPrompt onManageCredentials={() => setCredentialsModalOpen(true)} />
     } else {
       const isAccessDenied = errorMessage.includes("Access denied") || errorMessage.includes("AccessDenied")
-      // RGW returns InvalidAccessKeyId when the key backing this session no longer exists in
-      // Keystone (deleted by this user elsewhere, or by an admin) or its blob failed to decrypt.
-      // EC2 credentials carry no expiry (no `expires_at`/`created_at` on the Keystone object),
-      // so "expired" is never an accurate description of this failure.
+      // RGW rejected a request signed with a key Keystone still holds - a key deleted from Keystone
+      // never gets here, since every request resolves its key afresh and a missing one ends up as
+      // NO_CEPH_CREDENTIALS above. See `s3ErrorMapper` for the RGW codes behind this message; most
+      // are deployment problems a new key will not fix, so the text promises no remedy.
       const isAuthError = errorMessage.includes("Invalid access key") || errorMessage.includes("InvalidAccessKeyId")
 
       if (isAuthError) {
         content = (
           <Status
             status="error"
-            title={t`S3 Credentials No Longer Valid`}
-            body={t`They may have been deleted. Create new credentials to continue.`}
+            title={t`S3 Authentication Failed`}
+            body={t`The storage backend rejected the request signed with your access key. Check your keys in Manage Credentials, or contact your administrator if the problem persists.`}
             action={
               <ButtonRow>
                 <Button onClick={() => setCredentialsModalOpen(true)}>
@@ -259,21 +259,16 @@ export const CephBuckets = () => {
             }
           />
         )
-      } else {
+      } else if (isAccessDenied) {
         content = (
-          <div>
-            <p className="text-theme-default text-sm">
-              {isAccessDenied ? (
-                <Trans>
-                  Your credentials are valid but you don't have permission to perform this operation. Please contact
-                  your administrator to grant you the necessary permissions.
-                </Trans>
-              ) : (
-                <Trans>Failed to Load Buckets: {errorMessage}</Trans>
-              )}
-            </p>
-          </div>
+          <Status
+            status="error"
+            title={t`Access Denied`}
+            body={t`Your credentials are valid but you don't have permission to perform this operation. Contact your administrator to grant you the necessary permissions.`}
+          />
         )
+      } else {
+        content = <Status status="error" title={t`Failed to Load Buckets`} body={errorMessage} />
       }
     }
   } else {

@@ -591,8 +591,8 @@ describe("ManageCredentialsModal", () => {
   })
 
   describe("Create Access Key", () => {
-    // The secret `create` answers with is dropped, not shown: a new key is concealed like every
-    // other row and is read through its own Reveal, which is the only thing that fetches a secret.
+    // `create` answers without a secret: a new key is concealed like every other row and is read
+    // through its own Reveal, which is the only thing that fetches a secret.
     test("the new key appears concealed, toasts where to find it, and invalidates queries", async () => {
       const user = userEvent.setup()
       mockState.createResult = {
@@ -630,6 +630,42 @@ describe("ManageCredentialsModal", () => {
       // A second key changes no bucket, so the expensive `includeMetadata` listing is left alone.
       expect(rescannedBucketListing()).toBe(false)
       expect(mockInvalidateStatus).not.toHaveBeenCalled()
+    })
+
+    test("lists keys created in this opening first, newest on top, until the modal is closed", async () => {
+      const user = userEvent.setup()
+      const key = (id: string) => ({
+        id,
+        access: `AKIA${id.toUpperCase()}`,
+        user_id: "user-1",
+        project_id: mockProjectId,
+      })
+      mockState.credentials = [key("cred-a"), key("cred-b")]
+      const modal = (isOpen: boolean) => (
+        <I18nProvider i18n={i18n}>
+          <PortalProvider>
+            <ManageCredentialsModal isOpen={isOpen} onClose={vi.fn()} />
+          </PortalProvider>
+        </I18nProvider>
+      )
+      const rowOrder = () => screen.getAllByTestId(/^access-/).map((field) => field.dataset.testid)
+      const { rerender } = render(modal(true))
+
+      // The create mock appends to the end of the list, where the server's order may well put it.
+      mockState.createResult = key("cred-c")
+      await user.click(screen.getByRole("button", { name: "Create Access Key" }))
+      rerender(modal(true))
+      expect(rowOrder()).toEqual(["access-cred-c", "access-cred-a", "access-cred-b"])
+
+      mockState.createResult = key("cred-d")
+      await user.click(screen.getByRole("button", { name: "Create Access Key" }))
+      rerender(modal(true))
+      expect(rowOrder()).toEqual(["access-cred-d", "access-cred-c", "access-cred-a", "access-cred-b"])
+
+      // Reopening shows the list in the server's order again.
+      rerender(modal(false))
+      rerender(modal(true))
+      expect(rowOrder()).toEqual(["access-cred-a", "access-cred-b", "access-cred-c", "access-cred-d"])
     })
 
     test("creating the project's first key refreshes the bucket listing", async () => {

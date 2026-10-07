@@ -40,6 +40,11 @@ describe("CredentialToastNotifications", () => {
       // The point of the message: the route back to the modal, not just "it worked".
       expect(screen.getByText(/More Actions, Manage Credentials/)).toBeInTheDocument()
     })
+
+    it("stays on screen longer than the default toast", () => {
+      // Juno's NotificationManager default is 4000ms.
+      expect(getCredentialCreatedToast("AKIAIOSFODNN7EXAMPLE").duration).toBeGreaterThan(4000)
+    })
   })
 
   describe("getCredentialDeletedToast", () => {

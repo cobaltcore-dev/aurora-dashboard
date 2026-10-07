@@ -127,7 +127,7 @@ describe("invalidateCredentialQueries", () => {
     withKeys(2)
     await invalidateCredentialQueries(utils, { projectId, mutation: "create" })
 
-    // "S3 Credentials No Longer Valid" is reached with a key already in Keystone, so creating a
+    // "S3 Authentication Failed" is reached with a key already in Keystone, so creating a
     // replacement is 1 -> 2 and deleting the broken one is 2 -> 1 - neither a transition by the
     // count rule. Without this the page would sit on its cached error over a working key.
     const predicates = refreshedErroredListings()
