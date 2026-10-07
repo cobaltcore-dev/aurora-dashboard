@@ -50,7 +50,7 @@ function RouteComponent() {
   return (
     <>
       <ContentHeader title={t`Routers`} projectId={projectId} />
-      <Routers project={projectId} client={trpcClient!} />
+      <Routers key={projectId} project={projectId} client={trpcClient!} />
     </>
   )
 }
