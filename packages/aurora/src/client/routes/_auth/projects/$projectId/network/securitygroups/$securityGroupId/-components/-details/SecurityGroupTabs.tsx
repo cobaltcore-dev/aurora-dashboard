@@ -1,6 +1,6 @@
-import { ReactNode } from "react"
-import { TabNavigation, TabNavigationItem } from "@cloudoperators/juno-ui-components"
+import type { ReactNode } from "react"
 import { useLingui } from "@lingui/react/macro"
+import { TabNavigation, TabNavigationItem } from "@cloudoperators/juno-ui-components"
 
 export type TabType = "rules" | "rbac"
 
