@@ -136,6 +136,7 @@ function RoutersContent({
 
       <RouterListContainer
         routers={paginatedRouters}
+        hasSearch={Boolean(searchTerm.trim())}
         currentPage={safePage}
         totalPages={totalPages}
         onPageChange={onPageChange}

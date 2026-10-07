@@ -48,16 +48,23 @@ vi.mock("@tanstack/react-router", async () => {
 vi.mock("./RouterListContainer", () => ({
   RouterListContainer: ({
     routers,
+    hasSearch,
     currentPage,
     totalPages,
     onPageChange,
   }: {
     routers?: RouterListItem[]
+    hasSearch?: boolean
     currentPage?: number
     totalPages?: number
     onPageChange?: (page: number) => void
   }) => (
-    <div data-testid="router-list-container" data-current-page={currentPage} data-total-pages={totalPages}>
+    <div
+      data-testid="router-list-container"
+      data-has-search={String(Boolean(hasSearch))}
+      data-current-page={currentPage}
+      data-total-pages={totalPages}
+    >
       {routers?.map((router) => (
         <div key={router.id} data-testid={`router-${router.id}`}>
           {router.name}
@@ -265,6 +272,21 @@ describe("Routers", () => {
       })
       expect(mockNavigate).toHaveBeenLastCalledWith(expect.objectContaining({ replace: true }))
       expect(lastNavigateSearch()).toEqual({ search: "edge", page: undefined })
+    })
+  })
+
+  describe("Empty state", () => {
+    it("tells the container whether a search is applied", async () => {
+      searchStore.params = { search: "nomatch" }
+      await renderList(vi.fn().mockResolvedValue([]))
+
+      expect(await screen.findByTestId("router-list-container")).toHaveAttribute("data-has-search", "true")
+    })
+
+    it("reports no search without a search term", async () => {
+      await renderList(vi.fn().mockResolvedValue([]))
+
+      expect(await screen.findByTestId("router-list-container")).toHaveAttribute("data-has-search", "false")
     })
   })
 
