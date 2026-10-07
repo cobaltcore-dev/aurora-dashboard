@@ -380,6 +380,9 @@ msgstr "Access Status:"
 msgid "Access to S3 Object Storage requires an access key (access key ID + secret access key)."
 msgstr "Access to S3 Object Storage requires an access key (access key ID + secret access key)."
 
+msgid "Access to this router is not permitted."
+msgstr "Access to this router is not permitted."
+
 msgid "Access Type"
 msgstr "Access Type"
 
@@ -3788,6 +3791,12 @@ msgstr "The requested flavor could not be found. It may have been deleted or you
 msgid "The Resource you are looking for does not exist or is not accessible."
 msgstr "The Resource you are looking for does not exist or is not accessible."
 
+msgid "The router could not be loaded."
+msgstr "The router could not be loaded."
+
+msgid "The router could not be loaded. Try again."
+msgstr "The router could not be loaded. Try again."
+
 msgid "The scan did not reach the end of the bucket, so non-current versions may remain. Run Delete Versions again."
 msgstr "The scan did not reach the end of the bucket, so non-current versions may remain. Run Delete Versions again."
 
@@ -3805,6 +3814,9 @@ msgstr "The selected objects will be permanently deleted. This cannot be undone.
 
 msgid "The service you're looking for doesn't exist or may have moved. Check the URL or return to the project home."
 msgstr "The service you're looking for doesn't exist or may have moved. Check the URL or return to the project home."
+
+msgid "The session has expired. Log in again to continue."
+msgstr "The session has expired. Log in again to continue."
 
 msgid "The specified project does not exist or you don't have permission to share with it."
 msgstr "The specified project does not exist or you don't have permission to share with it."
@@ -4003,6 +4015,9 @@ msgstr "This project doesn't exist or is not accessible from your current domain
 
 msgid "This property is reserved and cannot be modified"
 msgstr "This property is reserved and cannot be modified"
+
+msgid "This router does not exist or has been deleted."
+msgstr "This router does not exist or has been deleted."
 
 msgid "This router has no interfaces attached to internal networks."
 msgstr "This router has no interfaces attached to internal networks."

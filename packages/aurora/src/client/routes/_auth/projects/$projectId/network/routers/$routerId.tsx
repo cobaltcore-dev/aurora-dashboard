@@ -4,7 +4,6 @@ import { trpcReact } from "@/client/trpcClient"
 import { Button, ButtonRow, Status } from "@cloudoperators/juno-ui-components"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { useSetBreadcrumb } from "@/client/hooks/useSetBreadcrumb"
-import { useErrorTranslation } from "@/client/utils/useErrorTranslation"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import { RouteIdLevelDefaultError } from "@/client/components/Errors/RouteIdLevelDefaultError"
 import { RouterDetailsView } from "./-components/RouterDetailsView"
@@ -16,10 +15,29 @@ const HTTP_STATUS_BY_TRPC_CODE: Record<string, number> = {
   UNAUTHORIZED: 401,
   FORBIDDEN: 403,
   NOT_FOUND: 404,
+  TIMEOUT: 408,
   CONFLICT: 409,
   PRECONDITION_FAILED: 412,
+  TOO_MANY_REQUESTS: 429,
   INTERNAL_SERVER_ERROR: 500,
+  BAD_GATEWAY: 502,
+  SERVICE_UNAVAILABLE: 503,
+  GATEWAY_TIMEOUT: 504,
 }
+
+/**
+ * Transient failures worth retrying. UNKNOWN_ERROR covers errors without a tRPC code (e.g. the request never reached the BFF).
+ * Router-specific on purpose: the shared useErrorTranslation only knows the flavor error codes.
+ */
+const RETRYABLE_TRPC_CODES: ReadonlySet<string> = new Set([
+  "INTERNAL_SERVER_ERROR",
+  "BAD_GATEWAY",
+  "SERVICE_UNAVAILABLE",
+  "GATEWAY_TIMEOUT",
+  "TIMEOUT",
+  "TOO_MANY_REQUESTS",
+  "UNKNOWN_ERROR",
+])
 
 /**
  * tRPC error code (e.g. NOT_FOUND) from a TRPCClientError.
@@ -38,17 +56,30 @@ function RouterLoadError({ error, onRetry }: RouterLoadErrorProps) {
   const { t } = useLingui()
   const navigate = useNavigate()
   const { projectId } = useParams({ from: ROUTE_ID })
-  const { translateError, isRetryableError } = useErrorTranslation()
 
   const errorCode = getTrpcErrorCode(error)
   const statusCode: number | undefined = HTTP_STATUS_BY_TRPC_CODE[errorCode]
+  const canRetry = RETRYABLE_TRPC_CODES.has(errorCode)
+
+  const getErrorDescription = (): string => {
+    switch (errorCode) {
+      case "NOT_FOUND":
+        return t`This router does not exist or has been deleted.`
+      case "FORBIDDEN":
+        return t`Access to this router is not permitted.`
+      case "UNAUTHORIZED":
+        return t`The session has expired. Log in again to continue.`
+      default:
+        return canRetry ? t`The router could not be loaded. Try again.` : t`The router could not be loaded.`
+    }
+  }
 
   return (
     <RouteIdLevelDefaultError
       // null, not undefined: undefined would fall back to the component's default 404
       code={statusCode ?? null}
       errorTitle={statusCode === 404 ? t`Router Not Found` : t`Error Loading Router`}
-      errorDescription={translateError(errorCode)}
+      errorDescription={getErrorDescription()}
       action={
         <ButtonRow>
           <Button
@@ -60,7 +91,7 @@ function RouterLoadError({ error, onRetry }: RouterLoadErrorProps) {
           <Button onClick={() => navigate({ to: "/projects/$projectId", params: { projectId } })}>
             <Trans>Home</Trans>
           </Button>
-          {isRetryableError(errorCode) && (
+          {canRetry && (
             <Button onClick={onRetry}>
               <Trans>Try Again</Trans>
             </Button>
