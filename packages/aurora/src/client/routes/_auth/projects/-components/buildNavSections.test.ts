@@ -37,7 +37,7 @@ describe("buildNavSections", () => {
     expect(compute?.services.map((s) => s.service)).toEqual(["images", "flavors"])
 
     const network = sections.find((s) => s.section === "network")
-    expect(network?.services.map((s) => s.service)).toEqual(["securitygroups", "floatingips"])
+    expect(network?.services.map((s) => s.service)).toEqual(["securitygroups", "floatingips", "routers"])
 
     const storage = sections.find((s) => s.section === "storage")
     expect(storage?.services.map((s) => s.service)).toContain("containers")
@@ -56,6 +56,19 @@ describe("buildNavSections", () => {
     const withoutNetwork = ALL_SERVICES.filter((s) => s.type !== "network")
     const sections = buildNavSections("proj-1", withoutNetwork)
     expect(sections.map((s) => s.section)).not.toContain("network")
+  })
+
+  it("respects enabledServices filter for routers", () => {
+    const sections = buildNavSections("proj-1", ALL_SERVICES, ["securitygroups", "floatingips"])
+    const network = sections.find((s) => s.section === "network")
+    expect(network?.services.map((s) => s.service)).toEqual(["securitygroups", "floatingips"])
+  })
+
+  it("shows only routers in the network section when it is the only enabled network service", () => {
+    const sections = buildNavSections("proj-1", ALL_SERVICES, ["routers"])
+    const network = sections.find((s) => s.section === "network")
+    expect(network?.services.map((s) => s.service)).toEqual(["routers"])
+    expect(network?.services[0].params).toEqual({ projectId: "proj-1" })
   })
 
   it("sets correct params for each nav item", () => {
