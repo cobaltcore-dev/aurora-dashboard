@@ -29,6 +29,14 @@ describe("ErrorHandler for List procedures", () => {
     expect(error.message).toBe("Failed to process Floating IP: Internal Server Error")
   })
 
+  it("supports Router as resource name", () => {
+    const list = ErrorHandler("Router")
+    const error = list({ status: 500, statusText: "Internal Server Error" })
+
+    expect(error.code).toBe(DEFAULT_ERROR_NAME)
+    expect(error.message).toBe("Failed to process Router: Internal Server Error")
+  })
+
   it("uses Unknown error when statusText is missing", () => {
     const list = ErrorHandler("Port")
     const error = list({ status: 503 })

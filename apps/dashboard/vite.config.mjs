@@ -1,6 +1,6 @@
 import path from "path"
 import { fileURLToPath } from "url"
-import { defineConfig } from "vite"
+import { defineConfig, normalizePath } from "vite"
 import react from "@vitejs/plugin-react-swc"
 import tailwindcss from "@tailwindcss/vite"
 import svgr from "vite-plugin-svgr"
@@ -41,7 +41,7 @@ export default defineConfig(({ mode }) => ({
       plugins: mode !== "production" ? [["@lingui/swc-plugin", {}]] : [],
     }),
     viteStaticCopy({
-      targets: [{ src: path.resolve(__dirname, "src/policies"), dest: "../" }],
+      targets: [{ src: normalizePath(path.resolve(__dirname, "src/policies")), dest: "../" }],
     }),
   ],
 }))
