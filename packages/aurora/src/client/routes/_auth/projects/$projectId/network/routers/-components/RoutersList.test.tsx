@@ -367,12 +367,15 @@ describe("Routers", () => {
 
     it("updates the page in the URL on page change", async () => {
       const user = userEvent.setup()
-      await renderList()
+      // Enough routers for a second page, otherwise the out-of-range reset navigates back to page 1
+      const manyRouters = Array.from({ length: 51 }, (_, i) => makeRouter(`router-${i}`))
+      await renderList(vi.fn().mockResolvedValue(manyRouters))
 
-      await screen.findByTestId("router-list-container")
+      const container = await screen.findByTestId("router-list-container")
       await user.click(screen.getByRole("button", { name: "Go to page 2" }))
 
       expect(lastNavigateSearch()).toEqual({ page: 2 })
+      expect(container).toHaveAttribute("data-current-page", "2")
     })
 
     it("resets to the first page when the page in the URL is out of range", async () => {
