@@ -773,6 +773,9 @@ msgstr "Community"
 msgid "Compute"
 msgstr "Compute"
 
+msgid "Configuration Unavailable"
+msgstr ""
+
 msgid "Confirm deletion of {displayName}. All objects inside this folder will be marked as deleted but can be restored from version history."
 msgstr ""
 
@@ -3692,6 +3695,9 @@ msgstr "Temporäre URL für \"{objectName}\" wurde in die Zwischenablage kopiert
 msgid "Temporary URLs"
 msgstr "Temporäre URLs"
 
+msgid "The application configuration could not be loaded. Some services and features may be unavailable."
+msgstr ""
+
 msgid "The bucket could not be created. Try again or choose a different name."
 msgstr ""
 
@@ -4072,9 +4078,6 @@ msgstr "Gesamtspeicher-Quota"
 
 msgid "True"
 msgstr "True"
-
-msgid "Try again"
-msgstr "Erneut versuchen"
 
 msgid "Try Again"
 msgstr "Erneut versuchen"

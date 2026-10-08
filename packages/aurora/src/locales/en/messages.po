@@ -773,6 +773,9 @@ msgstr "Community"
 msgid "Compute"
 msgstr "Compute"
 
+msgid "Configuration Unavailable"
+msgstr "Configuration Unavailable"
+
 msgid "Confirm deletion of {displayName}. All objects inside this folder will be marked as deleted but can be restored from version history."
 msgstr "Confirm deletion of {displayName}. All objects inside this folder will be marked as deleted but can be restored from version history."
 
@@ -3692,6 +3695,9 @@ msgstr "Temporary URL for \"{objectName}\" was copied to clipboard."
 msgid "Temporary URLs"
 msgstr "Temporary URLs"
 
+msgid "The application configuration could not be loaded. Some services and features may be unavailable."
+msgstr "The application configuration could not be loaded. Some services and features may be unavailable."
+
 msgid "The bucket could not be created. Try again or choose a different name."
 msgstr "The bucket could not be created. Try again or choose a different name."
 
@@ -4072,9 +4078,6 @@ msgstr "Total size quota"
 
 msgid "True"
 msgstr "True"
-
-msgid "Try again"
-msgstr "Try again"
 
 msgid "Try Again"
 msgstr "Try Again"

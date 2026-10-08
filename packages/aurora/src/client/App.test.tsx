@@ -15,6 +15,18 @@ vi.mock("@/client/trpcClient", async (importOriginal) => {
   }
 })
 
+vi.mock("@/client/context/AppConfigContext", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/client/context/AppConfigContext")>()
+  return {
+    ...actual,
+    AppConfigProvider: ({ children }: { children: React.ReactNode }) => children,
+    useIsAppConfigLoading: () => false,
+    useAppConfigStatus: () => ({ error: null, retry: () => {} }),
+    useAppConfig: () => ({}),
+    useFeature: () => undefined,
+  }
+})
+
 beforeAll(() => {
   window.scrollTo = vi.fn()
 })

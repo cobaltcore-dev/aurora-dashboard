@@ -22,10 +22,15 @@ export function buildNavSections(
   projectId: string,
   availableServices: { type: string; name: string }[],
   enabledServices?: string[],
-  serviceExtensions?: ServiceExtension[]
+  serviceExtensions?: ServiceExtension[],
+  deniedServices?: string[]
 ): NavSection[] {
   const serviceIndex = getServiceIndex(availableServices)
-  const isEnabled = (service: string) => !enabledServices || enabledServices.includes(service)
+  // Deny always wins and applies even without an allow/enabled list, so a service can be hidden
+  // by deniedServices alone (deny-only). The two signals come from the resolved appConfig service
+  // visibility (allowlist -> enabledServices, denylist -> deniedServices); see resolveServiceVisibility.
+  const isEnabled = (service: string) =>
+    (!enabledServices || enabledServices.includes(service)) && !deniedServices?.includes(service)
 
   const computeServices: NavItem[] = [
     ...(serviceIndex["image"]?.["glance"] && isEnabled("images")
@@ -147,6 +152,7 @@ export function buildNavSections(
   for (const extension of serviceExtensions ?? []) {
     if (!serviceIndex[extension.serviceType]?.[extension.serviceName]) continue
     if (enabledServices && !enabledServices.includes(extension.serviceType)) continue
+    if (deniedServices?.includes(extension.serviceType)) continue
 
     sectionMap.get("services")?.services.push({
       service: extension.serviceType,

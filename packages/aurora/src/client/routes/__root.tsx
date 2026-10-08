@@ -21,6 +21,7 @@ export interface RouterContext {
   appName?: string
   onTrackEvent?: OnTrackEventCallback
   enabledServices?: string[]
+  deniedServices?: string[]
   serviceExtensions: ServiceExtension[]
 }
 
