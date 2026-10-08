@@ -8,3 +8,4 @@ Resolve security advisories via pnpm overrides:
 - fastify: force patched 5.12.5 (fixes multiple advisories)
 - @fastify/busboy: force patched 3.2.2
 - brace-expansion: force patched 1.1.21 / 5.0.12 (fixes ReDoS)
+- shell-quote: force patched 1.11.0 (fixes quote() command injection via line terminator)
