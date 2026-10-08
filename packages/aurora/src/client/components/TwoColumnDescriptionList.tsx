@@ -17,8 +17,10 @@ export const TwoColumnDescriptionList = ({ items }: TwoColumnDescriptionListProp
   const secondColumn = items.slice(mid)
 
   return (
-    <Stack gap="6" className="grid grid-cols-2">
-      <DescriptionList alignTerms="right">
+    // alignment="start": the default stretch would pull the shorter column down to the taller one's height
+    <Stack gap="6" alignment="start">
+      {/* flex-1 splits the row into equal columns; min-w-0 lets long values truncate instead of widening their column */}
+      <DescriptionList alignTerms="right" className="min-w-0 flex-1">
         {firstColumn.map(({ id, label, value }, index) => (
           <Fragment key={id ?? `left-${index}`}>
             <DescriptionTerm>{label}</DescriptionTerm>
@@ -29,7 +31,7 @@ export const TwoColumnDescriptionList = ({ items }: TwoColumnDescriptionListProp
         ))}
       </DescriptionList>
 
-      <DescriptionList alignTerms="right">
+      <DescriptionList alignTerms="right" className="min-w-0 flex-1">
         {secondColumn.map(({ id, label, value }, index) => (
           <Fragment key={id ?? `right-${index}`}>
             <DescriptionTerm>{label}</DescriptionTerm>

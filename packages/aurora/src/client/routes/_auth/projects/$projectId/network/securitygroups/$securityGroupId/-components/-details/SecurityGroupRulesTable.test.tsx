@@ -744,6 +744,28 @@ describe("SecurityGroupRulesTable", () => {
     })
   })
 
+  describe("Add Rule button", () => {
+    it("renders Add Rule as a default button", () => {
+      render(
+        <SecurityGroupRulesTable
+          rules={mockRules}
+          onDeleteRule={vi.fn()}
+          isDeletingRule={false}
+          deleteError={null}
+          securityGroupId="sg-current"
+          onCreateRule={vi.fn()}
+          canCreateRule={true}
+          canDeleteRule={true}
+        />,
+        { wrapper: createWrapper() }
+      )
+
+      const addRuleButton = screen.getByRole("button", { name: "Add Rule" })
+      expect(addRuleButton).toHaveClass("juno-button-default")
+      expect(addRuleButton).not.toHaveClass("juno-button-primary")
+    })
+  })
+
   describe("Closing modals", () => {
     it("discards the Add Rule error when the modal closes", async () => {
       const user = userEvent.setup()

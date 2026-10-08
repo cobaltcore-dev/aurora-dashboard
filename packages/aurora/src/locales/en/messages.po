@@ -2141,6 +2141,9 @@ msgstr "Full path:"
 msgid "General Image Data"
 msgstr "General Image Data"
 
+msgid "General Information"
+msgstr "General Information"
+
 msgid "Generate URL"
 msgstr "Generate URL"
 

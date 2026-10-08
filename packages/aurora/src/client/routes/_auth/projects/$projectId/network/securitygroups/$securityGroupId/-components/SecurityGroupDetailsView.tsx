@@ -60,6 +60,8 @@ export function SecurityGroupDetailsView({
   // Determine if this is a shared security group (not owned by current project)
   const isOwner = securityGroup.project_id === currentProjectId
   const showRBACTab = isOwner && permissions.canViewRBAC
+  // Falls back to Rules when the RBAC tab disappears while it is open (e.g. permissions change)
+  const currentTab: TabType = showRBACTab ? activeTab : "rules"
 
   return (
     <Container px={false} py>
@@ -68,11 +70,11 @@ export function SecurityGroupDetailsView({
         <SecurityGroupBasicInfo securityGroup={securityGroup} />
 
         {/* Tabs Navigation - Show rules tab always, RBAC only if owner and has permission */}
-        <SecurityGroupTabs activeTab={activeTab} onTabChange={setActiveTab} showRBACTab={showRBACTab} />
+        <SecurityGroupTabs activeTab={currentTab} onTabChange={setActiveTab} showRBACTab={showRBACTab} />
 
         {/* Tab Content */}
         <div className="mt-6">
-          {activeTab === "rules" && (
+          {currentTab === "rules" && (
             <SecurityGroupRulesTable
               rules={filteredAndSortedRules}
               onDeleteRule={onDeleteRule}
@@ -95,7 +97,7 @@ export function SecurityGroupDetailsView({
               canDeleteRule={permissions.canDeleteRule}
             />
           )}
-          {activeTab === "rbac" && (
+          {currentTab === "rbac" && (
             <SecurityGroupRBACPolicies
               securityGroupId={securityGroup.id}
               canManageAccess={permissions.canManageAccess}
