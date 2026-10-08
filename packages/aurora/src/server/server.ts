@@ -30,6 +30,7 @@ export async function createServer(config: AuroraServerConfig): Promise<FastifyI
     cookieDomain: config.cookieDomain,
     insecureCookies: config.insecureCookies,
     debug: config.debug,
+    appConfig: config.appConfig,
   }
 
   const appRouter = buildAppRouter(config.policyDir, config.routers ?? [])

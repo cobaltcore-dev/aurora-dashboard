@@ -3,6 +3,7 @@ import { buildComputeRouters } from "./Compute/routers"
 import { buildObjectStorageRouters } from "./Storage/routers"
 import { projectRouters } from "./Project/routers"
 import { buildNetworkRouters } from "./Network/routers"
+import { appConfigRouters } from "./AppConfig/routers"
 import { auroraRouter, mergeRouters } from "./trpc"
 import type { AnyRouter } from "@trpc/server"
 
@@ -12,7 +13,8 @@ const buildBaseRouter = (policyDir: string) =>
     auroraRouter(buildComputeRouters(policyDir)),
     auroraRouter(buildObjectStorageRouters(policyDir)),
     auroraRouter(projectRouters),
-    auroraRouter(buildNetworkRouters(policyDir))
+    auroraRouter(buildNetworkRouters(policyDir)),
+    auroraRouter(appConfigRouters)
   )
 
 export type AuroraRouter = ReturnType<typeof buildBaseRouter>

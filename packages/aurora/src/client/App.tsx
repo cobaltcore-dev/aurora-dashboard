@@ -1,17 +1,22 @@
-import { AppShellProvider, NotificationManager } from "@cloudoperators/juno-ui-components"
+import { AppShellProvider, NotificationManager, AppShell } from "@cloudoperators/juno-ui-components"
 import { RouterProvider } from "@tanstack/react-router"
 import { AuthProvider, useAuth } from "./store/AuthProvider"
 import { QueryClient, QueryClientProvider, hashKey } from "@tanstack/react-query"
 import { trpcReact, trpcReactClient, trpcClient, setBffEndpoint } from "./trpcClient"
 import { createAuroraRouter } from "./router"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
+import { useLingui } from "@lingui/react/macro"
 import { ErrorBoundary } from "react-error-boundary"
 import { Trans } from "@lingui/react/macro"
 import { NavigationItem } from "./components/navigation/types"
 import type { Slots, OnTrackEventCallback, ServiceExtension } from "./AuroraApp"
+import { Status, Button } from "@cloudoperators/juno-ui-components"
+import { AppConfigProvider, useAppConfig, useIsAppConfigLoading, useAppConfigStatus } from "./context/AppConfigContext"
+import { gateSlots, resolveServiceVisibility } from "./utils/appConfigGating"
 import { messages as enMessages } from "../locales/en/messages"
+import styles from "./index.css?inline"
 import { setupRouterAnalytics } from "./analytics/setupRouterAnalytics"
 
 // Initialise i18n here so AuroraApp is self-contained and consumers don't need
@@ -37,6 +42,22 @@ const navItems: NavigationItem[] = []
 // Stable reference for the "no extensions" case so a missing prop doesn't allocate a fresh array
 // on every render, which would defeat the buildNavSections useMemo in the project route.
 const EMPTY_SERVICE_EXTENSIONS: ServiceExtension[] = []
+
+/**
+ * Shell used for the appConfig loading/error screens, which render before the router (and
+ * thus before AuroraLayout) is mounted. Mirrors AuroraLayout's AppShell framing but omits the
+ * header and footer, since the nav depends on config that is not yet resolved.
+ */
+function ConfigGateLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      <style>{styles.toString()}</style>
+      <AppShell pageHeader={""} fullWidthContent>
+        {children}
+      </AppShell>
+    </>
+  )
+}
 
 const App = (props: AppProps) => {
   useEffect(() => {
@@ -85,7 +106,7 @@ const App = (props: AppProps) => {
             </p>
             {message && <pre style={{ color: "red" }}>{message}</pre>}
             <button onClick={resetErrorBoundary}>
-              <Trans>Try again</Trans>
+              <Trans>Try Again</Trans>
             </button>
           </div>
         )
@@ -96,17 +117,19 @@ const App = (props: AppProps) => {
           <trpcReact.Provider client={reactClient} queryClient={queryClient}>
             <QueryClientProvider client={queryClient}>
               <AuthProvider>
-                <NotificationManager position="top-right" />
-                <AppInner
-                  router={router}
-                  navItems={navItems}
-                  handleThemeToggle={handleThemeToggle}
-                  slots={props.slots}
-                  appName={props.appName}
-                  onTrackEvent={props.onTrackEvent}
-                  enabledServices={props.enabledServices}
-                  serviceExtensions={props.serviceExtensions ?? EMPTY_SERVICE_EXTENSIONS}
-                />
+                <AppConfigProvider>
+                  <NotificationManager position="top-right" />
+                  <AppInner
+                    router={router}
+                    navItems={navItems}
+                    handleThemeToggle={handleThemeToggle}
+                    slots={props.slots}
+                    appName={props.appName}
+                    onTrackEvent={props.onTrackEvent}
+                    enabledServices={props.enabledServices}
+                    serviceExtensions={props.serviceExtensions ?? EMPTY_SERVICE_EXTENSIONS}
+                  />
+                </AppConfigProvider>
               </AuthProvider>
             </QueryClientProvider>
           </trpcReact.Provider>
@@ -138,6 +161,50 @@ function AppInner({
   serviceExtensions: ServiceExtension[]
 }) {
   const auth = useAuth()
+  const { t } = useLingui()
+  const isConfigLoading = useIsAppConfigLoading()
+  const { error: configError, retry } = useAppConfigStatus()
+  const appConfig = useAppConfig()
+
+  // Apply the resolved domain config on top of the consumer-provided props before handing
+  // them to the router context, so every downstream slot/service check honours it.
+  const effectiveSlots = useMemo(() => gateSlots(slots, appConfig?.slots), [slots, appConfig])
+  const { enabledServices: effectiveEnabledServices, deniedServices: effectiveDeniedServices } = useMemo(
+    () => resolveServiceVisibility(enabledServices, appConfig?.services),
+    [enabledServices, appConfig]
+  )
+
+  // Set up analytics tracking for router navigation.
+  // isConfigLoading is in deps so the subscription is deferred until the RouterProvider is live.
+  useEffect(() => {
+    if (onTrackEvent && !isConfigLoading) {
+      return setupRouterAnalytics(router)
+    }
+  }, [router, onTrackEvent, isConfigLoading])
+
+  if (isConfigLoading)
+    return (
+      <ConfigGateLayout>
+        <Status status="progress" title={t`Loading…`} />
+      </ConfigGateLayout>
+    )
+
+  if (configError) {
+    return (
+      <ConfigGateLayout>
+        <Status
+          status="error"
+          title={t`Configuration Unavailable`}
+          body={t`The application configuration could not be loaded. Some services and features may be unavailable.`}
+          action={
+            <Button variant="primary" onClick={retry}>
+              {t`Try Again`}
+            </Button>
+          }
+        />
+      </ConfigGateLayout>
+    )
+  }
 
   const routerContext = {
     trpcReact,
@@ -145,20 +212,13 @@ function AppInner({
     auth,
     navItems,
     handleThemeToggle,
-    slots,
+    slots: effectiveSlots,
     appName,
     onTrackEvent,
-    enabledServices,
+    enabledServices: effectiveEnabledServices,
+    deniedServices: effectiveDeniedServices,
     serviceExtensions,
   }
-
-  // Set up analytics tracking for router navigation
-  // Must run AFTER RouterProvider processes the context, so use a separate effect
-  useEffect(() => {
-    if (onTrackEvent) {
-      return setupRouterAnalytics(router)
-    }
-  }, [router, onTrackEvent])
 
   return <RouterProvider router={router} context={routerContext} />
 }
