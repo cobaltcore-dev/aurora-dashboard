@@ -1,9 +1,14 @@
 import { cleanup, render, screen } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
 import { SecurityGroupDetailsView } from "./SecurityGroupDetailsView"
 import type { SecurityGroup, SecurityGroupRule } from "@/server/Network/types/securityGroup"
+
+vi.mock("./-details/SecurityGroupRBACPolicies", () => ({
+  SecurityGroupRBACPolicies: () => <div>RBAC policies panel</div>,
+}))
 
 const mockRules: SecurityGroupRule[] = [
   {
@@ -126,6 +131,71 @@ describe("SecurityGroupDetailsView", () => {
     expect(screen.getByText("Security group for web servers")).toBeInTheDocument()
     expect(screen.getByText("project-456")).toBeInTheDocument()
     expect(screen.getByText("production, web")).toBeInTheDocument()
+  })
+
+  it("shows the details section under an h2 heading", () => {
+    render(
+      <SecurityGroupDetailsView
+        securityGroup={mockSecurityGroup}
+        filteredAndSortedRules={mockSecurityGroup.security_group_rules || []}
+        onDeleteRule={() => {}}
+        filterControls={defaultFilterControls}
+        availableSecurityGroups={[]}
+        currentProjectId={mockCurrentProjectId}
+        permissions={defaultPermissions}
+      />,
+      {
+        wrapper: createWrapper(),
+      }
+    )
+
+    expect(screen.getByRole("heading", { level: 2, name: "General Information" })).toBeInTheDocument()
+  })
+
+  it("lists Name, Description, ID and Tags in the left column", () => {
+    const { container } = render(
+      <SecurityGroupDetailsView
+        securityGroup={mockSecurityGroup}
+        filteredAndSortedRules={mockSecurityGroup.security_group_rules || []}
+        onDeleteRule={() => {}}
+        filterControls={defaultFilterControls}
+        availableSecurityGroups={[]}
+        currentProjectId={mockCurrentProjectId}
+        permissions={defaultPermissions}
+      />,
+      {
+        wrapper: createWrapper(),
+      }
+    )
+
+    const leftColumn = container.querySelectorAll("dl")[0]
+    const terms = Array.from(leftColumn.querySelectorAll("dt"), (term) => term.textContent)
+    expect(terms).toEqual(["Name", "Description", "ID", "Tags"])
+  })
+
+  it("falls back to the Rules tab when the RBAC tab disappears while it is open", async () => {
+    const user = userEvent.setup()
+    const renderView = (canViewRBAC: boolean) => (
+      <SecurityGroupDetailsView
+        securityGroup={mockSecurityGroup}
+        filteredAndSortedRules={mockRules}
+        onDeleteRule={() => {}}
+        filterControls={defaultFilterControls}
+        availableSecurityGroups={[]}
+        currentProjectId={mockCurrentProjectId}
+        permissions={{ ...defaultPermissions, canViewRBAC }}
+      />
+    )
+    const { rerender } = render(renderView(true), { wrapper: createWrapper() })
+
+    await user.click(screen.getByRole("button", { name: "RBAC Policies" }))
+    expect(screen.getByText("RBAC policies panel")).toBeInTheDocument()
+
+    rerender(renderView(false))
+
+    expect(screen.queryByText("RBAC policies panel")).not.toBeInTheDocument()
+    expect(screen.getByText("HTTP traffic")).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Rules" })).toHaveAttribute("aria-selected", "true")
   })
 
   it("displays em dash for missing description", () => {

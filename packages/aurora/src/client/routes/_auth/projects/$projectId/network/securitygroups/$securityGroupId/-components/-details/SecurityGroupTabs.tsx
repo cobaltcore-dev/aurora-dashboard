@@ -1,5 +1,6 @@
-import { Stack } from "@cloudoperators/juno-ui-components"
-import { Trans } from "@lingui/react/macro"
+import type { ReactNode } from "react"
+import { useLingui } from "@lingui/react/macro"
+import { TabNavigation, TabNavigationItem } from "@cloudoperators/juno-ui-components"
 
 export type TabType = "rules" | "rbac"
 
@@ -9,27 +10,21 @@ interface SecurityGroupTabsProps {
   showRBACTab?: boolean
 }
 
+const isTabType = (key: ReactNode): key is TabType => key === "rules" || key === "rbac"
+
 export function SecurityGroupTabs({ activeTab, onTabChange, showRBACTab = true }: SecurityGroupTabsProps) {
-  const getTabClassName = (tab: TabType) => {
-    const baseClasses = "px-6 py-3 font-semibold border-b-2 transition-colors"
-    const activeClasses = "border-theme-accent text-theme-highest"
-    const inactiveClasses = "border-transparent text-theme-secondary hover:text-theme-high"
+  const { t } = useLingui()
 
-    return `${baseClasses} ${activeTab === tab ? activeClasses : inactiveClasses}`
-  }
-
+  // TabNavigation keeps its own active item once a tab is clicked, so activeItem keeps it in sync with activeTab.
+  // `active` only covers the first render, before activeItem is applied.
   return (
-    <div className="border-theme-background-lvl-3 mt-4 border-b">
-      <Stack direction="horizontal" gap="0">
-        <button className={getTabClassName("rules")} onClick={() => onTabChange("rules")}>
-          <Trans>Rules</Trans>
-        </button>
-        {showRBACTab && (
-          <button className={getTabClassName("rbac")} onClick={() => onTabChange("rbac")}>
-            <Trans>RBAC Policies</Trans>
-          </button>
-        )}
-      </Stack>
-    </div>
+    <TabNavigation
+      className="mt-4"
+      activeItem={activeTab}
+      onActiveItemChange={(key) => isTabType(key) && onTabChange(key)}
+    >
+      <TabNavigationItem value="rules" label={t`Rules`} active={activeTab === "rules"} />
+      {showRBACTab && <TabNavigationItem value="rbac" label={t`RBAC Policies`} active={activeTab === "rbac"} />}
+    </TabNavigation>
   )
 }

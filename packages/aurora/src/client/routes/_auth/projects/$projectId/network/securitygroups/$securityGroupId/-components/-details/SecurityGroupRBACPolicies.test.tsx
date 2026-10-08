@@ -287,6 +287,22 @@ describe("SecurityGroupRBACPolicies", () => {
 
       expect(screen.getByRole("button", { name: /Share Security Group/i })).toBeInTheDocument()
     })
+
+    it("renders Share Security Group as a default button", () => {
+      vi.mocked(trpcReact.network.rbacPolicy.list.useQuery).mockReturnValue(
+        createMockQueryResult<RBACPolicy[]>({
+          data: mockPolicies,
+        })
+      )
+
+      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" canManageAccess={true} />, {
+        wrapper: createWrapper(),
+      })
+
+      const shareButton = screen.getByRole("button", { name: /Share Security Group/i })
+      expect(shareButton).toHaveClass("juno-button-default")
+      expect(shareButton).not.toHaveClass("juno-button-primary")
+    })
   })
 
   describe("Search functionality", () => {
