@@ -110,4 +110,24 @@ describe("buildNavSections", () => {
       expect(sections.map((s) => s.section)).not.toContain("services")
     })
   })
+
+  describe("deniedServices", () => {
+    it("hides a service via deniedServices alone, with no allow/enabled list (deny-only)", () => {
+      const sections = buildNavSections("proj-1", ALL_SERVICES, undefined, undefined, ["floatingips"])
+      const network = sections.find((s) => s.section === "network")
+      expect(network?.services.map((s) => s.service)).toEqual(["securitygroups", "routers"])
+    })
+
+    it("deny wins over an explicit enabledServices entry", () => {
+      const sections = buildNavSections("proj-1", ALL_SERVICES, ["images", "flavors"], undefined, ["flavors"])
+      const compute = sections.find((s) => s.section === "compute")
+      expect(compute?.services.map((s) => s.service)).toEqual(["images"])
+    })
+
+    it("hides an extension service listed in deniedServices", () => {
+      const services = [...ALL_SERVICES, { type: "custom-service", name: "custom-provider" }]
+      const sections = buildNavSections("proj-1", services, undefined, [CUSTOM_SERVICE], ["custom-service"])
+      expect(sections.map((s) => s.section)).not.toContain("services")
+    })
+  })
 })

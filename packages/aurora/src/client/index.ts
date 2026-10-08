@@ -21,6 +21,19 @@ export {
 
 export { useAuth } from "./store/AuthProvider"
 export { useDomainId, useScope } from "./hooks"
+export { AppConfigProvider, useAppConfig, useFeature, useIsAppConfigLoading } from "./context/AppConfigContext"
+export type {
+  AuroraAppConfig,
+  AppConfigBase,
+  DomainOverride,
+  ResolvedAppConfig,
+  Visibility,
+  VisibilityDelta,
+  SlotConfigEntry,
+  ServiceFeatureMap,
+  FeatureBag,
+  SlotName,
+} from "../types/appConfig"
 export type { RouteInfo, Crumb } from "./routes/routeInfo"
 export { isRouteInfo } from "./routes/routeInfo"
 export { usePushBreadcrumbs } from "./hooks/usePushBreadcrumbs"

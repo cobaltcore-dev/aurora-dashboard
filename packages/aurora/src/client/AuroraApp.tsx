@@ -1,5 +1,6 @@
 import type { FC } from "react"
 import type { TrpcClient } from "./trpcClient"
+import type { SlotName } from "../types/appConfig"
 import App from "./App"
 
 /** Context object passed to every slot component. */
@@ -28,11 +29,19 @@ export type Slots = {
   servicePageActions?: FC<SlotProps>
   /** Rendered below the "Projects" heading on the projects list page. Renders outside shadow DOM. */
   projectsBanner?: FC<SlotProps>
-  /** Rendered below the project description on the project overview page (/projects/$projectId). Renders outside shadow DOM. */
-  projectOverviewBanner?: FC<SlotProps>
   /** Rendered below the page title divider on every service page. Receives `auroraContext.currentService`. Renders outside shadow DOM. */
   serviceBanner?: FC<SlotProps>
 }
+
+/**
+ * Compile-time guard: `SlotName` is declared in the JSX-free types module (so the server
+ * build can consume it) and must stay identical to the keys of `Slots`. If the two drift,
+ * the conditional below resolves to `false` and `Assert<false>` fails to compile.
+ */
+type Assert<T extends true> = T
+export type _SlotNamesInSync = Assert<
+  SlotName extends keyof Slots ? (keyof Slots extends SlotName ? true : false) : false
+>
 
 /**
  * Payload for analytics tracking events.

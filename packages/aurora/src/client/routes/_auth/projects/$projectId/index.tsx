@@ -55,8 +55,10 @@ function RouteComponent() {
     from: "/_auth/projects/$projectId",
   })
   const { t } = useLingui()
-  const { enabledServices, serviceExtensions } = useRouteContext({ strict: false })
-  const isEnabled = (service: string) => !enabledServices || enabledServices.includes(service)
+  const { enabledServices, deniedServices, serviceExtensions } = useRouteContext({ strict: false })
+  // Deny always wins and applies even without an allow/enabled list (deny-only). See buildNavSections.
+  const isEnabled = (service: string) =>
+    (!enabledServices || enabledServices.includes(service)) && !deniedServices?.includes(service)
 
   const serviceIndex = getServiceIndex(availableServices ?? [])
   const base = `/projects/${projectId}`
@@ -109,7 +111,8 @@ function RouteComponent() {
     // if the extension's service is in the catalog and enabled, display a card for it
     if (
       serviceIndex[extension.serviceType]?.[extension.serviceName] &&
-      (!enabledServices || enabledServices.includes(extension.serviceType))
+      (!enabledServices || enabledServices.includes(extension.serviceType)) &&
+      !deniedServices?.includes(extension.serviceType)
     )
       cards.push({
         group: t`Services`,
