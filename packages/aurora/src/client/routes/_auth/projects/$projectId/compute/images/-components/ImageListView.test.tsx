@@ -89,12 +89,15 @@ const defaultProps = {
   protectedImages: [],
   activeImages: [],
   deactivatedImages: [],
+  unownedActiveImages: [],
+  unownedDeactivatedImages: [],
   onImageUpdated: vi.fn(),
   onImageDeleted: vi.fn(),
   onMemberStatusChanged: vi.fn(),
   hasAnyBulkAction: true,
   pendingSharedIds: new Set<string>(),
   acceptedSharedIds: new Set<string>(),
+  memberStatusView: "all" as const,
 }
 
 describe("ImageListView — pagination", () => {
@@ -113,7 +116,7 @@ describe("ImageListView — pagination", () => {
       render(<ImageListView {...defaultProps} images={[]} />, { wrapper: TestingProvider })
     })
 
-    expect(screen.getByText("No images found")).toBeInTheDocument()
+    expect(screen.getByText("No Images Found")).toBeInTheDocument()
     // Table is now always rendered with empty state inside
     expect(screen.getByTestId("images-table")).toBeInTheDocument()
   })

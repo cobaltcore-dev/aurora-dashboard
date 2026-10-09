@@ -6,6 +6,7 @@ import { GlanceImage } from "@/server/Compute/types/image"
 interface DeactivateImagesModalProps {
   activeImages: Array<GlanceImage>
   deactivatedImages: Array<GlanceImage>
+  unownedImages: Array<GlanceImage>
   isOpen: boolean
   isLoading: boolean
   onClose: () => void
@@ -15,6 +16,7 @@ interface DeactivateImagesModalProps {
 export const DeactivateImagesModal: React.FC<DeactivateImagesModalProps> = ({
   activeImages,
   deactivatedImages,
+  unownedImages,
   isOpen,
   isLoading,
   onClose,
@@ -24,6 +26,7 @@ export const DeactivateImagesModal: React.FC<DeactivateImagesModalProps> = ({
 
   const activeCount = activeImages.length
   const deactivatedCount = deactivatedImages.length
+  const unownedCount = unownedImages.length
 
   const handleDeactivate = (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault()
@@ -56,28 +59,6 @@ export const DeactivateImagesModal: React.FC<DeactivateImagesModalProps> = ({
                 <Trans>Deactivated images cannot be used to launch instances.</Trans>
               </p>
 
-              {deactivatedCount > 0 && (
-                <div className="mb-6">
-                  <p className="text-sm font-semibold">
-                    <Plural
-                      value={deactivatedCount}
-                      one="Already deactivated (# will be skipped)"
-                      other="Already deactivated (# will be skipped)"
-                    />
-                  </p>
-                  <div className="jn:bg-theme-background-lvl-1 mt-2 max-h-24 overflow-y-auto rounded p-4">
-                    <div className="space-y-1">
-                      {deactivatedImages.map((image) => (
-                        <div key={image.id} className="text-theme-default text-sm">
-                          <span className="font-medium">{image.name || t`Unnamed`}</span>
-                          <span className="text-theme-light ml-2 text-xs">({image.id})</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-
               {/* Images to be deactivated */}
               <div className="mb-6">
                 <p className="text-sm font-semibold">
@@ -94,6 +75,31 @@ export const DeactivateImagesModal: React.FC<DeactivateImagesModalProps> = ({
                   </div>
                 </div>
               </div>
+
+              {(deactivatedCount > 0 || unownedCount > 0) && (
+                <div className="mb-6">
+                  <p className="text-sm font-semibold">
+                    <Plural
+                      value={deactivatedCount + unownedCount}
+                      one="Image cannot be deactivated (#)"
+                      other="Images cannot be deactivated (#)"
+                    />
+                  </p>
+                  <p className="text-theme-light mt-1 text-xs">
+                    <Trans>You do not have permission to deactivate these images.</Trans>
+                  </p>
+                  <div className="jn:bg-theme-background-lvl-1 mt-2 max-h-24 overflow-y-auto rounded p-4">
+                    <div className="space-y-1">
+                      {[...deactivatedImages, ...unownedImages].map((image) => (
+                        <div key={image.id} className="text-theme-default text-sm">
+                          <span className="font-medium">{image.name || t`Unnamed`}</span>
+                          <span className="text-theme-light ml-2 text-xs">({image.id})</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
             </>
           )}
         </div>

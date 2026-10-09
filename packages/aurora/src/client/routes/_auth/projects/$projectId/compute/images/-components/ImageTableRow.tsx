@@ -65,7 +65,7 @@ export function ImageTableRow({
 }: ImageTableRowProps) {
   const { t } = useLingui()
   const { id, name, status, visibility, size, disk_format, created_at } = image
-  const imageName = name || t`Unnamed`
+  const imageName = name || id
 
   const { projectId } = useParams({
     from: "/_auth/projects/$projectId/compute/images/",
@@ -120,7 +120,7 @@ export function ImageTableRow({
       )}
 
       <DataGridCell>{status}</DataGridCell>
-      <DataGridCell>{imageName}</DataGridCell>
+      <DataGridCell>{name || id}</DataGridCell>
       <DataGridCell>{visibility}</DataGridCell>
       <DataGridCell>{image.protected ? t`Yes` : t`No`}</DataGridCell>
       <DataGridCell>
@@ -172,7 +172,7 @@ export function ImageTableRow({
               )}
 
               {/* Own image: mutation actions gated on update permission */}
-              {!isExternalImage && permissions.canUpdate && (
+              {isOwnImage && permissions.canUpdate && (
                 <>
                   <PopupMenuItem label={t`Edit Details`} onClick={() => onEditDetails(image)} />
                   <PopupMenuItem label={t`Edit Metadata`} onClick={() => onEditMetadata(image)} />
@@ -193,7 +193,7 @@ export function ImageTableRow({
                   />
                 </>
               )}
-              {!isExternalImage && permissions.canDelete && !image.protected && (
+              {isOwnImage && permissions.canDelete && !image.protected && (
                 <>
                   <PopupMenuSectionSeparator />
                   <PopupMenuItem label={t`Delete Image`} onClick={() => onDelete(image)} />

@@ -16,6 +16,10 @@ msgstr ""
 msgid "—"
 msgstr "—"
 
+#. placeholder {0}: hiddenUnownedCount + hiddenProtectedCount
+msgid "… and {0} more"
+msgstr "… and {0} more"
+
 msgid "... and {hiddenCount} more"
 msgstr "... and {hiddenCount} more"
 
@@ -30,9 +34,6 @@ msgstr "… and {hiddenErrorCount} more failures"
 
 msgid "… and {hiddenObjectCount} more"
 msgstr "… and {hiddenObjectCount} more"
-
-msgid "… and {hiddenProtectedCount} more"
-msgstr "… and {hiddenProtectedCount} more"
 
 msgid "… and {hiddenVersionsCount} more"
 msgstr "… and {hiddenVersionsCount} more"
@@ -66,12 +67,25 @@ msgstr "{0, plural, one {Delete # Lifecycle Rule} other {Delete # Lifecycle Rule
 msgid "{0, plural, one {Delete # Rule} other {Delete # Rules}}"
 msgstr "{0, plural, one {Delete # Rule} other {Delete # Rules}}"
 
+#. placeholder {0}: activeCount + unownedCount
+msgid "{0, plural, one {Image cannot be activated (#)} other {Images cannot be activated (#)}}"
+msgstr "{0, plural, one {Image cannot be activated (#)} other {Images cannot be activated (#)}}"
+
+#. placeholder {0}: deactivatedCount + unownedCount
+msgid "{0, plural, one {Image cannot be deactivated (#)} other {Images cannot be deactivated (#)}}"
+msgstr "{0, plural, one {Image cannot be deactivated (#)} other {Images cannot be deactivated (#)}}"
+
+#. placeholder {0}: unownedCount + protectedCount
+msgid "{0, plural, one {Image cannot be deleted (#)} other {Images cannot be deleted (#)}}"
+msgstr "{0, plural, one {Image cannot be deleted (#)} other {Images cannot be deleted (#)}}"
+
 #. placeholder {0}: displayObjectNames.length
 msgid "{0, plural, one {Object:} other {Objects to delete:}}"
 msgstr "{0, plural, one {Object:} other {Objects to delete:}}"
 
-msgid "{activeCount, plural, one {Already active (# will be skipped)} other {Already active (# will be skipped)}}"
-msgstr "{activeCount, plural, one {Already active (# will be skipped)} other {Already active (# will be skipped)}}"
+#. placeholder {0}: properties.name.length
+msgid "{0}/255 characters"
+msgstr "{0}/255 characters"
 
 msgid "{activeCount, plural, one {Deactivate # Image} other {Deactivate # Images}}"
 msgstr "{activeCount, plural, one {Deactivate # Image} other {Deactivate # Images}}"
@@ -105,9 +119,6 @@ msgstr "{customMinutes} minutes"
 
 msgid "{deactivatedCount, plural, one {Activate # Image} other {Activate # Images}}"
 msgstr "{deactivatedCount, plural, one {Activate # Image} other {Activate # Images}}"
-
-msgid "{deactivatedCount, plural, one {Already deactivated (# will be skipped)} other {Already deactivated (# will be skipped)}}"
-msgstr "{deactivatedCount, plural, one {Already deactivated (# will be skipped)} other {Already deactivated (# will be skipped)}}"
 
 msgid "{deactivatedCount, plural, one {Image to activate (#)} other {Images to activate (#)}}"
 msgstr "{deactivatedCount, plural, one {Image to activate (#)} other {Images to activate (#)}}"
@@ -169,9 +180,6 @@ msgstr "{numberDeleted} objects were permanently deleted."
 
 msgid "{percent}%"
 msgstr "{percent}%"
-
-msgid "{protectedCount, plural, one {Image Protected from Deletion (#)} other {Images Protected from Deletion (#)}}"
-msgstr "{protectedCount, plural, one {Image Protected from Deletion (#)} other {Images Protected from Deletion (#)}}"
 
 msgid "{ruleCount, plural, one {Delete CORS Rule} other {Delete CORS Rules}}"
 msgstr "{ruleCount, plural, one {Delete CORS Rule} other {Delete CORS Rules}}"
@@ -2264,6 +2272,9 @@ msgstr "Image Name"
 msgid "Image name is required"
 msgstr "Image name is required"
 
+msgid "Image name must be at most 255 characters"
+msgstr "Image name must be at most 255 characters"
+
 msgid "Image Visibility"
 msgstr "Image Visibility"
 
@@ -2669,6 +2680,9 @@ msgstr "new-folder-name"
 msgid "No"
 msgstr "No"
 
+msgid "No Accepted Images Found"
+msgstr "No Accepted Images Found"
+
 msgid "No Access Keys"
 msgstr "No Access Keys"
 
@@ -2708,8 +2722,8 @@ msgstr "No flavors found"
 msgid "No Floating IPs Found"
 msgstr "No Floating IPs Found"
 
-msgid "No images found"
-msgstr "No images found"
+msgid "No Images Found"
+msgstr "No Images Found"
 
 msgid "No Internal Networks"
 msgstr "No Internal Networks"
@@ -2773,6 +2787,9 @@ msgstr "No security groups found"
 
 msgid "No services available for this project."
 msgstr "No services available for this project."
+
+msgid "No Suggested Images Found"
+msgstr "No Suggested Images Found"
 
 msgid "No Temp URL key configured. A temporary URL key must be set at the account or container level before temporary URLs can be generated. Contact your administrator to configure X-Account-Meta-Temp-URL-Key or X-Container-Meta-Temp-URL-Key."
 msgstr "No Temp URL key configured. A temporary URL key must be set at the account or container level before temporary URLs can be generated. Contact your administrator to configure X-Account-Meta-Temp-URL-Key or X-Container-Meta-Temp-URL-Key."
@@ -2954,6 +2971,9 @@ msgstr "Pending"
 msgid "Please enter a valid number of minutes greater than 0"
 msgstr "Please enter a valid number of minutes greater than 0"
 
+msgid "Please enter a valid positive number"
+msgstr "Please enter a valid positive number"
+
 msgid "Please fix the validation errors below."
 msgstr "Please fix the validation errors below."
 
@@ -3043,6 +3063,9 @@ msgstr "Project Not Accessible"
 
 msgid "Project Not Found"
 msgstr "Project Not Found"
+
+msgid "Project not found or you don't have access to it."
+msgstr "Project not found or you don't have access to it."
 
 msgid "Projects"
 msgstr "Projects"
@@ -3851,6 +3874,9 @@ msgstr "The text must match \"release\" in lowercase."
 msgid "There are {bucketsCount} buckets, start typing to search"
 msgstr "There are {bucketsCount} buckets, start typing to search"
 
+msgid "There are no accepted shared images for this project with the current filters applied. Try adjusting your filter criteria or check the Suggested Images tab."
+msgstr "There are no accepted shared images for this project with the current filters applied. Try adjusting your filter criteria or check the Suggested Images tab."
+
 msgid "There are no buckets available with the current search criteria. Try adjusting your search term."
 msgstr "There are no buckets available with the current search criteria. Try adjusting your search term."
 
@@ -3874,6 +3900,9 @@ msgstr "There are no items to display."
 
 msgid "There Are No Lifecycle Rules for This Bucket"
 msgstr "There Are No Lifecycle Rules for This Bucket"
+
+msgid "There are no pending shared images for this project with the current filters applied. Try adjusting your filter criteria or check the All Images tab."
+msgstr "There are no pending shared images for this project with the current filters applied. Try adjusting your filter criteria or check the All Images tab."
 
 msgid "There are no RBAC policies for this security group"
 msgstr "There are no RBAC policies for this security group"
@@ -4360,6 +4389,15 @@ msgstr "You can re-enable versioning at any time"
 
 msgid "You can rename the object by changing the name here."
 msgstr "You can rename the object by changing the name here."
+
+msgid "You do not have permission to activate these images."
+msgstr "You do not have permission to activate these images."
+
+msgid "You do not have permission to deactivate these images."
+msgstr "You do not have permission to deactivate these images."
+
+msgid "You do not have permission to delete these images."
+msgstr "You do not have permission to delete these images."
 
 msgid "You do not have permission to view security groups"
 msgstr "You do not have permission to view security groups"

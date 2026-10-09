@@ -271,11 +271,14 @@ describe("EditImageDetailsModal", () => {
 
     await act(async () => {
       fireEvent.change(minDiskInput, { target: { value: "-5" } })
-      fireEvent.click(saveButton)
     })
 
     await waitFor(() => {
-      expect(screen.getByText("Minimum disk must be 0 or greater")).toBeDefined()
+      expect(screen.getByText("Please enter a valid positive number")).toBeDefined()
+    })
+
+    await act(async () => {
+      fireEvent.click(saveButton)
     })
 
     expect(mockOnSave).not.toHaveBeenCalled()
@@ -289,14 +292,47 @@ describe("EditImageDetailsModal", () => {
 
     await act(async () => {
       fireEvent.change(minRamInput, { target: { value: "-100" } })
-      fireEvent.click(saveButton)
     })
 
     await waitFor(() => {
-      expect(screen.getByText("Minimum RAM must be 0 or greater")).toBeDefined()
+      expect(screen.getByText("Please enter a valid positive number")).toBeDefined()
+    })
+
+    await act(async () => {
+      fireEvent.click(saveButton)
     })
 
     expect(mockOnSave).not.toHaveBeenCalled()
+  })
+
+  test("strips non-numeric characters from min_disk", async () => {
+    const user = userEvent.setup()
+    renderEditModal(true, mockOnClose, mockImage, mockOnSave)
+
+    const minDiskInput = screen.getByLabelText("Minimum Disk (GB)") as HTMLInputElement
+
+    await user.clear(minDiskInput)
+    await user.type(minDiskInput, "12+34")
+
+    // Non-numeric characters should be stripped, leaving only "1234"
+    await waitFor(() => {
+      expect(minDiskInput.value).toBe("1234")
+    })
+  })
+
+  test("strips non-numeric characters from min_ram", async () => {
+    const user = userEvent.setup()
+    renderEditModal(true, mockOnClose, mockImage, mockOnSave)
+
+    const minRamInput = screen.getByLabelText("Minimum RAM (MB)") as HTMLInputElement
+
+    await user.clear(minRamInput)
+    await user.type(minRamInput, "512+abc")
+
+    // Non-numeric characters should be stripped, leaving only "512"
+    await waitFor(() => {
+      expect(minRamInput.value).toBe("512")
+    })
   })
 
   test("shows loading state when isLoading is true", async () => {

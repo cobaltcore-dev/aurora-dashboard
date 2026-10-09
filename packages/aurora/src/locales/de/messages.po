@@ -16,6 +16,10 @@ msgstr ""
 msgid "—"
 msgstr "—"
 
+#. placeholder {0}: hiddenUnownedCount + hiddenProtectedCount
+msgid "… and {0} more"
+msgstr ""
+
 msgid "... and {hiddenCount} more"
 msgstr ""
 
@@ -29,9 +33,6 @@ msgid "… and {hiddenErrorCount} more failures"
 msgstr ""
 
 msgid "… and {hiddenObjectCount} more"
-msgstr ""
-
-msgid "… and {hiddenProtectedCount} more"
 msgstr ""
 
 msgid "… and {hiddenVersionsCount} more"
@@ -66,11 +67,24 @@ msgstr ""
 msgid "{0, plural, one {Delete # Rule} other {Delete # Rules}}"
 msgstr ""
 
+#. placeholder {0}: activeCount + unownedCount
+msgid "{0, plural, one {Image cannot be activated (#)} other {Images cannot be activated (#)}}"
+msgstr ""
+
+#. placeholder {0}: deactivatedCount + unownedCount
+msgid "{0, plural, one {Image cannot be deactivated (#)} other {Images cannot be deactivated (#)}}"
+msgstr ""
+
+#. placeholder {0}: unownedCount + protectedCount
+msgid "{0, plural, one {Image cannot be deleted (#)} other {Images cannot be deleted (#)}}"
+msgstr ""
+
 #. placeholder {0}: displayObjectNames.length
 msgid "{0, plural, one {Object:} other {Objects to delete:}}"
 msgstr ""
 
-msgid "{activeCount, plural, one {Already active (# will be skipped)} other {Already active (# will be skipped)}}"
+#. placeholder {0}: properties.name.length
+msgid "{0}/255 characters"
 msgstr ""
 
 msgid "{activeCount, plural, one {Deactivate # Image} other {Deactivate # Images}}"
@@ -104,9 +118,6 @@ msgid "{customMinutes} minutes"
 msgstr "{customMinutes} Minuten"
 
 msgid "{deactivatedCount, plural, one {Activate # Image} other {Activate # Images}}"
-msgstr ""
-
-msgid "{deactivatedCount, plural, one {Already deactivated (# will be skipped)} other {Already deactivated (# will be skipped)}}"
 msgstr ""
 
 msgid "{deactivatedCount, plural, one {Image to activate (#)} other {Images to activate (#)}}"
@@ -169,9 +180,6 @@ msgstr "{numberDeleted} Objekte wurden dauerhaft gelöscht."
 
 msgid "{percent}%"
 msgstr "{percent}%"
-
-msgid "{protectedCount, plural, one {Image Protected from Deletion (#)} other {Images Protected from Deletion (#)}}"
-msgstr ""
 
 msgid "{ruleCount, plural, one {Delete CORS Rule} other {Delete CORS Rules}}"
 msgstr ""
@@ -1971,13 +1979,13 @@ msgid "Failed to update security group"
 msgstr "Security Group konnte nicht aktualisiert werden"
 
 msgid "Failed to update visibility for \"{imageName}\": {errorMessage}"
-msgstr "Fehler beim Aktualisieren der Sichtbarkeit für \"{imageName}\": {errorMessage}"
+msgstr ""
 
 msgid "Failed to update visibility to {newVisibility}"
 msgstr "Fehler beim Aktualisieren der Sichtbarkeit auf {newVisibility}"
 
 msgid "Failed to upload file \"{fileName}\": {errorMessage}"
-msgstr "Fehler beim Hochladen der Datei \"{fileName}\": {errorMessage}"
+msgstr ""
 
 msgid "Failed to Upload Object"
 msgstr "Fehler beim Hochladen des Objekts"
@@ -2263,6 +2271,9 @@ msgstr "Image-Name"
 
 msgid "Image name is required"
 msgstr "Image-Name ist erforderlich"
+
+msgid "Image name must be at most 255 characters"
+msgstr ""
 
 msgid "Image Visibility"
 msgstr "Image-Sichtbarkeit"
@@ -2669,6 +2680,9 @@ msgstr "new-folder-name"
 msgid "No"
 msgstr "Nein"
 
+msgid "No Accepted Images Found"
+msgstr ""
+
 msgid "No Access Keys"
 msgstr ""
 
@@ -2708,8 +2722,8 @@ msgstr "Keine Flavors gefunden"
 msgid "No Floating IPs Found"
 msgstr ""
 
-msgid "No images found"
-msgstr "Keine Images gefunden"
+msgid "No Images Found"
+msgstr ""
 
 msgid "No Internal Networks"
 msgstr ""
@@ -2773,6 +2787,9 @@ msgstr "Keine Sicherheitsgruppen gefunden"
 
 msgid "No services available for this project."
 msgstr "Keine Dienste für dieses Projekt verfügbar."
+
+msgid "No Suggested Images Found"
+msgstr ""
 
 msgid "No Temp URL key configured. A temporary URL key must be set at the account or container level before temporary URLs can be generated. Contact your administrator to configure X-Account-Meta-Temp-URL-Key or X-Container-Meta-Temp-URL-Key."
 msgstr "Kein Temp-URL-Schlüssel konfiguriert. Ein temporärer URL-Schlüssel muss auf Account- oder Container-Ebene gesetzt werden, bevor temporäre URLs generiert werden können. Wenden Sie sich an Ihren Administrator, um X-Account-Meta-Temp-URL-Key oder X-Container-Meta-Temp-URL-Key zu konfigurieren."
@@ -2954,6 +2971,9 @@ msgstr "Ausstehend"
 msgid "Please enter a valid number of minutes greater than 0"
 msgstr "Bitte geben Sie eine gültige Anzahl von Minuten größer als 0 ein"
 
+msgid "Please enter a valid positive number"
+msgstr ""
+
 msgid "Please fix the validation errors below."
 msgstr "Bitte korrigieren Sie die Validierungsfehler unten."
 
@@ -3042,6 +3062,9 @@ msgid "Project Not Accessible"
 msgstr ""
 
 msgid "Project Not Found"
+msgstr ""
+
+msgid "Project not found or you don't have access to it."
 msgstr ""
 
 msgid "Projects"
@@ -3753,19 +3776,19 @@ msgid "The ID of the network associated with the floating IP."
 msgstr "Die ID des Netzwerks, das der Floating IP zugeordnet ist."
 
 msgid "The image \"{imageId}\" could not be deactivated: {errorMessage}"
-msgstr "Das Image \"{imageId}\" konnte nicht deaktiviert werden: {errorMessage}"
+msgstr ""
 
 msgid "The image \"{imageId}\" could not be deleted: {errorMessage}"
-msgstr "Das Image \"{imageId}\" konnte nicht gelöscht werden: {errorMessage}"
+msgstr ""
 
 msgid "The image \"{imageId}\" could not be re-activated: {errorMessage}"
-msgstr "Das Image \"{imageId}\" konnte nicht reaktiviert werden: {errorMessage}"
+msgstr ""
 
 msgid "The image \"{imageName}\" could not be created: {errorMessage}"
-msgstr "Das Image \"{imageName}\" konnte nicht erstellt werden: {errorMessage}"
+msgstr ""
 
 msgid "The image \"{imageName}\" could not be updated: {errorMessage}"
-msgstr "Das Image \"{imageName}\" konnte nicht aktualisiert werden: {errorMessage}"
+msgstr ""
 
 msgid "The image upload was cancelled."
 msgstr ""
@@ -3851,6 +3874,9 @@ msgstr ""
 msgid "There are {bucketsCount} buckets, start typing to search"
 msgstr ""
 
+msgid "There are no accepted shared images for this project with the current filters applied. Try adjusting your filter criteria or check the Suggested Images tab."
+msgstr ""
+
 msgid "There are no buckets available with the current search criteria. Try adjusting your search term."
 msgstr ""
 
@@ -3867,12 +3893,15 @@ msgid "There are no Floating IPs available for this project. Floating IPs allow 
 msgstr "Für dieses Projekt sind keine Floating IPs verfügbar. Floating IPs ermöglichen es, öffentliche IP-Adressen Instanzen zuzuordnen."
 
 msgid "There are no images available for this project with the current filters applied. Try adjusting your filter criteria or create a new image."
-msgstr "Für dieses Projekt sind mit den aktuellen Filtern keine Images verfügbar. Passen Sie Ihre Filterkriterien an oder erstellen Sie ein neues Image."
+msgstr ""
 
 msgid "There are no items to display."
 msgstr "Es gibt keine Elemente zum Anzeigen."
 
 msgid "There Are No Lifecycle Rules for This Bucket"
+msgstr ""
+
+msgid "There are no pending shared images for this project with the current filters applied. Try adjusting your filter criteria or check the All Images tab."
 msgstr ""
 
 msgid "There are no RBAC policies for this security group"
@@ -4360,6 +4389,15 @@ msgstr ""
 
 msgid "You can rename the object by changing the name here."
 msgstr "Sie können das Objekt umbenennen, indem Sie den Namen hier ändern."
+
+msgid "You do not have permission to activate these images."
+msgstr ""
+
+msgid "You do not have permission to deactivate these images."
+msgstr ""
+
+msgid "You do not have permission to delete these images."
+msgstr ""
 
 msgid "You do not have permission to view security groups"
 msgstr ""

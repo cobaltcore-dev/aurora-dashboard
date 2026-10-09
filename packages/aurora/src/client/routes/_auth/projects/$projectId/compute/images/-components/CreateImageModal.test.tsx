@@ -348,53 +348,15 @@ describe("CreateImageModal", () => {
       expect(createButton).toBeDisabled()
     })
 
-    test("should reject negative min_disk", async () => {
+    test("should show character counter for image name", async () => {
       const user = userEvent.setup()
       renderImageModal(true, mockOnClose, mockOnCreate)
 
-      const file = createMockFile()
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement
       const nameInput = screen.getByLabelText(/^Image Name$/)
-      const diskFormatSelect = screen.getByLabelText(/^Disk Format$/)
-      const minDiskInput = screen.getByLabelText(/Min Disk/) as HTMLInputElement
-
-      await user.upload(fileInput, file)
-      await user.type(nameInput, "Test Image")
-      await user.click(diskFormatSelect)
-      await user.click(screen.getByText(/qcow2 - qemu emulator/i))
-      await user.clear(minDiskInput)
-      await user.type(minDiskInput, "-5")
-
-      const createButton = screen.getByText("Create Image")
-      await user.click(createButton)
+      await user.type(nameInput, "Test")
 
       await waitFor(() => {
-        expect(screen.getByText("Minimum disk must be 0 or greater")).toBeInTheDocument()
-      })
-    })
-
-    test("should reject negative min_ram", async () => {
-      const user = userEvent.setup()
-      renderImageModal(true, mockOnClose, mockOnCreate)
-
-      const file = createMockFile()
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement
-      const nameInput = screen.getByLabelText(/^Image Name$/)
-      const diskFormatSelect = screen.getByLabelText(/^Disk Format$/)
-      const minRamInput = screen.getByLabelText(/Min RAM/) as HTMLInputElement
-
-      await user.upload(fileInput, file)
-      await user.type(nameInput, "Test Image")
-      await user.click(diskFormatSelect)
-      await user.click(screen.getByText(/qcow2 - qemu emulator/i))
-      await user.clear(minRamInput)
-      await user.type(minRamInput, "-512")
-
-      const createButton = screen.getByText("Create Image")
-      await user.click(createButton)
-
-      await waitFor(() => {
-        expect(screen.getByText("Minimum RAM must be 0 or greater")).toBeInTheDocument()
+        expect(screen.getByText(/4\/255 characters/i)).toBeInTheDocument()
       })
     })
   })

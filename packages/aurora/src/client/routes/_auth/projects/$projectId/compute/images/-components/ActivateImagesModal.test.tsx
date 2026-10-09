@@ -30,7 +30,8 @@ describe("ActivateImagesModal", () => {
     isOpen: boolean,
     isLoading = false,
     deactivatedImages = mockDeactivatedImages,
-    activeImages = [] as Array<GlanceImage>
+    activeImages = [] as Array<GlanceImage>,
+    unownedImages = [] as Array<GlanceImage>
   ) => {
     render(
       <I18nProvider i18n={i18n}>
@@ -42,6 +43,7 @@ describe("ActivateImagesModal", () => {
             onActivate={mockOnActivate}
             deactivatedImages={deactivatedImages}
             activeImages={activeImages}
+            unownedImages={unownedImages}
           />
         </PortalProvider>
       </I18nProvider>
@@ -73,7 +75,7 @@ describe("ActivateImagesModal", () => {
 
   it("should display already active images section when activeImages is not empty", () => {
     setup(true, false, mockDeactivatedImages, mockActiveImages)
-    expect(screen.getByText(/Already active.*will be skipped/i)).toBeInTheDocument()
+    expect(screen.getByText(/Images? cannot be activated/i)).toBeInTheDocument()
   })
 
   it("should display all active image names in the skipped section", () => {
