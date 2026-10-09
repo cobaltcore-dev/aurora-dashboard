@@ -37,7 +37,7 @@ describe("buildNavSections", () => {
     expect(compute?.services.map((s) => s.service)).toEqual(["images", "flavors"])
 
     const network = sections.find((s) => s.section === "network")
-    expect(network?.services.map((s) => s.service)).toEqual(["securitygroups", "floatingips", "routers"])
+    expect(network?.services.map((s) => s.service)).toEqual(["securitygroups", "floatingips", "routers", "ports"])
 
     const storage = sections.find((s) => s.section === "storage")
     expect(storage?.services.map((s) => s.service)).toContain("containers")
@@ -68,6 +68,19 @@ describe("buildNavSections", () => {
     const sections = buildNavSections("proj-1", ALL_SERVICES, ["routers"])
     const network = sections.find((s) => s.section === "network")
     expect(network?.services.map((s) => s.service)).toEqual(["routers"])
+    expect(network?.services[0].params).toEqual({ projectId: "proj-1" })
+  })
+
+  it("respects enabledServices filter for ports", () => {
+    const sections = buildNavSections("proj-1", ALL_SERVICES, ["securitygroups", "floatingips", "routers"])
+    const network = sections.find((s) => s.section === "network")
+    expect(network?.services.map((s) => s.service)).toEqual(["securitygroups", "floatingips", "routers"])
+  })
+
+  it("shows only ports in the network section when it is the only enabled network service", () => {
+    const sections = buildNavSections("proj-1", ALL_SERVICES, ["ports"])
+    const network = sections.find((s) => s.section === "network")
+    expect(network?.services.map((s) => s.service)).toEqual(["ports"])
     expect(network?.services[0].params).toEqual({ projectId: "proj-1" })
   })
 
