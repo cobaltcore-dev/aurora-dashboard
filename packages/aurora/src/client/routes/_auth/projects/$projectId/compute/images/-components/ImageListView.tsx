@@ -81,7 +81,6 @@ interface ImagePageProps {
   setCreateModalOpen: (open: boolean) => void
   deletableImages: Array<GlanceImage>
   protectedImages: Array<GlanceImage>
-  unownedImages: Array<GlanceImage>
   activeImages: Array<GlanceImage>
   deactivatedImages: Array<GlanceImage>
   unownedActiveImages: Array<GlanceImage>
@@ -607,134 +606,130 @@ export function ImageListView({
       <>{children}</>
 
       <div className="relative">
-        {/* Loading overlay when refetching */}
-        {isFetching && (
-          <div className="bg-theme-background-lvl-0/50 absolute inset-0 z-10 flex items-center justify-center backdrop-blur-sm">
-            <Status status="progress" title={t`Loading Images...`} />
-          </div>
-        )}
-
         {/* Images Table */}
-
-        <>
-          <DataGrid
-            columns={hasAnyBulkAction ? 9 : 8}
-            minContentColumns={hasAnyBulkAction ? [0, 8] : [7]}
-            className="images"
-            data-testid="images-table"
-          >
-            {/* Table Header */}
-            <DataGridRow>
-              {hasAnyBulkAction && <DataGridHeadCell></DataGridHeadCell>}
-              <DataGridHeadCell>
-                <Trans>Status</Trans>
-              </DataGridHeadCell>
-              <DataGridHeadCell>
-                <Trans>Image Name</Trans>
-              </DataGridHeadCell>
-              <DataGridHeadCell>
-                <Trans>Visibility</Trans>
-              </DataGridHeadCell>
-              <DataGridHeadCell>
-                <Trans>Protected</Trans>
-              </DataGridHeadCell>
-              <DataGridHeadCell>
-                <Trans>Size</Trans>
-              </DataGridHeadCell>
-              <DataGridHeadCell>
-                <Trans>Disk Format</Trans>
-              </DataGridHeadCell>
-              <DataGridHeadCell>
-                <Trans>Created</Trans>
-              </DataGridHeadCell>
-              <DataGridHeadCell />
-            </DataGridRow>
-
-            {images.length > 0 ? (
-              images.map((image) => (
-                <ImageTableRow
-                  image={image}
-                  isSelected={selectedImages.includes(image.id)}
-                  isPending={pendingSharedIds.has(image.id)}
-                  isAccepted={acceptedSharedIds.has(image.id)}
-                  key={image.id}
-                  permissions={permissions}
-                  onEditDetails={openEditDetailsModal}
-                  onEditMetadata={openEditMetadataModal}
-                  onDelete={openDeleteModal}
-                  onManageAccess={openManageAccessModal}
-                  showSelectColumn={hasAnyBulkAction}
-                  onSelect={(image: GlanceImage) => {
-                    const isImageSelected = selectedImages.includes(image.id)
-
-                    if (isImageSelected) {
-                      return setSelectedImages(selectedImages.filter((imageId) => imageId !== image.id))
-                    }
-
-                    setSelectedImages([...selectedImages, image.id])
-                  }}
-                  onActivationStatusChange={handleActivationStatusChange}
-                  onUpdateVisibility={handleUpdateImageVisibility}
-                  uploadId={uploadId}
-                  uploadProgressPercent={data?.percent}
-                  onMemberStatusChanged={onMemberStatusChanged}
-                />
-              ))
-            ) : (
+        {isFetching ? (
+          <Status status="progress" title={t`Loading Images...`} />
+        ) : (
+          <>
+            <DataGrid
+              columns={hasAnyBulkAction ? 9 : 8}
+              minContentColumns={hasAnyBulkAction ? [0, 8] : [7]}
+              className="images"
+              data-testid="images-table"
+            >
+              {/* Table Header */}
               <DataGridRow>
-                <DataGridCell colSpan={hasAnyBulkAction ? 9 : 8}>
-                  <Status
-                    status="empty"
-                    title={
-                      memberStatusView === "accepted"
-                        ? t`No Accepted Images Found`
-                        : memberStatusView === "pending"
-                          ? t`No Suggested Images Found`
-                          : t`No Images Found`
-                    }
-                    body={
-                      memberStatusView === "accepted"
-                        ? t`There are no accepted shared images for this project with the current filters applied. Try adjusting your filter criteria or check the Suggested Images tab.`
-                        : memberStatusView === "pending"
-                          ? t`There are no pending shared images for this project with the current filters applied. Try adjusting your filter criteria or check the All Images tab.`
-                          : t`There are no images available for this project with the current filters applied. Try adjusting your filter criteria or create a new image.`
-                    }
-                  />
-                </DataGridCell>
+                {hasAnyBulkAction && <DataGridHeadCell></DataGridHeadCell>}
+                <DataGridHeadCell>
+                  <Trans>Status</Trans>
+                </DataGridHeadCell>
+                <DataGridHeadCell>
+                  <Trans>Image Name</Trans>
+                </DataGridHeadCell>
+                <DataGridHeadCell>
+                  <Trans>Visibility</Trans>
+                </DataGridHeadCell>
+                <DataGridHeadCell>
+                  <Trans>Protected</Trans>
+                </DataGridHeadCell>
+                <DataGridHeadCell>
+                  <Trans>Size</Trans>
+                </DataGridHeadCell>
+                <DataGridHeadCell>
+                  <Trans>Disk Format</Trans>
+                </DataGridHeadCell>
+                <DataGridHeadCell>
+                  <Trans>Created</Trans>
+                </DataGridHeadCell>
+                <DataGridHeadCell />
               </DataGridRow>
-            )}
-          </DataGrid>
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex justify-center py-4">
-              <Pagination
-                variant="input"
-                currentPage={currentPage}
-                pages={totalPages}
-                onPressPrevious={() => updateCurrentPage(Math.max(currentPage - 1, 1))}
-                onPressNext={() => updateCurrentPage(Math.min(currentPage + 1, totalPages))}
-                onSelectChange={(selectedPage: number) => {
-                  updateCurrentPage(selectedPage)
-                }}
-                onInputChange={() => {
-                  // Input change is handled by the Pagination component internally
-                }}
-                onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                  if (e.key === "Enter") {
-                    const inputValue = (e.target as HTMLInputElement).value
-                    if (inputValue !== "") {
-                      const newPage = parseInt(inputValue, 10)
-                      if (!isNaN(newPage) && newPage >= 1 && newPage <= totalPages) {
-                        updateCurrentPage(newPage)
+              {images.length > 0 ? (
+                images.map((image) => (
+                  <ImageTableRow
+                    image={image}
+                    isSelected={selectedImages.includes(image.id)}
+                    isPending={pendingSharedIds.has(image.id)}
+                    isAccepted={acceptedSharedIds.has(image.id)}
+                    key={image.id}
+                    permissions={permissions}
+                    onEditDetails={openEditDetailsModal}
+                    onEditMetadata={openEditMetadataModal}
+                    onDelete={openDeleteModal}
+                    onManageAccess={openManageAccessModal}
+                    showSelectColumn={hasAnyBulkAction}
+                    onSelect={(image: GlanceImage) => {
+                      const isImageSelected = selectedImages.includes(image.id)
+
+                      if (isImageSelected) {
+                        return setSelectedImages(selectedImages.filter((imageId) => imageId !== image.id))
+                      }
+
+                      setSelectedImages([...selectedImages, image.id])
+                    }}
+                    onActivationStatusChange={handleActivationStatusChange}
+                    onUpdateVisibility={handleUpdateImageVisibility}
+                    uploadId={uploadId}
+                    uploadProgressPercent={data?.percent}
+                    onMemberStatusChanged={onMemberStatusChanged}
+                  />
+                ))
+              ) : (
+                <DataGridRow>
+                  <DataGridCell colSpan={hasAnyBulkAction ? 9 : 8}>
+                    <Status
+                      status="empty"
+                      title={
+                        memberStatusView === "accepted"
+                          ? t`No Accepted Images Found`
+                          : memberStatusView === "pending"
+                            ? t`No Suggested Images Found`
+                            : t`No Images Found`
+                      }
+                      body={
+                        memberStatusView === "accepted"
+                          ? t`There are no accepted shared images for this project with the current filters applied. Try adjusting your filter criteria or check the Suggested Images tab.`
+                          : memberStatusView === "pending"
+                            ? t`There are no pending shared images for this project with the current filters applied. Try adjusting your filter criteria or check the All Images tab.`
+                            : t`There are no images available for this project with the current filters applied. Try adjusting your filter criteria or create a new image.`
+                      }
+                    />
+                  </DataGridCell>
+                </DataGridRow>
+              )}
+            </DataGrid>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex justify-center py-4">
+                <Pagination
+                  variant="input"
+                  currentPage={currentPage}
+                  pages={totalPages}
+                  onPressPrevious={() => updateCurrentPage(Math.max(currentPage - 1, 1))}
+                  onPressNext={() => updateCurrentPage(Math.min(currentPage + 1, totalPages))}
+                  onSelectChange={(selectedPage: number) => {
+                    updateCurrentPage(selectedPage)
+                  }}
+                  onInputChange={() => {
+                    // Input change is handled by the Pagination component internally
+                  }}
+                  onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                    if (e.key === "Enter") {
+                      const inputValue = (e.target as HTMLInputElement).value
+                      if (inputValue !== "") {
+                        const newPage = parseInt(inputValue, 10)
+                        if (!isNaN(newPage) && newPage >= 1 && newPage <= totalPages) {
+                          updateCurrentPage(newPage)
+                        }
                       }
                     }
-                  }
-                }}
-              />
-            </div>
-          )}
-        </>
+                  }}
+                />
+              </div>
+            )}
+          </>
+        )}
 
         {selectedImage && (
           <>

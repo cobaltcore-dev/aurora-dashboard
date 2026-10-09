@@ -29,17 +29,6 @@ import { CONTAINER_FORMATS, DISK_FORMATS, IMAGE_STATUSES, IMAGE_VISIBILITY } fro
 import { parseFiltersFromUrl, buildFilterParams, buildUrlSearchParams, applyFilterSelection } from "../urlHelpers"
 import { createImagesPromise, createPermissionsPromise } from "../apiHelpers"
 
-// Extract marker value from URL or return as-is if already a marker
-function extractMarker(nextValue: string | undefined): string | undefined {
-  if (!nextValue) return undefined
-  // If it's a full URL like "/v2/images?marker=xyz", extract just the marker value
-  if (nextValue.includes("?")) {
-    const url = new URL(nextValue, "http://dummy.com")
-    return url.searchParams.get("marker") || undefined
-  }
-  return nextValue
-}
-
 interface ImagesProps {
   client: TrpcClient
   project: string
@@ -163,13 +152,7 @@ function ImagesContent({
   useEffect(() => () => clearTimeout(debounceTimer.current), [])
 
   if (imagesData.listError) {
-    return (
-      <Status
-        status="error"
-        title={t`Failed to Load Images`}
-        body={imagesData.listError}
-      />
-    )
+    return <Status status="error" title={t`Failed to Load Images`} body={imagesData.listError} />
   }
 
   const images = imagesData.images
@@ -479,22 +462,6 @@ export const Images = ({ client, project }: ImagesProps) => {
   const [imageOverrides, setImageOverrides] = useState<Map<string, GlanceImage>>(new Map())
   const [deletedImageIds, setDeletedImageIds] = useState<Set<string>>(new Set())
 
-  // Initialize pageMarkers from sessionStorage, persist on updates via callback
-  const getInitialPageMarkers = () => {
-    try {
-      const stored = sessionStorage.getItem(`imagePageMarkers_${project}`)
-      if (stored) {
-        const parsed = JSON.parse(stored)
-        return new Map(Object.entries(parsed).map(([k, v]) => [Number(k), v as string | undefined]))
-      }
-    } catch {
-      // Ignore parse errors
-    }
-    return new Map([[1, undefined]])
-  }
-
-  const [pageMarkers, setPageMarkers] = useState<Map<number, string | undefined>>(getInitialPageMarkers)
-
   const [imagesPromise, setImagesPromise] = useState<Promise<ImagesResult>>(
     () =>
       new Promise(() => {
@@ -534,7 +501,8 @@ export const Images = ({ client, project }: ImagesProps) => {
     const urlMemberStatusFilter = urlMemberStatus === "all" ? undefined : urlMemberStatus
     startTransition(() => {
       const effectiveFilters = computeEffectiveFilters(urlMemberStatus, filterSettings.selectedFilters)
-      const marker = pageMarkers.get(currentPage)
+      // Use page number as marker (page > 1 sends the page number, page 1 sends undefined)
+      const marker = currentPage > 1 ? String(currentPage) : undefined
       const newPromise = createImagesPromise(
         client,
         project,
@@ -547,20 +515,19 @@ export const Images = ({ client, project }: ImagesProps) => {
         },
         marker
       )
-      newPromise
-        .then((result) => {
-          setPageMarkers((prev) => {
-            if (!result.next) return prev
-            const nextPage = currentPage + 1
-            if (prev.has(nextPage)) return prev
-            return new Map(prev).set(nextPage, extractMarker(result.next))
-          })
-        })
-        .catch(() => {})
-        .finally(() => setIsFetching(false))
+      newPromise.catch(() => {}).finally(() => setIsFetching(false))
       setImagesPromise(newPromise as Promise<ImagesResult>)
     })
-  }, [client, sortSettings, searchTerm, filterSettings, searchParams.memberStatus, currentPage, pageMarkers])
+  }, [
+    client,
+    sortSettings,
+    searchTerm,
+    filterSettings,
+    searchParams.memberStatus,
+    currentPage,
+    computeEffectiveFilters,
+    project,
+  ])
 
   useEffect(() => {
     const urlFilters = parseFiltersFromUrl(searchParams)
@@ -580,19 +547,8 @@ export const Images = ({ client, project }: ImagesProps) => {
     const urlMemberStatusFilter = urlMemberStatus === "all" ? undefined : urlMemberStatus
     startTransition(() => {
       const effectiveFilters = computeEffectiveFilters(urlMemberStatus, urlFilters)
-      const marker = pageMarkers.get(urlPage)
-
-      // If we don't have a marker for this page and it's not page 1, navigate to page 1
-      if (!marker && urlPage > 1) {
-        navigate({
-          search: ((prev: ImagesSearchParams) => ({
-            ...prev,
-            page: undefined,
-          })) as unknown as true,
-        })
-        setIsFetching(false)
-        return
-      }
+      // Use page number as marker (page > 1 sends the page number, page 1 sends undefined)
+      const marker = urlPage > 1 ? String(urlPage) : undefined
 
       const newPromise = createImagesPromise(
         client,
@@ -606,20 +562,7 @@ export const Images = ({ client, project }: ImagesProps) => {
         },
         marker
       )
-      newPromise
-        .then((result) => {
-          setPageMarkers((prev) => {
-            if (!result.next) return prev
-            const nextPage = urlPage + 1
-            if (prev.has(nextPage)) return prev
-            const newMarkers = new Map(prev).set(nextPage, extractMarker(result.next))
-            // Persist to sessionStorage
-            sessionStorage.setItem(`imagePageMarkers_${project}`, JSON.stringify(Object.fromEntries(newMarkers)))
-            return newMarkers
-          })
-        })
-        .catch(() => {})
-        .finally(() => setIsFetching(false))
+      newPromise.catch(() => {}).finally(() => setIsFetching(false))
       setImagesPromise(newPromise as Promise<ImagesResult>)
     })
   }, [
@@ -642,7 +585,6 @@ export const Images = ({ client, project }: ImagesProps) => {
       sortDirection: newSortSettings.sortDirection || "desc",
     }
     setSortSettings(settings)
-    setPageMarkers(new Map([[1, undefined]]))
     navigate({
       search: ((prev: ImagesSearchParams) => ({
         ...prev,
@@ -656,7 +598,6 @@ export const Images = ({ client, project }: ImagesProps) => {
 
   const handleFilterChange = (newFilterSettings: FilterSettings) => {
     setFilterSettings(newFilterSettings)
-    setPageMarkers(new Map([[1, undefined]]))
     navigate({
       search: ((prev: ImagesSearchParams) =>
         buildUrlSearchParams(newFilterSettings.selectedFilters || [], newFilterSettings.filters, {
@@ -672,7 +613,6 @@ export const Images = ({ client, project }: ImagesProps) => {
   const handleSearchChange = (term: string | number | string[] | undefined) => {
     const searchValue = typeof term === "string" ? term : ""
     setSearchTerm(searchValue)
-    setPageMarkers(new Map([[1, undefined]]))
     navigate({
       search: ((prev: ImagesSearchParams) => ({
         ...prev,
@@ -684,7 +624,6 @@ export const Images = ({ client, project }: ImagesProps) => {
   }
 
   const handleMemberStatusChange = (view: "all" | "pending" | "accepted") => {
-    setPageMarkers(new Map([[1, undefined]]))
     navigate({
       search: ((prev: ImagesSearchParams) => ({
         sortBy: prev.sortBy,

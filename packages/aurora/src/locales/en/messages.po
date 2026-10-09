@@ -16,6 +16,10 @@ msgstr ""
 msgid "—"
 msgstr "—"
 
+#. placeholder {0}: hiddenUnownedCount + hiddenProtectedCount
+msgid "… and {0} more"
+msgstr "… and {0} more"
+
 msgid "... and {hiddenCount} more"
 msgstr "... and {hiddenCount} more"
 
@@ -30,9 +34,6 @@ msgstr "… and {hiddenErrorCount} more failures"
 
 msgid "… and {hiddenObjectCount} more"
 msgstr "… and {hiddenObjectCount} more"
-
-msgid "… and {hiddenProtectedCount} more"
-msgstr "… and {hiddenProtectedCount} more"
 
 msgid "… and {hiddenVersionsCount} more"
 msgstr "… and {hiddenVersionsCount} more"
@@ -66,12 +67,25 @@ msgstr "{0, plural, one {Delete # Lifecycle Rule} other {Delete # Lifecycle Rule
 msgid "{0, plural, one {Delete # Rule} other {Delete # Rules}}"
 msgstr "{0, plural, one {Delete # Rule} other {Delete # Rules}}"
 
+#. placeholder {0}: activeCount + unownedCount
+msgid "{0, plural, one {Image cannot be activated (#)} other {Images cannot be activated (#)}}"
+msgstr "{0, plural, one {Image cannot be activated (#)} other {Images cannot be activated (#)}}"
+
+#. placeholder {0}: deactivatedCount + unownedCount
+msgid "{0, plural, one {Image cannot be deactivated (#)} other {Images cannot be deactivated (#)}}"
+msgstr "{0, plural, one {Image cannot be deactivated (#)} other {Images cannot be deactivated (#)}}"
+
+#. placeholder {0}: unownedCount + protectedCount
+msgid "{0, plural, one {Image cannot be deleted (#)} other {Images cannot be deleted (#)}}"
+msgstr "{0, plural, one {Image cannot be deleted (#)} other {Images cannot be deleted (#)}}"
+
 #. placeholder {0}: displayObjectNames.length
 msgid "{0, plural, one {Object:} other {Objects to delete:}}"
 msgstr "{0, plural, one {Object:} other {Objects to delete:}}"
 
-msgid "{activeCount, plural, one {Already active (# will be skipped)} other {Already active (# will be skipped)}}"
-msgstr "{activeCount, plural, one {Already active (# will be skipped)} other {Already active (# will be skipped)}}"
+#. placeholder {0}: properties.name.length
+msgid "{0}/255 characters"
+msgstr "{0}/255 characters"
 
 msgid "{activeCount, plural, one {Deactivate # Image} other {Deactivate # Images}}"
 msgstr "{activeCount, plural, one {Deactivate # Image} other {Deactivate # Images}}"
@@ -105,9 +119,6 @@ msgstr "{customMinutes} minutes"
 
 msgid "{deactivatedCount, plural, one {Activate # Image} other {Activate # Images}}"
 msgstr "{deactivatedCount, plural, one {Activate # Image} other {Activate # Images}}"
-
-msgid "{deactivatedCount, plural, one {Already deactivated (# will be skipped)} other {Already deactivated (# will be skipped)}}"
-msgstr "{deactivatedCount, plural, one {Already deactivated (# will be skipped)} other {Already deactivated (# will be skipped)}}"
 
 msgid "{deactivatedCount, plural, one {Image to activate (#)} other {Images to activate (#)}}"
 msgstr "{deactivatedCount, plural, one {Image to activate (#)} other {Images to activate (#)}}"
@@ -170,9 +181,6 @@ msgstr "{numberDeleted} objects were permanently deleted."
 msgid "{percent}%"
 msgstr "{percent}%"
 
-msgid "{protectedCount, plural, one {Image Protected from Deletion (#)} other {Images Protected from Deletion (#)}}"
-msgstr "{protectedCount, plural, one {Image Protected from Deletion (#)} other {Images Protected from Deletion (#)}}"
-
 msgid "{ruleCount, plural, one {Delete CORS Rule} other {Delete CORS Rules}}"
 msgstr "{ruleCount, plural, one {Delete CORS Rule} other {Delete CORS Rules}}"
 
@@ -223,9 +231,6 @@ msgstr "{totalItemCount, plural, one {{totalItemCount} item} other {{totalItemCo
 
 msgid "{unlisted} further {unlisted, plural, one {failure is} other {failures are}} not listed here."
 msgstr "{unlisted} further {unlisted, plural, one {failure is} other {failures are}} not listed here."
-
-msgid "{unownedCount, plural, one {Shared image cannot be modified (#)} other {Shared images cannot be modified (#)}}"
-msgstr "{unownedCount, plural, one {Shared image cannot be modified (#)} other {Shared images cannot be modified (#)}}"
 
 msgid "<0>Edit metadata:</0> <1>{displayName}</1>"
 msgstr "<0>Edit metadata:</0> <1>{displayName}</1>"
@@ -1946,14 +1951,16 @@ msgstr "Failed to update object: {mutationErrorMessage}"
 msgid "Failed to update security group"
 msgstr "Failed to update security group"
 
-msgid "Failed to update visibility for \"{imageName}\": {errorMessage}"
-msgstr "Failed to update visibility for \"{imageName}\": {errorMessage}"
+#. placeholder {0}: stripHtml(errorMessage)
+msgid "Failed to update visibility for \"{imageName}\": {0}"
+msgstr "Failed to update visibility for \"{imageName}\": {0}"
 
 msgid "Failed to update visibility to {newVisibility}"
 msgstr "Failed to update visibility to {newVisibility}"
 
-msgid "Failed to upload file \"{fileName}\": {errorMessage}"
-msgstr "Failed to upload file \"{fileName}\": {errorMessage}"
+#. placeholder {0}: stripHtml(errorMessage)
+msgid "Failed to upload file \"{fileName}\": {0}"
+msgstr "Failed to upload file \"{fileName}\": {0}"
 
 msgid "Failed to Upload Object"
 msgstr "Failed to Upload Object"
@@ -2233,6 +2240,9 @@ msgstr "Image Name"
 
 msgid "Image name is required"
 msgstr "Image name is required"
+
+msgid "Image name must be at most 255 characters"
+msgstr "Image name must be at most 255 characters"
 
 msgid "Image Visibility"
 msgstr "Image Visibility"
@@ -2900,6 +2910,9 @@ msgstr "Pending"
 msgid "Please enter a valid number of minutes greater than 0"
 msgstr "Please enter a valid number of minutes greater than 0"
 
+msgid "Please enter a valid positive number"
+msgstr "Please enter a valid positive number"
+
 msgid "Please fix the validation errors below."
 msgstr "Please fix the validation errors below."
 
@@ -2986,6 +2999,9 @@ msgstr "Project Not Accessible"
 
 msgid "Project Not Found"
 msgstr "Project Not Found"
+
+msgid "Project not found or you don't have access to it."
+msgstr "Project not found or you don't have access to it."
 
 msgid "Projects"
 msgstr "Projects"
@@ -3680,20 +3696,25 @@ msgstr "The folder could not be created. Try again."
 msgid "The ID of the network associated with the floating IP."
 msgstr "The ID of the network associated with the floating IP."
 
-msgid "The image \"{imageId}\" could not be deactivated: {errorMessage}"
-msgstr "The image \"{imageId}\" could not be deactivated: {errorMessage}"
+#. placeholder {0}: stripHtml(errorMessage)
+msgid "The image \"{imageId}\" could not be deactivated: {0}"
+msgstr "The image \"{imageId}\" could not be deactivated: {0}"
 
-msgid "The image \"{imageId}\" could not be deleted: {errorMessage}"
-msgstr "The image \"{imageId}\" could not be deleted: {errorMessage}"
+#. placeholder {0}: stripHtml(errorMessage)
+msgid "The image \"{imageId}\" could not be deleted: {0}"
+msgstr "The image \"{imageId}\" could not be deleted: {0}"
 
-msgid "The image \"{imageId}\" could not be re-activated: {errorMessage}"
-msgstr "The image \"{imageId}\" could not be re-activated: {errorMessage}"
+#. placeholder {0}: stripHtml(errorMessage)
+msgid "The image \"{imageId}\" could not be re-activated: {0}"
+msgstr "The image \"{imageId}\" could not be re-activated: {0}"
 
-msgid "The image \"{imageName}\" could not be created: {errorMessage}"
-msgstr "The image \"{imageName}\" could not be created: {errorMessage}"
+#. placeholder {0}: stripHtml(errorMessage)
+msgid "The image \"{imageName}\" could not be created: {0}"
+msgstr "The image \"{imageName}\" could not be created: {0}"
 
-msgid "The image \"{imageName}\" could not be updated: {errorMessage}"
-msgstr "The image \"{imageName}\" could not be updated: {errorMessage}"
+#. placeholder {0}: stripHtml(errorMessage)
+msgid "The image \"{imageName}\" could not be updated: {0}"
+msgstr "The image \"{imageName}\" could not be updated: {0}"
 
 msgid "The image upload was cancelled."
 msgstr "The image upload was cancelled."
@@ -4270,6 +4291,15 @@ msgstr "You can re-enable versioning at any time"
 
 msgid "You can rename the object by changing the name here."
 msgstr "You can rename the object by changing the name here."
+
+msgid "You do not have permission to activate these images."
+msgstr "You do not have permission to activate these images."
+
+msgid "You do not have permission to deactivate these images."
+msgstr "You do not have permission to deactivate these images."
+
+msgid "You do not have permission to delete these images."
+msgstr "You do not have permission to delete these images."
 
 msgid "You do not have permission to view security groups"
 msgstr "You do not have permission to view security groups"

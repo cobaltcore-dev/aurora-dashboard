@@ -138,9 +138,7 @@ export const imageRouter = {
 
           if (projectId) {
             // Identify shared images (visibility=shared and not owned by current project)
-            const sharedImages = filteredImages.filter(
-              (img) => img.visibility === "shared" && img.owner !== projectId
-            )
+            const sharedImages = filteredImages.filter((img) => img.visibility === "shared" && img.owner !== projectId)
 
             if (sharedImages.length > 0) {
               // Check member_status for each shared image
@@ -170,12 +168,14 @@ export const imageRouter = {
           }
         }
 
-        // Apply marker-based pagination: if marker provided, skip all images before it
+        // Apply marker-based pagination: calculate start index from page number
         let startIndex = 0
         if (marker) {
-          const markerIndex = finalImages.findIndex((img) => img.id === marker)
-          // Start from the image AFTER the marker
-          startIndex = markerIndex >= 0 ? markerIndex + 1 : 0
+          // Marker is now the page number encoded as a string
+          const pageNum = parseInt(marker, 10)
+          if (!isNaN(pageNum) && pageNum > 1) {
+            startIndex = (pageNum - 1) * FRONTEND_PAGE_SIZE
+          }
         }
 
         // Implement frontend pagination
@@ -184,7 +184,7 @@ export const imageRouter = {
 
         // We have all images, so we know the exact total
         const hasMore = endIndex < finalImages.length
-        const nextPageMarker = hasMore ? finalImages[endIndex - 1]?.id : undefined
+        const nextPageMarker = hasMore ? String(Math.floor(startIndex / FRONTEND_PAGE_SIZE) + 2) : undefined
 
         return {
           images: paginatedImages,

@@ -87,7 +87,7 @@ export const ImageMembersTable: React.FC<ImageMembersTableProps> = ({
       // Validate that the project exists
       try {
         await utils.project.getProject.fetch({ projectId: trimmedMemberId })
-      } catch (error) {
+      } catch {
         newErrors.memberId = t`Project not found or you don't have access to it.`
       }
     }
