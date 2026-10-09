@@ -163,7 +163,13 @@ function ImagesContent({
   useEffect(() => () => clearTimeout(debounceTimer.current), [])
 
   if (imagesData.listError) {
-    return <p>{imagesData.listError}</p>
+    return (
+      <Status
+        status="error"
+        title={t`Failed to Load Images`}
+        body={imagesData.listError}
+      />
+    )
   }
 
   const images = imagesData.images
@@ -212,7 +218,7 @@ function ImagesContent({
   const activeImages = ownedSelectedImages.filter((image) => image.status === IMAGE_STATUSES.ACTIVE)
   const deactivatedImages = ownedSelectedImages.filter((image) => image.status === IMAGE_STATUSES.DEACTIVATED)
 
-  // For activate/deactivate modals, also track the unowned images' statuses for display
+  // For bulk modals, also track the unowned images for display
   const unownedActiveImages = unownedSelectedImages.filter((image) => image.status === IMAGE_STATUSES.ACTIVE)
   const unownedDeactivatedImages = unownedSelectedImages.filter((image) => image.status === IMAGE_STATUSES.DEACTIVATED)
 
@@ -472,7 +478,23 @@ export const Images = ({ client, project }: ImagesProps) => {
   const [isFetching, setIsFetching] = useState(true)
   const [imageOverrides, setImageOverrides] = useState<Map<string, GlanceImage>>(new Map())
   const [deletedImageIds, setDeletedImageIds] = useState<Set<string>>(new Set())
-  const [pageMarkers, setPageMarkers] = useState<Map<number, string | undefined>>(new Map([[1, undefined]]))
+
+  // Initialize pageMarkers from sessionStorage, persist on updates via callback
+  const getInitialPageMarkers = () => {
+    try {
+      const stored = sessionStorage.getItem(`imagePageMarkers_${project}`)
+      if (stored) {
+        const parsed = JSON.parse(stored)
+        return new Map(Object.entries(parsed).map(([k, v]) => [Number(k), v as string | undefined]))
+      }
+    } catch {
+      // Ignore parse errors
+    }
+    return new Map([[1, undefined]])
+  }
+
+  const [pageMarkers, setPageMarkers] = useState<Map<number, string | undefined>>(getInitialPageMarkers)
+
   const [imagesPromise, setImagesPromise] = useState<Promise<ImagesResult>>(
     () =>
       new Promise(() => {
@@ -590,7 +612,10 @@ export const Images = ({ client, project }: ImagesProps) => {
             if (!result.next) return prev
             const nextPage = urlPage + 1
             if (prev.has(nextPage)) return prev
-            return new Map(prev).set(nextPage, extractMarker(result.next))
+            const newMarkers = new Map(prev).set(nextPage, extractMarker(result.next))
+            // Persist to sessionStorage
+            sessionStorage.setItem(`imagePageMarkers_${project}`, JSON.stringify(Object.fromEntries(newMarkers)))
+            return newMarkers
           })
         })
         .catch(() => {})

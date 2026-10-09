@@ -273,7 +273,7 @@ export const getImageByIdInputSchema = baseImageInputSchema
 export const createImageInputSchema = projectScopedInputSchema
   .extend({
     // Core properties that can be set during creation
-    name: z.string().optional(),
+    name: z.string().max(255, "Image name must be at most 255 characters long").optional(),
     id: z.string().uuid().optional(), // Optional UUID, API will generate if omitted
     container_format: containerFormatSchema.optional().default("bare"),
     disk_format: diskFormatSchema.optional(),

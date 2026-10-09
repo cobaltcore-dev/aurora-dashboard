@@ -76,40 +76,21 @@ export const DeactivateImagesModal: React.FC<DeactivateImagesModalProps> = ({
                 </div>
               </div>
 
-              {deactivatedCount > 0 && (
+              {(deactivatedCount > 0 || unownedCount > 0) && (
                 <div className="mb-6">
                   <p className="text-sm font-semibold">
                     <Plural
-                      value={deactivatedCount}
-                      one="Already deactivated (# will be skipped)"
-                      other="Already deactivated (# will be skipped)"
+                      value={deactivatedCount + unownedCount}
+                      one="Image cannot be deactivated (#)"
+                      other="Images cannot be deactivated (#)"
                     />
+                  </p>
+                  <p className="text-theme-light mt-1 text-xs">
+                    <Trans>You do not have permission to deactivate these images.</Trans>
                   </p>
                   <div className="jn:bg-theme-background-lvl-1 mt-2 max-h-24 overflow-y-auto rounded p-4">
                     <div className="space-y-1">
-                      {deactivatedImages.map((image) => (
-                        <div key={image.id} className="text-theme-default text-sm">
-                          <span className="font-medium">{image.name || t`Unnamed`}</span>
-                          <span className="text-theme-light ml-2 text-xs">({image.id})</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {unownedCount > 0 && (
-                <div className="mb-6">
-                  <p className="text-sm font-semibold">
-                    <Plural
-                      value={unownedCount}
-                      one="Shared image cannot be modified (#)"
-                      other="Shared images cannot be modified (#)"
-                    />
-                  </p>
-                  <div className="jn:bg-theme-background-lvl-1 mt-2 max-h-24 overflow-y-auto rounded p-4">
-                    <div className="space-y-1">
-                      {unownedImages.map((image) => (
+                      {[...deactivatedImages, ...unownedImages].map((image) => (
                         <div key={image.id} className="text-theme-default text-sm">
                           <span className="font-medium">{image.name || t`Unnamed`}</span>
                           <span className="text-theme-light ml-2 text-xs">({image.id})</span>

@@ -348,6 +348,33 @@ describe("CreateImageModal", () => {
       expect(createButton).toBeDisabled()
     })
 
+    test("should reject image name over 255 characters", async () => {
+      const user = userEvent.setup()
+      renderImageModal(true, mockOnClose, mockOnCreate)
+
+      const nameInput = screen.getByLabelText(/^Image Name$/) as HTMLInputElement
+      const longName = "a".repeat(256) // Over 255 character limit
+
+      await user.type(nameInput, longName)
+      await user.tab() // Trigger onBlur validation
+
+      await waitFor(() => {
+        expect(screen.getByText(/must be at most 255 characters/i)).toBeInTheDocument()
+      })
+    })
+
+    test("should show character counter for image name", async () => {
+      const user = userEvent.setup()
+      renderImageModal(true, mockOnClose, mockOnCreate)
+
+      const nameInput = screen.getByLabelText(/^Image Name$/)
+      await user.type(nameInput, "Test")
+
+      await waitFor(() => {
+        expect(screen.getByText(/4\/255 characters/i)).toBeInTheDocument()
+      })
+    })
+
     test("should reject negative min_disk", async () => {
       const user = userEvent.setup()
       renderImageModal(true, mockOnClose, mockOnCreate)

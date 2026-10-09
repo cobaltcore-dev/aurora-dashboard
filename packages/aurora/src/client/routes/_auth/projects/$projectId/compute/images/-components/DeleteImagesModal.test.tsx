@@ -30,7 +30,8 @@ describe("DeleteImagesModal", () => {
     isOpen: boolean,
     isLoading = false,
     deletableImages = mockDeletableImages,
-    protectedImages = [] as Array<GlanceImage>
+    protectedImages = [] as Array<GlanceImage>,
+    unownedImages = [] as Array<GlanceImage>
   ) => {
     render(
       <I18nProvider i18n={i18n}>
@@ -42,6 +43,7 @@ describe("DeleteImagesModal", () => {
             onDelete={mockOnDelete}
             deletableImages={deletableImages}
             protectedImages={protectedImages}
+            unownedImages={unownedImages}
           />
         </PortalProvider>
       </I18nProvider>
@@ -73,7 +75,7 @@ describe("DeleteImagesModal", () => {
 
   it("should display protected images section when protectedImages is not empty", () => {
     setup(true, false, mockDeletableImages, mockProtectedImages)
-    expect(screen.getByText(/Images Protected from Deletion/i)).toBeInTheDocument()
+    expect(screen.getByText(/Image cannot be deleted/i)).toBeInTheDocument()
   })
 
   it("should display all protected image IDs in the protected section", () => {

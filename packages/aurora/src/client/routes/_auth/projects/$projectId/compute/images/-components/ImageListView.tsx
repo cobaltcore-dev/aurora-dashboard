@@ -81,6 +81,7 @@ interface ImagePageProps {
   setCreateModalOpen: (open: boolean) => void
   deletableImages: Array<GlanceImage>
   protectedImages: Array<GlanceImage>
+  unownedImages: Array<GlanceImage>
   activeImages: Array<GlanceImage>
   deactivatedImages: Array<GlanceImage>
   unownedActiveImages: Array<GlanceImage>
@@ -787,6 +788,7 @@ export function ImageListView({
           isOpen={deleteAllModalOpen}
           deletableImages={deletableImages}
           protectedImages={protectedImages}
+          unownedImages={unownedActiveImages.concat(unownedDeactivatedImages)}
           isLoading={isLoading}
           onClose={() => setDeleteAllModalOpen(false)}
           onDelete={handleBulkDelete}

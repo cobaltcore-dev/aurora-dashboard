@@ -1,6 +1,7 @@
 import { ReactNode } from "react"
 import { NotificationOptions } from "@cloudoperators/juno-ui-components"
 import { Trans } from "@lingui/react/macro"
+import { stripHtml } from "@/client/utils/stripHtml"
 
 // Builder helpers for the NotificationManager (Sonner-based) `toast` API.
 // Each returns `{ message, ...options }`; the caller destructures and dispatches
@@ -24,7 +25,7 @@ export const getImageUpdateErrorToast = (
   message: <Trans>Unable to Update Image</Trans>,
   description: (
     <Trans>
-      The image "{imageName}" could not be updated: {errorMessage}
+      The image "{imageName}" could not be updated: {stripHtml(errorMessage)}
     </Trans>
   ),
 })
@@ -41,7 +42,7 @@ export const getImageCreateErrorToast = (
   message: <Trans>Unable to Create Image</Trans>,
   description: (
     <Trans>
-      The image "{imageName}" could not be created: {errorMessage}
+      The image "{imageName}" could not be created: {stripHtml(errorMessage)}
     </Trans>
   ),
 })
@@ -53,7 +54,7 @@ export const getImageFileUploadErrorToast = (
   message: <Trans>Unable to Upload Image File</Trans>,
   description: (
     <Trans>
-      Failed to upload file "{fileName}": {errorMessage}
+      Failed to upload file "{fileName}": {stripHtml(errorMessage)}
     </Trans>
   ),
 })
@@ -90,7 +91,7 @@ export const getImageDeleteErrorToast = (
   message: <Trans>Unable to Delete Image</Trans>,
   description: (
     <Trans>
-      The image "{imageId}" could not be deleted: {errorMessage}
+      The image "{imageId}" could not be deleted: {stripHtml(errorMessage)}
     </Trans>
   ),
 })
@@ -112,7 +113,7 @@ export const getImageActivationErrorToast = (
   message: <Trans>Unable to Re-activate Image</Trans>,
   description: (
     <Trans>
-      The image "{imageId}" could not be re-activated: {errorMessage}
+      The image "{imageId}" could not be re-activated: {stripHtml(errorMessage)}
     </Trans>
   ),
 })
@@ -124,7 +125,7 @@ export const getImageDeactivationErrorToast = (
   message: <Trans>Unable to Deactivate Image</Trans>,
   description: (
     <Trans>
-      The image "{imageId}" could not be deactivated: {errorMessage}
+      The image "{imageId}" could not be deactivated: {stripHtml(errorMessage)}
     </Trans>
   ),
 })
@@ -250,7 +251,7 @@ export const getImageAccessStatusUpdatedToast = (newStatus: string): { message: 
 
 export const getImageAccessStatusErrorToast = (errorMessage: string): { message: ReactNode } & NotificationOptions => ({
   message: <Trans>Access Status</Trans>,
-  description: errorMessage || <Trans>Failed to update access status</Trans>,
+  description: stripHtml(errorMessage) || <Trans>Failed to update access status</Trans>,
 })
 
 // ── Image visibility ────────────────────────────────────────────────────────
@@ -274,7 +275,7 @@ export const getImageVisibilityUpdateErrorToast = (
   message: <Trans>Unable to Update Image Visibility</Trans>,
   description: (
     <Trans>
-      Failed to update visibility for "{imageName}": {errorMessage}
+      Failed to update visibility for "{imageName}": {stripHtml(errorMessage)}
     </Trans>
   ),
 })

@@ -73,40 +73,21 @@ export const ActivateImagesModal: React.FC<ActivateImagesModalProps> = ({
                 </div>
               </div>
 
-              {activeCount > 0 && (
+              {(activeCount > 0 || unownedCount > 0) && (
                 <div className="mb-6">
                   <p className="text-sm font-semibold">
                     <Plural
-                      value={activeCount}
-                      one="Already active (# will be skipped)"
-                      other="Already active (# will be skipped)"
+                      value={activeCount + unownedCount}
+                      one="Image cannot be activated (#)"
+                      other="Images cannot be activated (#)"
                     />
+                  </p>
+                  <p className="text-theme-light mt-1 text-xs">
+                    <Trans>You do not have permission to activate these images.</Trans>
                   </p>
                   <div className="jn:bg-theme-background-lvl-1 mt-2 max-h-24 overflow-y-auto rounded p-4">
                     <div className="space-y-1">
-                      {activeImages.map((image) => (
-                        <div key={image.id} className="text-theme-default text-sm">
-                          <span className="font-medium">{image.name || t`Unnamed`}</span>
-                          <span className="text-theme-light ml-2 text-xs">({image.id})</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {unownedCount > 0 && (
-                <div className="mb-6">
-                  <p className="text-sm font-semibold">
-                    <Plural
-                      value={unownedCount}
-                      one="Shared image cannot be modified (#)"
-                      other="Shared images cannot be modified (#)"
-                    />
-                  </p>
-                  <div className="jn:bg-theme-background-lvl-1 mt-2 max-h-24 overflow-y-auto rounded p-4">
-                    <div className="space-y-1">
-                      {unownedImages.map((image) => (
+                      {[...activeImages, ...unownedImages].map((image) => (
                         <div key={image.id} className="text-theme-default text-sm">
                           <span className="font-medium">{image.name || t`Unnamed`}</span>
                           <span className="text-theme-light ml-2 text-xs">({image.id})</span>

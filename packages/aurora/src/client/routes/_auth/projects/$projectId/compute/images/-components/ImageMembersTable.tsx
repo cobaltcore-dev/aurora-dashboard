@@ -75,7 +75,7 @@ export const ImageMembersTable: React.FC<ImageMembersTableProps> = ({
       })
     : []
 
-  const validateForm = (): boolean => {
+  const validateForm = async (): Promise<boolean> => {
     const trimmedMemberId = memberId.trim()
     const newErrors: { memberId?: string } = {}
 
@@ -83,6 +83,13 @@ export const ImageMembersTable: React.FC<ImageMembersTableProps> = ({
       newErrors.memberId = t`Project ID (project UUID) is required.`
     } else if (imageMembers?.some((member) => member.member_id === trimmedMemberId)) {
       newErrors.memberId = t`This member already has access to this image.`
+    } else {
+      // Validate that the project exists
+      try {
+        await utils.project.getProject.fetch({ projectId: trimmedMemberId })
+      } catch (error) {
+        newErrors.memberId = t`Project not found or you don't have access to it.`
+      }
     }
 
     setErrors(newErrors)
@@ -95,7 +102,7 @@ export const ImageMembersTable: React.FC<ImageMembersTableProps> = ({
   }
 
   const handleAddMember = async () => {
-    if (!validateForm()) {
+    if (!(await validateForm())) {
       setMessage({ text: t`Please fix the validation errors below.`, type: "error" })
       return
     }
