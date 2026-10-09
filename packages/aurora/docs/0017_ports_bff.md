@@ -29,7 +29,10 @@ This implementation is aligned with the official OpenStack Neutron API documenta
 
 ### Frontend (React)
 
-Added in the UI phase (see [Frontend Integration](#frontend-integration)).
+- **Layout Route**: `packages/aurora/src/client/routes/_auth/projects/$projectId/network/ports.tsx`
+- **List Route**: `packages/aurora/src/client/routes/_auth/projects/$projectId/network/ports/index.tsx`
+- **Details Route**: `packages/aurora/src/client/routes/_auth/projects/$projectId/network/ports/$portId.tsx`
+- **Components**: `packages/aurora/src/client/routes/_auth/projects/$projectId/network/ports/-components/`
 
 ## BFF API Endpoints
 
@@ -380,7 +383,35 @@ Each deduplicates IDs, sends one request per chunk of 50 IDs, makes no request f
 
 ## Frontend Integration
 
-To be completed in the UI phase.
+The UI is read-only: list and details only, no create, edit or delete actions.
+
+### Routes
+
+| Route                                              | Description                                              |
+| -------------------------------------------------- | -------------------------------------------------------- |
+| `/_auth/projects/$projectId/network/ports`         | Layout route: breadcrumb and route-level error component |
+| `/_auth/projects/$projectId/network/ports/`        | Ports list (search, sort, page in the URL)               |
+| `/_auth/projects/$projectId/network/ports/$portId` | Port details                                             |
+
+### Reusable Ports List
+
+`Ports` (`-components/PortsList.tsx`) is the reusable ports overview. It takes an optional `networkId` prop:
+
+- **Without `networkId`** (global view): all ports of the project, including a Network column.
+- **With `networkId`** (e.g. a "Ports" tab in the network details view): passes `network_id` to `network.ports.list`, hides the Network column and uses a network-specific empty state.
+
+List columns: Name / ID, Description, Network, Fixed IPs / Subnet, Device Owner / ID, Status, actions ("Show Details" only). Network and subnets show names and fall back to the ID when the name can't be resolved.
+
+### Details View
+
+Fields in this order: Port ID, MAC, Network (name + ID), IPs (address, IP version, subnet name + ID), Description, Name, Device Owner, Device ID, Created at, Updated at, Project ID, Status, Security Groups (name + ID). All IDs, IP addresses and the MAC address can be copied to the clipboard.
+
+### Navigation
+
+- **Side Navigation:** "Ports" entry in the _Network_ section (`buildNavSections`), shown when the network service is in the catalog and `ports` is enabled.
+- **Project overview:** "Ports" service card in the _Network_ group.
+
+Both entries require `ports` in `enabledServices` wherever it is configured.
 
 ### Permissions
 
@@ -405,6 +436,14 @@ Note: the epic names the keys `network:port:*` (singular); the implementation us
 - `helpers/lookupHelpers.test.ts` - batching, deduplication, chunking and failure fallbacks of the shared lookups
 - `helpers/requestHelpers.test.ts` - `requestOrThrow` error dispatch, `pickDefined`, `chunk`, `withQuery`
 
+### Frontend Tests
+
+- `ports/-components/PortsList.test.tsx` - queries (default, URL params, network scope), inline `FORBIDDEN` vs error boundary, retry, search, URL changes, pagination, no create action
+- `ports/-components/PortListContainer.test.tsx` - columns, Network column in global vs network-scoped view, empty states, pagination, top alignment
+- `ports/-components/PortTableRow.test.tsx` - cells, name/ID fallbacks, dashes, navigation, read-only menu
+- `ports/-components/PortDetailsView.test.tsx` - labels in order, values and fallbacks, copyable values, dashes
+- `buildNavSections.test.ts` - Ports entry in the Network section and `enabledServices` filtering
+
 ## Special Notes
 
 1. **Project scoping:** `list` always sends `project_id` as a filter. Without it, admin roles (e.g. `cloud_network_admin`) would see ports of all projects.
@@ -421,10 +460,15 @@ Note: the epic names the keys `network:port:*` (singular); the implementation us
 - Port-specific error handling on top of the shared network error handler
 - Network, subnet and security group names via batched, best-effort lookups (shared with Routers)
 - Backend unit and procedure tests
+- Routing setup, side navigation entry and project overview card
+- Read-only ports list (Name / ID, Description, Network, Fixed IPs / Subnet, Device Owner / ID, Status) with search, sorting and pagination
+- Reusable ports list with optional `networkId` scope
+- Read-only port details view with copy-to-clipboard for IDs, IPs and MAC
+- Frontend component tests
 
 ### 🚧 Planned
 
-- Read-only UI: ports list and port details view, side navigation entry and project overview card
-- Reusable ports overview for the "Ports" tab in the network details view (Epic #1019)
+- "Ports" tab in the network details view, reusing the ports list with `networkId` (Epic #1019)
+- List filters (status, device owner)
 - Write operations in the UI (create, edit, delete, bulk delete)
 - Port security toggle, tag editor and allowed address pairs management
