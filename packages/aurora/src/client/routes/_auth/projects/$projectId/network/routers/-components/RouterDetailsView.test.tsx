@@ -6,7 +6,7 @@ import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import type { RouterDetails, RouterInterface } from "@/server/Network/types/router"
-import { RouterDetailsView } from "./RouterDetailsView"
+import { RouterDetailsView, isRouterDetailsTab, type RouterDetailsTab } from "./RouterDetailsView"
 
 const { mockListInterfacesQuery, mockRefetch } = vi.hoisted(() => ({
   mockListInterfacesQuery: vi.fn(),
@@ -67,8 +67,13 @@ const mockRouter: RouterDetails = {
   },
 }
 
-const renderView = (router: RouterDetails = mockRouter) =>
-  render(<RouterDetailsView router={router} />, { wrapper: TestWrapper })
+const mockOnTabChange = vi.fn()
+
+// The active tab is controlled by the route's `tab` search param, so tests pass it directly
+const renderView = (router: RouterDetails = mockRouter, activeTab: RouterDetailsTab = "external") =>
+  render(<RouterDetailsView router={router} activeTab={activeTab} onTabChange={mockOnTabChange} />, {
+    wrapper: TestWrapper,
+  })
 
 describe("RouterDetailsView", () => {
   beforeAll(async () => {
@@ -151,7 +156,7 @@ describe("RouterDetailsView", () => {
       expect(screen.getByText("External Fixed IPs")).toBeInTheDocument()
     })
 
-    it("is active by default and shows the gateway", () => {
+    it("shows the gateway when the external tab is active", () => {
       mockInterfacesResult()
       renderView()
 
@@ -220,13 +225,57 @@ describe("RouterDetailsView", () => {
     })
   })
 
-  describe("Internal Networks tab", () => {
-    it("shows the interfaces table when selected", async () => {
+  describe("Tab switching", () => {
+    it("reports a click on another tab via onTabChange", async () => {
       const user = userEvent.setup()
       mockInterfacesResult()
       renderView()
 
       await user.click(screen.getByText("Internal Networks"))
+
+      expect(mockOnTabChange).toHaveBeenCalledWith("internal")
+    })
+
+    it("keeps showing the active tab until the parent changes it", async () => {
+      const user = userEvent.setup()
+      mockInterfacesResult()
+      renderView()
+
+      await user.click(screen.getByText("Internal Networks"))
+
+      // The URL (parent) hasn't changed yet, so the external tab content stays
+      expect(screen.getByText("FloatingIP-external-01")).toBeInTheDocument()
+      expect(screen.queryByTestId("router-interfaces-table")).not.toBeInTheDocument()
+    })
+
+    it("switches content when the active tab prop changes", () => {
+      mockInterfacesResult()
+      const { rerender } = renderView()
+
+      rerender(<RouterDetailsView router={mockRouter} activeTab="internal" onTabChange={mockOnTabChange} />)
+
+      expect(screen.getByTestId("router-interfaces-table")).toBeInTheDocument()
+      expect(screen.queryByText("FloatingIP-external-01")).not.toBeInTheDocument()
+    })
+  })
+
+  describe("isRouterDetailsTab", () => {
+    it.each([
+      ["external", true],
+      ["internal", true],
+      ["rules", false],
+      ["", false],
+      [undefined, false],
+      [1, false],
+    ])("isRouterDetailsTab(%j) === %s", (value, expected) => {
+      expect(isRouterDetailsTab(value)).toBe(expected)
+    })
+  })
+
+  describe("Internal Networks tab", () => {
+    it("shows the interfaces table when active", () => {
+      mockInterfacesResult()
+      renderView(mockRouter, "internal")
 
       expect(screen.getByTestId("router-interfaces-table")).toHaveTextContent("port-1")
       expect(screen.queryByText("FloatingIP-external-01")).not.toBeInTheDocument()
@@ -239,12 +288,9 @@ describe("RouterDetailsView", () => {
       expect(mockListInterfacesQuery).toHaveBeenCalledWith({ project_id: "proj-1", router_id: "router-1" })
     })
 
-    it("passes the error state to the table", async () => {
-      const user = userEvent.setup()
+    it("passes the error state to the table", () => {
       mockInterfacesResult({ data: undefined, isError: true, error: { message: "Ports could not be loaded" } })
-      renderView()
-
-      await user.click(screen.getByText("Internal Networks"))
+      renderView(mockRouter, "internal")
 
       expect(screen.getByTestId("router-interfaces-table")).toHaveAttribute("data-error", "true")
       expect(screen.getByTestId("router-interfaces-table")).toHaveTextContent("Ports could not be loaded")
@@ -253,20 +299,16 @@ describe("RouterDetailsView", () => {
     it("retries the interfaces query from the table", async () => {
       const user = userEvent.setup()
       mockInterfacesResult({ data: undefined, isError: true, error: { message: "Ports could not be loaded" } })
-      renderView()
+      renderView(mockRouter, "internal")
 
-      await user.click(screen.getByText("Internal Networks"))
       await user.click(screen.getByRole("button", { name: "Retry interfaces" }))
 
       expect(mockRefetch).toHaveBeenCalledTimes(1)
     })
 
-    it("passes the loading state to the table", async () => {
-      const user = userEvent.setup()
+    it("passes the loading state to the table", () => {
       mockInterfacesResult({ data: undefined, isLoading: true })
-      renderView()
-
-      await user.click(screen.getByText("Internal Networks"))
+      renderView(mockRouter, "internal")
 
       expect(screen.getByTestId("router-interfaces-table")).toHaveAttribute("data-loading", "true")
     })

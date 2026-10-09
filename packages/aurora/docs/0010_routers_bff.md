@@ -568,7 +568,7 @@ type RouterInterface = {
 - Router-specific overrides provide clearer messages for 404/409 (and 400 on `addInterface`).
 - **Quota detection:** Neutron returns `OverQuota` as `409 Conflict` (not 413). Every 409 override checks the error message for "quota" and returns a quota message instead of the operation-specific one.
 
-`requestOrThrow(request, handler, resourceLabel?)` wraps every Neutron call of the main (non best-effort) requests:
+`requestOrThrow(request, handler, resourceLabel?)` (shared, in `requestHelpers.ts`) wraps every Neutron call of the main (non best-effort) requests:
 
 - signal-openstack does not resolve non-2xx responses. It rejects with `SignalOpenstackApiError(message, statusCode)`, where `message` is Neutron's message parsed from the JSON body (`NeutronError.message`). `requestOrThrow` catches it and passes `{ status: statusCode, statusText: message }` to the operation's handler, so the status code and router-specific messages reach the UI instead of a generic `INTERNAL_SERVER_ERROR`.
 - Network failures are wrapped by the client as `SignalOpenstackApiError` with status 500 and map to the default error.
@@ -581,13 +581,13 @@ type RouterInterface = {
 - `collectSubnetIds(ports)` - unique subnet IDs for the batched subnets request
 - `collectGatewayIds(routers)` / `applyGatewayNames(routers, networks, subnets)` - external network/subnet name enrichment for `list`
 - `groupPrivateNetworkIdsByRouter(ports)` / `applyPrivateNetworks(routers, idsByRouter, networks)` - private networks for `list`
-- `chunk(items, size)` - splits router IDs for the batched ports requests
+- `chunk(items, size)` (shared, in `requestHelpers.ts`) - splits router IDs for the batched ports requests
 - `getRouterExtensionFlags(aliases)` - maps extension aliases to `RouterExtensionFlags`
 
 ### Request Builders
 
 - `buildExternalGatewayInfoBody(info)` - builds `external_gateway_info`, omitting undefined fields
-- `pickDefined(obj)` - drops `undefined` keys, keeps `false`, `0`, `""` and `null`
+- `pickDefined(obj)` (shared, in `requestHelpers.ts`) - drops `undefined` keys, keeps `false`, `0`, `""` and `null`
 
 ## Frontend Integration
 
@@ -625,8 +625,9 @@ UI actions are gated via `network.canUser` using the existing keys in `permissio
 
 - `routers/routersRouter.test.ts` - procedure tests for all endpoints: success paths, request URLs and bodies, input validation, session/service errors, parse errors and Neutron error mapping. The network service mock rejects non-2xx responses with `SignalOpenstackApiError`, like the real client (`errorMode: "response"` resolves with `ok: false` instead)
 - `types/router.test.ts` - response and input schema validation, IP/CIDR validators, interface and gateway refinements
-- `helpers/routerHelpers.test.ts` - error handler overrides (404/409, OverQuota detection, 400 detail), `requestOrThrow` error dispatch, BFF filters, interface building, extension flags
+- `helpers/routerHelpers.test.ts` - error handler overrides (404/409, OverQuota detection, 400 detail), BFF filters, interface building, extension flags
 - `helpers/errorHandling.test.ts` - `Router` resource name in the shared error handler
+- `helpers/requestHelpers.test.ts` / `helpers/lookupHelpers.test.ts` - shared `requestOrThrow`, `pickDefined`, `chunk` and the batched network/subnet name lookups
 
 ### Frontend Tests
 

@@ -1,4 +1,4 @@
-import { Fragment, ReactNode, useState } from "react"
+import { Fragment, ReactNode } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import {
@@ -15,10 +15,21 @@ import { useProjectId } from "@/client/hooks"
 import ClipboardText from "@/client/components/ClipboardText"
 import { RouterInterfacesTable } from "./RouterInterfacesTable"
 
-type RouterDetailsTab = "external" | "internal"
+/** Tabs of the router details view, in display order. The first one is the default. */
+export const ROUTER_DETAILS_TABS = ["external", "internal"] as const
+
+export type RouterDetailsTab = (typeof ROUTER_DETAILS_TABS)[number]
+
+export const DEFAULT_ROUTER_DETAILS_TAB: RouterDetailsTab = "external"
+
+export const isRouterDetailsTab = (value: unknown): value is RouterDetailsTab =>
+  ROUTER_DETAILS_TABS.includes(value as RouterDetailsTab)
 
 interface RouterDetailsViewProps {
   router: RouterDetails
+  /** Active tab, owned by the route's `tab` search param */
+  activeTab: RouterDetailsTab
+  onTabChange: (tab: RouterDetailsTab) => void
 }
 
 interface DetailItem {
@@ -39,10 +50,9 @@ const DetailsList = ({ items, keyPrefix }: { items: DetailItem[]; keyPrefix: str
   </DescriptionList>
 )
 
-export function RouterDetailsView({ router }: RouterDetailsViewProps) {
+export function RouterDetailsView({ router, activeTab, onTabChange }: RouterDetailsViewProps) {
   const { t } = useLingui()
   const projectId = useProjectId()
-  const [activeTab, setActiveTab] = useState<RouterDetailsTab>("external")
 
   const {
     data: interfaces = [],
@@ -100,22 +110,24 @@ export function RouterDetailsView({ router }: RouterDetailsViewProps) {
       ]
     : []
 
-  const tabs = [
-    { label: t`External Networks`, value: "external" },
-    { label: t`Internal Networks`, value: "internal" },
-  ]
+  const tabLabels: Record<RouterDetailsTab, string> = {
+    external: t`External Networks`,
+    internal: t`Internal Networks`,
+  }
 
   return (
     <Stack direction="vertical" gap="6" className="mt-6">
       <DetailsList items={basicInfoItems} keyPrefix="basic" />
 
       <Stack direction="vertical" gap="4">
+        {/* TabNavigation keeps its own active item once a tab is clicked, so activeItem keeps it in sync with
+            the URL. `active` only covers the first render, before activeItem is applied. */}
         <TabNavigation
           activeItem={activeTab}
-          onActiveItemChange={(value: ReactNode) => setActiveTab(value as RouterDetailsTab)}
+          onActiveItemChange={(value: ReactNode) => isRouterDetailsTab(value) && onTabChange(value)}
         >
-          {tabs.map((tab) => (
-            <TabNavigationItem key={tab.value} label={tab.label} value={tab.value} />
+          {ROUTER_DETAILS_TABS.map((tab) => (
+            <TabNavigationItem key={tab} label={tabLabels[tab]} value={tab} active={activeTab === tab} />
           ))}
         </TabNavigation>
 
