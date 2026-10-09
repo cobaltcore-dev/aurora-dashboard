@@ -3,6 +3,8 @@ import type { FastifyRequest, FastifyReply } from "fastify"
 import { SignalOpenstackSession, SignalOpenstackSessionType } from "@cobaltcore-dev/signal-openstack"
 import { SessionCookie } from "./sessionCookie"
 import { AuthConfig } from "./Authentication/types/models"
+import { resolveAppConfig } from "./AppConfig/resolveAppConfig"
+import type { AuroraAppConfig, ResolvedAppConfig } from "../types/appConfig"
 
 export interface AuroraContext {
   validateSession: () => boolean
@@ -34,6 +36,7 @@ export interface ContextConfig {
   cookieDomain?: string
   insecureCookies?: boolean
   debug?: boolean
+  appConfig?: AuroraAppConfig
 }
 
 // Global registry of pending rescope operations per session
@@ -66,6 +69,12 @@ export interface AuroraPortalContext extends AuroraContext {
   cephRegion?: string
   /** Parsed list of image metadata keys excluded from the UI */
   imageMetadataExcludedProperties: string[]
+  /**
+   * Per-domain configuration resolved for the current user's home domain. Undefined when
+   * the consumer supplied no `appConfig`. For unauthenticated requests this holds the
+   * base layer only (no domain is known yet).
+   */
+  appConfig?: ResolvedAppConfig
   createSession: (params: { user: string; password: string; domain: string }) => SignalOpenstackSessionType
   rescopeSession: (scope: {
     projectId?: string
@@ -173,6 +182,13 @@ export async function createContext(
   }
 
   const validateSession = () => openstackSession?.isValid() || false
+
+  // Resolve per-domain config for this request. The home domain name lives in the token,
+  // so no extra Keystone call is needed. Unauthenticated requests have no token, so
+  // domainName is undefined and only the base layer is returned.
+  const appConfig = config.appConfig
+    ? resolveAppConfig(config.appConfig, openstackSession?.getToken()?.tokenData?.user?.domain?.name)
+    : undefined
 
   // Cache for user info to avoid repeated API calls
   let cachedUserInfo: { availableDomains: Array<{ id: string; name: string }> } | undefined
@@ -427,6 +443,7 @@ export async function createContext(
       .split(",")
       .map((s) => s.trim())
       .filter(Boolean),
+    appConfig,
     createSession,
     rescopeSession,
     terminateSession,

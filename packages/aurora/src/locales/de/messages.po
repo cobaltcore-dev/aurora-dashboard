@@ -388,6 +388,9 @@ msgstr "Zugriffsstatus:"
 msgid "Access to S3 Object Storage requires an access key (access key ID + secret access key)."
 msgstr ""
 
+msgid "Access to this router is not permitted."
+msgstr ""
+
 msgid "Access Type"
 msgstr "Zugriffstyp"
 
@@ -458,6 +461,9 @@ msgid "Add Security Group Rule"
 msgstr "Sicherheitsgruppenregel hinzufügen"
 
 msgid "Address group: {id}"
+msgstr ""
+
+msgid "Admin State"
 msgstr ""
 
 msgid "After {abortDays} days"
@@ -610,6 +616,9 @@ msgstr "Zurück zu Floating IPs"
 msgid "Back to Images"
 msgstr "Zurück zu Images"
 
+msgid "Back to Routers"
+msgstr ""
+
 msgid "Back to Security Groups"
 msgstr "Zurück zu Security Groups"
 
@@ -736,15 +745,6 @@ msgstr "Cannot move to the same location. Please select a different bucket, fold
 msgid "Capabilities"
 msgstr "Capabilities"
 
-msgid "Certificate Authority \"{pcaName}\" was successfully deleted."
-msgstr ""
-
-msgid "Certificate Authority Deleted"
-msgstr ""
-
-msgid "Certificate Imported"
-msgstr ""
-
 msgid "Change the name, destination container, or folder to move this object."
 msgstr "Ändern Sie den Namen, den Ziel-Container oder den Ordner, um dieses Objekt zu verschieben."
 
@@ -780,6 +780,9 @@ msgstr "Community"
 
 msgid "Compute"
 msgstr "Compute"
+
+msgid "Configuration Unavailable"
+msgstr ""
 
 msgid "Confirm deletion of {displayName}. All objects inside this folder will be marked as deleted but can be restored from version history."
 msgstr ""
@@ -1381,6 +1384,9 @@ msgstr "Der DNS-Name darf höchstens 63 Zeichen lang sein."
 msgid "Done"
 msgstr ""
 
+msgid "DOWN"
+msgstr ""
+
 msgid "Download {rowDisplayName}"
 msgstr "{rowDisplayName} herunterladen"
 
@@ -1528,6 +1534,9 @@ msgstr ""
 msgid "Enable Versioning"
 msgstr ""
 
+msgid "Enabled"
+msgstr ""
+
 msgid "End of the range. Leave empty for a single port."
 msgstr ""
 
@@ -1621,6 +1630,9 @@ msgstr ""
 msgid "Error Loading Image"
 msgstr ""
 
+msgid "Error Loading Router"
+msgstr ""
+
 msgid "Error Loading Security Group"
 msgstr ""
 
@@ -1660,8 +1672,17 @@ msgstr "Läuft ab in {selectedPresetLabel} — um {expiresAtFormatted}"
 msgid "Expose Headers"
 msgstr ""
 
+msgid "External Fixed IPs"
+msgstr ""
+
 msgid "External Network"
 msgstr "Externes Netzwerk"
+
+msgid "External Networks"
+msgstr ""
+
+msgid "External Subnet"
+msgstr ""
 
 msgid "Extra spec key is required and cannot be empty."
 msgstr "Der Key für die Extra-Spec ist erforderlich und darf nicht leer sein."
@@ -1858,6 +1879,9 @@ msgstr ""
 msgid "Failed to Load Images"
 msgstr ""
 
+msgid "Failed to Load Internal Networks"
+msgstr ""
+
 msgid "Failed to Load Lifecycle Configuration"
 msgstr ""
 
@@ -1874,6 +1898,9 @@ msgid "Failed to Load Objects"
 msgstr ""
 
 msgid "Failed to Load Policy"
+msgstr ""
+
+msgid "Failed to Load Routers"
 msgstr ""
 
 msgid "Failed to Load Security Groups"
@@ -1979,6 +2006,9 @@ msgstr "Filtern nach"
 
 msgid "Fixed IP Address"
 msgstr "Feste IP-Adresse"
+
+msgid "Fixed IPs"
+msgstr ""
 
 msgid "Flavor \"{name}\" was successfully created."
 msgstr ""
@@ -2123,6 +2153,9 @@ msgstr ""
 
 msgid "General Image Data"
 msgstr "Allgemeine Image-Daten"
+
+msgid "General Information"
+msgstr ""
 
 msgid "Generate URL"
 msgstr "URL generieren"
@@ -2271,6 +2304,9 @@ msgstr "Innerhalb eines Projekts werden Objekte in Containern gespeichert. Conta
 msgid "Insufficient Permissions"
 msgstr ""
 
+msgid "Internal Networks"
+msgstr ""
+
 msgid "Invalid file format. Supported formats: {supportedFileFormats}"
 msgstr "Ungültiges Dateiformat. Unterstützte Formate: {supportedFileFormats}"
 
@@ -2288,6 +2324,9 @@ msgstr ""
 
 msgid "IP Version"
 msgstr "IP-Version"
+
+msgid "IP:"
+msgstr ""
 
 msgid "IPv4 or IPv6 CIDR, e.g. 10.0.0.0/24 or ::/0. Leave empty to allow any IPv4 address."
 msgstr ""
@@ -2415,6 +2454,9 @@ msgstr "Image-Details werden geladen..."
 msgid "Loading Images..."
 msgstr "Lädt Images..."
 
+msgid "Loading Internal Networks..."
+msgstr ""
+
 msgid "Loading Lifecycle Configuration..."
 msgstr ""
 
@@ -2446,6 +2488,12 @@ msgid "Loading preview..."
 msgstr "Vorschau wird geladen..."
 
 msgid "Loading Preview..."
+msgstr ""
+
+msgid "Loading Router Details..."
+msgstr ""
+
+msgid "Loading Routers..."
 msgstr ""
 
 msgid "Loading Security Group Details..."
@@ -2616,6 +2664,9 @@ msgstr "Netzwerk & Routing"
 msgid "Network ID"
 msgstr "Netzwerk-ID"
 
+msgid "Network Name"
+msgstr ""
+
 msgid "New Folder"
 msgstr "Neuer Ordner"
 
@@ -2661,6 +2712,9 @@ msgstr "Keine benutzerdefinierten Metadaten. Klicken Sie auf \"Eigenschaft hinzu
 msgid "No custom properties defined"
 msgstr "Keine benutzerdefinierten Eigenschaften definiert"
 
+msgid "No External Gateway"
+msgstr ""
+
 msgid "No flavor selected for deletion."
 msgstr "Kein Flavor für die Löschung ausgewählt."
 
@@ -2671,6 +2725,9 @@ msgid "No Floating IPs Found"
 msgstr ""
 
 msgid "No Images Found"
+msgstr ""
+
+msgid "No Internal Networks"
 msgstr ""
 
 msgid "No Lifecycle Rules Matching the Current Search Criteria."
@@ -2717,6 +2774,12 @@ msgstr "Keine Projekte verfügbar."
 
 msgid "No projects have access to this image yet. Click \"Add Project Access\" to grant access."
 msgstr "Noch kein Projekt hat Zugriff auf dieses Image. Klicken Sie auf \"Projektzugriff hinzufügen\", um Zugriff zu gewähren."
+
+msgid "No Routers Found"
+msgstr ""
+
+msgid "No routers match your search. Clear the search to view all routers."
+msgstr ""
 
 msgid "No Rules Found"
 msgstr ""
@@ -2979,6 +3042,9 @@ msgstr "Privat"
 msgid "Private flavors could not be loaded. You may be seeing an incomplete list."
 msgstr "Private Flavors konnten nicht geladen werden. Die angezeigte Liste ist möglicherweise unvollständig."
 
+msgid "Private Network"
+msgstr ""
+
 msgid "Project"
 msgstr "Projekt"
 
@@ -3165,6 +3231,12 @@ msgstr "Root Disk muss eine ganze Zahl ≥ 0 sein."
 msgid "Router ID"
 msgstr "Router-ID"
 
+msgid "Router Not Found"
+msgstr ""
+
+msgid "Routers"
+msgstr ""
+
 msgid "rule"
 msgstr ""
 
@@ -3256,6 +3328,9 @@ msgid "Search objects..."
 msgstr "Objekte suchen..."
 
 msgid "Search RBAC policies..."
+msgstr ""
+
+msgid "Search routers..."
 msgstr ""
 
 msgid "Search rules..."
@@ -3498,6 +3573,9 @@ msgstr ""
 msgid "Size: {policySize} / {MAX_POLICY_SIZE} bytes"
 msgstr ""
 
+msgid "SNAT"
+msgstr ""
+
 msgid "Some Objects Could Not Be Deleted"
 msgstr ""
 
@@ -3560,6 +3638,9 @@ msgstr "Gespeichert als X-Object-Meta-*-Header. Schlüssel sind nicht zwischen G
 
 msgid "Subnet"
 msgstr "Subnet"
+
+msgid "Subnet ID:"
+msgstr ""
 
 msgid "Successfully activated {successCount} of {totalCount} image(s)"
 msgstr "{successCount} von {totalCount} Image(s) erfolgreich aktiviert"
@@ -3639,6 +3720,9 @@ msgstr "Temporäre URL für \"{objectName}\" wurde in die Zwischenablage kopiert
 msgid "Temporary URLs"
 msgstr "Temporäre URLs"
 
+msgid "The application configuration could not be loaded. Some services and features may be unavailable."
+msgstr ""
+
 msgid "The bucket could not be created. Try again or choose a different name."
 msgstr ""
 
@@ -3661,9 +3745,6 @@ msgid "The container's settings could not be applied."
 msgstr ""
 
 msgid "The CORS configuration has changed. Please refresh and try again."
-msgstr ""
-
-msgid "The externally signed certificate was successfully imported."
 msgstr ""
 
 msgid "The extra spec could not be found. It may have already been deleted."
@@ -3749,6 +3830,12 @@ msgstr "Der angeforderte Flavor konnte nicht gefunden werden. Er wurde mögliche
 msgid "The Resource you are looking for does not exist or is not accessible."
 msgstr ""
 
+msgid "The router could not be loaded."
+msgstr ""
+
+msgid "The router could not be loaded. Try again."
+msgstr ""
+
 msgid "The scan did not reach the end of the bucket, so non-current versions may remain. Run Delete Versions again."
 msgstr ""
 
@@ -3765,6 +3852,9 @@ msgid "The selected objects will be permanently deleted. This cannot be undone."
 msgstr "Die ausgewählten Objekte werden dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden."
 
 msgid "The service you're looking for doesn't exist or may have moved. Check the URL or return to the project home."
+msgstr ""
+
+msgid "The session has expired. Log in again to continue."
 msgstr ""
 
 msgid "The specified project does not exist or you don't have permission to share with it."
@@ -3823,6 +3913,9 @@ msgstr ""
 
 msgid "There are no RBAC policies for this security group"
 msgstr "Für diese Security Group sind keine RBAC-Richtlinien vorhanden"
+
+msgid "There are no routers in this project."
+msgstr ""
 
 msgid "There are no rules for this security group"
 msgstr "Es gibt keine Regeln für diese Sicherheitsgruppe"
@@ -3968,6 +4061,15 @@ msgstr ""
 msgid "This property is reserved and cannot be modified"
 msgstr "Diese Eigenschaft ist reserviert und kann nicht geändert werden"
 
+msgid "This router does not exist or has been deleted."
+msgstr ""
+
+msgid "This router has no interfaces attached to internal networks."
+msgstr ""
+
+msgid "This router is not connected to an external network."
+msgstr ""
+
 msgid "This rule has {noncurrentTransitionCount} noncurrent version transition(s) configured. Transitions cannot be edited in this UI. Changing other fields will preserve the existing transitions."
 msgstr ""
 
@@ -4013,11 +4115,11 @@ msgstr "Gesamtspeicher-Quota"
 msgid "True"
 msgstr "True"
 
-msgid "Try again"
-msgstr "Erneut versuchen"
-
 msgid "Try Again"
 msgstr "Erneut versuchen"
+
+msgid "Type"
+msgstr ""
 
 msgid "Type \"{CONFIRM_WORD}\" to confirm"
 msgstr "Geben Sie \"{CONFIRM_WORD}\" zur Bestätigung ein"
@@ -4087,6 +4189,9 @@ msgstr ""
 
 msgid "Unnamed"
 msgstr "Unbenannt"
+
+msgid "UP"
+msgstr ""
 
 msgid "Update object"
 msgstr "Objekt aktualisieren"

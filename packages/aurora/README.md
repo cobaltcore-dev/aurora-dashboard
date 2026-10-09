@@ -52,20 +52,21 @@ export function App() {
 
 ### `createServer(config)`
 
-| Option                            | Type          | Required | Default                    | Description                                                      |
-| --------------------------------- | ------------- | -------- | -------------------------- | ---------------------------------------------------------------- |
-| `identityEndpoint`                | `string`      | yes      | —                          | OpenStack Keystone v3 URL                                        |
-| `policyDir`                       | `string`      | yes      | —                          | Absolute path to a directory of OpenStack policy YAML files      |
-| `bffEndpoint`                     | `string`      | no       | `"/polaris-bff"`           | URL prefix for all tRPC routes                                   |
-| `viteRoot`                        | `string`      | no       | —                          | Directory that contains `dist/client/` in production             |
-| `defaultEndpointInterface`        | `string`      | no       | `"public"`                 | OpenStack service catalog interface                              |
-| `proxyUrl`                        | `string`      | no       | —                          | HTTP proxy for OpenStack calls (dev only, ignored in production) |
-| `cephRegion`                      | `string`      | no       | —                          | Ceph RGW region for S3 operations                                |
-| `imageMetadataExcludedProperties` | `string`      | no       | —                          | Comma-separated image metadata keys to hide in the UI            |
-| `cookieName`                      | `string`      | no       | `"dashboard-session-auth"` | Override the session cookie name                                 |
-| `crossDomainCookie`               | `boolean`     | no       | `true`                     | Share cookie across subdomains                                   |
-| `insecureCookies`                 | `boolean`     | no       | `false`                    | Disable `Secure` flag — only for HTTP-only local dev             |
-| `routers`                         | `AnyRouter[]` | no       | `[]`                       | Additional tRPC routers — see [Custom routers](#custom-routers)  |
+| Option                            | Type              | Required | Default                    | Description                                                                                       |
+| --------------------------------- | ----------------- | -------- | -------------------------- | ------------------------------------------------------------------------------------------------- |
+| `identityEndpoint`                | `string`          | yes      | —                          | OpenStack Keystone v3 URL                                                                         |
+| `policyDir`                       | `string`          | yes      | —                          | Absolute path to a directory of OpenStack policy YAML files                                       |
+| `bffEndpoint`                     | `string`          | no       | `"/polaris-bff"`           | URL prefix for all tRPC routes                                                                    |
+| `viteRoot`                        | `string`          | no       | —                          | Directory that contains `dist/client/` in production                                              |
+| `defaultEndpointInterface`        | `string`          | no       | `"public"`                 | OpenStack service catalog interface                                                               |
+| `proxyUrl`                        | `string`          | no       | —                          | HTTP proxy for OpenStack calls (dev only, ignored in production)                                  |
+| `cephRegion`                      | `string`          | no       | —                          | Ceph RGW region for S3 operations                                                                 |
+| `imageMetadataExcludedProperties` | `string`          | no       | —                          | Comma-separated image metadata keys to hide in the UI                                             |
+| `cookieName`                      | `string`          | no       | `"dashboard-session-auth"` | Override the session cookie name                                                                  |
+| `crossDomainCookie`               | `boolean`         | no       | `true`                     | Share cookie across subdomains                                                                    |
+| `insecureCookies`                 | `boolean`         | no       | `false`                    | Disable `Secure` flag — only for HTTP-only local dev                                              |
+| `routers`                         | `AnyRouter[]`     | no       | `[]`                       | Additional tRPC routers — see [Custom routers](#custom-routers)                                   |
+| `appConfig`                       | `AuroraAppConfig` | no       | -                          | Per-domain service/slot visibility and feature flags; see [App configuration](#app-configuration) |
 
 ## Custom routers
 
@@ -111,6 +112,12 @@ server.get("/healthz", async () => ({ ok: true }))
 
 await server.listen({ host: "0.0.0.0", port: 4000 })
 ```
+
+## App configuration
+
+`appConfig` controls which services and UI slots are visible and sets feature flags, globally and per domain. When omitted, Aurora is default-open: all catalog services and all registered slots render.
+
+See [docs/0015_app_config.md](./docs/0015_app_config.md) for the full reference including visibility fields, domain overrides, allow-beats-deny semantics, and how to load configuration from a YAML file.
 
 ### `<AuroraApp />`
 
@@ -160,17 +167,16 @@ function MyFooter(_props: SlotProps) {
 
 ### Available slots
 
-| Slot                    | Location                                                                     | `auroraContext` extras         | Renders in shadow DOM |
-| ----------------------- | ---------------------------------------------------------------------------- | ------------------------------ | --------------------- |
-| `logo`                  | Page header, replacing the default Aurora logo                               | —                              | No                    |
-| `sideNavBanner`         | Bottom of the project side navigation                                        | —                              | Yes                   |
-| `pageFooter`            | Page footer, replacing the default empty footer                              | —                              | No                    |
-| `login`                 | Replaces the default login form — use in OIDC environments                   | —                              | No                    |
-| `serviceBadge`          | Inline next to each service label in the side nav and project home cards     | `currentService` (service key) | No                    |
-| `servicePageActions`    | Beside the page title in the service page header                             | `currentService` (service key) | No                    |
-| `serviceBanner`         | Below the page title divider on every service page                           | `currentService` (service key) | No                    |
-| `projectsBanner`        | Below the "Projects" heading on the projects list page                       | —                              | No                    |
-| `projectOverviewBanner` | Below the project description on the project overview page (`/projects/:id`) | —                              | No                    |
+| Slot                 | Location                                                                 | `auroraContext` extras         | Renders in shadow DOM |
+| -------------------- | ------------------------------------------------------------------------ | ------------------------------ | --------------------- |
+| `logo`               | Page header, replacing the default Aurora logo                           | —                              | No                    |
+| `sideNavBanner`      | Bottom of the project side navigation                                    | —                              | Yes                   |
+| `pageFooter`         | Page footer, replacing the default empty footer                          | —                              | No                    |
+| `login`              | Replaces the default login form — use in OIDC environments               | —                              | No                    |
+| `serviceBadge`       | Inline next to each service label in the side nav and project home cards | `currentService` (service key) | No                    |
+| `servicePageActions` | Beside the page title in the service page header                         | `currentService` (service key) | No                    |
+| `serviceBanner`      | Below the page title divider on every service page                       | `currentService` (service key) | No                    |
+| `projectsBanner`     | Below the "Projects" heading on the projects list page                   | —                              | No                    |
 
 The `serviceBadge`, `servicePageActions`, and `serviceBanner` slots receive `auroraContext.currentService` — a string identifying which service is being rendered (e.g. `"images"`, `"ceph-containers"`). Return `null` from these slots to suppress rendering for specific services.
 

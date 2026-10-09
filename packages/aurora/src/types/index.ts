@@ -1,4 +1,7 @@
 import type { AnyRouter } from "@trpc/server"
+import type { AuroraAppConfig } from "./appConfig"
+
+export * from "./appConfig"
 
 export interface AuroraServerConfig {
   bffEndpoint?: string
@@ -68,4 +71,11 @@ export interface AuroraServerConfig {
    * ```
    */
   routers?: AnyRouter[]
+  /**
+   * Optional per-domain configuration. When provided, the BFF resolves it for the
+   * logged-in user's home domain and exposes the merged result via the `appConfig.get`
+   * procedure and on `ctx.appConfig` for custom procedures. When omitted, Aurora stays
+   * in its default-open state (all implemented services, all registered slots).
+   */
+  appConfig?: AuroraAppConfig
 }

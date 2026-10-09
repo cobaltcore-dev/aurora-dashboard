@@ -113,7 +113,7 @@ export function SecurityGroupRBACPolicies({ securityGroupId, canManageAccess }: 
       {/* Zone 1 — Share button */}
       <Stack distribution="end" alignment="center" gap="2" className="pb-2">
         {canManageAccess && (
-          <Button variant="primary" onClick={toggleAddModal} className="whitespace-nowrap">
+          <Button onClick={toggleAddModal} className="whitespace-nowrap">
             <Trans>Share Security Group</Trans>
           </Button>
         )}

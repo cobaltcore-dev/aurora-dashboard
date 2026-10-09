@@ -154,7 +154,7 @@ export function SecurityGroupRulesTable({
           />
         )}
         {canCreateRule && onCreateRule && (
-          <Button variant="primary" onClick={toggleAddRuleModal} className="whitespace-nowrap">
+          <Button onClick={toggleAddRuleModal} className="whitespace-nowrap">
             <Trans>Add Rule</Trans>
           </Button>
         )}
