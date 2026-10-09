@@ -128,7 +128,7 @@ describe("buildNavSections", () => {
     it("hides a service via deniedServices alone, with no allow/enabled list (deny-only)", () => {
       const sections = buildNavSections("proj-1", ALL_SERVICES, undefined, undefined, ["floatingips"])
       const network = sections.find((s) => s.section === "network")
-      expect(network?.services.map((s) => s.service)).toEqual(["securitygroups", "routers"])
+      expect(network?.services.map((s) => s.service)).toEqual(["securitygroups", "routers", "ports"])
     })
 
     it("deny wins over an explicit enabledServices entry", () => {
