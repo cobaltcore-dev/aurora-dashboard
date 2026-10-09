@@ -75,7 +75,7 @@ describe("ActivateImagesModal", () => {
 
   it("should display already active images section when activeImages is not empty", () => {
     setup(true, false, mockDeactivatedImages, mockActiveImages)
-    expect(screen.getByText(/Image cannot be activated/i)).toBeInTheDocument()
+    expect(screen.getByText(/Images? cannot be activated/i)).toBeInTheDocument()
   })
 
   it("should display all active image names in the skipped section", () => {

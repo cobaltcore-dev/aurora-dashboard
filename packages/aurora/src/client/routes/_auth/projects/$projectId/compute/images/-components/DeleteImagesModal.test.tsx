@@ -75,7 +75,7 @@ describe("DeleteImagesModal", () => {
 
   it("should display protected images section when protectedImages is not empty", () => {
     setup(true, false, mockDeletableImages, mockProtectedImages)
-    expect(screen.getByText(/Image cannot be deleted/i)).toBeInTheDocument()
+    expect(screen.getByText(/Images? cannot be deleted/i)).toBeInTheDocument()
   })
 
   it("should display all protected image IDs in the protected section", () => {

@@ -70,7 +70,7 @@ describe("DeactivateImagesModal", () => {
 
   it("should display already deactivated images section when deactivatedImages is not empty", () => {
     setup(true, false, mockActiveImages, mockDeactivatedImages)
-    expect(screen.getByText(/Image cannot be deactivated/i)).toBeInTheDocument()
+    expect(screen.getByText(/Images? cannot be deactivated/i)).toBeInTheDocument()
   })
 
   it("should display all deactivated image names in the skipped section", () => {
