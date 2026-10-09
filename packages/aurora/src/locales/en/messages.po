@@ -1978,16 +1978,14 @@ msgstr "Failed to update object: {mutationErrorMessage}"
 msgid "Failed to update security group"
 msgstr "Failed to update security group"
 
-#. placeholder {0}: stripHtml(errorMessage)
-msgid "Failed to update visibility for \"{imageName}\": {0}"
-msgstr "Failed to update visibility for \"{imageName}\": {0}"
+msgid "Failed to update visibility for \"{imageName}\": {errorMessage}"
+msgstr "Failed to update visibility for \"{imageName}\": {errorMessage}"
 
 msgid "Failed to update visibility to {newVisibility}"
 msgstr "Failed to update visibility to {newVisibility}"
 
-#. placeholder {0}: stripHtml(errorMessage)
-msgid "Failed to upload file \"{fileName}\": {0}"
-msgstr "Failed to upload file \"{fileName}\": {0}"
+msgid "Failed to upload file \"{fileName}\": {errorMessage}"
+msgstr "Failed to upload file \"{fileName}\": {errorMessage}"
 
 msgid "Failed to Upload Object"
 msgstr "Failed to Upload Object"
@@ -3777,25 +3775,20 @@ msgstr "The folder could not be created. Try again."
 msgid "The ID of the network associated with the floating IP."
 msgstr "The ID of the network associated with the floating IP."
 
-#. placeholder {0}: stripHtml(errorMessage)
-msgid "The image \"{imageId}\" could not be deactivated: {0}"
-msgstr "The image \"{imageId}\" could not be deactivated: {0}"
+msgid "The image \"{imageId}\" could not be deactivated: {errorMessage}"
+msgstr "The image \"{imageId}\" could not be deactivated: {errorMessage}"
 
-#. placeholder {0}: stripHtml(errorMessage)
-msgid "The image \"{imageId}\" could not be deleted: {0}"
-msgstr "The image \"{imageId}\" could not be deleted: {0}"
+msgid "The image \"{imageId}\" could not be deleted: {errorMessage}"
+msgstr "The image \"{imageId}\" could not be deleted: {errorMessage}"
 
-#. placeholder {0}: stripHtml(errorMessage)
-msgid "The image \"{imageId}\" could not be re-activated: {0}"
-msgstr "The image \"{imageId}\" could not be re-activated: {0}"
+msgid "The image \"{imageId}\" could not be re-activated: {errorMessage}"
+msgstr "The image \"{imageId}\" could not be re-activated: {errorMessage}"
 
-#. placeholder {0}: stripHtml(errorMessage)
-msgid "The image \"{imageName}\" could not be created: {0}"
-msgstr "The image \"{imageName}\" could not be created: {0}"
+msgid "The image \"{imageName}\" could not be created: {errorMessage}"
+msgstr "The image \"{imageName}\" could not be created: {errorMessage}"
 
-#. placeholder {0}: stripHtml(errorMessage)
-msgid "The image \"{imageName}\" could not be updated: {0}"
-msgstr "The image \"{imageName}\" could not be updated: {0}"
+msgid "The image \"{imageName}\" could not be updated: {errorMessage}"
+msgstr "The image \"{imageName}\" could not be updated: {errorMessage}"
 
 msgid "The image upload was cancelled."
 msgstr "The image upload was cancelled."

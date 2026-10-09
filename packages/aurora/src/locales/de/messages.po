@@ -1978,15 +1978,13 @@ msgstr "Fehler beim Aktualisieren des Objekts: {mutationErrorMessage}"
 msgid "Failed to update security group"
 msgstr "Security Group konnte nicht aktualisiert werden"
 
-#. placeholder {0}: stripHtml(errorMessage)
-msgid "Failed to update visibility for \"{imageName}\": {0}"
+msgid "Failed to update visibility for \"{imageName}\": {errorMessage}"
 msgstr ""
 
 msgid "Failed to update visibility to {newVisibility}"
 msgstr "Fehler beim Aktualisieren der Sichtbarkeit auf {newVisibility}"
 
-#. placeholder {0}: stripHtml(errorMessage)
-msgid "Failed to upload file \"{fileName}\": {0}"
+msgid "Failed to upload file \"{fileName}\": {errorMessage}"
 msgstr ""
 
 msgid "Failed to Upload Object"
@@ -3777,24 +3775,19 @@ msgstr ""
 msgid "The ID of the network associated with the floating IP."
 msgstr "Die ID des Netzwerks, das der Floating IP zugeordnet ist."
 
-#. placeholder {0}: stripHtml(errorMessage)
-msgid "The image \"{imageId}\" could not be deactivated: {0}"
+msgid "The image \"{imageId}\" could not be deactivated: {errorMessage}"
 msgstr ""
 
-#. placeholder {0}: stripHtml(errorMessage)
-msgid "The image \"{imageId}\" could not be deleted: {0}"
+msgid "The image \"{imageId}\" could not be deleted: {errorMessage}"
 msgstr ""
 
-#. placeholder {0}: stripHtml(errorMessage)
-msgid "The image \"{imageId}\" could not be re-activated: {0}"
+msgid "The image \"{imageId}\" could not be re-activated: {errorMessage}"
 msgstr ""
 
-#. placeholder {0}: stripHtml(errorMessage)
-msgid "The image \"{imageName}\" could not be created: {0}"
+msgid "The image \"{imageName}\" could not be created: {errorMessage}"
 msgstr ""
 
-#. placeholder {0}: stripHtml(errorMessage)
-msgid "The image \"{imageName}\" could not be updated: {0}"
+msgid "The image \"{imageName}\" could not be updated: {errorMessage}"
 msgstr ""
 
 msgid "The image upload was cancelled."
