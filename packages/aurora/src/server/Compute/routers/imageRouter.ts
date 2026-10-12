@@ -765,31 +765,7 @@ export const imageRouter = {
 
         validateGlanceService(glance)
 
-        // Validate project exists via Keystone
-        const keystone = openstackSession?.service("keystone")
-        if (!keystone) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Cannot validate project: Keystone service unavailable",
-          })
-        }
-
-        try {
-          const projectResponse = await keystone.get(`v3/projects/${member}`)
-          if (!projectResponse?.ok) {
-            throw new TRPCError({
-              code: "BAD_REQUEST",
-              message: `Project "${member}" does not exist`,
-            })
-          }
-        } catch (error) {
-          if (error instanceof TRPCError) throw error
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: `Project "${member}" does not exist`,
-          })
-        }
-
+        // Let Glance API validate the project - it will return 404 if project doesn't exist
         const response = await glance.post(`v2/images/${imageId}/members`, { member })
 
         if (!response?.ok) {

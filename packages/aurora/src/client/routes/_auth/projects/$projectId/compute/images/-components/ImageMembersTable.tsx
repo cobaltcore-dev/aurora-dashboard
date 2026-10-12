@@ -84,11 +84,16 @@ export const ImageMembersTable: React.FC<ImageMembersTableProps> = ({
     } else if (imageMembers?.some((member) => member.member_id === trimmedMemberId)) {
       newErrors.memberId = t`This member already has access to this image.`
     } else {
-      // Validate that the project exists
+      // Try to validate that the project exists, but don't block if check fails
+      // The backend will ultimately validate via Glance API
       try {
-        await utils.project.getProject.fetch({ projectId: trimmedMemberId })
+        const project = await utils.project.getProject.fetch({ projectId: trimmedMemberId })
+        if (!project) {
+          newErrors.memberId = t`Project not found or you don't have access to it.`
+        }
       } catch {
-        newErrors.memberId = t`Project not found or you don't have access to it.`
+        // Ignore validation errors - let backend handle it
+        // User might not have permission to look up projects but can still share images
       }
     }
 
