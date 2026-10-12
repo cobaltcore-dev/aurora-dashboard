@@ -2,10 +2,10 @@
 "@cobaltcore-dev/aurora": patch
 ---
 
-Image management UX improvements:
 - Exclude pending/rejected shared images from All Images view
-- Improve bulk action modals to show permission-based restrictions
+- Show permission-based restrictions in bulk action modals
 - Validate project existence when sharing images
-- Add 255 char limit to image names
-- Fix number input validation for min disk/RAM fields
-- Enable direct page navigation (e.g. `?page=6` now works)
+- Add 255-char limit to image names (create + update)
+- Enable direct page navigation (e.g. `?page=6`)
+- Disable bulk actions button when no items selected
+- Add context-specific empty state messages

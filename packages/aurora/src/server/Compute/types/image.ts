@@ -311,7 +311,20 @@ const jsonPatchOperationSchema = z.object({
 
 // Input schema for updating an image using JSON Patch format
 export const updateImageInputSchema = baseImageInputSchema.extend({
-  operations: z.array(jsonPatchOperationSchema).min(1), // Array of JSON Patch operations
+  operations: z
+    .array(jsonPatchOperationSchema)
+    .min(1)
+    .refine(
+      (ops) => {
+        // Validate name length if being set
+        const nameOp = ops.find((op) => op.path === "/name" && (op.op === "add" || op.op === "replace"))
+        if (nameOp && typeof nameOp.value === "string" && nameOp.value.length > 255) {
+          return false
+        }
+        return true
+      },
+      { message: "Image name must be at most 255 characters" }
+    ),
 })
 
 // Input schema for updating image visibility specifically

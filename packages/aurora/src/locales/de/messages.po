@@ -3916,6 +3916,15 @@ msgstr "Es gibt keine Regeln für diese Sicherheitsgruppe"
 msgid "There are no security groups available for this project with the current filters applied. Try adjusting your filter criteria or create a new security group to get started."
 msgstr "Für dieses Projekt sind mit den aktuellen Filtern keine Sicherheitsgruppen verfügbar. Passen Sie Ihre Filterkriterien an oder erstellen Sie eine neue Sicherheitsgruppe."
 
+msgid "These images are already active or you do not have permission to activate them."
+msgstr ""
+
+msgid "These images are already deactivated or you do not have permission to deactivate them."
+msgstr ""
+
+msgid "These images are protected or you do not have permission to delete them."
+msgstr ""
+
 msgid "These objects and all their versions will be permanently deleted and cannot be restored."
 msgstr ""
 
@@ -4389,15 +4398,6 @@ msgstr ""
 
 msgid "You can rename the object by changing the name here."
 msgstr "Sie können das Objekt umbenennen, indem Sie den Namen hier ändern."
-
-msgid "You do not have permission to activate these images."
-msgstr ""
-
-msgid "You do not have permission to deactivate these images."
-msgstr ""
-
-msgid "You do not have permission to delete these images."
-msgstr ""
 
 msgid "You do not have permission to view security groups"
 msgstr ""

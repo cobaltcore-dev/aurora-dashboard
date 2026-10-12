@@ -206,7 +206,7 @@ export const DeleteImagesModal: React.FC<DeleteImagesModalProps> = ({
                 />
               </p>
               <p className="text-theme-light mt-1 text-xs">
-                <Trans>You do not have permission to delete these images.</Trans>
+                <Trans>These images are protected or you do not have permission to delete them.</Trans>
               </p>
               <div className="bg-theme-background-lvl-2 mt-2 max-h-48 overflow-y-auto rounded p-3">
                 <Stack direction="vertical" gap="1">

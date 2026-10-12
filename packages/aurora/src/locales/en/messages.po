@@ -3916,6 +3916,15 @@ msgstr "There are no rules for this security group"
 msgid "There are no security groups available for this project with the current filters applied. Try adjusting your filter criteria or create a new security group to get started."
 msgstr "There are no security groups available for this project with the current filters applied. Try adjusting your filter criteria or create a new security group to get started."
 
+msgid "These images are already active or you do not have permission to activate them."
+msgstr "These images are already active or you do not have permission to activate them."
+
+msgid "These images are already deactivated or you do not have permission to deactivate them."
+msgstr "These images are already deactivated or you do not have permission to deactivate them."
+
+msgid "These images are protected or you do not have permission to delete them."
+msgstr "These images are protected or you do not have permission to delete them."
+
 msgid "These objects and all their versions will be permanently deleted and cannot be restored."
 msgstr "These objects and all their versions will be permanently deleted and cannot be restored."
 
@@ -4389,15 +4398,6 @@ msgstr "You can re-enable versioning at any time"
 
 msgid "You can rename the object by changing the name here."
 msgstr "You can rename the object by changing the name here."
-
-msgid "You do not have permission to activate these images."
-msgstr "You do not have permission to activate these images."
-
-msgid "You do not have permission to deactivate these images."
-msgstr "You do not have permission to deactivate these images."
-
-msgid "You do not have permission to delete these images."
-msgstr "You do not have permission to delete these images."
 
 msgid "You do not have permission to view security groups"
 msgstr "You do not have permission to view security groups"

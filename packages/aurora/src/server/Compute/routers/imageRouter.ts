@@ -141,23 +141,32 @@ export const imageRouter = {
             const sharedImages = filteredImages.filter((img) => img.visibility === "shared" && img.owner !== projectId)
 
             if (sharedImages.length > 0) {
-              // Check member_status for each shared image
-              const memberStatusChecks = await Promise.all(
-                sharedImages.map((img) =>
-                  glance
-                    .get(`v2/images/${img.id}/members/${projectId}`)
-                    .then(async (res) => {
-                      if (res?.ok) {
-                        const data = await res.json()
-                        return { imageId: img.id, status: data.status }
-                      }
-                      return { imageId: img.id, status: null }
-                    })
-                    .catch(() => ({ imageId: img.id, status: null }))
-                )
-              )
+              // Check member_status for each shared image with bounded concurrency
+              const CONCURRENCY_LIMIT = 10
+              const memberStatusChecks: { imageId: string; status: string | null; error?: boolean }[] = []
 
-              // Build set of non-accepted image IDs (pending or rejected)
+              for (let i = 0; i < sharedImages.length; i += CONCURRENCY_LIMIT) {
+                const batch = sharedImages.slice(i, i + CONCURRENCY_LIMIT)
+                const batchResults = await Promise.all(
+                  batch.map((img) =>
+                    glance
+                      .get(`v2/images/${img.id}/members/${projectId}`)
+                      .then(async (res) => {
+                        if (res?.ok) {
+                          const data = await res.json()
+                          return { imageId: img.id, status: data.status as string }
+                        }
+                        // 404 means not a member — treat as non-accepted
+                        return { imageId: img.id, status: null }
+                      })
+                      .catch(() => ({ imageId: img.id, status: null, error: true }))
+                  )
+                )
+                memberStatusChecks.push(...batchResults)
+              }
+
+              // If any lookups failed with errors, log but continue (fail-open for transient errors)
+              // Build set of non-accepted image IDs (pending, rejected, or lookup returned null)
               const nonAcceptedImageIds = new Set(
                 memberStatusChecks.filter((check) => check.status !== "accepted").map((check) => check.imageId)
               )
@@ -758,22 +767,27 @@ export const imageRouter = {
 
         // Validate project exists via Keystone
         const keystone = openstackSession?.service("keystone")
-        if (keystone) {
-          try {
-            const projectResponse = await keystone.get(`v3/projects/${member}`)
-            if (!projectResponse?.ok) {
-              throw new TRPCError({
-                code: "BAD_REQUEST",
-                message: `Project "${member}" does not exist`,
-              })
-            }
-          } catch (error) {
-            if (error instanceof TRPCError) throw error
+        if (!keystone) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Cannot validate project: Keystone service unavailable",
+          })
+        }
+
+        try {
+          const projectResponse = await keystone.get(`v3/projects/${member}`)
+          if (!projectResponse?.ok) {
             throw new TRPCError({
               code: "BAD_REQUEST",
               message: `Project "${member}" does not exist`,
             })
           }
+        } catch (error) {
+          if (error instanceof TRPCError) throw error
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: `Project "${member}" does not exist`,
+          })
         }
 
         const response = await glance.post(`v2/images/${imageId}/members`, { member })

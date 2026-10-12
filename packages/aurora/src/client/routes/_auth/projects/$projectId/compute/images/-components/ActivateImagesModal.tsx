@@ -83,7 +83,7 @@ export const ActivateImagesModal: React.FC<ActivateImagesModalProps> = ({
                     />
                   </p>
                   <p className="text-theme-light mt-1 text-xs">
-                    <Trans>You do not have permission to activate these images.</Trans>
+                    <Trans>These images are already active or you do not have permission to activate them.</Trans>
                   </p>
                   <div className="jn:bg-theme-background-lvl-1 mt-2 max-h-24 overflow-y-auto rounded p-4">
                     <div className="space-y-1">
