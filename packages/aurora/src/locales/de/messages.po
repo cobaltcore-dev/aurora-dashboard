@@ -380,6 +380,9 @@ msgstr "Zugriffsstatus:"
 msgid "Access to S3 Object Storage requires an access key (access key ID + secret access key)."
 msgstr ""
 
+msgid "Access to this network is not permitted."
+msgstr ""
+
 msgid "Access to this router is not permitted."
 msgstr ""
 
@@ -607,6 +610,9 @@ msgstr "Zurück zu Floating IPs"
 
 msgid "Back to Images"
 msgstr "Zurück zu Images"
+
+msgid "Back to Networks"
+msgstr ""
 
 msgid "Back to Routers"
 msgstr ""
@@ -1343,6 +1349,9 @@ msgstr "Geräte-ID"
 msgid "Device Owner"
 msgstr "Geräteeigentümer"
 
+msgid "DHCP"
+msgstr ""
+
 msgid "Direction"
 msgstr "Richtung"
 
@@ -1622,6 +1631,9 @@ msgstr ""
 msgid "Error Loading Image"
 msgstr ""
 
+msgid "Error Loading Network"
+msgstr ""
+
 msgid "Error Loading Router"
 msgstr ""
 
@@ -1662,6 +1674,9 @@ msgid "Expires in {selectedPresetLabel} — at {expiresAtFormatted}"
 msgstr "Läuft ab in {selectedPresetLabel} — um {expiresAtFormatted}"
 
 msgid "Expose Headers"
+msgstr ""
+
+msgid "External"
 msgstr ""
 
 msgid "External Fixed IPs"
@@ -1883,6 +1898,9 @@ msgstr ""
 msgid "Failed to Load Metadata Configuration"
 msgstr ""
 
+msgid "Failed to Load Networks"
+msgstr ""
+
 msgid "Failed to Load Object Metadata"
 msgstr ""
 
@@ -1896,6 +1914,9 @@ msgid "Failed to Load Routers"
 msgstr ""
 
 msgid "Failed to Load Security Groups"
+msgstr ""
+
+msgid "Failed to Load Subnets"
 msgstr ""
 
 msgid "Failed to Load Versions"
@@ -2139,6 +2160,9 @@ msgid "Full Path"
 msgstr ""
 
 msgid "Full path:"
+msgstr ""
+
+msgid "Gateway IP"
 msgstr ""
 
 msgid "General Image Data"
@@ -2456,6 +2480,12 @@ msgstr ""
 msgid "Loading more..."
 msgstr "Weitere werden geladen..."
 
+msgid "Loading Network Details..."
+msgstr ""
+
+msgid "Loading Networks..."
+msgstr ""
+
 msgid "Loading Object Info..."
 msgstr ""
 
@@ -2485,6 +2515,9 @@ msgstr ""
 
 msgid "Loading Security Group Details..."
 msgstr "Security Group-Details werden geladen..."
+
+msgid "Loading Subnets..."
+msgstr ""
 
 msgid "Loading Versions..."
 msgstr ""
@@ -2618,6 +2651,9 @@ msgstr ""
 msgid "Moving..."
 msgstr "Wird verschoben..."
 
+msgid "MTU"
+msgstr ""
+
 msgid "Must be a valid IPv4 or IPv6 address (for example: 172.24.4.228 or 2001:db8::1)."
 msgstr "Muss eine gültige IPv4- oder IPv6-Adresse sein (z. B.: 172.24.4.228 oder 2001:db8::1)."
 
@@ -2652,6 +2688,12 @@ msgid "Network ID"
 msgstr "Netzwerk-ID"
 
 msgid "Network Name"
+msgstr ""
+
+msgid "Network Not Found"
+msgstr ""
+
+msgid "Networks"
 msgstr ""
 
 msgid "New Folder"
@@ -2723,6 +2765,12 @@ msgstr "Kein Limit"
 msgid "No Metadata Properties Found"
 msgstr ""
 
+msgid "No Networks Found"
+msgstr ""
+
+msgid "No networks match your search. Clear the search to view all networks."
+msgstr ""
+
 msgid "No new versions will be created"
 msgstr ""
 
@@ -2773,6 +2821,9 @@ msgstr "Keine Sicherheitsgruppen gefunden"
 
 msgid "No services available for this project."
 msgstr "Keine Dienste für dieses Projekt verfügbar."
+
+msgid "No Subnets"
+msgstr ""
 
 msgid "No Temp URL key configured. A temporary URL key must be set at the account or container level before temporary URLs can be generated. Contact your administrator to configure X-Account-Meta-Temp-URL-Key or X-Container-Meta-Temp-URL-Key."
 msgstr "Kein Temp-URL-Schlüssel konfiguriert. Ein temporärer URL-Schlüssel muss auf Account- oder Container-Ebene gesetzt werden, bevor temporäre URLs generiert werden können. Wenden Sie sich an Ihren Administrator, um X-Account-Meta-Temp-URL-Key oder X-Container-Meta-Temp-URL-Key zu konfigurieren."
@@ -2989,6 +3040,9 @@ msgstr "Port-Name"
 
 msgid "Port Range"
 msgstr "Port-Bereich"
+
+msgid "Port Security"
+msgstr ""
 
 msgid "Pre-signed URL"
 msgstr "Vorsignierte URL"
@@ -3297,6 +3351,9 @@ msgid "Search floating IPs..."
 msgstr ""
 
 msgid "Search lifecycle rules..."
+msgstr ""
+
+msgid "Search networks..."
 msgstr ""
 
 msgid "Search objects..."
@@ -3617,6 +3674,9 @@ msgstr "Subnet"
 msgid "Subnet ID:"
 msgstr ""
 
+msgid "Subnets"
+msgstr ""
+
 msgid "Successfully activated {successCount} of {totalCount} image(s)"
 msgstr "{successCount} von {totalCount} Image(s) erfolgreich aktiviert"
 
@@ -3776,6 +3836,12 @@ msgstr ""
 msgid "The name \"default\" is reserved for the default security group."
 msgstr ""
 
+msgid "The network could not be loaded."
+msgstr ""
+
+msgid "The network could not be loaded. Try again."
+msgstr ""
+
 msgid "The object will be copied to this path. Navigate folders above to change the destination."
 msgstr "Das Objekt wird zu diesem Pfad kopiert. Navigieren Sie oben durch die Ordner, um das Ziel zu ändern."
 
@@ -3873,6 +3939,9 @@ msgid "There are no items to display."
 msgstr "Es gibt keine Elemente zum Anzeigen."
 
 msgid "There Are No Lifecycle Rules for This Bucket"
+msgstr ""
+
+msgid "There are no networks in this project."
 msgstr ""
 
 msgid "There are no RBAC policies for this security group"
@@ -4006,6 +4075,12 @@ msgstr "Dieser Schlüssel ist reserviert und wird separat verwaltet"
 
 msgid "This member already has access to this image."
 msgstr "Dieses Mitglied hat bereits Zugriff auf dieses Image."
+
+msgid "This network does not exist or has been deleted."
+msgstr ""
+
+msgid "This network has no subnets."
+msgstr ""
 
 msgid "This object and all its versions will be permanently deleted and cannot be restored."
 msgstr ""
