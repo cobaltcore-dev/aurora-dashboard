@@ -388,6 +388,9 @@ msgstr "Access Status:"
 msgid "Access to S3 Object Storage requires an access key (access key ID + secret access key)."
 msgstr "Access to S3 Object Storage requires an access key (access key ID + secret access key)."
 
+msgid "Access to this network is not permitted."
+msgstr "Access to this network is not permitted."
+
 msgid "Access to this router is not permitted."
 msgstr "Access to this router is not permitted."
 
@@ -592,6 +595,9 @@ msgstr "Aurora Dashboard is more than just a tool—it's your partner in navigat
 msgid "Auto-generated if not provided. Only alphanumeric, hyphens, underscores, and dots allowed."
 msgstr "Auto-generated if not provided. Only alphanumeric, hyphens, underscores, and dots allowed."
 
+msgid "Availability Zones"
+msgstr "Availability Zones"
+
 msgid "Back"
 msgstr "Back"
 
@@ -615,6 +621,9 @@ msgstr "Back to Floating IPs"
 
 msgid "Back to Images"
 msgstr "Back to Images"
+
+msgid "Back to Networks"
+msgstr "Back to Networks"
 
 msgid "Back to Routers"
 msgstr "Back to Routers"
@@ -1351,6 +1360,9 @@ msgstr "Device ID"
 msgid "Device Owner"
 msgstr "Device Owner"
 
+msgid "DHCP"
+msgstr "DHCP"
+
 msgid "Direction"
 msgstr "Direction"
 
@@ -1630,6 +1642,9 @@ msgstr "Error Loading Floating IP"
 msgid "Error Loading Image"
 msgstr "Error Loading Image"
 
+msgid "Error Loading Network"
+msgstr "Error Loading Network"
+
 msgid "Error Loading Router"
 msgstr "Error Loading Router"
 
@@ -1671,6 +1686,9 @@ msgstr "Expires in {selectedPresetLabel} — at {expiresAtFormatted}"
 
 msgid "Expose Headers"
 msgstr "Expose Headers"
+
+msgid "External"
+msgstr "External"
 
 msgid "External Fixed IPs"
 msgstr "External Fixed IPs"
@@ -1891,6 +1909,9 @@ msgstr "Failed to Load Metadata"
 msgid "Failed to Load Metadata Configuration"
 msgstr "Failed to Load Metadata Configuration"
 
+msgid "Failed to Load Networks"
+msgstr "Failed to Load Networks"
+
 msgid "Failed to Load Object Metadata"
 msgstr "Failed to Load Object Metadata"
 
@@ -1905,6 +1926,9 @@ msgstr "Failed to Load Routers"
 
 msgid "Failed to Load Security Groups"
 msgstr "Failed to Load Security Groups"
+
+msgid "Failed to Load Subnets"
+msgstr "Failed to Load Subnets"
 
 msgid "Failed to Load Versions"
 msgstr "Failed to Load Versions"
@@ -2148,6 +2172,9 @@ msgstr "Full Path"
 
 msgid "Full path:"
 msgstr "Full path:"
+
+msgid "Gateway IP"
+msgstr "Gateway IP"
 
 msgid "General Image Data"
 msgstr "General Image Data"
@@ -2467,6 +2494,12 @@ msgstr "Loading Metadata..."
 msgid "Loading more..."
 msgstr "Loading more..."
 
+msgid "Loading Network Details..."
+msgstr "Loading Network Details..."
+
+msgid "Loading Networks..."
+msgstr "Loading Networks..."
+
 msgid "Loading Object Info..."
 msgstr "Loading Object Info..."
 
@@ -2496,6 +2529,9 @@ msgstr "Loading Routers..."
 
 msgid "Loading Security Group Details..."
 msgstr "Loading Security Group Details..."
+
+msgid "Loading Subnets..."
+msgstr "Loading Subnets..."
 
 msgid "Loading Versions..."
 msgstr "Loading Versions..."
@@ -2629,6 +2665,9 @@ msgstr "Moving Object..."
 msgid "Moving..."
 msgstr "Moving..."
 
+msgid "MTU"
+msgstr "MTU"
+
 msgid "Must be a valid IPv4 or IPv6 address (for example: 172.24.4.228 or 2001:db8::1)."
 msgstr "Must be a valid IPv4 or IPv6 address (for example: 172.24.4.228 or 2001:db8::1)."
 
@@ -2664,6 +2703,12 @@ msgstr "Network ID"
 
 msgid "Network Name"
 msgstr "Network Name"
+
+msgid "Network Not Found"
+msgstr "Network Not Found"
+
+msgid "Networks"
+msgstr "Networks"
 
 msgid "New Folder"
 msgstr "New Folder"
@@ -2737,6 +2782,12 @@ msgstr "No limit"
 msgid "No Metadata Properties Found"
 msgstr "No Metadata Properties Found"
 
+msgid "No Networks Found"
+msgstr "No Networks Found"
+
+msgid "No networks match your search or filters. Clear them to view all networks."
+msgstr "No networks match your search or filters. Clear them to view all networks."
+
 msgid "No new versions will be created"
 msgstr "No new versions will be created"
 
@@ -2787,6 +2838,9 @@ msgstr "No security groups found"
 
 msgid "No services available for this project."
 msgstr "No services available for this project."
+
+msgid "No Subnets"
+msgstr "No Subnets"
 
 msgid "No Suggested Images Found"
 msgstr "No Suggested Images Found"
@@ -3009,6 +3063,9 @@ msgstr "Port Name"
 
 msgid "Port Range"
 msgstr "Port Range"
+
+msgid "Port Security"
+msgstr "Port Security"
 
 msgid "Pre-signed URL"
 msgstr "Pre-signed URL"
@@ -3321,6 +3378,9 @@ msgstr "Search floating IPs..."
 
 msgid "Search lifecycle rules..."
 msgstr "Search lifecycle rules..."
+
+msgid "Search networks..."
+msgstr "Search networks..."
 
 msgid "Search objects..."
 msgstr "Search objects..."
@@ -3640,6 +3700,9 @@ msgstr "Subnet"
 msgid "Subnet ID:"
 msgstr "Subnet ID:"
 
+msgid "Subnets"
+msgstr "Subnets"
+
 msgid "Successfully activated {successCount} of {totalCount} image(s)"
 msgstr "Successfully activated {successCount} of {totalCount} image(s)"
 
@@ -3799,6 +3862,12 @@ msgstr "The lifecycle configuration has changed. Please refresh and try again."
 msgid "The name \"default\" is reserved for the default security group."
 msgstr "The name \"default\" is reserved for the default security group."
 
+msgid "The network could not be loaded."
+msgstr "The network could not be loaded."
+
+msgid "The network could not be loaded. Try again."
+msgstr "The network could not be loaded. Try again."
+
 msgid "The object will be copied to this path. Navigate folders above to change the destination."
 msgstr "The object will be copied to this path. Navigate folders above to change the destination."
 
@@ -3850,6 +3919,9 @@ msgstr "The service you're looking for doesn't exist or may have moved. Check th
 msgid "The session has expired. Log in again to continue."
 msgstr "The session has expired. Log in again to continue."
 
+msgid "The session has expired. Sign in again to continue."
+msgstr "The session has expired. Sign in again to continue."
+
 msgid "The specified project does not exist or you don't have permission to share with it."
 msgstr "The specified project does not exist or you don't have permission to share with it."
 
@@ -3900,6 +3972,9 @@ msgstr "There are no items to display."
 
 msgid "There Are No Lifecycle Rules for This Bucket"
 msgstr "There Are No Lifecycle Rules for This Bucket"
+
+msgid "There are no networks in this project."
+msgstr "There are no networks in this project."
 
 msgid "There are no pending shared images for this project with the current filters applied. Try adjusting your filter criteria or check the All Images tab."
 msgstr "There are no pending shared images for this project with the current filters applied. Try adjusting your filter criteria or check the All Images tab."
@@ -4044,6 +4119,12 @@ msgstr "This key is reserved and managed separately"
 
 msgid "This member already has access to this image."
 msgstr "This member already has access to this image."
+
+msgid "This network does not exist or has been deleted."
+msgstr "This network does not exist or has been deleted."
+
+msgid "This network has no subnets."
+msgstr "This network has no subnets."
 
 msgid "This object and all its versions will be permanently deleted and cannot be restored."
 msgstr "This object and all its versions will be permanently deleted and cannot be restored."
@@ -4200,6 +4281,9 @@ msgstr "Update object"
 
 msgid "Update Security Group"
 msgstr "Update Security Group"
+
+msgid "Updated"
+msgstr "Updated"
 
 msgid "Updated At"
 msgstr "Updated At"
