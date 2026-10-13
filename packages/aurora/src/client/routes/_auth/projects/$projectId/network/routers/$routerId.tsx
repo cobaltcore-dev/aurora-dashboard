@@ -114,7 +114,10 @@ function RouterErrorComponent({ error, reset }: ErrorComponentProps) {
   return <RouterLoadError error={error} onRetry={handleRetry} />
 }
 
-export const Route = createFileRoute(ROUTE_ID)({
+// Note: the route id must be a string literal here. The TanStack Router generator
+// statically parses this argument and rejects a variable (even ROUTE_ID). Keep it
+// in sync with the ROUTE_ID const above, which the useParams calls reuse.
+export const Route = createFileRoute("/_auth/projects/$projectId/network/routers/$routerId")({
   staticData: {
     section: "network",
     service: "routers",

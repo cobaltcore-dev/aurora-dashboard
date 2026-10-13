@@ -4,6 +4,9 @@
   "private": false,
   "description": "Aurora OpenStack dashboard — server and client library",
   "license": "Apache-2.0",
+  "keywords": [
+    "tanstack-intent"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/cobaltcore-dev/aurora-dashboard.git",
@@ -13,7 +16,8 @@
     "node": ">=24.15.0"
   },
   "files": [
-    "dist"
+    "dist",
+    "skills/create-service"
   ],
   "publishConfig": {
     "access": "public"
@@ -83,7 +87,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@cloudoperators/juno-ui-components": "9.4.0",
+    "@cloudoperators/juno-ui-components": "file:/Users/I567028/code/juno/packages/ui-components/cloudoperators-juno-ui-components-9.5.1.tgz",
     "@cobaltcore-dev/aurora-config": "workspace:*",
     "@cobaltcore-dev/policy-engine": "workspace:*",
     "@cobaltcore-dev/signal-openstack": "workspace:*",
