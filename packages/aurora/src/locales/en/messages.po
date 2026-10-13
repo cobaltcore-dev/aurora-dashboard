@@ -2839,13 +2839,11 @@ msgstr "No security groups found"
 msgid "No services available for this project."
 msgstr "No services available for this project."
 
-<<<<<<< Updated upstream
-msgid "No Suggested Images Found"
-msgstr "No Suggested Images Found"
-=======
 msgid "No Subnets"
 msgstr "No Subnets"
->>>>>>> Stashed changes
+
+msgid "No Suggested Images Found"
+msgstr "No Suggested Images Found"
 
 msgid "No Temp URL key configured. A temporary URL key must be set at the account or container level before temporary URLs can be generated. Contact your administrator to configure X-Account-Meta-Temp-URL-Key or X-Container-Meta-Temp-URL-Key."
 msgstr "No Temp URL key configured. A temporary URL key must be set at the account or container level before temporary URLs can be generated. Contact your administrator to configure X-Account-Meta-Temp-URL-Key or X-Container-Meta-Temp-URL-Key."
@@ -3975,13 +3973,11 @@ msgstr "There are no items to display."
 msgid "There Are No Lifecycle Rules for This Bucket"
 msgstr "There Are No Lifecycle Rules for This Bucket"
 
-<<<<<<< Updated upstream
-msgid "There are no pending shared images for this project with the current filters applied. Try adjusting your filter criteria or check the All Images tab."
-msgstr "There are no pending shared images for this project with the current filters applied. Try adjusting your filter criteria or check the All Images tab."
-=======
 msgid "There are no networks in this project."
 msgstr "There are no networks in this project."
->>>>>>> Stashed changes
+
+msgid "There are no pending shared images for this project with the current filters applied. Try adjusting your filter criteria or check the All Images tab."
+msgstr "There are no pending shared images for this project with the current filters applied. Try adjusting your filter criteria or check the All Images tab."
 
 msgid "There are no RBAC policies for this security group"
 msgstr "There are no RBAC policies for this security group"
