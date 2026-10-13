@@ -25,7 +25,10 @@ This implementation is aligned with the official OpenStack Neutron API documenta
 
 ### Frontend (React)
 
-Planned (Phase 2): `packages/aurora/src/client/routes/_auth/projects/$projectId/network/networks/`
+- **Layout Route**: `packages/aurora/src/client/routes/_auth/projects/$projectId/network/networks.tsx`
+- **List Route**: `packages/aurora/src/client/routes/_auth/projects/$projectId/network/networks/index.tsx`
+- **Details Route**: `packages/aurora/src/client/routes/_auth/projects/$projectId/network/networks/$networkId.tsx`
+- **Components**: `packages/aurora/src/client/routes/_auth/projects/$projectId/network/networks/-components/`
 
 ## BFF API Endpoints
 
@@ -411,7 +414,28 @@ Every Neutron request goes through `requestOrThrow`, because signal-openstack re
 
 ## Frontend Integration
 
-Planned (Phase 2): read-only list and details views.
+The UI is read-only: list and details views, no create/edit/delete actions yet.
+
+### Routes
+
+| Route                                                    | Description                                                                 |
+| -------------------------------------------------------- | --------------------------------------------------------------------------- |
+| `/_auth/projects/$projectId/network/networks`            | Layout route: breadcrumb and route-level error component                    |
+| `/_auth/projects/$projectId/network/networks/`           | Networks list                                                               |
+| `/_auth/projects/$projectId/network/networks/$networkId` | Network details: overview and Subnets tab (`?tab=`, default tab is omitted) |
+
+### List View
+
+- **Columns:** Name (with the network ID below), Status, Admin State, Subnets (names, ID as fallback), Shared, External, MTU, actions (`Show Details`).
+- **URL state:** `search`, `sortBy` (`name`, `status`, `mtu`), `sortDirection`, `page` (50 per page), and the filters `status` (`ACTIVE`, `DOWN`, `BUILD`, `ERROR`) and `shared` (`true`, `false`).
+- **Data fetching:** Promise + `use()` inside `ErrorBoundary` and `Suspense`; a `FORBIDDEN` list is shown inline.
+
+### Navigation
+
+- **Side Navigation:** "Networks" entry, first in the _Network_ section (`buildNavSections`), shown when the network service is in the catalog and `networks` is enabled.
+- **Project overview:** "Networks" service card in the _Network_ group.
+
+The service key `networks` must be added wherever `enabledServices` is configured, otherwise both entries stay hidden.
 
 ### Permissions
 
@@ -434,6 +458,15 @@ There are no attribute-level keys yet (e.g. `create_network:shared`, `create_net
 - `types/network.test.ts` - response and input schema validation (defaults, nullable extension fields, MTU and tag validation)
 - `helpers/networkHelpers.test.ts` - error handler overrides (403/404/409, OverQuota detection), body builder, scopes, merge, sort and subnet name helpers
 
+### Frontend Tests
+
+- `NetworksList.test.tsx` - loading, initial query from URL params, inline `FORBIDDEN`, error boundary and retry, search, status/shared filters, empty-state flag, URL changes, pagination
+- `NetworkListContainer.test.tsx` - columns, top alignment, rows, empty states, pagination
+- `NetworkTableRow.test.tsx` - cells, fallbacks and dashes, row click and `Show Details` navigation, read-only menu
+- `NetworkDetailsView.test.tsx` - overview labels and values, dashes, Subnets tab states, tab type guard
+- `NetworkSubnetsTable.test.tsx` - columns, rows, fallbacks, loading / error / empty states
+- `buildNavSections.test.ts` - Networks entry in the Network section and `enabledServices` filtering
+
 ## Special Notes
 
 1. **Own + shared networks** are merged from two requests, see [Own and Shared Networks](#own-and-shared-networks).
@@ -450,10 +483,13 @@ There are no attribute-level keys yet (e.g. `create_network:shared`, `create_net
 - Network-specific error handling on top of the shared network error handler
 - Own + shared network listing with re-sorting and batched subnet name lookup
 - Backend unit and procedure tests
+- Routing setup, side navigation entry and project overview card
+- Networks list view (Name, Status, Admin State, Subnets, Shared, External, MTU) with search, status and shared filters, sorting and pagination; only the network's own ID is shown in the list
+- Network details view (overview with copyable IDs, Subnets tab)
+- Frontend component tests
 
 ### 🚧 Planned
 
-- Read-only Networks list and details views (Phase 2)
 - Ports tab on the network details view (depends on the Ports BFF)
 - Write operations in the UI (create, edit, delete with pre-checks, tag editor, bulk delete)
 - E2E tests (create → update → delete)
