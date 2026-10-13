@@ -40,6 +40,7 @@ export const NetworksList = ({ project: projectId }: NetworksListProps) => {
   )
 
   const networks = networksData || []
+  const hasSearch = searchTerm.trim().length > 0
 
   // Check permissions (TODO: implement permission checking)
   const canCreate = true // Placeholder
@@ -102,21 +103,22 @@ export const NetworksList = ({ project: projectId }: NetworksListProps) => {
         {networks.length === 0 ? (
           <DataGridRow>
             <DataGridCell colSpan={5}>
-              <Stack alignment="center" distribution="center">
-                <Trans>No networks found</Trans>
-              </Stack>
+              <Status
+                status={hasSearch ? "no-matches" : "empty"}
+                title={hasSearch ? t`No Matching Networks` : t`No Networks Found`}
+                body={
+                  hasSearch
+                    ? t`No networks match your search. Clear the search to view all networks.`
+                    : t`There are no networks in this project.`
+                }
+              />
             </DataGridCell>
           </DataGridRow>
         ) : (
           networks.map((network) => (
-            <DataGridRow key={network.id}>
+            <DataGridRow key={network.id} onClick={() => handleRowClick(network.id)} className="cursor-pointer">
               <DataGridCell>
-                <button
-                  onClick={() => handleRowClick(network.id)}
-                  className="text-theme-link cursor-pointer border-none bg-transparent p-0 hover:underline"
-                >
-                  {network.name || network.id}
-                </button>
+                <span className="text-theme-link">{network.name || network.id}</span>
               </DataGridCell>
               <DataGridCell>{network.status}</DataGridCell>
               <DataGridCell>{network.admin_state_up ? t`Up` : t`Down`}</DataGridCell>

@@ -2779,11 +2779,17 @@ msgstr "No Lifecycle Rules Matching the Current Search Criteria."
 msgid "No limit"
 msgstr "No limit"
 
+msgid "No Matching Networks"
+msgstr "No Matching Networks"
+
 msgid "No Metadata Properties Found"
 msgstr "No Metadata Properties Found"
 
-msgid "No networks found"
-msgstr "No networks found"
+msgid "No Networks Found"
+msgstr "No Networks Found"
+
+msgid "No networks match your search. Clear the search to view all networks."
+msgstr "No networks match your search. Clear the search to view all networks."
 
 msgid "No new versions will be created"
 msgstr "No new versions will be created"
@@ -3969,6 +3975,9 @@ msgstr "There are no items to display."
 
 msgid "There Are No Lifecycle Rules for This Bucket"
 msgstr "There Are No Lifecycle Rules for This Bucket"
+
+msgid "There are no networks in this project."
+msgstr "There are no networks in this project."
 
 msgid "There are no pending shared images for this project with the current filters applied. Try adjusting your filter criteria or check the All Images tab."
 msgstr "There are no pending shared images for this project with the current filters applied. Try adjusting your filter criteria or check the All Images tab."

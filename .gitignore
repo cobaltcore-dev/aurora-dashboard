@@ -9,7 +9,8 @@ dist-ssr
 .cache
 server/dist
 public/dist
-.claude
+.claude/*
+!.claude/skills/
 CLAUDE*
 .out-of-code-insights
 
@@ -23,3 +24,7 @@ playwright/.cache/
 
 # Dev app (local testing only)
 apps/dev/
+
+# Local screenshot-review artifacts
+screenshots/
+.playwright-mcp/

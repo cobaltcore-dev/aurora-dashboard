@@ -2779,10 +2779,16 @@ msgstr ""
 msgid "No limit"
 msgstr "Kein Limit"
 
+msgid "No Matching Networks"
+msgstr ""
+
 msgid "No Metadata Properties Found"
 msgstr ""
 
-msgid "No networks found"
+msgid "No Networks Found"
+msgstr ""
+
+msgid "No networks match your search. Clear the search to view all networks."
 msgstr ""
 
 msgid "No new versions will be created"
@@ -3968,6 +3974,9 @@ msgid "There are no items to display."
 msgstr "Es gibt keine Elemente zum Anzeigen."
 
 msgid "There Are No Lifecycle Rules for This Bucket"
+msgstr ""
+
+msgid "There are no networks in this project."
 msgstr ""
 
 msgid "There are no pending shared images for this project with the current filters applied. Try adjusting your filter criteria or check the All Images tab."
