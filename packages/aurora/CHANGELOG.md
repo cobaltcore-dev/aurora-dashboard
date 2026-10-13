@@ -1,5 +1,18 @@
 # @cobaltcore-dev/aurora
 
+## 2.2.1
+
+### Patch Changes
+
+- a21ba3e: Fix image sharing validation - remove blocking Keystone check
+- a21ba3e: - Exclude pending/rejected shared images from All Images view
+  - Show permission-based restrictions in bulk action modals
+  - Validate project existence when sharing images
+  - Add 255-char limit to image names (create + update)
+  - Enable direct page navigation (e.g. `?page=6`)
+  - Disable bulk actions button when no items selected
+  - Add context-specific empty state messages
+
 ## 2.2.0
 
 ### Minor Changes
