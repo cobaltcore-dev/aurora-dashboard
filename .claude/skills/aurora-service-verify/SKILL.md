@@ -1,6 +1,6 @@
 ---
 name: aurora-service-verify
-description: "Prove an Aurora service fulfills its acceptance criteria with evidence, instead of eyeballing it. Given a service (name or route) and its acceptance criteria (pasted, or a GitHub issue URL), produces a pass/fail evidence table by combining three sources: a static read against aurora-service-reference, a live runtime check via Playwright MCP, and the colocated vitest suite — plus a blast-radius map of what else the change touches. Use when closing a service epic/issue (e.g. #1019), before marking a service done, or to re-check after changes."
+description: "Prove an Aurora service fulfills its acceptance criteria with evidence, instead of eyeballing it. Given a service (name or route) and its acceptance criteria (pasted, or a GitHub issue URL), produces a pass/fail evidence table by combining three sources: a static read against aurora-service-reference, a live runtime check via Playwright MCP, and a security-hardening pass via security-and-hardening — plus a blast-radius map of what else the change touches. Use when closing a service epic/issue (e.g. #1019), before marking a service done, or to re-check after changes."
 version: 1.0.0
 ---
 
@@ -8,14 +8,14 @@ version: 1.0.0
 
 Turn "looks done" into "proven done." A service screen can render perfectly and still be a
 scaffold — row clicks that `console.log`, a Create button that does nothing, `canCreate = true`
-instead of a permission check. A green server test suite hides none of that. This skill judges
-each acceptance criterion against **real evidence** and writes a verdict you can attach to an
-issue.
+instead of a permission check (which is also a security hole, not just a UX gap). Reading the
+code "looking right" hides none of that. This skill judges each acceptance criterion against
+**real evidence** and writes a verdict you can attach to an issue.
 
 Two borrowed habits drive it:
 
-- **Prove-it-works** — every ✅ needs concrete evidence (a `file:line`, a screenshot, a test
-  name). No evidence → not ✅.
+- **Prove-it-works** — every ✅ needs concrete evidence (a `file:line`, a screenshot, a named
+  trust boundary). No evidence → not ✅.
 - **Blast-radius** — before declaring done, name what else the change touches, so a green target
   screen doesn't hide a regression next door.
 
@@ -87,20 +87,34 @@ Then **observe behavior** for each interactive criterion — not source, actual 
 
 Capture a screenshot per runtime check as evidence (`screenshots/verify-<service>-<check>-<date>.png`).
 
-### 3. Tests — run the colocated suite
+### 3. Security — harden the service's boundaries
 
-Run the service's vitest files, filtered to its dirs:
+Load the `security-and-hardening` skill (via the Skill tool) and run its threat-model + three-tier
+checks against **this service's** trust boundaries. A service that lists, creates, and deletes
+cloud resources is attack surface, so this source carries weight for any epic that touches input,
+authz, or external APIs (most do — see #1019's permission and error-handling criteria).
 
-```
-pnpm --filter @cobaltcore-dev/aurora exec vitest run <client-service-dir> <server-router-glob>
-```
+Walk STRIDE over the service's boundaries and record each as evidence (`file:line`):
 
-e.g. for Networks: the client `.../network/networks/` tree and the server
-`packages/aurora/src/server/Network/routers/` suite (glob `networks*` — note that as of writing
-there is **no** `networksRouter.test.ts` and no client test for the networks screen, which is
-itself a ❌/⚠️ against a "comprehensive test coverage" criterion). Record pass/fail counts and
-name the specific tests that back a criterion. Note any criterion with **no** test as a coverage
-gap (⚠️), since "comprehensive test coverage" is itself usually an acceptance criterion.
+- **Input validation (Tampering / A03)** — every tRPC procedure validates input with a zod schema
+  at the boundary; ids are encoded/validated before building external paths. Flag any procedure
+  taking raw `input` without a schema.
+- **Authorization (Elevation / A01)** — actions are gated by a real `canUser`/policy check, not a
+  client-side `canCreate = true`. A hardcoded or missing permission check is a **security** finding
+  here, not just a UX gap. Confirm `projectScopedProcedure` scopes every call to the caller's
+  project (no cross-tenant read/write).
+- **Information disclosure (A05/A09)** — errors return user-friendly messages, not raw upstream
+  (Neutron/OpenStack) bodies or stack traces; no secrets/tokens logged (`console.log` of a
+  response, request, or `ctx` is a finding).
+- **DoS (input size / rate)** — list/search inputs are bounded; note unbounded fan-out
+  (e.g. per-row N+1 external calls) as a risk.
+- **Spoofing / Repudiation** — security-relevant mutations (create/delete) are attributable
+  (project-scoped, logged where appropriate).
+
+Also run the "Always Do" tier that applies to a BFF service: parameterized/encoded external calls,
+no secret leakage, authz mandatory. If the service adds a dependency, run the package-manager audit
+per the skill. Mark each security criterion ✅ only with a concrete boundary + `file:line`;
+unprovable → ⚠️ with the reason.
 
 ---
 
@@ -112,9 +126,9 @@ Write `verify-[service]-[YYYY-MM-DD].md` to the current working directory.
 
 One row per acceptance criterion:
 
-| #   | Criterion | Source(s)                | Evidence                                    | Verdict      |
-| --- | --------- | ------------------------ | ------------------------------------------- | ------------ |
-| 1   | …         | static / runtime / tests | `file:line`, `screenshots/…png`, `testName` | ✅ / ⚠️ / ❌ |
+| #   | Criterion | Source(s)                   | Evidence                                  | Verdict      |
+| --- | --------- | --------------------------- | ----------------------------------------- | ------------ |
+| 1   | …         | static / runtime / security | `file:line`, `screenshots/…png`, boundary | ✅ / ⚠️ / ❌ |
 
 - **✅ Proven** — concrete evidence shows it works.
 - **⚠️ Unverified / partial** — couldn't be proven (blocked, no low-priv account, no test) — state
@@ -149,11 +163,11 @@ End with one line: `N/M criteria proven; K blocked/unverified; B blast-radius ed
 
 1. **❌/⚠️ is the default.** A criterion is not ✅ until evidence promotes it. Never mark ✅ from
    intuition or from the code "looking right".
-2. **Green tests ≠ working UI.** A passing server suite does **not** pass a UI-behavior criterion;
-   the runtime check must also pass. (This is the exact Networks trap: server tests green, row
-   click dead.)
+2. **Code reading ≠ working UI.** The server source "looking right" does **not** pass a
+   UI-behavior criterion; the runtime check must also pass. (This is the exact Networks trap:
+   server CRUD present, row click dead.)
 3. **Never fabricate a pass.** If the app can't be driven (no server, or auth won't recover), mark
-   runtime criteria **⚠️ unverified** with the blocker. Static + tests may still proceed.
-4. **Evidence is mandatory and concrete** — a `file:line`, a screenshot path, or a test name. "It
-   works" is not evidence.
+   runtime criteria **⚠️ unverified** with the blocker. Static + security may still proceed.
+4. **Evidence is mandatory and concrete** — a `file:line`, a screenshot path, or a named trust
+   boundary. "It works" / "it's secure" is not evidence.
 5. State every assumption and every criterion you had to split or interpret.
