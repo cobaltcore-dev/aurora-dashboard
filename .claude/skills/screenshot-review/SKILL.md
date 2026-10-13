@@ -34,7 +34,8 @@ Write the review to a markdown file using the Write tool.
 
 Name the file `review-[screen-name]-[YYYY-MM-DD].md` using today's date and the main screen name from the screenshots (lowercase, hyphens, no spaces).
 
-Write the file to the current working directory. After writing, confirm the file path to the user.
+Write the file to `tmp/aurora-reviews/` (a gitignored scratch dir — create it if absent; not the
+repo root). After writing, confirm the file path to the user.
 
 ---
 

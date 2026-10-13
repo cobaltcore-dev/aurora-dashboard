@@ -25,6 +25,7 @@ playwright/.cache/
 # Dev app (local testing only)
 apps/dev/
 
-# Local screenshot-review artifacts
+# Local screenshot-review / service-verify artifacts
+tmp/aurora-reviews/
 screenshots/
 .playwright-mcp/

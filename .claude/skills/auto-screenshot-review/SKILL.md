@@ -110,14 +110,15 @@ Then for EACH requested screen, in order:
 4. `mcp__playwright__browser_take_screenshot` with:
    - `fullPage: true` (capture the whole scrollable screen, not just the viewport)
    - a descriptive `filename` → `shot-[screen-name]-[YYYY-MM-DD].png`
-   - save into a `screenshots/` folder in the current working directory
+   - save into the `tmp/aurora-reviews/` folder (a gitignored scratch dir — create it if absent;
+     never save screenshots to the repo root)
 5. Record the URL and visible breadcrumb for the review's **Location** line.
 
 If a screen requires interaction to reveal the target (open a modal, expand a row), use
 `browser_click` / `browser_hover` / `browser_fill_form` to reach the state, then screenshot.
 Keep interactions minimal and describe each one you took.
 
-Announce each capture as you go: `Captured: <screen> → screenshots/<file>`.
+Announce each capture as you go: `Captured: <screen> → tmp/aurora-reviews/<file>`.
 
 ---
 
@@ -139,7 +140,8 @@ Once all screenshots are captured:
    landing pages, settings panels) — see Rule 8.
 4. The review's **Location** line should use the real URL/breadcrumb you recorded during capture,
    not a guess.
-5. Let `screenshot-review` write the `review-[screen-name]-[YYYY-MM-DD].md` report. Do not
+5. Let `screenshot-review` write the `review-[screen-name]-[YYYY-MM-DD].md` report into
+   `tmp/aurora-reviews/` (gitignored scratch dir, not the repo root). Do not
    duplicate its output format here.
 
 ---

@@ -85,7 +85,8 @@ Then **observe behavior** for each interactive criterion — not source, actual 
 - Empty / error states → force them if feasible (empty search term, bad id) and confirm the
   `Status` surface.
 
-Capture a screenshot per runtime check as evidence (`screenshots/verify-<service>-<check>-<date>.png`).
+Capture a screenshot per runtime check as evidence
+(`tmp/aurora-reviews/verify-<service>-<check>-<date>.png`).
 
 ### 3. Security — harden the service's boundaries
 
@@ -120,7 +121,9 @@ unprovable → ⚠️ with the reason.
 
 ## Output
 
-Write `verify-[service]-[YYYY-MM-DD].md` to the current working directory.
+Write `verify-[service]-[YYYY-MM-DD].md` to `tmp/aurora-reviews/` (a gitignored scratch dir —
+create it if absent). These reports are disposable artifacts; never write them to the repo root
+or commit them.
 
 ### Verdict table
 
