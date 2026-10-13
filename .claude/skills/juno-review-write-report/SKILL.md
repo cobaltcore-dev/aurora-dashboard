@@ -71,11 +71,18 @@ Fourth step of the Juno screenshot review chain. Writes the structured finding l
 
 1. Include only sections that have findings — omit empty sections entirely.
 2. Numbering is continuous across all sections (1, 2, 3 ... — never restart per section).
-3. Only write actual findings from the inputs. Do not invent issues.
-4. Be brief and concise — one or two sentences per finding.
-5. When replacement copy is provided in the annotation, include it verbatim.
-6. Suggestions that were not annotated are allowed but must be labelled `💡 Suggestion:` so the reader knows they are not confirmed changes.
-7. If a finding is a Question (not a confirmed change), say so explicitly at the start of the finding text.
+3. Be brief and concise — one or two sentences per finding.
+4. When replacement copy is provided in the annotation, include it verbatim.
+5. If a finding is a Question (not a confirmed change), say so explicitly at the start of the finding text.
+
+---
+
+## STRICT RULE — no invented findings
+
+- **Only write a finding if it is directly supported by an annotation box in the screenshot OR an explicit note typed in chat.**
+- If you observe something that looks wrong but has no annotation, you MAY note it — but you MUST prefix it with: `[Suggestion — not annotated]` and state what you observed.
+- Never infer intent. Never assume a change was requested.
+- If the annotation is ambiguous, write what it says and mark it `⚠️ Needs: clarification`.
 
 ---
 
