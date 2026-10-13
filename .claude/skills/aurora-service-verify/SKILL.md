@@ -131,8 +131,8 @@ One row per acceptance criterion:
 | 1   | …         | static / runtime / security | `file:line`, `screenshots/…png`, boundary | ✅ / ⚠️ / ❌ |
 
 - **✅ Proven** — concrete evidence shows it works.
-- **⚠️ Unverified / partial** — couldn't be proven (blocked, no low-priv account, no test) — state
-  why.
+- **⚠️ Unverified / partial** — couldn't be proven (blocked, no low-priv account, boundary not
+  reachable) — state why.
 - **❌ Not met** — evidence shows it's missing or broken.
 
 ### Blast-radius
