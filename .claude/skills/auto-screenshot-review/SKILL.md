@@ -129,9 +129,17 @@ Once all screenshots are captured:
    screenshots and the user's notes as its chat notes.
 2. Follow `screenshot-review` exactly — including its mandatory `juno-live-ref` core protocols,
    the numbered-findings format, Juno component identification, tag sections, and `⚠️ Needs:` flags.
-3. The review's **Location** line should use the real URL/breadcrumb you recorded during capture,
+3. **If the captured screen is an Aurora service/resource screen** (a list/detail/CRUD surface —
+   Flavors, Images, Networks, Keypairs, etc.), ALSO load the `aurora-service-reference` skill (via
+   the Skill tool) and check the screen against its Checklist. Report deviations as additional
+   numbered findings in the SAME `screenshot-review` format, under the existing `Aurora` tag —
+   e.g. a missing empty/error/loading `Status` state, an ungated create/edit/delete action, a
+   mutation with no success toast, or a hardcoded (non-lingui) string. This step is **additive**:
+   it never replaces or reformats the visual review. Skip it for non-service screens (dashboards,
+   landing pages, settings panels) — see Rule 8.
+4. The review's **Location** line should use the real URL/breadcrumb you recorded during capture,
    not a guess.
-4. Let `screenshot-review` write the `review-[screen-name]-[YYYY-MM-DD].md` report. Do not
+5. Let `screenshot-review` write the `review-[screen-name]-[YYYY-MM-DD].md` report. Do not
    duplicate its output format here.
 
 ---
@@ -159,3 +167,6 @@ After the review file is written, give the user a short summary:
 6. The review is owned by `screenshot-review` — this skill captures and delegates; it does not
    re-implement the review format.
 7. Keep interactions reproducible and minimal; describe every click/fill you performed to reach a state.
+8. The `aurora-service-reference` check (Review flow step 3) is additive and applies ONLY to
+   service/resource screens (list/detail/CRUD). Skip it for dashboards, landing pages, and
+   settings panels — those are not services and the service Checklist does not apply.
