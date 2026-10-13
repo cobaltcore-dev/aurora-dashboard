@@ -1,6 +1,6 @@
 ---
 name: aurora-service-verify
-description: "Prove an Aurora service fulfills its acceptance criteria with evidence, instead of eyeballing it. Given a service (name or route) and its acceptance criteria (pasted, or a GitHub issue URL), produces a pass/fail evidence table by combining three sources: a static read against aurora-service-reference, a live runtime check via Playwright MCP, and a security-hardening pass via security-and-hardening — plus a blast-radius map of what else the change touches. Use when closing a service epic/issue (e.g. #1019), before marking a service done, or to re-check after changes."
+description: "Prove an Aurora service fulfills its acceptance criteria with evidence, instead of eyeballing it. Given a service (name or route) and its acceptance criteria (pasted, or a GitHub issue URL), produces a pass/fail evidence table by combining four sources: a static read against aurora-service-reference, a live runtime check via Playwright MCP, a security-hardening pass via security-and-hardening, and a design/visual pass via auto-screenshot-review (list + detail + modals) — plus a blast-radius map of what else the change touches. Use when closing a service epic/issue (e.g. #1019), before marking a service done, or to re-check after changes."
 version: 1.0.0
 ---
 
@@ -27,8 +27,10 @@ Two borrowed habits drive it:
 - Before marking any Aurora service "done".
 - Re-checking a service after changes.
 
-Not for pure dashboards/landing pages — this verifies **services** (list + detail + CRUD). For a
-visual-only pass, use `screenshot-review` / `auto-screenshot-review`.
+Not for pure dashboards/landing pages — this verifies **services** (list + detail + CRUD). Verify
+now covers design/visual too (source 4 below), so you don't run a separate review for a service. For
+a **standalone** visual pass on a non-service screen, use `screenshot-review` / `auto-screenshot-review`
+directly.
 
 ---
 
@@ -50,7 +52,7 @@ Collect from the user (ask only for what's missing):
 ## Evidence sources
 
 Every criterion is judged by **at least one** source. UI-behavior criteria need the runtime
-source — see Honesty rules.
+source; UI-appearance criteria need the design source — see Honesty rules.
 
 ### 1. Static — read the code against the reference
 
@@ -119,6 +121,50 @@ unprovable → ⚠️ with the reason.
 
 ---
 
+### 4. Design — review the rendered screens (appearance, not behavior)
+
+Behavior passing (source 2) does not mean the service _looks_ right: the wrong Juno component for a
+destructive action, a missing visual empty/error state, a modal that's the wrong size, or a raw
+non-lingui string all render fine to a click-test and still ship a broken UI. This source judges
+appearance.
+
+**Reach every visual surface of the service — not just the list:**
+
+- the **list** screen,
+- the **detail** screen (navigate into a real row), and
+- **every mutation modal** (create / edit / delete / manage-access, …) — drive each one open before
+  capturing, since a modal that never renders is never reviewed. Use the minimal
+  `browser_click` / `browser_fill_form` needed to reach each modal state and describe each
+  interaction. Modals gated off for the current user (no permission) → mark that modal ⚠️ with the
+  reason, don't skip silently.
+
+Delegate the capture + review to the existing visual stack — do **not** re-implement it:
+
+- Invoke the `auto-screenshot-review` skill (via the Skill tool) for the surfaces above, **reusing the
+  browser session the runtime source (2) already opened** — that pass has already set viewport +
+  storage state once, so a full verify opens **one** browser, not two. Prerequisites and auth
+  (`localhost:4001`, `storageState.json` fallback, credential fallback) are the ones in source 2;
+  don't duplicate that setup prose here.
+- `auto-screenshot-review` → `screenshot-review` owns the output: full-page screenshots to
+  `tmp/aurora-reviews/`, numbered `Design` / `Juno` / `Aurora`-tagged findings with `⚠️ Needs:` flags,
+  Juno component naming. Verify delegates to it exactly as it delegates the structural checklist to
+  `aurora-service-reference`.
+
+Fold the result into verify's verdict table: each **blocking** visual finding becomes a `❌` / `⚠️`
+row with source `design` and evidence = the screenshot path + the `screenshot-review` finding number.
+Purely cosmetic polish stays in the linked review report, not the verdict table.
+
+> **Overlap note.** `auto-screenshot-review`'s own Review-flow step 3 additively loads
+> `aurora-service-reference` for service screens — the same checklist source 1 reads statically. Don't
+> double-report: source 1 (static) is the **code/structure** lens; source 4 (design) is the
+> **rendered-screen** lens. Same checklist, two lenses — cite each finding once, under the lens that
+> observed it.
+
+If the app can't be driven (no server, or auth won't recover), design criteria are **⚠️ unverified**
+with the blocker — same fail-closed default as the runtime source. Never fabricate a visual pass.
+
+---
+
 ## Output
 
 Write `verify-[service]-[YYYY-MM-DD].md` to `tmp/aurora-reviews/` (a gitignored scratch dir —
@@ -129,9 +175,9 @@ or commit them.
 
 One row per acceptance criterion:
 
-| #   | Criterion | Source(s)                   | Evidence                                  | Verdict      |
-| --- | --------- | --------------------------- | ----------------------------------------- | ------------ |
-| 1   | …         | static / runtime / security | `file:line`, `screenshots/…png`, boundary | ✅ / ⚠️ / ❌ |
+| #   | Criterion | Source(s)                            | Evidence                                  | Verdict      |
+| --- | --------- | ------------------------------------ | ----------------------------------------- | ------------ |
+| 1   | …         | static / runtime / security / design | `file:line`, `screenshots/…png`, boundary | ✅ / ⚠️ / ❌ |
 
 - **✅ Proven** — concrete evidence shows it works.
 - **⚠️ Unverified / partial** — couldn't be proven (blocked, no low-priv account, boundary not
@@ -146,7 +192,9 @@ checked / not-checked:
 - **Route tree** — new/edited entries in `routeTree.gen.ts` (and whether the detail route is even
   registered).
 - **Shared client components** the service imports (`ContentHeader`, `DataGridToolbar`,
-  `Status`, …) — a change here affects other screens.
+  `Status`, …) — a change here affects other screens. Cross-reference any `Juno`-tagged findings from
+  the design source (4): a wrong or restyled shared Juno component is a visual regression that hits
+  siblings too.
 - **Permission keys / policy rules** added (server permission router) — do siblings rely on the
   same keys?
 - **Server registration** — `routers/index.ts` spread.
@@ -168,7 +216,9 @@ End with one line: `N/M criteria proven; K blocked/unverified; B blast-radius ed
    intuition or from the code "looking right".
 2. **Code reading ≠ working UI.** The server source "looking right" does **not** pass a
    UI-behavior criterion; the runtime check must also pass. (This is the exact Networks trap:
-   server CRUD present, row click dead.)
+   server CRUD present, row click dead.) And **behavior passing ≠ looking right**: a UI-appearance
+   criterion (correct Juno component, visible empty/error state, modal size, no raw strings) needs
+   the design source (4), not just a green runtime click-test.
 3. **Never fabricate a pass.** If the app can't be driven (no server, or auth won't recover), mark
    runtime criteria **⚠️ unverified** with the blocker. Static + security may still proceed.
 4. **Evidence is mandatory and concrete** — a `file:line`, a screenshot path, or a named trust
