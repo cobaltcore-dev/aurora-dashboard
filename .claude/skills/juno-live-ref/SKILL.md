@@ -15,6 +15,7 @@ Produces a structured developer-ready markdown review of Aurora/Juno UI screensh
 3. **If invoked only as the core reference** (another skill or step asked for the protocols, with no review task of its own) → stop after Parts A and B.
 
 ---
+
 ---
 
 # Part A — Protocol 1: Change Detection
@@ -73,6 +74,7 @@ No changes: [N] components, [N] UX docs unchanged.
 ### Step 1D — Update memory and reference site
 
 Write the new state back to `juno_last_known_state.md`:
+
 - Set `Last checked` to today's date
 - Replace the component list and UX doc list tables with the freshly fetched names + shas
 - Append a row to the Change log table
@@ -84,22 +86,23 @@ If any files changed, fetch the modified files from GitHub and update the affect
 Find this line in the JS section:
 
 ```js
-const CHANGED_COMPONENTS = [];
+const CHANGED_COMPONENTS = []
 ```
 
 Replace the `[]` with an array of change objects for every added, modified, or removed component:
 
 ```js
 const CHANGED_COMPONENTS = [
-  { name: 'ComponentName', change: 'added' },     // for new components
-  { name: 'ComponentName', change: 'modified' },  // for sha changes
-  { name: 'ComponentName', change: 'removed' },   // for removed components
-];
+  { name: "ComponentName", change: "added" }, // for new components
+  { name: "ComponentName", change: "modified" }, // for sha changes
+  { name: "ComponentName", change: "removed" }, // for removed components
+]
 ```
 
 Each changed component will then show a 🐱 indicator on its badge in the reference site.
 
 ---
+
 ---
 
 # Part B — Protocol 2: Component and Pattern Lookup
@@ -131,9 +134,10 @@ Fetch both the source file (`{ComponentName}.tsx`) and the stories file (`{Compo
 List every prop in a complete table:
 
 | Prop | Type | Default | Required | Description |
-|---|---|---|---|---|
+| ---- | ---- | ------- | -------- | ----------- |
 
 Rules:
+
 - Never summarise. Never omit a prop.
 - If a prop exists in the source, it must appear in the table.
 - Include deprecated props — mark them `(deprecated)` in the Description column.
@@ -146,13 +150,14 @@ Rules:
 List every named story and what variant/state it demonstrates:
 
 | Story name | Variant / state demonstrated |
-|---|---|
+| ---------- | ---------------------------- |
 
 ---
 
 ### Step 2D — Cross-reference: everything that imports or uses this component
 
 Search the entire repo for `import.*{ComponentName}`. Cover:
+
 - Other component source files (composition and dependency relationships)
 - Story files from other components (usage examples in context)
 - UX doc files and any README that imports or names the component
@@ -191,57 +196,59 @@ Output the complete prop table, stories list, cross-references, and doc mentions
 Never answer from memory alone when a live lookup is possible. Memory is a starting point, not a substitute for the live repo.
 
 ### Step 2H — docs/ux/ full inventory
+
 The `docs/ux/` directory is the source of truth for Juno UX guidance. The current live file set (fetch to confirm shas each session — see Part A):
 
-| File | Topic | Memory file it maps to |
-|---|---|---|
-| `0_contents.md` | Table of contents / index | — |
-| `introduction.md` | Introduction | — |
-| `core-concepts.md` | Core concepts | `juno_ux_foundations.md` |
-| `foundations.md` | Foundations | `juno_ux_foundations.md` |
-| `getting-started-with-juno-ui-components.md` | Getting started | — |
-| `glossary.md` | Glossary of terms | `juno_ux_foundations.md` |
-| `resources.md` | Resources / links | `juno_reference.md` |
-| `semantic-variants.md` | info/success/warning/error/danger | `juno_ux_foundations.md` |
-| `the-appshell.md` | AppShell structure | `juno_ux_foundations.md` |
-| `layout-and-application-structure.md` | Layout + app structure | `juno_ux_foundations.md` |
-| `layout-fundamentals.md` | Layout fundamentals | `juno_ux_foundations.md` |
-| `juno-layout.md` | Juno layout | `juno_ux_foundations.md` |
-| `embedded-application-layout.md` | Embedded app layout | `juno_ux_foundations.md` |
-| `legacy-application-layout.md` | Legacy app layout | `juno_ux_foundations.md` |
-| `page-and-user-flow.md` | Page + user flow | `juno_ux_foundations.md` |
-| `page-layout-elements.md` | Page layout elements | `juno_ux_foundations.md` |
-| `page-content-area.md` | Content area | `juno_ux_foundations.md` |
-| `page-header.md` | Page header | `juno_ux_foundations.md` |
-| `page-footer.md` | Page footer | `juno_ux_foundations.md` |
-| `page-level-actions.md` | Page-level actions | `juno_ux_patterns.md` |
-| `navigation.md` | Navigation | `juno_ux_foundations.md` |
-| `navigation-fundamentals.md` | Navigation fundamentals | `juno_ux_foundations.md` |
-| `navigation-side-navigation.md` | Side navigation | `juno_ux_foundations.md` |
-| `datagrid.md` | DataGrid pattern | `juno_ux_patterns.md` |
-| `modals.md` | Modals pattern | `juno_ux_patterns.md` |
-| `messages-and-notifications.md` | Messages + notifications | `juno_ux_patterns.md` |
-| `popup-and-overflow-menus.md` | Popup / overflow menus | `juno_ux_patterns.md` |
-| `forms.md` | Forms | `juno_ux_patterns.md` |
-| `inline-adding-editing-and-deleting.md` | Inline add/edit/delete | `juno_ux_patterns.md` |
-| `wizard.md` | Wizard pattern | `juno_ux_patterns.md` |
-| `box.md` | Box | `juno_ux_patterns.md` |
-| `sign-in.md` | Sign-in | `juno_ux_patterns.md` |
-| `authentication-and-access.md` | Auth + access | `juno_ux_patterns.md` |
-| `ui-for-unauthorized-users.md` | Unauthorized users | `juno_ux_patterns.md` |
-| `ux-patterns.md` | UX patterns index | `juno_ux_patterns.md` |
-| `interaction-guidelines.md` | Interaction guidelines | `juno_ux_design_guidelines.md` |
-| `application-design-guidelines.md` | Application design guidelines | `juno_ux_design_guidelines.md` |
-| `ux-writing-content-design.md` | UX writing / content design (ToV) | `juno_ux_design_guidelines.md` |
-| `error-handling-loading-empty-states.md` | Error handling, loading, empty states | `juno_ux_design_guidelines.md` |
-| `transient-states-and-progress.md` | Transient states + progress | `juno_ux_design_guidelines.md` |
-| `accessibility.md` | Accessibility | `juno_ux_design_guidelines.md` |
-| `versioning-and-deprecation-policy.md` | Versioning + deprecation policy | `juno_ux_design_guidelines.md` |
-| `images/` | Image assets (not a doc) | — |
+| File                                         | Topic                                 | Memory file it maps to         |
+| -------------------------------------------- | ------------------------------------- | ------------------------------ |
+| `0_contents.md`                              | Table of contents / index             | —                              |
+| `introduction.md`                            | Introduction                          | —                              |
+| `core-concepts.md`                           | Core concepts                         | `juno_ux_foundations.md`       |
+| `foundations.md`                             | Foundations                           | `juno_ux_foundations.md`       |
+| `getting-started-with-juno-ui-components.md` | Getting started                       | —                              |
+| `glossary.md`                                | Glossary of terms                     | `juno_ux_foundations.md`       |
+| `resources.md`                               | Resources / links                     | `juno_reference.md`            |
+| `semantic-variants.md`                       | info/success/warning/error/danger     | `juno_ux_foundations.md`       |
+| `the-appshell.md`                            | AppShell structure                    | `juno_ux_foundations.md`       |
+| `layout-and-application-structure.md`        | Layout + app structure                | `juno_ux_foundations.md`       |
+| `layout-fundamentals.md`                     | Layout fundamentals                   | `juno_ux_foundations.md`       |
+| `juno-layout.md`                             | Juno layout                           | `juno_ux_foundations.md`       |
+| `embedded-application-layout.md`             | Embedded app layout                   | `juno_ux_foundations.md`       |
+| `legacy-application-layout.md`               | Legacy app layout                     | `juno_ux_foundations.md`       |
+| `page-and-user-flow.md`                      | Page + user flow                      | `juno_ux_foundations.md`       |
+| `page-layout-elements.md`                    | Page layout elements                  | `juno_ux_foundations.md`       |
+| `page-content-area.md`                       | Content area                          | `juno_ux_foundations.md`       |
+| `page-header.md`                             | Page header                           | `juno_ux_foundations.md`       |
+| `page-footer.md`                             | Page footer                           | `juno_ux_foundations.md`       |
+| `page-level-actions.md`                      | Page-level actions                    | `juno_ux_patterns.md`          |
+| `navigation.md`                              | Navigation                            | `juno_ux_foundations.md`       |
+| `navigation-fundamentals.md`                 | Navigation fundamentals               | `juno_ux_foundations.md`       |
+| `navigation-side-navigation.md`              | Side navigation                       | `juno_ux_foundations.md`       |
+| `datagrid.md`                                | DataGrid pattern                      | `juno_ux_patterns.md`          |
+| `modals.md`                                  | Modals pattern                        | `juno_ux_patterns.md`          |
+| `messages-and-notifications.md`              | Messages + notifications              | `juno_ux_patterns.md`          |
+| `popup-and-overflow-menus.md`                | Popup / overflow menus                | `juno_ux_patterns.md`          |
+| `forms.md`                                   | Forms                                 | `juno_ux_patterns.md`          |
+| `inline-adding-editing-and-deleting.md`      | Inline add/edit/delete                | `juno_ux_patterns.md`          |
+| `wizard.md`                                  | Wizard pattern                        | `juno_ux_patterns.md`          |
+| `box.md`                                     | Box                                   | `juno_ux_patterns.md`          |
+| `sign-in.md`                                 | Sign-in                               | `juno_ux_patterns.md`          |
+| `authentication-and-access.md`               | Auth + access                         | `juno_ux_patterns.md`          |
+| `ui-for-unauthorized-users.md`               | Unauthorized users                    | `juno_ux_patterns.md`          |
+| `ux-patterns.md`                             | UX patterns index                     | `juno_ux_patterns.md`          |
+| `interaction-guidelines.md`                  | Interaction guidelines                | `juno_ux_design_guidelines.md` |
+| `application-design-guidelines.md`           | Application design guidelines         | `juno_ux_design_guidelines.md` |
+| `ux-writing-content-design.md`               | UX writing / content design (ToV)     | `juno_ux_design_guidelines.md` |
+| `error-handling-loading-empty-states.md`     | Error handling, loading, empty states | `juno_ux_design_guidelines.md` |
+| `transient-states-and-progress.md`           | Transient states + progress           | `juno_ux_design_guidelines.md` |
+| `accessibility.md`                           | Accessibility                         | `juno_ux_design_guidelines.md` |
+| `versioning-and-deprecation-policy.md`       | Versioning + deprecation policy       | `juno_ux_design_guidelines.md` |
+| `images/`                                    | Image assets (not a doc)              | —                              |
 
 If a live fetch returns a file NOT in this table, treat it as **ADDED** (Part A), read it, and extend the mapping. If a file here is missing from the live fetch, treat it as **REMOVED**.
 
 ---
+
 ---
 
 # Part D — Review UI Screenshots
@@ -251,6 +258,7 @@ Use when the user asks to review/check/annotate UI screenshots or give feedback 
 ## Input
 
 One or more screenshots, plus notes provided either:
+
 - As annotation boxes visible in the screenshot (red "Changes" or teal "Question")
 - As text typed in the chat by the user
 
@@ -275,7 +283,7 @@ Write the file to the current working directory. After writing, confirm the file
 
 1. **[Short title of the change]**  
    [Description of current state, desired state, triggering condition if relevant, and Juno component + prop if identifiable.]  
-   ⚠️ *Needs: [what is missing for a developer to action this — omit line if nothing is missing]*
+   ⚠️ _Needs: [what is missing for a developer to action this — omit line if nothing is missing]_
 
 ---
 
@@ -305,12 +313,12 @@ Write the file to the current working directory. After writing, confirm the file
 
 ## Juno component reference
 
-| What you see | Component | Fix |
-|---|---|---|
-| Coloured message box | `<Message variant="info\|warning\|error">` | Replace with `<p>` |
-| Teal/primary button on destructive action | `<Button variant="primary">` | Change to `variant="primary-danger"` |
-| Wide modal needed | `<Modal>` | Add `size="xl"` or `size="2xl"` |
-| Row action menu item | `<PopupMenu.Item>` | Update `label` prop |
-| Button in progress state | `<Button>` | Add `progress={true} progressLabel="..."` |
+| What you see                              | Component                                  | Fix                                       |
+| ----------------------------------------- | ------------------------------------------ | ----------------------------------------- |
+| Coloured message box                      | `<Message variant="info\|warning\|error">` | Replace with `<p>`                        |
+| Teal/primary button on destructive action | `<Button variant="primary">`               | Change to `variant="primary-danger"`      |
+| Wide modal needed                         | `<Modal>`                                  | Add `size="xl"` or `size="2xl"`           |
+| Row action menu item                      | `<PopupMenu.Item>`                         | Update `label` prop                       |
+| Button in progress state                  | `<Button>`                                 | Add `progress={true} progressLabel="..."` |
 
 Full Juno component API is in memory: [[juno-storybook-full-analysis]]
