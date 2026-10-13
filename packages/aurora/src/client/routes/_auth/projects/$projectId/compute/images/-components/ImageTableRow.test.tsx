@@ -129,10 +129,10 @@ describe("ImageTableRow", () => {
       expect(screen.getByText("qcow2")).toBeInTheDocument()
     })
 
-    it("falls back to 'Unnamed' when the image has no name", () => {
+    it("falls back to id when the image has no name", () => {
       renderRow({ image: makeImage({ name: "" }) })
 
-      expect(screen.getByText("Unnamed")).toBeInTheDocument()
+      expect(screen.getByText("img-1")).toBeInTheDocument()
     })
 
     it("shows the protected flag as Yes/No", () => {

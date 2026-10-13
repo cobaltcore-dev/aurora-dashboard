@@ -129,28 +129,78 @@ export const imageRouter = {
           protected: queryInput.protected,
         })
 
-        // Apply marker-based pagination: if marker provided, skip all images before it
+        // Filter out pending shared images when not explicitly requesting them
+        // When member_status is not specified (All Images view), exclude pending shared images
+        let finalImages = filteredImages
+        if (!queryInput.member_status || queryInput.member_status === "all") {
+          const token = openstackSession?.getToken()
+          const projectId = token?.tokenData.project?.id
+
+          if (projectId) {
+            // Identify shared images (visibility=shared and not owned by current project)
+            const sharedImages = filteredImages.filter((img) => img.visibility === "shared" && img.owner !== projectId)
+
+            if (sharedImages.length > 0) {
+              // Check member_status for each shared image with bounded concurrency
+              const CONCURRENCY_LIMIT = 10
+              const memberStatusChecks: { imageId: string; status: string | null; error?: boolean }[] = []
+
+              for (let i = 0; i < sharedImages.length; i += CONCURRENCY_LIMIT) {
+                const batch = sharedImages.slice(i, i + CONCURRENCY_LIMIT)
+                const batchResults = await Promise.all(
+                  batch.map((img) =>
+                    glance
+                      .get(`v2/images/${img.id}/members/${projectId}`)
+                      .then(async (res) => {
+                        if (res?.ok) {
+                          const data = await res.json()
+                          return { imageId: img.id, status: data.status as string }
+                        }
+                        // 404 means not a member — treat as non-accepted
+                        return { imageId: img.id, status: null }
+                      })
+                      .catch(() => ({ imageId: img.id, status: null, error: true }))
+                  )
+                )
+                memberStatusChecks.push(...batchResults)
+              }
+
+              // If any lookups failed with errors, log but continue (fail-open for transient errors)
+              // Build set of non-accepted image IDs (pending, rejected, or lookup returned null)
+              const nonAcceptedImageIds = new Set(
+                memberStatusChecks.filter((check) => check.status !== "accepted").map((check) => check.imageId)
+              )
+
+              // Exclude non-accepted shared images from final results
+              finalImages = filteredImages.filter((img) => !nonAcceptedImageIds.has(img.id))
+            }
+          }
+        }
+
+        // Apply marker-based pagination: calculate start index from page number
         let startIndex = 0
         if (marker) {
-          const markerIndex = filteredImages.findIndex((img) => img.id === marker)
-          // Start from the image AFTER the marker
-          startIndex = markerIndex >= 0 ? markerIndex + 1 : 0
+          // Marker is now the page number encoded as a string
+          const pageNum = parseInt(marker, 10)
+          if (!isNaN(pageNum) && pageNum > 1) {
+            startIndex = (pageNum - 1) * FRONTEND_PAGE_SIZE
+          }
         }
 
         // Implement frontend pagination
         const endIndex = startIndex + FRONTEND_PAGE_SIZE
-        const paginatedImages = filteredImages.slice(startIndex, endIndex)
+        const paginatedImages = finalImages.slice(startIndex, endIndex)
 
         // We have all images, so we know the exact total
-        const hasMore = endIndex < filteredImages.length
-        const nextPageMarker = hasMore ? filteredImages[endIndex - 1]?.id : undefined
+        const hasMore = endIndex < finalImages.length
+        const nextPageMarker = hasMore ? String(Math.floor(startIndex / FRONTEND_PAGE_SIZE) + 2) : undefined
 
         return {
           images: paginatedImages,
           first: undefined,
           next: hasMore ? nextPageMarker : undefined,
           schema: "/v2/schemas/images",
-          totalCount: filteredImages.length,
+          totalCount: finalImages.length,
         }
       }, "list images")
     }),
@@ -715,6 +765,7 @@ export const imageRouter = {
 
         validateGlanceService(glance)
 
+        // Let Glance API validate the project - it will return 404 if project doesn't exist
         const response = await glance.post(`v2/images/${imageId}/members`, { member })
 
         if (!response?.ok) {

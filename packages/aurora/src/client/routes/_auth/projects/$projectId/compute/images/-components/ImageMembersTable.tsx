@@ -75,7 +75,7 @@ export const ImageMembersTable: React.FC<ImageMembersTableProps> = ({
       })
     : []
 
-  const validateForm = (): boolean => {
+  const validateForm = async (): Promise<boolean> => {
     const trimmedMemberId = memberId.trim()
     const newErrors: { memberId?: string } = {}
 
@@ -83,6 +83,18 @@ export const ImageMembersTable: React.FC<ImageMembersTableProps> = ({
       newErrors.memberId = t`Project ID (project UUID) is required.`
     } else if (imageMembers?.some((member) => member.member_id === trimmedMemberId)) {
       newErrors.memberId = t`This member already has access to this image.`
+    } else {
+      // Try to validate that the project exists, but don't block if check fails
+      // The backend will ultimately validate via Glance API
+      try {
+        const project = await utils.project.getProject.fetch({ projectId: trimmedMemberId })
+        if (!project) {
+          newErrors.memberId = t`Project not found or you don't have access to it.`
+        }
+      } catch {
+        // Ignore validation errors - let backend handle it
+        // User might not have permission to look up projects but can still share images
+      }
     }
 
     setErrors(newErrors)
@@ -95,7 +107,7 @@ export const ImageMembersTable: React.FC<ImageMembersTableProps> = ({
   }
 
   const handleAddMember = async () => {
-    if (!validateForm()) {
+    if (!(await validateForm())) {
       setMessage({ text: t`Please fix the validation errors below.`, type: "error" })
       return
     }
