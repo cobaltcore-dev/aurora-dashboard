@@ -616,6 +616,9 @@ msgstr "Back to Floating IPs"
 msgid "Back to Images"
 msgstr "Back to Images"
 
+msgid "Back to Networks"
+msgstr "Back to Networks"
+
 msgid "Back to Routers"
 msgstr "Back to Routers"
 
@@ -1102,6 +1105,9 @@ msgstr "Create Image"
 msgid "Create Lifecycle Rule"
 msgstr "Create Lifecycle Rule"
 
+msgid "Create Network"
+msgstr "Create Network"
+
 msgid "Create New Flavor"
 msgstr "Create New Flavor"
 
@@ -1351,6 +1357,9 @@ msgstr "Device ID"
 msgid "Device Owner"
 msgstr "Device Owner"
 
+msgid "DHCP"
+msgstr "DHCP"
+
 msgid "Direction"
 msgstr "Direction"
 
@@ -1383,6 +1392,9 @@ msgstr "DNS name must be at most 63 characters."
 
 msgid "Done"
 msgstr "Done"
+
+msgid "Down"
+msgstr "Down"
 
 msgid "DOWN"
 msgstr "DOWN"
@@ -1630,6 +1642,9 @@ msgstr "Error Loading Floating IP"
 msgid "Error Loading Image"
 msgstr "Error Loading Image"
 
+msgid "Error Loading Network"
+msgstr "Error Loading Network"
+
 msgid "Error Loading Router"
 msgstr "Error Loading Router"
 
@@ -1671,6 +1686,9 @@ msgstr "Expires in {selectedPresetLabel} — at {expiresAtFormatted}"
 
 msgid "Expose Headers"
 msgstr "Expose Headers"
+
+msgid "External"
+msgstr "External"
 
 msgid "External Fixed IPs"
 msgstr "External Fixed IPs"
@@ -1890,6 +1908,9 @@ msgstr "Failed to Load Metadata"
 
 msgid "Failed to Load Metadata Configuration"
 msgstr "Failed to Load Metadata Configuration"
+
+msgid "Failed to Load Networks"
+msgstr "Failed to Load Networks"
 
 msgid "Failed to Load Object Metadata"
 msgstr "Failed to Load Object Metadata"
@@ -2148,6 +2169,9 @@ msgstr "Full Path"
 
 msgid "Full path:"
 msgstr "Full path:"
+
+msgid "Gateway IP"
+msgstr "Gateway IP"
 
 msgid "General Image Data"
 msgstr "General Image Data"
@@ -2467,6 +2491,12 @@ msgstr "Loading Metadata..."
 msgid "Loading more..."
 msgstr "Loading more..."
 
+msgid "Loading Network Details..."
+msgstr "Loading Network Details..."
+
+msgid "Loading Networks..."
+msgstr "Loading Networks..."
+
 msgid "Loading Object Info..."
 msgstr "Loading Object Info..."
 
@@ -2629,6 +2659,9 @@ msgstr "Moving Object..."
 msgid "Moving..."
 msgstr "Moving..."
 
+msgid "MTU"
+msgstr "MTU"
+
 msgid "Must be a valid IPv4 or IPv6 address (for example: 172.24.4.228 or 2001:db8::1)."
 msgstr "Must be a valid IPv4 or IPv6 address (for example: 172.24.4.228 or 2001:db8::1)."
 
@@ -2662,8 +2695,20 @@ msgstr "Network & Routing"
 msgid "Network ID"
 msgstr "Network ID"
 
+msgid "Network Information"
+msgstr "Network Information"
+
 msgid "Network Name"
 msgstr "Network Name"
+
+msgid "Network Not Found"
+msgstr "Network Not Found"
+
+msgid "Network Type"
+msgstr "Network Type"
+
+msgid "Networks"
+msgstr "Networks"
 
 msgid "New Folder"
 msgstr "New Folder"
@@ -2737,6 +2782,9 @@ msgstr "No limit"
 msgid "No Metadata Properties Found"
 msgstr "No Metadata Properties Found"
 
+msgid "No networks found"
+msgstr "No networks found"
+
 msgid "No new versions will be created"
 msgstr "No new versions will be created"
 
@@ -2787,6 +2835,9 @@ msgstr "No security groups found"
 
 msgid "No services available for this project."
 msgstr "No services available for this project."
+
+msgid "No subnets associated with this network"
+msgstr "No subnets associated with this network"
 
 msgid "No Suggested Images Found"
 msgstr "No Suggested Images Found"
@@ -2968,6 +3019,9 @@ msgstr "Partial Delete Success"
 msgid "Pending"
 msgstr "Pending"
 
+msgid "Physical Network"
+msgstr "Physical Network"
+
 msgid "Please enter a valid number of minutes greater than 0"
 msgstr "Please enter a valid number of minutes greater than 0"
 
@@ -3009,6 +3063,9 @@ msgstr "Port Name"
 
 msgid "Port Range"
 msgstr "Port Range"
+
+msgid "Port Security Enabled"
+msgstr "Port Security Enabled"
 
 msgid "Pre-signed URL"
 msgstr "Pre-signed URL"
@@ -3111,6 +3168,9 @@ msgstr "Protocol"
 
 msgid "Protocol name (e.g. tcp, udp, icmp, gre) or IP protocol number 0-255."
 msgstr "Protocol name (e.g. tcp, udp, icmp, gre) or IP protocol number 0-255."
+
+msgid "Provider Network"
+msgstr "Provider Network"
 
 msgid "Public"
 msgstr "Public"
@@ -3322,6 +3382,9 @@ msgstr "Search floating IPs..."
 msgid "Search lifecycle rules..."
 msgstr "Search lifecycle rules..."
 
+msgid "Search networks..."
+msgstr "Search networks..."
+
 msgid "Search objects..."
 msgstr "Search objects..."
 
@@ -3384,6 +3447,9 @@ msgstr "Security group was successfully shared with project \"{targetTenant}\"."
 
 msgid "Security Groups"
 msgstr "Security Groups"
+
+msgid "Segmentation ID"
+msgstr "Segmentation ID"
 
 msgid "Select"
 msgstr "Select"
@@ -3639,6 +3705,9 @@ msgstr "Subnet"
 
 msgid "Subnet ID:"
 msgstr "Subnet ID:"
+
+msgid "Subnets"
+msgstr "Subnets"
 
 msgid "Successfully activated {successCount} of {totalCount} image(s)"
 msgstr "Successfully activated {successCount} of {totalCount} image(s)"
@@ -4192,6 +4261,9 @@ msgstr "Unknown Error"
 msgid "Unnamed"
 msgstr "Unnamed"
 
+msgid "Up"
+msgstr "Up"
+
 msgid "UP"
 msgstr "UP"
 
@@ -4398,6 +4470,9 @@ msgstr "You can re-enable versioning at any time"
 
 msgid "You can rename the object by changing the name here."
 msgstr "You can rename the object by changing the name here."
+
+msgid "You do not have permission to view networks"
+msgstr "You do not have permission to view networks"
 
 msgid "You do not have permission to view security groups"
 msgstr "You do not have permission to view security groups"
