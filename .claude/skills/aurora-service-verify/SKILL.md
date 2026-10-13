@@ -65,9 +65,48 @@ record every hit as evidence (`file:line`):
 - `canCreate = true`, `can\w+ = true` — hardcoded permissions instead of a `canUser` query.
 - Missing: detail route in `routeTree.gen.ts`, mutation modals, `*ToastNotifications`, a
   `beforeLoad` service-availability guard.
+- Raw HTML where a Juno component is the house rule — `<table>` / `<tr>` / `<td>` (should be
+  `DataGrid`/`DataGridRow`/`DataGridCell`), a bare `<button>` (should be Juno `Button`), a
+  hand-rolled empty/loading/error block (should be `Status`), a hardcoded error `<div>` (should
+  be `Message`). Each raw element standing in for a Juno component is a `file:line` finding.
 
-Also confirm the positives: `projectScopedProcedure` + error wrapping on the server, zod
-schema/types, loading/empty/error `Status` states, i18n on every string.
+Also confirm the positives — the **Juno + layout** stack the reference requires, each with a
+`file:line` so the ✅ is evidenced, not assumed:
+
+- **Juno components** imported from `@cloudoperators/juno-ui-components`: `DataGrid` +
+  `DataGridHeadCell`/`DataGridRow`/`DataGridCell` for tables, `Button`, `SearchInput` /
+  `DataGridToolbar` for the toolbar, `Status` for loading/empty/error, `Message` for inline
+  errors, `PopupMenu` for row actions, `Modal` for mutations. Grep the service dir for the import
+  and record which are present/missing against the reference's "List table" / "Mutation modals"
+  rows.
+- **Juno usage matches the Storybook API — don't eyeball it.** Importing `DataGrid` is not the
+  same as using it the way Juno documents. For every Juno component the service renders, confirm
+  its **props and composition against the live Storybook via `juno-lookup`** (run `juno-sync`
+  first; both are the repo's own protocols for this, backed by `juno_storybook_components.md`).
+  Check the real contract, e.g.: `DataGrid` has the right `columns`/`minmax`/`cellVerticalAlignment`
+  and is composed `DataGridRow` → `DataGridHeadCell`/`DataGridCell` (no raw `<tr>/<td>` inside);
+  `Status` uses a documented `status` enum value (`progress`/`empty`/`error`/`no-matches`) and
+  `title`/`body`; `Button` uses a real `variant` (`primary`/`subdued`/`danger` for destructive) not
+  an invented one; `Modal` uses the documented `size`/`open`/`onCancel`/`confirmButtonLabel` shape.
+  A prop that isn't in the Storybook API, or a composition the Storybook doesn't show, is a finding
+  even when it renders — cite the `juno-lookup` result (the URL it fetched) as evidence, same as any
+  other `file:line`.
+- **Aurora layout** scaffolding: `ContentHeader` on the index + detail, the list **layout route**
+  (`<service>.tsx`) wrapping an `<Outlet/>` with `validateSearch` + `beforeLoad` guard + `crumb`,
+  `useSetBreadcrumb` on the detail, `Stack` for vertical/gap layout rather than ad-hoc fl/grid
+  divs. A screen that renders fine but skips `ContentHeader`/`Stack`/the layout route is a layout
+  finding even when it "looks right".
+- `projectScopedProcedure` + error wrapping on the server, zod schema/types, i18n on every
+  string.
+
+If the Juno/layout grep hits are **wrong component** (e.g. raw `<table>`) or **missing a required
+one** (no `Status`, no `ContentHeader`), that's a structural `static` finding. If the component is
+present but its **props/composition don't match the Storybook** (`juno-lookup` shows the prop
+doesn't exist, or the documented composition is violated), that's also a `static` finding, cited
+with the `juno-lookup` URL. If it matches the API but still **renders wrong** (right component +
+valid props, but wrong variant for the context, wrong modal size, missing visual state), that's the
+**design** source (4). Same checklist, different lenses — cite each finding once, per the overlap
+note below.
 
 ### 2. Runtime — drive the live app (behavior, not internals)
 
