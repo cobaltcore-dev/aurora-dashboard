@@ -1,10 +1,10 @@
 # Juno Decisions — when to use what
 
-Synthesis only. For a component's exact props/variants read `packages/ui-components/src/components/{Name}/`; for a pattern's full rationale read the cited `docs/ux/` file; or dispatch `sap_juno_lookup`. Don't restate detail from memory.
+Synthesis only. For a component's exact props/variants read `tmp/juno/packages/ui-components/src/components/{Name}/`; for a pattern's full rationale read the cited `docs/ux/` file; or dispatch `sap_juno_lookup`. Don't restate detail from memory.
 
 ## Component picker by category
 
-Full inventory lives in `packages/ui-components/src/components/` (one folder per component). Pick here, then read the folder for props.
+Full inventory lives in `tmp/juno/packages/ui-components/src/components/` (one folder per component). Pick here, then read the folder for props.
 
 - **Form inputs**: `TextInput` (default) · `Textarea` · `Select` (custom, single/multi) · `NativeSelect` (OS picker, mobile/long) · `ComboBox` (searchable) · `Checkbox`/`CheckboxGroup` · `Radio`/`RadioGroup` · `Switch` (instant on/off) · `SearchInput` · `SecretText` (reveal/copy) · `DateTimePicker` · `Label` · `InputGroup` · `SignInForm`. Scaffold: `Form` → `FormSection` → `FormRow`. Shared validation props on every input: `invalid`+`errortext`, `valid`+`successtext`, `helptext`, `required`, `disabled`, `readOnly` (rendered via `FormHint`).
 - **Actions**: `Button` (variants below) · `ButtonRow` · `ToggleButton` · `SortButton` · `ThemeToggle` · `Pagination`.
@@ -88,4 +88,4 @@ Use for many items with consistent attributes to scan/compare/sort/filter/act; e
 
 ## Writing & accessibility
 
-Non-negotiables are in SKILL.md. Full rules: `docs/ux/ux-writing-content-design.md` (Title Case, tone, button labels, terminology) and `docs/ux/accessibility.md` (semantic HTML, accessible names, keyboard/focus, contrast, aria-live). Versioning/deprecation: `docs/ux/versioning-and-deprecation-policy.md` (WIP/unstable APIs can change in a minor).
+Non-negotiables are in SKILL.md. Full rules: `docs/ux/ux-writing-content-design.md` (Title Case, tone, button labels, terminology) and `docs/ux/accessibility.md` (semantic HTML, accessible names, keyboard/focus, contrast, aria-live).

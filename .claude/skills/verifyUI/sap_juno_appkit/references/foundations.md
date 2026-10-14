@@ -1,10 +1,10 @@
 # Juno Design Foundations
 
-Everything token-, color-, spacing- and type-related for building apps with Juno.
+Everything token-, color-, spacing- and type-related for building apps with Juno. Exact per-token values live in `tmp/juno/packages/ui-components/src/global.css` + `src/theme.css` — grep these rather than guessing a token name.
 
 ## Setup facts (do not fight these)
 
-- **Tailwind CSS v4**, configured entirely in CSS. There is **no `tailwind.config.js`**. Config lives in `@theme` blocks in `packages/ui-components/src/global.css` and `src/theme.css`.
+- **Tailwind CSS v4**, configured entirely in CSS. There is **no `tailwind.config.js`**. Config lives in `@theme` blocks in `global.css` and `src/theme.css`.
 - Every utility is prefixed `jn:` → `jn:p-4`, `jn:bg-theme-accent`, `jn:text-sm`. The prefix comes from `@import "tailwindcss" prefix(jn)` in `global.css`.
 - `@theme inline` resets Tailwind defaults: `--color-*: initial`, `--font-*: initial`, `--border-width-*: initial`. **Only Juno colors/fonts exist** — there is no `jn:bg-red-500`.
 - Preflight (Tailwind's reset) ships with the import; there is no separate reset file.
@@ -71,7 +71,7 @@ Font families (`--font-*`, default-reset then redeclared):
 - `jn:font-serif` → IBM Plex Serif
 - `jn:font-mono` → IBM Plex Mono (code)
 
-Faces loaded via `src/fonts/plex/css/ibm-plex.css`. **No custom size/leading/tracking scale** → `jn:text-xs/sm/base/lg/...`, `jn:leading-*`, `jn:tracking-*` use Tailwind v4 rem defaults. Button sizing pairs size + leading, e.g. default `jn:text-base jn:leading-6`, small `jn:text-sm jn:leading-5`, xs `jn:text-xs jn:leading-4`.
+**No custom size/leading/tracking scale** → `jn:text-xs/sm/base/lg/...`, `jn:leading-*`, `jn:tracking-*` use Tailwind v4 rem defaults. Button sizing pairs size + leading, e.g. default `jn:text-base jn:leading-6`, small `jn:text-sm jn:leading-5`, xs `jn:text-xs jn:leading-4`.
 
 Color text semantically (`jn:text-theme-default`), not by size.
 
@@ -88,11 +88,3 @@ Color text semantically (`jn:text-theme-default`), not by size.
 - **Class-based, not media-query.** An ancestor carries `.theme-light` or `.theme-dark`; all tier-2 vars resolve from there.
 - In an app, set the theme via `AppShellProvider theme="theme-dark"` or `StyleProvider theme="theme-dark"`. `ThemeToggle` flips it at runtime.
 - Component CSS is injected under `layer(utilities)`; base/properties live in `@layer` blocks (Tailwind v4 cascade layers).
-
-## Animations
-
-Component-local `@keyframes` with a `juno-`-prefixed, scoped name in the component's own `.css`, imported into `global.css` under `layer(utilities)`. No global keyframes/animation token file. (Only relevant when building new components, not when consuming them.)
-
-## Source of truth
-
-Exact per-token values: `src/global.css` + `src/theme.css`. Color docs: `src/docs/colors.mdx`, `src/docs/ColorPalette/`. When in doubt, grep these rather than guessing a token name.

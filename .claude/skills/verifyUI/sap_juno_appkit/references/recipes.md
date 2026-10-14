@@ -1,6 +1,6 @@
 # Juno App Recipes
 
-Copy-paste skeletons. All imports from `@cloudoperators/juno-ui-components`. Every class is `jn:`-prefixed and theme-aware. Prop details: read the component source `packages/ui-components/src/components/{Name}/` or dispatch `sap_juno_lookup`. **All visible labels/titles use Title Case** (`docs/ux/ux-writing-content-design.md`).
+Copy-paste skeletons. All imports from `@cloudoperators/juno-ui-components`. Every class is `jn:`-prefixed and theme-aware. Prop details: read the component source `tmp/juno/packages/ui-components/src/components/{Name}/` or dispatch `sap_juno_lookup`. **All visible labels/titles use Title Case** (`docs/ux/ux-writing-content-design.md`).
 
 ## 1. Standard app page
 
@@ -123,6 +123,8 @@ Validation on any input: `invalid` + `errortext`, `valid` + `successtext`, `help
 
 For fixed-width columns use `gridColumnTemplate` instead of `columns`, e.g. `gridColumnTemplate="1fr 1fr auto 120px"`.
 
+A `DataGridRow` with `onClick` is natively clickable and ships its own hover affordance — do **not** also colour a cell's text as a link (`text-theme-link`) to fake one.
+
 ## 5. Panel drawer ("new item" flow)
 
 ```tsx
@@ -177,21 +179,20 @@ Lower risk: drop the `disableConfirmButton` gate (low) or gate on a Checkbox (me
 />
 ```
 
-`status`: `progress` (set `spinner`), `error` (set `code`/`details`), `empty`, `no-matches`.
+`status`: `progress` (set `spinner`), `error` (set `code`/`details`), `empty`, `no-matches`. The state component is returned **instead of** the DataGrid — never as a row nested below the header.
 
-## 8. Embedded / micro-frontend
+## 8. Detail view — attributes of one record
 
 ```tsx
-<AppShellProvider theme="theme-dark">
-  <AppShell embedded>
-    <Container py>
-      <ContentHeading>Widget</ContentHeading>
-    </Container>
-  </AppShell>
-</AppShellProvider>
+<DescriptionList>
+  <DescriptionTerm>Name</DescriptionTerm>
+  <DescriptionDefinition>{resource.name || "—"}</DescriptionDefinition>
+  <DescriptionTerm>Status</DescriptionTerm>
+  <DescriptionDefinition>{resource.status}</DescriptionDefinition>
+</DescriptionList>
 ```
 
-`embedded` drops the default header/footer and defaults `fullWidthContent` to `true`.
+Key/value attributes of a single entity use `DescriptionList` — **not** a two-column `DataGrid` with a bold label cell. `DataGrid` is only for genuinely tabular, multi-row data. Empty value placeholder is `—` (house rule).
 
 ---
 

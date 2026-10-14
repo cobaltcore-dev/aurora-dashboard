@@ -1,30 +1,36 @@
 ---
 name: sap_juno_appkit
-description: "UI build spec and lean reference map for assembling apps with Juno design-system components (packages/ui-components). Activate when building a Juno app, page, screen or layout, choosing which Juno component fits a UI need, wiring the AppShell scaffold, applying Juno tokens/spacing/colors/theming, or following Juno UX rules (navigation, error/empty/loading states, modals vs panels vs wizards, forms, DataGrid, messages vs toasts, UX writing/title case, accessibility). Carries the non-negotiables and decision tables; points to the repo source and docs/ux for exact detail. Embeddable into a larger SAP app-building skill. NOT for developing the Juno components themselves (use sap_ui_components for that)."
+description: "UI build spec and lean reference map for assembling apps with Juno design-system components (packages/ui-components). Activate when building a Juno app, page, screen or layout, choosing which Juno component fits a UI need, wiring the AppShell scaffold, applying Juno tokens/spacing/colors/theming, or following Juno UX rules (navigation, error/empty/loading states, modals vs panels vs wizards, forms, DataGrid, messages vs toasts, UX writing/title case, accessibility). Carries the non-negotiables and decision tables; points to the repo source and docs/ux for exact detail. Loaded by verifyUI. NOT for developing the Juno components themselves."
 ---
 
 # Juno AppKit — lean UI build map for consuming Juno
 
-Reference map for building **apps with** Juno. Carries only the synthesis — non-negotiables, decision tables, verified tokens, recipes. **The repo is the source of truth**; this skill tells you where to look. For developing Juno components themselves, use `sap_ui_components`.
+Reference map for building and reviewing **apps with** Juno. Carries only the synthesis — non-negotiables, decision tables, verified tokens, recipes. **The repo is the source of truth**; this skill tells you where to look.
+
+## Authority — how this skill must be used
+
+**This skill, together with the Juno repo and `docs/ux` it cites, is the single reference for Juno / UI questions. No other source overrides it** — not general model knowledge, not another skill, not the web. **Do not interpret, infer, or fill gaps.** If the needed detail is not stated here or in the cited Juno source, **report that the information is missing** rather than guessing.
 
 ## MUST consult the source — do not answer detail from memory
 
 This skill is a map, not the full reference. For any **specific prop, variant, type, token value, or full UX rule** beyond the synthesis here, you MUST open the cited source — or dispatch the `sap_juno_lookup` agent — before answering. Never invent a prop name, variant, token, or rule from memory.
 
-| Need                                                       | Read                                                                                                                                                                                                                      |
-| ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A component's exact props / variants / types               | `packages/ui-components/src/components/{Name}/{Name}.component.tsx` (+ `.stories.tsx` for usage)                                                                                                                          |
-| An exact token value                                       | `packages/ui-components/src/global.css`, `src/theme.css` (common ones cached in [references/foundations.md](references/foundations.md))                                                                                   |
-| The full UX rule / rationale for a pattern                 | `docs/ux/<topic>.md` — e.g. `modals.md`, `forms.md`, `datagrid.md`, `error-handling-loading-empty-states.md`, `navigation-side-navigation.md`, `ux-writing-content-design.md`, `accessibility.md`, `semantic-variants.md` |
-| Anything not synthesized here, or a cross-cutting question | dispatch the **`sap_juno_lookup`** agent (read-only; reads the source + docs/ux and returns the answer)                                                                                                                   |
+| Need                                                       | Read                                                                                                                                                                                                                                                          |
+| ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A component's exact props / variants / types               | `tmp/juno/packages/ui-components/src/components/{Name}/{Name}.component.tsx` (+ `.stories.tsx` for usage)                                                                                                                                                     |
+| An exact token value                                       | `tmp/juno/packages/ui-components/src/global.css`, `src/theme.css` (common ones cached in [references/foundations.md](references/foundations.md))                                                                                                              |
+| The full UX rule / rationale for a pattern                 | `tmp/juno/packages/ui-components/src/docs/ux/<topic>.md` — e.g. `modals.md`, `forms.md`, `datagrid.md`, `error-handling-loading-empty-states.md`, `navigation-side-navigation.md`, `ux-writing-content-design.md`, `accessibility.md`, `semantic-variants.md` |
+| Anything not synthesized here, or a cross-cutting question | dispatch the **`sap_juno_lookup`** agent (read-only; reads the source + docs/ux and returns the answer)                                                                                                                                                       |
 
-Storybook (hosted): https://cloudoperators.github.io/juno/ . Full human-readable archive: Obsidian `SAP/Design System/00 Kontext/Juno *`.
+Storybook (hosted): https://cloudoperators.github.io/juno/ .
+
+**Where Juno specifies nothing**, check [references/house-rules.md](references/house-rules.md) for team decisions and known gaps. These are _not_ Juno source and must never be cited as Juno-verified.
 
 ## Hard rules (always)
 
 1. **Prefix every utility with `jn:`** — Tailwind v4 with a `jn` prefix. Unprefixed classes do nothing.
 2. **Semantic `theme-*` classes, never primitives.** `jn:bg-theme-background-lvl-1`, `jn:text-theme-default` adapt to light/dark. Raw Tailwind colors (`jn:bg-red-500`) don't exist — defaults are reset.
-3. **Light/dark is class-based**, set once via `AppShellProvider theme="theme-dark|theme-light"` (or `StyleProvider`). `ThemeToggle` flips it. Theming is light/dark only today — full custom theming is planned, not shipped.
+3. **Light/dark is class-based**, set once via `AppShellProvider theme="theme-dark|theme-light"` (or `StyleProvider`). `ThemeToggle` flips it. Theming is light/dark only today.
 4. **Spacing/type = Tailwind default** (base 0.25rem, rem). Fractional multiples (`jn:py-1.75`, `jn:gap-1.5`) are idiomatic. px only for `rounded-3px`, border widths, breakpoints.
 5. **`AppShell` is the default scaffold.** Don't hand-build the frame; pass its slots. Wrap page body in `Container py` (the content area has no padding of its own).
 6. **Compose containers, don't sprinkle margins.** `Stack` (`gap`), `Grid`, `Container`, `Divider` for rhythm. Reach for Juno components and props before raw utilities.
@@ -69,3 +75,4 @@ Button hierarchy: `primary` **max once per page**, `default` normal, `subdued` w
 | [references/decisions.md](references/decisions.md)     | fuller when-to-use tables — component picker by category, layout composition, navigation, UX pattern decisions (states, modal tiers, messages vs toasts, forms, DataGrid). Each row points to its `docs/ux/` source |
 | [references/foundations.md](references/foundations.md) | verified token quick-reference (colors light/dark, elevation, spacing/grid, type, radius/border) — cached from `global.css`/`theme.css`                                                                             |
 | [references/recipes.md](references/recipes.md)         | copy-paste JSX skeletons: app page, nav, form, data list, panel drawer, modal, empty state, embedded/MFE                                                                                                            |
+| [references/house-rules.md](references/house-rules.md) | team decisions that fill Juno gaps + list of open/undefined points. **NOT Juno source** — never cite as Juno-verified. Added via `UI-Rules:`                                                                        |

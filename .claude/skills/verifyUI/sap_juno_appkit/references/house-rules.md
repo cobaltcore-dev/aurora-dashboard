@@ -1,0 +1,69 @@
+# House Rules — team decisions beyond the Juno source
+
+**NOT the Juno source of truth.** Everything here is a team decision that fills a gap Juno leaves open, or a convention Juno does not specify. Juno-verified rules live in [decisions.md](decisions.md) / [foundations.md](foundations.md) (cached from the repo) and in `docs/ux/`. Never cite a house rule as if it came from Juno.
+
+These rules apply to **every** Juno app — no app-specific scope.
+
+Entries are added via Martin's `UI-Rules:` messages. Keep each one short: the rule, the date, the origin.
+
+## Conventions for reading these rules
+
+- **Juno `docs/ux` wins.** If a rule here would contradict Juno `docs/ux`, the docs take precedence and the rule is NOT recorded. (Verify against the docs before adding a rule.)
+- **Spacing values are optical totals.** Every spacing figure below is the _visible_ gap between elements. Margins and paddings are not added on top of it.
+
+## Decided rules
+
+### Heading hierarchy
+
+- **Rule:** The app title is `h1`; headings below it descend strictly `h2` → `h3` → … Headings not marked up as `h1`–`h6` should still be slotted into the hierarchy, judged by their font size.
+- **Date:** 2026-10-14 · **Origin:** Martin, session
+- _Checked:_ consistent with `docs/ux/accessibility.md` ("heading elements in the correct order").
+
+### Empty-value placeholder
+
+- **Rule:** `—` is the placeholder for an empty value.
+- **Date:** 2026-10-14 · **Origin:** Martin, session
+
+### DescriptionList — two columns
+
+- **Rule:** From 10 rows onward, lay out in two columns with `gap-6` between them. With an odd row count, put more rows on the left than on the right.
+- **Date:** 2026-10-14 · **Origin:** Martin, session
+- _Note:_ app-level layout. Juno's `DescriptionList` has no column prop (only `alignTerms`, internally `grid-cols-4`), so the 2-column split is composed above the component.
+
+### Vertical spacing (optical totals)
+
+- **Rule:**
+  - `2rem` between two related containers / element groups.
+  - `1rem` within such a container / group.
+  - `0.5rem` between a section heading (e.g. a `DescriptionList` or form section) and its content.
+- **Date:** 2026-10-14 · **Origin:** Martin, session
+
+### Horizontal spacing
+
+- **Rule:** Related elements (e.g. filter pills) = `gap-2`; buttons = `gap-6`. These figures describe only the larger spacings, and need not be implemented via the CSS `gap` property specifically — what matters is the optical total.
+- **Date:** 2026-10-14 · **Origin:** Martin, session
+
+### Long-text truncation
+
+- **Rule:** If a text does not fit and breaks the structure or violates the defined spacing, it is a defect.
+- **Date:** 2026-10-14 · **Origin:** Martin, session
+
+### Prop defined but solved via CSS
+
+- **Rule:** If a component exposes its own prop for a behavior but that behavior was solved via CSS / classes instead, flag it.
+- **Date:** 2026-10-14 · **Origin:** Martin, session
+
+### DataGrid header / toolbar
+
+- **Rule:** ComboBox and Filter are always on the left, Search on the right.
+- **Rule:** No vertical space between the DataGrid header (toolbar) and the DataGrid.
+- **Date:** 2026-10-14 · **Origin:** Martin, session
+- _Checked:_ "no vertical space" is consistent with `DataGridToolbar` separating via `border-b`, not margin.
+- _Not recorded (contradicts docs):_ "positions stay fixed when one element is absent" — `docs/ux/datagrid.md` says remaining space is redistributed and positions shift ("accepted tradeoff"). Dropped per the Juno-docs-win convention.
+
+## Open / undefined (gaps, not yet decided)
+
+Places where Juno specifies nothing and no house rule exists yet. Promote to **Decided rules** once resolved.
+
+- **Zebra striping / row dividers in `DescriptionList`** — not specified. Intended or not?
+- **Density** (compact vs comfortable) for lists / `DataGrid` — not specified.

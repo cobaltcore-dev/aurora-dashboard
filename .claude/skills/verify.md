@@ -68,6 +68,14 @@ the app is the dashboard: `pnpm dev` (serves on `:4001` against the configured
 Internal function is not a surface — follow it to the CLI/request/render that reaches it
 and drive that. Tests in the diff are the author's evidence, not a surface.
 
+**GUI surface → also check it against Juno.** When the change reaches pixels (`*.tsx`,
+routes, Juno components), "it works" is not enough — the running screen must obey the Juno
+design system. After you've captured the screen (step 4), hand the screenshots and the code
+scope to the **`verifyUI`** skill: it runs the 12-point UX checklist and the source
+Juno-usage check against `sap_juno_appkit` + the real Juno source, and writes its own report
+to `tmp/aurora-reviews/`. Fold its ❌/⚠️ into your findings (cite the Juno rule). A visible
+UX-rule violation is a ❌. (CLI/server/library surfaces skip this.)
+
 ## 4. Drive it
 
 Smallest path that makes the changed code execute, end-to-end through the real interface.
@@ -84,6 +92,9 @@ Confirming the happy path is step one, not the job. Probe _around_ the change at
 surface: new flag → empty/dupe/conflicting value; new route → wrong method, malformed body;
 changed error path → trigger the error and the adjacent ones; state → do it twice. At least
 one probe (🔍). A step list that's all ✅ is a happy-path replay.
+
+For GUI surfaces, one probe is the **Juno pass**: run `verifyUI` on the captured screen (step 3) and record its verdict as a 🔍 — even when it holds. Each UX-rule violation it finds is a ❌
+cited to its Juno rule.
 
 Capture everything — response bodies, screenshots, pane dumps. Unexpected output is a
 finding, not noise. Isolate shared state (ports, tmux) so you don't collide with the host.
@@ -111,6 +122,7 @@ Screenshots: tmp/aurora-reviews/screenshots/<...>.png
 ❌ file:line – problem → fix
 ⚠️ file:line – risk → suggestion
 🔍 <probe> → <result, even when it held>
+   (GUI: run verifyUI; cite each Juno-rule violation, e.g. ux-writing-content-design – not Title Case)
 
 ## Coverage   (only when verifying against a multi-phase epic)
 Phase 1 ✅ · Phase 2 🚧 · Phase 3 ⏳
