@@ -25,7 +25,7 @@ This is the only `tmp/` path that is gitignored (`.gitignore` has `tmp/aurora-re
 
 Always pass an **absolute** path to the screenshot tool (`<repo>/tmp/aurora-reviews/screenshots/<name>.png`). The Playwright MCP defaults to the repo root, so a bare filename lands in a tracked path — never do that. If any tool wrote a screenshot to the repo root or any other path, move it into `tmp/aurora-reviews/screenshots/` before replying.
 
-**Local dev credentials**: Domain `Default`, User `admin`, Password `password`.
+**Login — never auto-fill credentials.** When a live-review run hits a login form, open the browser to it, leave every field blank, and **pause** — ask the user to type their own domain / user / password and sign in. The backend may differ and the credentials are theirs to enter. Don't hardcode or guess them, and don't read them from `.env` to fill the form for the user.
 
 ## 1. Identify inputs & mode
 
@@ -152,4 +152,4 @@ If step 2 identified a service/resource screen (list/detail/CRUD), also check it
 
 ## Capture (when driving the app yourself)
 
-When invoked standalone to review a live screen (not handed screenshots by `verify`), reuse the Playwright login→navigate→screenshot flow: log in with the dev credentials above, navigate to the screen, capture a settled screenshot to `tmp/aurora-reviews/screenshots/`. `verify` already does this and hands the screenshots over — in that case start at step 1 with the images it captured.
+When invoked standalone to review a live screen (not handed screenshots by `verify`), reuse the Playwright login→navigate→screenshot flow: open the browser to the login screen and let the **user** enter their own credentials (see the login rule above — never auto-fill), navigate to the screen, capture a settled screenshot to `tmp/aurora-reviews/screenshots/`. `verify` already does this and hands the screenshots over — in that case start at step 1 with the images it captured.

@@ -15,7 +15,13 @@ change works. Go to the real surface (CLI, socket, pixels) and drive it.
 every verify run, no exception. An inline-only reply is not acceptable; the chat reply is
 just the path plus the verdict and ❌ count.
 
-**Local dev credentials**: Domain `Default`, User `admin`, Password `password`.
+**Login — never auto-fill credentials.** The backend may differ from run to run,
+and real credentials are the user's to enter. When a GUI run hits a login form, open
+the browser to it, leave every field blank, and **pause** — tell the user the login
+screen is up and ask them to type their domain / user / password and sign in. Only
+after they confirm they're authenticated do you navigate to the changed screen. Do not
+hardcode or guess a domain/user/password, and do not read them from `.env` to fill the
+form on the user's behalf.
 
 **Artifacts — all under `tmp/aurora-reviews/`.** This is the only `tmp/` path that is
 gitignored (`.gitignore` has `tmp/aurora-reviews/`, not `tmp/` itself). Everything this
@@ -79,9 +85,10 @@ UX-rule violation is a ❌. (CLI/server/library surfaces skip this.)
 ## 4. Drive it
 
 Smallest path that makes the changed code execute, end-to-end through the real interface.
-If users click buttons, click buttons — don't curl the API underneath. For GUI work: log
-in with the dev credentials above, navigate to the changed screen, capture a screenshot to
-`tmp/aurora-reviews/screenshots/`.
+If users click buttons, click buttons — don't curl the API underneath. For GUI work: open
+the browser to the login screen and let the **user** enter their own credentials (see the
+login rule above — never auto-fill), then navigate to the changed screen and capture a
+screenshot to `tmp/aurora-reviews/screenshots/`.
 
 **Destructive path** (deletes, publishes, sends, writes outside the workspace) with no
 dry-run/safe target → don't drive it live; verify around it and say which path you skipped.
