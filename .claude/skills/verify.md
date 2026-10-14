@@ -1,40 +1,55 @@
 ---
 name: verify
-description: Verify an Aurora epic against a service. Use when the user wants an epic, feature or service checked for security, architecture or UI. Routes to security-and-hardening, verifyArch, verifyUI.
-argument-hint: <epic> <service>
+description: Verify an Aurora epic against code changes. Use when the user wants an epic, feature or service checked for security, architecture or UI. Routes to security-and-hardening, verifyArch, verifyUI.
+argument-hint: <epic> [PR number | branch | commit | path]
 ---
 
 # verify
 
-Input: `$ARGUMENTS` = Epic (text, link or ID) + Service (name or path).
+The epic is the spec, not the thing being verified. Always check the **code** against the epic, even if the epic is only a plan and nothing is built yet.
 
-1. **Clarify**: If epic or service is missing or ambiguous, ask ONE short question covering all gaps. Otherwise don't ask.
+Ask only when the epic or service is genuinely unclear: ONE short question about that gap. Never ask what kind of verification to do (status, PR, runtime, branch); the scope rules below decide that. State your choices in the report.
 
-2. **Route**: Pick only the subskills that match the request.
+**Local dev credentials**: Domain `Default`, User `admin`, Password `password`
 
-   | Signal in epic/request                                                                | Subskill                 |
-   | ------------------------------------------------------------------------------------- | ------------------------ |
-   | auth, tokens, secrets, permissions, user input, API/BFF, deps, CSP                    | `security-and-hardening` |
-   | new module/route, tRPC router, data flow, Zustand state, package boundaries, refactor | `verifyArch`             |
-   | components, Juno, layout, forms, a11y, i18n, loading/error states                     | `verifyUI`               |
+1. **Scope**: If the epic is an issue number, load it with `gh issue view <n> --json title,body`. Then turn the input into a file list once:
+   - no scope → current branch: `git diff --name-only main...HEAD`
+   - empty diff (e.g. on `main`) → Grep the repo for the epic's feature keywords (e.g. `network`) and use the matching files
+   - PR number → `gh pr diff <n> --name-only`
+   - branch or commit → `git diff --name-only main...<ref>`
+   - path → files under it
 
-   An explicit user choice wins ("only UI"). If there is no clear signal, ask. Run all three only if the user says "full".
+   If the epic is missing or can't be matched to a service, ask. Runtime testing is out of scope; don't offer it.
 
-3. **Run**: Invoke the selected subskills with the Skill tool, one at a time. Pass each one only:
-   - the epic goal in one line
-   - the acceptance criteria
-   - the service path
+2. **Route**: Pick only the subskills that match the epic or the files.
 
-   Stay inside the service path. Use Grep before Read, and don't read whole directories.
+   | Signal                                                                      | Subskill                 |
+   | --------------------------------------------------------------------------- | ------------------------ |
+   | auth, tokens, secrets, permissions, user input, API/BFF, deps, CSP          | `security-and-hardening` |
+   | new module/route, tRPC router, data flow, Zustand state, package boundaries | `verifyArch`             |
+   | `*.tsx` changes, Juno, layout, forms, a11y, i18n                            | `verifyUI`               |
 
-4. **Report**: Write one merged list. Don't restate the epic.
+   An explicit user choice wins ("only UI"). If nothing matches, ask which checks to run; run all three only if the user says "full".
+
+3. **Run**: Invoke the selected subskills with the Skill tool, one at a time. Pass each one only the epic goal, the acceptance criteria and the file list. Use Grep before Read, and don't read files outside the list.
+
+4. **Coverage**: Map each phase and requirement of the epic to the code: ✅ done, 🚧 partial, ⏳ not started. Not started is status, not a finding. If no code exists at all, say so in one line and still save the report.
+
+5. **Save**: Write the report to `tmp/aurora-reviews/verify-<feature>-<YYYY-MM-DD>.md` in the repo root. `<feature>` is a short kebab-case name from the epic, for example `networks`. If the file exists, append `-2`, `-3`, and so on. Reply in chat with only the path and the ❌ count.
 
    ```
-   ## verify: <service> – <epic>
-   Ran: security, arch · Skipped: ui (no UI change)
+   # verify: <feature> – <epic>
+   Scope: PR #456 (12 files) · Ran: security, ui · Skipped: arch (no signal)
+
+   ## Findings
    ❌ file:line – problem → fix
    ⚠️ file:line – risk → suggestion
-   ✅ <acceptance criterion> covered
+
+   ## Coverage
+   Phase 1 ✅ · Phase 2 🚧 · Phase 3 ⏳ · Phase 4 ⏳
+   ✅ <requirement> – file
+   🚧 <requirement> – what's missing
+   ⏳ <requirement>
    ```
 
    List at most ~10 findings, highest severity first. If nothing is found, write `✅ No findings`.
