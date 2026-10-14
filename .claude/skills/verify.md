@@ -1,63 +1,122 @@
 ---
-name: aurora-verify
-description: Static code review of Aurora feature code against an epic, with security, BFF/architecture and UI checks. Use when the user runs /aurora-verify or asks to check an epic's code. Routes to security-and-hardening, verifyArch, verifyUI. Not a runtime or bug-fix check.
-argument-hint: <epic number or URL> [sec] [bff] [ui] [PR number | branch | commit | path]
+name: verify
+description: Runtime verification of a change — build the app, run it, drive it to where the changed code executes, and capture what you see. Use when the user runs /verify or asks to verify a PR/issue/epic, confirm a fix works, test a change manually, or validate local changes. Observation, not static review.
+argument-hint: <epic/issue/PR number or URL | branch | commit | path>
 ---
 
-# aurora-verify
+# verify
 
-The epic is the spec, not the thing being verified, and not a bug report. Check the **feature code** against the epic, even if the epic is only a plan and most of it isn't built yet. Don't run the app. Never stop with "nothing to verify": always finish all steps and save the report.
+**Verification is runtime observation.** Build the app, run it, drive it to where the
+changed code executes, and capture what you see. That capture is your evidence. Don't
+run tests, don't typecheck, don't import-and-call — those prove CI runs, not that the
+change works. Go to the real surface (CLI, socket, pixels) and drive it.
 
-**Always save the report as a markdown file** under `tmp/aurora-reviews/` (see step 5) — every verify run, no exception. An inline-only reply is not acceptable; the chat reply is just the path plus the ❌ count. This holds even for runtime verification: whatever was observed, write it to a `.md` there before replying.
+**Always save the report as a markdown file** under `tmp/aurora-reviews/` (see step 6) —
+every verify run, no exception. An inline-only reply is not acceptable; the chat reply is
+just the path plus the verdict and ❌ count.
 
-Questions: ask ONE short question when the epic or service is unclear, plus the check selection in step 2. Never ask what kind of verification to do (status, PR, runtime, branch); the scope rules below decide that. State your choices in the report.
+**Local dev credentials**: Domain `Default`, User `admin`, Password `password`.
 
-**Local dev credentials**: Domain `Default`, User `admin`, Password `password`
+**Artifacts — all under `tmp/aurora-reviews/`.** This is the only `tmp/` path that is
+gitignored (`.gitignore` has `tmp/aurora-reviews/`, not `tmp/` itself). Everything this
+skill produces goes there and nowhere else:
 
-**Screenshots**: if any screenshots are taken while verifying (e.g. driving the browser via the Playwright MCP), always save them under `tmp/aurora-reviews/` — the only `tmp/` path that is gitignored (`.gitignore` ignores `tmp/aurora-reviews/`, not `tmp/` itself). Pass an absolute filename, e.g. `<repo>/tmp/aurora-reviews/screenshots/<name>.png`. Never save to the repo root, to `tmp/` directly, or to any other tracked path — the Playwright MCP defaults to the repo root, so always pass an explicit path. If a tool wrote a screenshot elsewhere, move it into `tmp/aurora-reviews/` before replying.
+- Report md → `tmp/aurora-reviews/verify-<feature>-<YYYY-MM-DD>.md`
+- Screenshots → `tmp/aurora-reviews/screenshots/<name>.png`
 
-1. **Scope**: Load the epic with `gh issue view <n> --json title,body`. If `gh` fails (e.g. not logged in), WebFetch the issue URL instead. Then build the file list once:
-   - no scope → all branch work, committed and uncommitted: `git diff --name-only $(git merge-base origin/main HEAD)`
-   - PR number → `gh pr diff <n> --name-only`
-   - branch or commit → `git diff --name-only origin/main...<ref>`
-   - path → files under it
+Always pass an **absolute** path to the screenshot tool, e.g.
+`<repo>/tmp/aurora-reviews/screenshots/<name>.png`. The Playwright MCP defaults to the
+repo root, so a bare filename lands in a tracked path — never do that. If any tool wrote a
+screenshot to the repo root, to `tmp/` directly, or to any other path, move it into
+`tmp/aurora-reviews/screenshots/` before replying.
 
-   Then filter the list:
-   - Drop `.claude/**`, `tmp/**` and `*.md`. Skills, reports and docs are never the subject.
-   - Keep only files related to the epic's feature (keywords in path or content, e.g. `network`).
-   - If nothing is left, Grep the repo for the feature keywords and use those files.
+## 1. Scope — find the change
 
-   Runtime testing is out of scope; don't offer it.
+Load the spec: `gh issue view <n> --json title,body` (or `gh pr view`/`gh pr diff`); if
+`gh` fails, WebFetch the URL. An epic/issue is the spec, not the thing verified — verify
+the feature code against it, even if most of the epic isn't built yet. Then establish the
+diff:
 
-2. **Route**: If the input names checks (`sec`, `bff`, `ui`), run exactly those. Otherwise preselect the ones that match the epic or files, then ask ONE multi-select question with AskUserQuestion: "Which checks? sec / bff / ui", with the matches marked as recommended. `bff` means `verifyArch`.
+- no scope → `git diff --stat $(git merge-base origin/main HEAD)` (all branch work, committed + uncommitted)
+- PR number → `gh pr diff <n>`
+- branch or commit → `git diff origin/main...<ref>`
+- path → files under it
 
-   | Signal                                                                      | Subskill                 |
-   | --------------------------------------------------------------------------- | ------------------------ |
-   | auth, tokens, secrets, permissions, user input, API/BFF, deps, CSP          | `security-and-hardening` |
-   | new module/route, tRPC router, data flow, Zustand state, package boundaries | `verifyArch`             |
-   | `*.tsx` changes, Juno, layout, forms, a11y, i18n                            | `verifyUI`               |
+State the commit count. The diff is ground truth; any description is a claim about it —
+if they disagree, that's a finding. No runtime surface at all (docs-only, types-only,
+tests-only) → **SKIP**, one line, still save the report.
 
-   `full` in the input runs all three without asking.
+## 2. Get a handle
 
-3. **Run**: Invoke the selected subskills with the Skill tool, one at a time. Pass each one only the epic goal, the acceptance criteria and the file list. Use Grep before Read, and don't read files outside the list.
+Check `.claude/skills/` for a `verifier-*`/`run-*` helper first. For BFF/backend/server/tRPC
+changes under `packages/aurora/src/server`, use the `aurora-bff-review` skill from
+`.claude/skills/verifyArch/` instead of this generic verify protocol — it validates against
+the epic and OpenStack API docs. Otherwise cold-start from README/package.json. For this repo
+the app is the dashboard: `pnpm dev` (serves on `:4001` against the configured
+`IDENTITY_ENDPOINT`). Confirm the backend is reachable before driving. Timebox cold start
+~15 min; stuck → **BLOCKED** with exactly where it stopped.
 
-4. **Coverage**: Map each phase and requirement of the epic to the code: ✅ done, 🚧 partial, ⏳ not started. Not started is status, not a finding. If no feature code exists at all, say so in one line and still save the report.
+## 3. Surface — where a user meets the change
 
-5. **Save**: Write the report to `tmp/aurora-reviews/verify-<feature>-<YYYY-MM-DD>.md` in the repo root. `<feature>` is a short kebab-case name from the epic, for example `networks`. If the file exists, append `-2`, `-3`, and so on. Reply in chat with only the path and the ❌ count.
+| Change reaches              | Surface          | You                                    |
+| --------------------------- | ---------------- | -------------------------------------- |
+| CLI / TUI                   | terminal         | type the command, capture the pane     |
+| Server / API / tRPC         | socket           | send the request, capture the response |
+| GUI (`*.tsx`, routes, Juno) | pixels           | drive via Playwright MCP, screenshot   |
+| Library                     | package boundary | call through the public export         |
 
-   ```
-   # verify: <feature> – <epic>
-   Scope: branch hack-valid (14 files) · Ran: security, ui · Skipped: arch (no signal)
+Internal function is not a surface — follow it to the CLI/request/render that reaches it
+and drive that. Tests in the diff are the author's evidence, not a surface.
 
-   ## Findings
-   ❌ file:line – problem → fix
-   ⚠️ file:line – risk → suggestion
+## 4. Drive it
 
-   ## Coverage
-   Phase 1 ✅ · Phase 2 🚧 · Phase 3 ⏳ · Phase 4 ⏳
-   ✅ <requirement> – file
-   🚧 <requirement> – what's missing
-   ⏳ <requirement>
-   ```
+Smallest path that makes the changed code execute, end-to-end through the real interface.
+If users click buttons, click buttons — don't curl the API underneath. For GUI work: log
+in with the dev credentials above, navigate to the changed screen, capture a screenshot to
+`tmp/aurora-reviews/screenshots/`.
 
-   List at most ~10 findings, highest severity first. If nothing is found, write `✅ No findings`.
+**Destructive path** (deletes, publishes, sends, writes outside the workspace) with no
+dry-run/safe target → don't drive it live; verify around it and say which path you skipped.
+
+## 5. Push on it
+
+Confirming the happy path is step one, not the job. Probe _around_ the change at the same
+surface: new flag → empty/dupe/conflicting value; new route → wrong method, malformed body;
+changed error path → trigger the error and the adjacent ones; state → do it twice. At least
+one probe (🔍). A step list that's all ✅ is a happy-path replay.
+
+Capture everything — response bodies, screenshots, pane dumps. Unexpected output is a
+finding, not noise. Isolate shared state (ports, tmux) so you don't collide with the host.
+
+## 6. Save
+
+Write the report to `tmp/aurora-reviews/verify-<feature>-<YYYY-MM-DD>.md`. `<feature>` is a
+short kebab-case name from the spec (e.g. `networks`). If the file exists, append `-2`,
+`-3`, etc. Reply in chat with only the path, the verdict and the ❌ count.
+
+```
+# verify: <feature> – <epic/PR> (runtime)
+Scope: branch <name> (<n> commits) · Backend: <endpoint>
+Screenshots: tmp/aurora-reviews/screenshots/<...>.png
+
+**Verdict:** PASS | FAIL | BLOCKED | SKIP
+
+## Claim
+<your read of the diff and/or stated claim; note any mismatch>
+
+## Steps
+1. ✅/❌/⚠️/🔍 <what you did to the running app> → <what you observed + evidence>
+
+## Findings
+❌ file:line – problem → fix
+⚠️ file:line – risk → suggestion
+🔍 <probe> → <result, even when it held>
+
+## Coverage   (only when verifying against a multi-phase epic)
+Phase 1 ✅ · Phase 2 🚧 · Phase 3 ⏳
+```
+
+**Verdicts:** PASS — ran it, change works at its surface. FAIL — ran it, doesn't, or breaks
+something else, or claim/diff disagree. BLOCKED — couldn't reach an observable state (say
+where). SKIP — no runtime surface. No partial pass; "3 of 4" is FAIL until explained. When
+in doubt, FAIL. List at most ~10 findings, worst first; if nothing, write `✅ No findings`.
