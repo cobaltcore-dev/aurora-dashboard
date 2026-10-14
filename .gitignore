@@ -11,6 +11,7 @@ server/dist
 public/dist
 .claude/*
 !.claude/skills/
+!.claude/agents/
 CLAUDE*
 .out-of-code-insights
 
