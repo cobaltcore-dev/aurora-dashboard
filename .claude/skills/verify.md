@@ -8,9 +8,13 @@ argument-hint: <epic number or URL> [sec] [bff] [ui] [PR number | branch | commi
 
 The epic is the spec, not the thing being verified, and not a bug report. Check the **feature code** against the epic, even if the epic is only a plan and most of it isn't built yet. Don't run the app. Never stop with "nothing to verify": always finish all steps and save the report.
 
+**Always save the report as a markdown file** under `tmp/aurora-reviews/` (see step 5) — every verify run, no exception. An inline-only reply is not acceptable; the chat reply is just the path plus the ❌ count. This holds even for runtime verification: whatever was observed, write it to a `.md` there before replying.
+
 Questions: ask ONE short question when the epic or service is unclear, plus the check selection in step 2. Never ask what kind of verification to do (status, PR, runtime, branch); the scope rules below decide that. State your choices in the report.
 
 **Local dev credentials**: Domain `Default`, User `admin`, Password `password`
+
+**Screenshots**: if any screenshots are taken while verifying (e.g. driving the browser via the Playwright MCP), always pass an absolute filename under `tmp/` in the repo root — e.g. `tmp/aurora-reviews/screenshots/<name>.png`. Never save to the repo root or any tracked path.
 
 1. **Scope**: Load the epic with `gh issue view <n> --json title,body`. If `gh` fails (e.g. not logged in), WebFetch the issue URL instead. Then build the file list once:
    - no scope → all branch work, committed and uncommitted: `git diff --name-only $(git merge-base origin/main HEAD)`
