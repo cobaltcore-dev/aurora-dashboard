@@ -14,7 +14,7 @@ Questions: ask ONE short question when the epic or service is unclear, plus the 
 
 **Local dev credentials**: Domain `Default`, User `admin`, Password `password`
 
-**Screenshots**: if any screenshots are taken while verifying (e.g. driving the browser via the Playwright MCP), always pass an absolute filename under `tmp/` in the repo root — e.g. `tmp/aurora-reviews/screenshots/<name>.png`. Never save to the repo root or any tracked path.
+**Screenshots**: if any screenshots are taken while verifying (e.g. driving the browser via the Playwright MCP), always save them under `tmp/aurora-reviews/` — the only `tmp/` path that is gitignored (`.gitignore` ignores `tmp/aurora-reviews/`, not `tmp/` itself). Pass an absolute filename, e.g. `<repo>/tmp/aurora-reviews/screenshots/<name>.png`. Never save to the repo root, to `tmp/` directly, or to any other tracked path — the Playwright MCP defaults to the repo root, so always pass an explicit path. If a tool wrote a screenshot elsewhere, move it into `tmp/aurora-reviews/` before replying.
 
 1. **Scope**: Load the epic with `gh issue view <n> --json title,body`. If `gh` fails (e.g. not logged in), WebFetch the issue URL instead. Then build the file list once:
    - no scope → all branch work, committed and uncommitted: `git diff --name-only $(git merge-base origin/main HEAD)`
