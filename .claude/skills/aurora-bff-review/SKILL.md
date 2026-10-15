@@ -1,13 +1,13 @@
 ---
 name: aurora-bff-review
-description: Review and verify an Aurora Dashboard BFF implementation (tRPC routers, Zod types, helpers, tests, docs under packages/aurora/src/server and packages/aurora/docs) against the epic description and the official OpenStack API documentation. Writes a classified findings report to findings/ in the repo root. It only analyzes and never changes code; findings are fixed separately with the aurora-findings-remediation skill. Use this skill whenever the user asks to review, verify, audit, check or validate BFF / backend / server / tRPC changes for an OpenStack resource, compare an implementation with an epic or with the OpenStack API reference, even if they don't name the skill.
+description: Review and verify an Aurora Dashboard BFF implementation (tRPC routers, Zod types, helpers, tests, docs under packages/aurora/src/server and packages/aurora/docs) against the epic description and the official OpenStack API documentation. Writes a classified findings report to the gitignored tmp/aurora-reviews/ (alongside the verify and verifyUI reports). It only analyzes and never changes code; findings are fixed separately with the aurora-findings-remediation skill. Use this skill whenever the user asks to review, verify, audit, check or validate BFF / backend / server / tRPC changes for an OpenStack resource, compare an implementation with an epic or with the OpenStack API reference, even if they don't name the skill.
 ---
 
 # Aurora BFF Review
 
 This skill verifies that a BFF implementation in `packages/aurora/src/server` does what the epic requires and calls the OpenStack API correctly. It also checks that the implementation follows the conventions of its own server module.
 
-**This skill only analyzes.** It collects, classifies and documents issues in a Markdown report under `findings/` in the repo root, and it **never changes code**. To fix findings, the user runs `aurora-findings-remediation` with the report. The report is written so that skill can work from it alone.
+**This skill only analyzes.** It collects, classifies and documents issues in a Markdown report under `tmp/aurora-reviews/` (gitignored; shared with verify and verifyUI), and it **never changes code**. To fix findings, the user runs `aurora-findings-remediation` with the report. The report is written so that skill can work from it alone.
 
 Talk to the user in the language they write in. The report is in English.
 
@@ -54,7 +54,7 @@ Follow `references/checklist.md` in order. Summary:
 4. **Baseline.** Read the module's existing implementation and the repo-wide helpers (`references/baseline.md`), so you can judge consistency against that module's real conventions.
 5. **Review.** Go through the in-scope files with the checklist categories: requirements coverage, API conformance, schemas, error handling, security and scoping, enrichment and performance, conventions, tests, docs.
 6. **Classify** each finding with severity, category, confidence and the rule source (`references/classification.md`).
-7. **Write the report** to `findings/bff-review-<resource>-<YYYY-MM-DD>.md`, using `assets/report-template.md`. If that file already exists, append `-2`, `-3`, ...
+7. **Write the report** to `tmp/aurora-reviews/bff-review-<resource>-<YYYY-MM-DD>.md`, using `assets/report-template.md`. If that file already exists, append `-2`, `-3`, ...
 8. **Stop and present:**
    - the report path;
    - finding counts by severity;
@@ -69,12 +69,12 @@ Don't fix anything within this skill, even if asked in the same conversation. Ha
 
 ## Files in this skill
 
-| File                              | Use                                                                     |
-| --------------------------------- | ----------------------------------------------------------------------- |
-| `references/intake.md`            | Intake questions and scope confirmation                                 |
-| `references/checklist.md`         | Analysis procedure and all checks per category                          |
-| `references/openstack-sources.md` | Where to find authoritative OpenStack API facts                         |
-| `references/baseline.md`          | Repo-wide helpers and per-module conventions, and how to re-derive them |
-| `references/classification.md`    | Severity, category, confidence and status definitions                   |
-| `assets/report-template.md`       | Findings report structure                                               |
-| `scripts/init_findings_dir.sh`    | Creates `findings/` and keeps it out of git (local exclude)             |
+| File                              | Use                                                                           |
+| --------------------------------- | ----------------------------------------------------------------------------- |
+| `references/intake.md`            | Intake questions and scope confirmation                                       |
+| `references/checklist.md`         | Analysis procedure and all checks per category                                |
+| `references/openstack-sources.md` | Where to find authoritative OpenStack API facts                               |
+| `references/baseline.md`          | Repo-wide helpers and per-module conventions, and how to re-derive them       |
+| `references/classification.md`    | Severity, category, confidence and status definitions                         |
+| `assets/report-template.md`       | Findings report structure                                                     |
+| `scripts/init_findings_dir.sh`    | Creates the shared `tmp/aurora-reviews/` dir (gitignored) and prints its path |
