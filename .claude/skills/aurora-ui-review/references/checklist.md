@@ -43,7 +43,7 @@ Work through the passes in order. For each check: record a finding, list it unde
   - **State rows** (DT-7): `colSpan={columns}` on all state rows, loading/error/empty/no-matches in order, Status component inside DataGridCell (not outside DataGrid)
   - **Cell rendering** (DT-8): empty value always `- -` (two hyphens space-separated), Badge only when `statusVariantMap` explicitly provided (labelMap alone renders plain text), boolean labelMap keys are `"true"`/`"false"` (String), `col.bold` never inferred (primary doesn't imply bold)
   - **Bulk select-all** (DT-9): checkbox state derived from selected count vs total count
-  - **All 22 Invariants**: read `build-datagrid/SKILL.md` Invariants section and verify each (e.g. no `DataGridFoot` unless requested, `PopupMenu` requires `PortalProvider`, action column always in `minContentColumns`, column headers are nouns not verbs, etc.)
+  - **All 17 Invariants**: read `build-datagrid/SKILL.md` Invariants section and verify each (e.g. no `DataGridFoot` unless requested, `PopupMenu` requires `PortalProvider`, action column always in `minContentColumns`, column headers are nouns not verbs, etc.)
 - [ ] **Toolbar zones & clickable rows** (`datagrid.md`): whole row clickable with hover feedback when `onClick` set; filter/sort persistence; identifying column first, action column last with `PopupMenu`
 - [ ] **Page-level actions** (`page-level-actions.md`): one `primary` action per page; overflow composition; refresh button rules; tabbed pages keep page actions above the tab bar
 - [ ] **Page structure** (`page-content-area.md`): every page has Page Header + Content Area + Page Footer

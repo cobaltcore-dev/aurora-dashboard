@@ -73,6 +73,6 @@ Don't fix anything within this skill, even if asked in the same conversation. Ha
 | `references/baseline.md`            | Existing Aurora UIs to understand the structure, fix-style references, known anti-patterns (no authority) |
 | `references/classification.md`      | Severity, category, confidence and status definitions                                                     |
 | `assets/report-template.md`         | Findings report structure                                                                                 |
-| `build-datagrid/SKILL.md`           | DataGrid structure authority — decision trees (DT-1…DT-9) and 22 Invariants for validating DataGrid usage |
+| `build-datagrid/SKILL.md`           | DataGrid structure authority — decision trees (DT-1…DT-9) and 17 Invariants for validating DataGrid usage |
 | `scripts/init_findings_dir.sh`      | Creates the shared `tmp/aurora-reviews/` dir (gitignored) and prints its path                             |
 | `scripts/locate_juno.sh`            | Finds the installed `juno-ui-components` (path, version, component types)                                 |

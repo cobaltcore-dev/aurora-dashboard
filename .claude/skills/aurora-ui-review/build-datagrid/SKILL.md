@@ -1,6 +1,6 @@
 ---
 name: build-datagrid
-description: Generate a complete DataGrid implementation from a BRD excerpt or structured requirements. Covers all header zones, column layout, row features, and states. Use when the user says "build a DataGrid for X", "generate a DataGrid", "scaffold a DataGrid", or provides data/feature requirements and asks for a DataGrid. Also the deterministic authority verifyUI's source check compares DataGrid call-sites against (the decision trees and Invariants double as a review spec). Loaded by verifyUI.
+description: Generate a complete DataGrid implementation from a BRD excerpt or structured requirements. Covers all header zones, column layout, row features, and states. Use when the user says "build a DataGrid for X", "generate a DataGrid", "scaffold a DataGrid", or provides data/feature requirements and asks for a DataGrid. Also the deterministic authority aurora-ui-review's source check compares DataGrid call-sites against (the decision trees and Invariants double as a review spec). Loaded by aurora-ui-review.
 ---
 
 Generate a complete DataGrid implementation that conforms to the Juno component library patterns. The output must be deterministic given the same input — all structural choices are resolved by the decision trees below. This specification is toolchain-agnostic: it can drive code generation, output validation, or review tooling equally.
@@ -61,6 +61,9 @@ interface ColumnDef {
   // Known value transform applied before rendering. Applies to "number" type.
   // "arrayLength": item[field] is an array; renders item[field].length rather than the array itself.
   // Must be explicitly specified; never inferred from the field type or name.
+  displayAs?: "badge"
+  // Opt-in Badge rendering for "boolean" columns. Omitting it renders plain text (the default).
+  // Must be explicitly provided; never inferred.
 }
 
 interface FilterFieldDef {
