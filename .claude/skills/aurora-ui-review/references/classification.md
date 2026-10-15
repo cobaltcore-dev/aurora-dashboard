@@ -16,7 +16,7 @@ When in doubt between two severities, pick the lower one and explain why.
 
 ## Category
 
-`Requirements` · `Data & Security` · `Permissions` · `DataGrid` · `States` · `URL State` · `Page Structure & Actions` · `Modals & Forms` · `Messages & Notifications` · `UX Writing` · `Accessibility` · `Component API` · `Conventions` · `Tests` · `Build`
+`Requirements` · `Data & Security` · `Permissions` · `DataGrid` · `States` · `URL State` · `Page Structure & Actions` · `Modals & Forms` · `Messages & Notifications` · `UX Writing` · `Accessibility` · `Component API` · `Conventions` · `Tests`
 
 ## Confidence
 

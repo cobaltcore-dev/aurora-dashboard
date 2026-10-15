@@ -23,7 +23,7 @@ Judge new code against the conventions of **its own module**. The facts below co
 - tRPC errors are handled gracefully;
 - each procedure uses the correct procedure type (e.g. `protectedProcedure` for authenticated routes, `projectScopedProcedure` for project resources).
 
-Don't report what tooling enforces (formatting, general type errors). Run `scripts/verify.sh` and report its failures under category `Build`.
+Don't report what tooling enforces (formatting, general type errors, lint rules). The review doesn't run the tooling either; CI and the remediation skill's verification cover it.
 
 ## Per-module conventions
 

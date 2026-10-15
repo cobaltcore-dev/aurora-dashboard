@@ -21,7 +21,7 @@
 | Low      | 0    | 0     | 0        | 0         |
 | Info     | 0    | –     | –        | –         |
 
-Verification: `<verify.sh command>` → <passed / failed: which steps>
+Tooling (typecheck, lint, format, tests) was not run during the review; CI and `aurora-findings-remediation` cover it.
 
 ## Requirements Traceability
 

@@ -30,6 +30,7 @@ Talk to the user in the language they write in. The report is in English.
 
   If the epic requires something the API can't do, that is an Open Question, not a finding.
 
+- **No tooling runs.** Don't run any pnpm scripts or other checks (typecheck, lint, format, tests, i18n, build) during the review, and don't start the dev server. This keeps the review fast, and it never modifies files (e.g. `lingui extract` rewrites catalogs). Review test files by reading them. Tooling is covered by CI and by `aurora-findings-remediation`, which runs the checks after fixing.
 - **Stay in scope.** Review only the in-scope changes. Problems you notice in untouched existing code go under "Pre-existing / Out of Scope" with severity Info. They are listed for awareness only.
 
 ## Intake
@@ -77,4 +78,3 @@ Don't fix anything within this skill, even if asked in the same conversation. Ha
 | `references/classification.md`    | Severity, category, confidence and status definitions                   |
 | `assets/report-template.md`       | Findings report structure                                               |
 | `scripts/init_findings_dir.sh`    | Creates `findings/` and keeps it out of git (local exclude)             |
-| `scripts/verify.sh`               | typecheck, lint, format (changed files), tests                          |

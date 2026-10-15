@@ -16,7 +16,7 @@ When in doubt between two severities, pick the lower one and explain why in the 
 
 ## Category
 
-`Requirements` · `API Conformance` · `Schema` · `Error Handling` · `Security` · `Performance` · `Conventions` · `Tests` · `Docs` · `Build`
+`Requirements` · `API Conformance` · `Schema` · `Error Handling` · `Security` · `Performance` · `Conventions` · `Tests` · `Docs`
 
 ## Confidence
 

@@ -26,6 +26,7 @@ Talk to the user in the language they write in. The report is in English.
 
   If the epic contradicts a Juno guideline, follow the epic and note the deviation as Info. If Juno and the repo rules contradict each other, that is an Open Question.
 
+- **No tooling runs.** Don't run any pnpm scripts or other checks (typecheck, lint, format, tests, i18n, build) during the review, and don't start the dev server. This keeps the review fast, and it never modifies files (e.g. `lingui extract` rewrites catalogs). Review test files by reading them. Tooling is covered by CI and by `aurora-findings-remediation`, which runs the checks after fixing.
 - **Stay in scope.** Review only the in-scope changes. Problems in untouched existing UIs go under "Pre-existing / Out of Scope" (Info). They are listed for awareness only.
 
 ## Intake
@@ -76,4 +77,3 @@ Don't fix anything within this skill, even if asked in the same conversation. Ha
 | `assets/report-template.md`         | Findings report structure                                                      |
 | `scripts/init_findings_dir.sh`      | Creates `findings/` and keeps it out of git (local exclude)                    |
 | `scripts/locate_juno.sh`            | Finds the installed `juno-ui-components` (path, version, component types)      |
-| `scripts/verify.sh`                 | typecheck, lint, format (changed files), tests; `--i18n`, `--build`            |

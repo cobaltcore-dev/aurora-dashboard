@@ -70,13 +70,9 @@ For every procedure, compare against the endpoint docs (`openstack-sources.md`):
 - [ ] Schemas: required, optional and nullable fields, enums, refines, validators.
 - [ ] Helpers: overrides, quota detection, shaping functions, edge cases (empty input, fallbacks).
 - [ ] Enrichment: batching, chunking, fallbacks, no requests when nothing needs looking up.
-- [ ] Run the tests (`scripts/verify.sh -- <test paths>`) and record the result. Failing tests are findings.
+- [ ] Review the tests **statically**: read them and judge coverage and correctness. Don't run them (see "No tooling runs" in `SKILL.md`).
 
 ## 10. Docs
 
 - [ ] A BFF doc exists in `packages/aurora/docs/` (if the epic or the repo convention requires one) and matches the code: procedure names, parameters, error tables, response types, enrichment behaviour.
 - [ ] Statements in the doc are true for the current code. Copy-pasted outdated content (e.g. `protectedProcedure`) is a finding.
-
-## 11. Static checks
-
-- [ ] Run `scripts/verify.sh` (typecheck, lint, format on changed files, tests) and record the output summary. Failures are findings (category `Build`).

@@ -12,7 +12,7 @@ This is the team's review guideline. Use it together with the Juno docs.
   - General type correctness: `tsc`.
   - Unwrapped i18n strings in `packages/aurora`: `eslint-plugin-lingui`.
 
-  Run `scripts/verify.sh` instead, and report its failures under category `Build`.
+  The review doesn't run the tooling either; CI and the remediation skill's verification cover it.
 
 - **Three review passes.** Use them as the order of the analysis:
   1. Security & Data: B.7, B.8, B.15.

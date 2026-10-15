@@ -1,6 +1,6 @@
 # Analysis checklist
 
-Work through the passes in order. They follow the repo's three review passes, preceded by requirements and followed by tests and tooling. For each check, either record a finding, list it under "Verified OK", or mark it "not verified" with the reason. Skip checks for features that are out of scope (e.g. modals in a read-only UI), and say so in the report.
+Work through the passes in order. They follow the repo's three review passes, preceded by requirements and followed by component API and tests. For each check, either record a finding, list it under "Verified OK", or mark it "not verified" with the reason. Skip checks for features that are out of scope (e.g. modals in a read-only UI), and say so in the report.
 
 ## 0. Prepare
 
@@ -120,8 +120,4 @@ Follow `juno-components.md`.
   - navigation;
   - URL state (search, sort, page, tab).
 - [ ] Assertions test behaviour, not implementation details. No test asserts the exact behaviour a guideline forbids, e.g. a toast for a persistent error.
-- [ ] Run the tests (`scripts/verify.sh -- <test paths>`) and record the results.
-
-## 7. Tooling
-
-- [ ] Run `scripts/verify.sh --i18n` (typecheck, lint, format on changed files, tests, lingui extract and compile). Record the summary. Failures are findings (category `Build`).
+- [ ] Review the tests **statically**: read them and judge coverage and correctness. Don't run them (see "No tooling runs" in `SKILL.md`).
