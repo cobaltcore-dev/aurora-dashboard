@@ -4,7 +4,7 @@
 
 These rules apply to **every** Juno app — no app-specific scope.
 
-Entries are added via Martin's `UI-Rules:` messages. Keep each one short: the rule, the date, the origin.
+Entries are added via `UI-Rules:` messages. Keep each one short: the rule, the date, the origin.
 
 ## Conventions for reading these rules
 
@@ -15,19 +15,22 @@ Entries are added via Martin's `UI-Rules:` messages. Keep each one short: the ru
 
 ### Heading hierarchy
 
-- **Rule:** The app title is `h1`; headings below it descend strictly `h2` → `h3` → … Headings not marked up as `h1`–`h6` should still be slotted into the hierarchy, judged by their font size.
-- **Date:** 2026-10-14 · **Origin:** Martin, session
+- **Rule:** - in the context of Aurora the titile is always in ContentHeader and all ather h (h2-7) stays without any tailwind classes
+
+headings below it descend strictly `h2` → `h3` → … Headings not marked up as `h1`–`h6` should still be slotted into the hierarchy, judged by their font size.
+
+- **Date:** 2026-10-14 · **Origin:** session
 - _Checked:_ consistent with `docs/ux/accessibility.md` ("heading elements in the correct order").
 
 ### Empty-value placeholder
 
 - **Rule:** `- -` (two hyphens, space-separated) is the placeholder for an empty value — never `null`, `undefined`, `""`, `—`, or `N/A`.
-- **Date:** 2026-10-15 · **Origin:** session — adopted from the `build-datagrid` spec (Invariant #7) and promoted to the app-wide placeholder. **Supersedes** the prior `—` decision (Martin, 2026-10-14); pending Martin's sign-off.
+- **Date:** 2026-10-15 · **Origin:** session — adopted from the `build-datagrid` spec (Invariant #7) and promoted to the app-wide placeholder. **Supersedes** the prior `—` decision (2026-10-14); pending sign-off.
 
 ### DescriptionList — two columns
 
 - **Rule:** From 10 rows onward, lay out in two columns with `gap-6` between them. With an odd row count, put more rows on the left than on the right.
-- **Date:** 2026-10-14 · **Origin:** Martin, session
+- **Date:** 2026-10-14 · **Origin:** session
 - _Note:_ app-level layout. Juno's `DescriptionList` has no column prop (only `alignTerms`, internally `grid-cols-4`), so the 2-column split is composed above the component.
 
 ### Vertical spacing (optical totals)
@@ -36,28 +39,28 @@ Entries are added via Martin's `UI-Rules:` messages. Keep each one short: the ru
   - `2rem` between two related containers / element groups.
   - `1rem` within such a container / group.
   - `0.5rem` between a section heading (e.g. a `DescriptionList` or form section) and its content.
-- **Date:** 2026-10-14 · **Origin:** Martin, session
+- **Date:** 2026-10-14 · **Origin:** session
 
 ### Horizontal spacing
 
 - **Rule:** Related elements (e.g. filter pills) = `gap-2`; buttons = `gap-6`. These figures describe only the larger spacings, and need not be implemented via the CSS `gap` property specifically — what matters is the optical total.
-- **Date:** 2026-10-14 · **Origin:** Martin, session
+- **Date:** 2026-10-14 · **Origin:** session
 
 ### Long-text truncation
 
 - **Rule:** If a text does not fit and breaks the structure or violates the defined spacing, it is a defect.
-- **Date:** 2026-10-14 · **Origin:** Martin, session
+- **Date:** 2026-10-14 · **Origin:** session
 
 ### Prop defined but solved via CSS
 
 - **Rule:** If a component exposes its own prop for a behavior but that behavior was solved via CSS / classes instead, flag it.
-- **Date:** 2026-10-14 · **Origin:** Martin, session
+- **Date:** 2026-10-14 · **Origin:** session
 
 ### DataGrid header / toolbar
 
 - **Rule:** ComboBox and Filter are always on the left, Search on the right.
 - **Rule:** No vertical space between the DataGrid header (toolbar) and the DataGrid.
-- **Date:** 2026-10-14 · **Origin:** Martin, session
+- **Date:** 2026-10-14 · **Origin:** session
 - _Checked:_ "no vertical space" is consistent with `DataGridToolbar` separating via `border-b`, not margin.
 - _Not recorded (contradicts docs):_ "positions stay fixed when one element is absent" — `docs/ux/datagrid.md` says remaining space is redistributed and positions shift ("accepted tradeoff"). Dropped per the Juno-docs-win convention.
 
