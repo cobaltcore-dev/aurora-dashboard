@@ -17,24 +17,6 @@ const descriptionSchema = z.string().max(255, "Description must be at most 255 c
 /** Network status values as returned by Neutron */
 export const NetworkStatusSchema = z.enum(["ACTIVE", "DOWN", "BUILD", "ERROR"])
 
-/** Subnet information embedded in network responses */
-export const NetworkSubnetSchema = z.object({
-  id: z.string(),
-  name: z.string().optional().default(""),
-  cidr: z.string().optional(),
-  ip_version: z.number().optional(),
-  gateway_ip: z.string().nullable().optional(),
-  enable_dhcp: z.boolean().optional(),
-})
-
-/** Port information embedded in network responses */
-export const NetworkPortSummarySchema = z.object({
-  id: z.string(),
-  name: z.string().optional().default(""),
-  device_owner: z.string().optional(),
-  status: z.string().optional(),
-})
-
 /** OpenStack Network object schema as returned by Neutron API */
 export const NetworkSchema = z.object({
   id: z.string(),
@@ -42,7 +24,8 @@ export const NetworkSchema = z.object({
   description: z.string().optional().default(""),
   project_id: z.string(),
   tenant_id: z.string().optional(),
-  status: NetworkStatusSchema,
+  // Response field stays loose: an unknown Neutron status must not break the whole list parse
+  status: z.string(),
   admin_state_up: z.boolean(),
   // Network type fields
   shared: z.boolean().default(false),
@@ -97,9 +80,9 @@ export const SubnetDetailSchema = z.object({
   id: z.string(),
   name: z.string().optional().default(""),
   cidr: z.string().optional(),
-  ip_version: z.number(),
+  ip_version: z.number().optional(),
   gateway_ip: z.string().nullable().optional(),
-  enable_dhcp: z.boolean(),
+  enable_dhcp: z.boolean().optional(),
   allocation_pools: z
     .array(
       z.object({
@@ -115,30 +98,6 @@ export const SubnetDetailSchema = z.object({
 /** Response schema for GET /v2.0/subnets */
 export const SubnetListResponseSchema = z.object({
   subnets: z.array(SubnetDetailSchema),
-})
-
-/** Port summary for enriching network details */
-export const PortDetailSchema = z.object({
-  id: z.string(),
-  name: z.string().optional().default(""),
-  device_owner: z.string().optional().default(""),
-  device_id: z.string().optional().default(""),
-  status: z.string(),
-  network_id: z.string(),
-  fixed_ips: z
-    .array(
-      z.object({
-        subnet_id: z.string(),
-        ip_address: z.string(),
-      })
-    )
-    .optional()
-    .default([]),
-})
-
-/** Response schema for GET /v2.0/ports */
-export const PortListResponseSchema = z.object({
-  ports: z.array(PortDetailSchema),
 })
 
 /* -------------------------------------------------------------------------- */
@@ -237,7 +196,6 @@ export const NetworkUpdateRequestSchema = projectScopedInputSchema.extend({
 export type Network = z.infer<typeof NetworkSchema>
 export type NetworkStatus = z.infer<typeof NetworkStatusSchema>
 export type SubnetDetail = z.infer<typeof SubnetDetailSchema>
-export type PortDetail = z.infer<typeof PortDetailSchema>
 export type NetworkQueryParameters = z.infer<typeof NetworkQueryParametersSchema>
 export type NetworkCreateRequest = z.infer<typeof NetworkCreateRequestSchema>
 export type NetworkUpdateRequest = z.infer<typeof NetworkUpdateRequestSchema>
@@ -253,6 +211,4 @@ export type NetworkListItem = Network
 export interface NetworkDetails extends Network {
   /** Associated subnets, resolved from the subnets array */
   subnet_details?: SubnetDetail[]
-  /** Associated ports (optional, can be fetched separately) */
-  port_details?: PortDetail[]
 }

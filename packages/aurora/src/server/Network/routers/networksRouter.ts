@@ -17,6 +17,7 @@ import {
   SubnetListResponseSchema,
 } from "../types/network"
 import { NetworkErrorHandlers } from "../helpers/networkHelpers"
+import { requestOrThrow, pickDefined } from "../helpers/routerHelpers"
 import { getNetworkService, parseOrThrow } from "../helpers/index"
 
 const NETWORKS_BASE_URL = "v2.0/networks"
@@ -81,14 +82,6 @@ const filterNetworksByBffParams = (
 }
 
 /**
- * Picks only defined fields from an input object.
- * Used to build request bodies with only the fields the user provided.
- */
-const pickDefined = <T extends Record<string, unknown>>(obj: T): Partial<T> => {
-  return Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== undefined)) as Partial<T>
-}
-
-/**
  * tRPC router for OpenStack Neutron Networks (L2).
  *
  * Exposes:
@@ -113,8 +106,10 @@ export const networksRouter = {
         const { project_id, searchTerm, ...neutronParams } = input
         const params = appendQueryParamsFromObject(neutronParams, LIST_NETWORKS_QUERY_KEY_MAP)
 
-        const response = await network.get(withQuery(NETWORKS_BASE_URL, params))
-        if (!response.ok) throw NetworkErrorHandlers.list(response)
+        const response = await requestOrThrow(
+          () => network.get(withQuery(NETWORKS_BASE_URL, params)),
+          NetworkErrorHandlers.list
+        )
 
         const data = await response.json()
         const parsed = parseOrThrow(NetworkListResponseSchema, data, "networksRouter.list")
@@ -133,8 +128,11 @@ export const networksRouter = {
     withErrorHandling(async () => {
       const network = getNetworkService(ctx)
 
-      const response = await network.get(networkUrl(input.network_id))
-      if (!response.ok) throw NetworkErrorHandlers.get(response, input.network_id)
+      const response = await requestOrThrow(
+        () => network.get(networkUrl(input.network_id)),
+        NetworkErrorHandlers.get,
+        input.network_id
+      )
 
       const data = await response.json()
       const parsed = parseOrThrow(NetworkResponseSchema, data, "networksRouter.getById")
@@ -157,7 +155,8 @@ export const networksRouter = {
     withErrorHandling(async () => {
       const network = getNetworkService(ctx)
 
-      // Build the request body with only defined fields
+      // Build the request body with only defined fields.
+      // project_id is intentionally not sent: Neutron derives ownership from the (rescoped) token.
       const networkBody = pickDefined({
         name: input.name,
         description: input.description,
@@ -173,14 +172,12 @@ export const networksRouter = {
         port_security_enabled: input.port_security_enabled,
         dns_domain: input.dns_domain,
         vlan_transparent: input.vlan_transparent,
-        project_id: input.project_id,
       })
 
-      const response = await network.post(NETWORKS_BASE_URL, {
-        body: JSON.stringify({ network: networkBody }),
-      })
-
-      if (!response.ok) throw NetworkErrorHandlers.create(response)
+      const response = await requestOrThrow(
+        () => network.post(NETWORKS_BASE_URL, { body: JSON.stringify({ network: networkBody }) }),
+        NetworkErrorHandlers.create
+      )
 
       const data = await response.json()
       const parsed = parseOrThrow(NetworkResponseSchema, data, "networksRouter.create")
@@ -212,11 +209,11 @@ export const networksRouter = {
         dns_domain: input.dns_domain,
       })
 
-      const response = await network.put(networkUrl(input.network_id), {
-        body: JSON.stringify({ network: networkBody }),
-      })
-
-      if (!response.ok) throw NetworkErrorHandlers.update(response, input.network_id)
+      const response = await requestOrThrow(
+        () => network.put(networkUrl(input.network_id), { body: JSON.stringify({ network: networkBody }) }),
+        NetworkErrorHandlers.update,
+        input.network_id
+      )
 
       const data = await response.json()
       const parsed = parseOrThrow(NetworkResponseSchema, data, "networksRouter.update")
@@ -232,9 +229,7 @@ export const networksRouter = {
     withErrorHandling(async () => {
       const network = getNetworkService(ctx)
 
-      const response = await network.del(networkUrl(input.network_id))
-
-      if (!response.ok) throw NetworkErrorHandlers.delete(response, input.network_id)
+      await requestOrThrow(() => network.del(networkUrl(input.network_id)), NetworkErrorHandlers.delete, input.network_id)
     }, "delete network")
   ),
 }

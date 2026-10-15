@@ -1,75 +1,94 @@
-import { Trans, useLingui } from "@lingui/react/macro"
+import { Fragment, ReactNode } from "react"
+import { useLingui } from "@lingui/react/macro"
 import {
   Stack,
+  ContentHeading,
+  DescriptionList,
+  DescriptionTerm,
+  DescriptionDefinition,
   DataGrid,
   DataGridRow,
   DataGridCell,
   DataGridHeadCell,
-  Message,
+  Status,
 } from "@cloudoperators/juno-ui-components"
 import { NetworkDetails } from "@/server/Network/types/network"
+import ClipboardText from "@/client/components/ClipboardText"
 
 interface NetworkDetailsViewProps {
   network: NetworkDetails
 }
 
+interface DetailItem {
+  label: string
+  value: ReactNode
+}
+
+/** Empty-value placeholder (Juno house rule). */
+const PLACEHOLDER = "- -"
+
+const DetailsList = ({ items, keyPrefix }: { items: DetailItem[]; keyPrefix: string }) => (
+  <DescriptionList alignTerms="right">
+    {items.map(({ label, value }, index) => (
+      <Fragment key={`${keyPrefix}-${index}`}>
+        <DescriptionTerm>{label}</DescriptionTerm>
+        <DescriptionDefinition>
+          <div className="break-all">{value}</div>
+        </DescriptionDefinition>
+      </Fragment>
+    ))}
+  </DescriptionList>
+)
+
 export const NetworkDetailsView = ({ network }: NetworkDetailsViewProps) => {
   const { t } = useLingui()
 
+  const basicInfoItems: DetailItem[] = [
+    { label: t`ID`, value: <ClipboardText text={network.id} /> },
+    { label: t`Name`, value: network.name || PLACEHOLDER },
+    { label: t`Description`, value: network.description || PLACEHOLDER },
+    { label: t`Status`, value: network.status },
+    { label: t`Admin State`, value: network.admin_state_up ? t`Up` : t`Down` },
+    { label: t`Shared`, value: network.shared ? t`Yes` : t`No` },
+    { label: t`External`, value: network["router:external"] ? t`Yes` : t`No` },
+    { label: t`MTU`, value: network.mtu != null ? network.mtu : PLACEHOLDER },
+    {
+      label: t`Port Security Enabled`,
+      value: network.port_security_enabled == null ? PLACEHOLDER : network.port_security_enabled ? t`Yes` : t`No`,
+    },
+  ]
+
+  const providerItems: DetailItem[] = [
+    ...(network["provider:network_type"] != null
+      ? [{ label: t`Network Type`, value: network["provider:network_type"] || PLACEHOLDER }]
+      : []),
+    ...(network["provider:physical_network"] != null
+      ? [{ label: t`Physical Network`, value: network["provider:physical_network"] || PLACEHOLDER }]
+      : []),
+    ...(network["provider:segmentation_id"] != null
+      ? [{ label: t`Segmentation ID`, value: network["provider:segmentation_id"] }]
+      : []),
+  ]
+
+  const subnets = network.subnet_details ?? []
+
   return (
-    <Stack direction="vertical" gap="6">
+    <Stack direction="vertical" gap="6" className="mt-6">
       {/* Network Information Section */}
       <Stack direction="vertical" gap="2">
-        <h2 className="text-lg font-semibold">{t`Network Information`}</h2>
-        <DataGrid columns={2}>
-          <DataGridRow>
-            <DataGridCell className="font-semibold">{t`ID`}</DataGridCell>
-            <DataGridCell>{network.id}</DataGridCell>
-          </DataGridRow>
-          <DataGridRow>
-            <DataGridCell className="font-semibold">{t`Name`}</DataGridCell>
-            <DataGridCell>{network.name || t`N/A`}</DataGridCell>
-          </DataGridRow>
-          <DataGridRow>
-            <DataGridCell className="font-semibold">{t`Description`}</DataGridCell>
-            <DataGridCell>{network.description || t`N/A`}</DataGridCell>
-          </DataGridRow>
-          <DataGridRow>
-            <DataGridCell className="font-semibold">{t`Status`}</DataGridCell>
-            <DataGridCell>{network.status}</DataGridCell>
-          </DataGridRow>
-          <DataGridRow>
-            <DataGridCell className="font-semibold">{t`Admin State`}</DataGridCell>
-            <DataGridCell>{network.admin_state_up ? t`Up` : t`Down`}</DataGridCell>
-          </DataGridRow>
-          <DataGridRow>
-            <DataGridCell className="font-semibold">{t`Shared`}</DataGridCell>
-            <DataGridCell>{network.shared ? t`Yes` : t`No`}</DataGridCell>
-          </DataGridRow>
-          <DataGridRow>
-            <DataGridCell className="font-semibold">{t`External`}</DataGridCell>
-            <DataGridCell>{network["router:external"] ? t`Yes` : t`No`}</DataGridCell>
-          </DataGridRow>
-          {network.mtu && (
-            <DataGridRow>
-              <DataGridCell className="font-semibold">{t`MTU`}</DataGridCell>
-              <DataGridCell>{network.mtu}</DataGridCell>
-            </DataGridRow>
-          )}
-          <DataGridRow>
-            <DataGridCell className="font-semibold">{t`Port Security Enabled`}</DataGridCell>
-            <DataGridCell>{network.port_security_enabled !== false ? t`Yes` : t`No`}</DataGridCell>
-          </DataGridRow>
-        </DataGrid>
+        <ContentHeading>{t`Network Information`}</ContentHeading>
+        <DetailsList items={basicInfoItems} keyPrefix="basic" />
       </Stack>
 
       {/* Subnets Section */}
       <Stack direction="vertical" gap="2">
-        <h2 className="text-lg font-semibold">{t`Subnets`}</h2>
-        {!network.subnet_details || network.subnet_details.length === 0 ? (
-          <Message variant="info">
-            <Trans>No subnets associated with this network</Trans>
-          </Message>
+        <ContentHeading>{t`Subnets`}</ContentHeading>
+        {subnets.length === 0 ? (
+          <Status
+            status="empty"
+            title={t`No Subnets`}
+            body={t`There are no subnets associated with this network.`}
+          />
         ) : (
           <DataGrid columns={5}>
             <DataGridRow>
@@ -79,13 +98,15 @@ export const NetworkDetailsView = ({ network }: NetworkDetailsViewProps) => {
               <DataGridHeadCell>{t`Gateway IP`}</DataGridHeadCell>
               <DataGridHeadCell>{t`DHCP`}</DataGridHeadCell>
             </DataGridRow>
-            {network.subnet_details.map((subnet) => (
+            {subnets.map((subnet) => (
               <DataGridRow key={subnet.id}>
                 <DataGridCell>{subnet.name || subnet.id}</DataGridCell>
-                <DataGridCell>{subnet.cidr || t`N/A`}</DataGridCell>
-                <DataGridCell>{subnet.ip_version ? `IPv${subnet.ip_version}` : t`N/A`}</DataGridCell>
-                <DataGridCell>{subnet.gateway_ip || t`N/A`}</DataGridCell>
-                <DataGridCell>{subnet.enable_dhcp ? t`Enabled` : t`Disabled`}</DataGridCell>
+                <DataGridCell>{subnet.cidr || PLACEHOLDER}</DataGridCell>
+                <DataGridCell>{subnet.ip_version != null ? `IPv${subnet.ip_version}` : PLACEHOLDER}</DataGridCell>
+                <DataGridCell>{subnet.gateway_ip || PLACEHOLDER}</DataGridCell>
+                <DataGridCell>
+                  {subnet.enable_dhcp == null ? PLACEHOLDER : subnet.enable_dhcp ? t`Enabled` : t`Disabled`}
+                </DataGridCell>
               </DataGridRow>
             ))}
           </DataGrid>
@@ -93,31 +114,10 @@ export const NetworkDetailsView = ({ network }: NetworkDetailsViewProps) => {
       </Stack>
 
       {/* Provider Network Section (if applicable) */}
-      {(network["provider:network_type"] ||
-        network["provider:physical_network"] ||
-        network["provider:segmentation_id"]) && (
+      {providerItems.length > 0 && (
         <Stack direction="vertical" gap="2">
-          <h2 className="text-lg font-semibold">{t`Provider Network`}</h2>
-          <DataGrid columns={2}>
-            {network["provider:network_type"] && (
-              <DataGridRow>
-                <DataGridCell className="font-semibold">{t`Network Type`}</DataGridCell>
-                <DataGridCell>{network["provider:network_type"]}</DataGridCell>
-              </DataGridRow>
-            )}
-            {network["provider:physical_network"] && (
-              <DataGridRow>
-                <DataGridCell className="font-semibold">{t`Physical Network`}</DataGridCell>
-                <DataGridCell>{network["provider:physical_network"]}</DataGridCell>
-              </DataGridRow>
-            )}
-            {network["provider:segmentation_id"] && (
-              <DataGridRow>
-                <DataGridCell className="font-semibold">{t`Segmentation ID`}</DataGridCell>
-                <DataGridCell>{network["provider:segmentation_id"]}</DataGridCell>
-              </DataGridRow>
-            )}
-          </DataGrid>
+          <ContentHeading>{t`Provider Network`}</ContentHeading>
+          <DetailsList items={providerItems} keyPrefix="provider" />
         </Stack>
       )}
     </Stack>
