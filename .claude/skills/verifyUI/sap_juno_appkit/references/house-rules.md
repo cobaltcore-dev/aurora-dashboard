@@ -21,8 +21,8 @@ Entries are added via Martin's `UI-Rules:` messages. Keep each one short: the ru
 
 ### Empty-value placeholder
 
-- **Rule:** `—` is the placeholder for an empty value.
-- **Date:** 2026-10-14 · **Origin:** Martin, session
+- **Rule:** `- -` (two hyphens, space-separated) is the placeholder for an empty value — never `null`, `undefined`, `""`, `—`, or `N/A`.
+- **Date:** 2026-10-15 · **Origin:** session — adopted from the `build-datagrid` spec (Invariant #7) and promoted to the app-wide placeholder. **Supersedes** the prior `—` decision (Martin, 2026-10-14); pending Martin's sign-off.
 
 ### DescriptionList — two columns
 
@@ -61,9 +61,5 @@ Entries are added via Martin's `UI-Rules:` messages. Keep each one short: the ru
 - _Checked:_ "no vertical space" is consistent with `DataGridToolbar` separating via `border-b`, not margin.
 - _Not recorded (contradicts docs):_ "positions stay fixed when one element is absent" — `docs/ux/datagrid.md` says remaining space is redistributed and positions shift ("accepted tradeoff"). Dropped per the Juno-docs-win convention.
 
-## Open / undefined (gaps, not yet decided)
-
-Places where Juno specifies nothing and no house rule exists yet. Promote to **Decided rules** once resolved.
-
-- **Zebra striping / row dividers in `DescriptionList`** — not specified. Intended or not?
-- **Density** (compact vs comfortable) for lists / `DataGrid` — not specified.
+- **Zebra striping - never do zebra on DataGrid
+- **Density** is not defined and should not be checked

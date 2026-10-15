@@ -186,13 +186,13 @@ Lower risk: drop the `disableConfirmButton` gate (low) or gate on a Checkbox (me
 ```tsx
 <DescriptionList>
   <DescriptionTerm>Name</DescriptionTerm>
-  <DescriptionDefinition>{resource.name || "—"}</DescriptionDefinition>
+  <DescriptionDefinition>{resource.name || "- -"}</DescriptionDefinition>
   <DescriptionTerm>Status</DescriptionTerm>
   <DescriptionDefinition>{resource.status}</DescriptionDefinition>
 </DescriptionList>
 ```
 
-Key/value attributes of a single entity use `DescriptionList` — **not** a two-column `DataGrid` with a bold label cell. `DataGrid` is only for genuinely tabular, multi-row data. Empty value placeholder is `—` (house rule).
+Key/value attributes of a single entity use `DescriptionList` — **not** a two-column `DataGrid` with a bold label cell. `DataGrid` is only for genuinely tabular, multi-row data. Empty value placeholder is `- -` (house rule).
 
 ---
 

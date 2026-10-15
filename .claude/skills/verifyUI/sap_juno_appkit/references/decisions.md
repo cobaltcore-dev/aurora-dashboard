@@ -82,6 +82,8 @@ Group by user mental model; required marked (never colour-only); single-column d
 
 Use for many items with consistent attributes to scan/compare/sort/filter/act; else list/detail/card. Header zones (render only if used): Zone 1 filter tabs + sort + other-actions overflow + primary action; Zone 2 filter inputs + search (placeholder states scope) + filter pills; Zone 3 bulk actions (left, select-all tri-state) + item count (center) + last-update/Refresh (right). Columns: identifying info left (bold), checkbox first, status near left, actions far right (overflow even for single action). States via `Status` in a full-width row. Distinguish empty-no-data vs empty-filtered.
 
+Full deterministic build/review spec — zone inclusion, column assembly, row/cell rendering, state rows, Invariants: the `build-datagrid` skill (sibling under `verifyUI/`). Use it for exact DataGrid structure; this row is only the when-to-use summary.
+
 ## Box — source: `docs/ux/box.md`
 
 `Box` = lightweight container for annotations/supplementary context, no Message semantics. Not for system feedback (→ `Message`). Inline Action Box = notice + follow-up action without a modal (max two buttons, right-aligned; not for destructive/confirmation; don't nest).

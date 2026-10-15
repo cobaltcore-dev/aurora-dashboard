@@ -14,6 +14,8 @@ part of this skill. It checks a screen against the Juno design system two ways:
 
 Both lean on the Juno reference under this folder: `sap_juno_appkit/` (the synthesis — hard rules, decision tables, tokens, recipes, house rules) and the `sap_juno_lookup` agent (`agents/`, exact props/variants/tokens/rules from the real Juno source in `tmp/juno`). `sap_juno_appkit` + the Juno source it cites is the **single authority** for any Juno/UI question; no other source (model knowledge, the web) overrides it. For any exact detail not synthesized there, dispatch `sap_juno_lookup` — do not guess.
 
+When a `DataGrid` is in scope, `build-datagrid/` is the deterministic structural authority: its decision trees (DT-1…DT-9) and Invariants are the spec the source check (step 5) compares each DataGrid call site against, and the zone-layout reference behind visual items 8–9. It defers to `sap_juno_appkit` + the Juno source for anything outside DataGrid structure.
+
 **Always save the report** to `tmp/aurora-reviews/` (step 7). Never reply inline only — the chat reply is just the path, the verdict, and the ❌ count. This holds even with zero findings.
 
 ## Artifacts — all under `tmp/aurora-reviews/`
@@ -70,7 +72,7 @@ Load `sap_juno_appkit` first; its UX non-negotiables and decision index are the 
 5. **Primary action — one per page** — exactly one `primary` (or `primary-danger` on a destructive surface). Zero or >1 is a finding. In a modal, confirm = the one primary, Cancel = `default`/`subdued`.
 6. **Nomenclature** — consistent terms for one concept (not "Delete" vs "Remove"); no vague labels; no casing mix. Cross-page too if multiple screenshots.
 7. **Overflow menus (⋮)** — labels clear & consistent with item 6; destructive last, common/primary first.
-8. **DataGridToolbar** — present above any DataGrid; contains search/filter (if filterable), bulk controls (if selectable), Add/Create (if applicable). ComboBox/Filter left, Search right (house rule). No vertical gap between toolbar and grid.
+8. **DataGridToolbar** — present above any DataGrid; contains search/filter (if filterable), bulk controls (if selectable), Add/Create (if applicable). ComboBox/Filter left, Search right (house rule). No vertical gap between toolbar and grid. Zone layout authority: `build-datagrid` (DT-2 inclusion, DT-3/4/5 contents).
 9. **Tables** — real/representative data (not placeholder); no cells truncating/overflowing; narrow-viewport handling (scroll or responsive). Long text that breaks structure/spacing is a defect (house rule).
 10. **Detail nav** — on a list page with a detail view: visible row hover affordance (cursor/highlight) and clicking a row navigates. Static rows with no hover/click affordance is a finding. (In `full` mode, item 5 of the source check is authoritative — see step 6.)
 11. **Positioning** — CTAs placed consistently (page actions top-right); badges/icons/labels aligned; nothing out of place or overlapping.
@@ -88,8 +90,9 @@ For the scoped `*.tsx` files:
    - no raw HTML / custom component where a Juno one exists
    - **right component for the data**: key/value attributes of one entity → `DescriptionList`, not a two-column `DataGrid` with a bold label cell. `text-theme-link` inside a `DataGridRow` that already has `onClick` is wrong — the row is natively clickable; remove the colour, don't fake a link
    - **empty/loading/error structure**: for each `DataGrid`/table, its `length === 0` / `isLoading` / `isError` branch must return the state component (`Status`/`Message`) **instead of** the grid, not nested as a row below the head cells
+   - **DataGrid structure** (only if a `DataGrid` is imported): check the call site against `build-datagrid`'s decision trees and Invariants — column assembly/order (checkbox `_select` first, primary identifier, status near left, `_actions` last and min-content), zone/toolbar wrapping (Zone 1 a bare `Stack`; Zones 2 & 3 each their own `DataGridToolbar`, never merged), `colSpan={columns}` on state rows, `e.stopPropagation()` on every interactive child of a row with `onClick`, empty cell `- -`, no `DataGridFoot` unless requested. Any Invariant violation is a finding.
    - no inline `style`, no hard-coded colours — only `theme-*` tokens
-4. **Check house rules** — read `sap_juno_appkit/references/house-rules.md` and check each against the scoped files (empty value `—`, heading hierarchy, spacing totals, prop-vs-CSS, DataGrid toolbar order…).
+4. **Check house rules** — read `sap_juno_appkit/references/house-rules.md` and check each against the scoped files (empty value `- -`, heading hierarchy, spacing totals, prop-vs-CSS, DataGrid toolbar order…).
 
 ## 6. Merge findings
 
