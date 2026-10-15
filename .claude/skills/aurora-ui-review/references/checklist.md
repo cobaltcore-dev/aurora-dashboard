@@ -34,11 +34,19 @@ Work through the passes in order. For each check: record a finding, list it unde
 - [ ] **Empty vs no-matches distinguished** — "no data exists" and "no data matches your filters" use different variants/copy.
 - [ ] The error state offers a retry where possible. The details page handles pending, error and not-found. Sub-resource sections (tabs) have their own states.
 
-## 5. DataGrid & page structure (`datagrid.md`, `page-level-actions.md`, `page-content-area.md`)
+## 5. DataGrid & page structure (`datagrid.md`, `page-level-actions.md`, `page-content-area.md`, `build-datagrid`)
 
-- [ ] Toolbar zones (sort/primary action · filters/search · view state/bulk/refresh). Clickable rows: whole row clickable with hover feedback; nested interactive elements call `event.stopPropagation()`; identifying column first, action column last with a `PopupMenu`. Filter/sort persistence per `datagrid.md`.
-- [ ] One `primary` action per page; overflow composition; refresh button rules; tabbed pages keep page actions above the tab bar.
-- [ ] Every page has Page Header + Content Area + Page Footer.
+- [ ] **DataGrid structure** (`build-datagrid/`): When a `DataGrid` is in scope, validate the call site against `build-datagrid/SKILL.md`'s decision trees and Invariants. Key checks:
+  - **Column assembly/order** (DT-1): checkbox `_select` first (if bulk actions), primary identifier second, status columns near left, remaining in BRD order, `_actions` last and min-content (if row actions or row click enabled without `suppressActionColumn`)
+  - **Zone inclusion/contents** (DT-2/3/4/5): Zone 1 is a bare `Stack` (never `DataGridToolbar`), Zones 2 & 3 each wrapped in their own `DataGridToolbar` (never merged), zones not rendered at all when empty
+  - **Row configuration** (DT-6): When `DataGridRow` has `onClick`, every interactive child (Checkbox, PopupMenuItem, Button, Link) must call `e.stopPropagation()` on its handler
+  - **State rows** (DT-7): `colSpan={columns}` on all state rows, loading/error/empty/no-matches in order, Status component inside DataGridCell (not outside DataGrid)
+  - **Cell rendering** (DT-8): empty value always `- -` (two hyphens space-separated), Badge only when `statusVariantMap` explicitly provided (labelMap alone renders plain text), boolean labelMap keys are `"true"`/`"false"` (String), `col.bold` never inferred (primary doesn't imply bold)
+  - **Bulk select-all** (DT-9): checkbox state derived from selected count vs total count
+  - **All 22 Invariants**: read `build-datagrid/SKILL.md` Invariants section and verify each (e.g. no `DataGridFoot` unless requested, `PopupMenu` requires `PortalProvider`, action column always in `minContentColumns`, column headers are nouns not verbs, etc.)
+- [ ] **Toolbar zones & clickable rows** (`datagrid.md`): whole row clickable with hover feedback when `onClick` set; filter/sort persistence; identifying column first, action column last with `PopupMenu`
+- [ ] **Page-level actions** (`page-level-actions.md`): one `primary` action per page; overflow composition; refresh button rules; tabbed pages keep page actions above the tab bar
+- [ ] **Page structure** (`page-content-area.md`): every page has Page Header + Content Area + Page Footer
 
 ## 6. Modals & forms (`modals.md`, `forms.md`) — full mode only
 

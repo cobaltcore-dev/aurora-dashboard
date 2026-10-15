@@ -47,7 +47,7 @@ Follow `references/checklist.md`. Summary:
 2. **Requirements.** Extract every explicit UI requirement from the epic into `REQ-NN`. Record each with its epic section and priority, and map it to the files that implement it. Ambiguous items go to Open Questions.
 3. **Pick the relevant guidelines.** Use `references/juno-guidelines-map.md` to select the Juno docs that apply to what's in scope, and fetch them.
 4. **Structure and reference UIs.** Scan the existing Aurora UIs only to understand the structure, so you know where to look and how the reviewed code is wired, and for fix style (`references/baseline.md`) — not a source of findings.
-5. **Review.** Go through the in-scope files with the checklist: requirements, Juno components & custom code, colour & tokens, states, DataGrid & page structure, modals & forms (full mode), messages & variants, UX writing, accessibility, navigation, component API, tests.
+5. **Review.** Go through the in-scope files with the checklist: requirements, Juno components & custom code, colour & tokens, states, DataGrid structure (against `build-datagrid` decision trees and Invariants when a DataGrid is in scope) & page structure, modals & forms (full mode), messages & variants, UX writing, accessibility, navigation, component API, tests.
 6. **Classify** each finding with severity, category, confidence and the rule source (`references/classification.md`).
 7. **Write the report** to `tmp/aurora-reviews/ui-review-<resource>-<YYYY-MM-DD>.md`, using `assets/report-template.md`. If that file already exists, append `-2`, `-3`, ...
 8. **Stop and present:**
@@ -73,5 +73,6 @@ Don't fix anything within this skill, even if asked in the same conversation. Ha
 | `references/baseline.md`            | Existing Aurora UIs to understand the structure, fix-style references, known anti-patterns (no authority) |
 | `references/classification.md`      | Severity, category, confidence and status definitions                                                     |
 | `assets/report-template.md`         | Findings report structure                                                                                 |
+| `build-datagrid/SKILL.md`           | DataGrid structure authority — decision trees (DT-1…DT-9) and 22 Invariants for validating DataGrid usage |
 | `scripts/init_findings_dir.sh`      | Creates the shared `tmp/aurora-reviews/` dir (gitignored) and prints its path                             |
 | `scripts/locate_juno.sh`            | Finds the installed `juno-ui-components` (path, version, component types)                                 |
