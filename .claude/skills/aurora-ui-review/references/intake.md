@@ -27,7 +27,7 @@ Ask for everything that is missing in **one** message, in the user's language. D
 
 - The epic and the design contradict each other, or the design shows data the BFF doesn't provide.
 - A requirement can be read two ways, and the readings lead to different verdicts.
-- The Juno guidelines and the repo rules (`.github/copilot-instructions.md`) contradict each other.
+- A Juno doc needed for a check can't be fetched, and `sap_juno_lookup` can't answer either. Mark the check "not verified"; don't judge from memory.
 - A Juno doc can't be fetched and the check depends on it. Mark the check "not verified"; don't judge from memory.
 
 Record each as an Open Question in the report, and continue with everything else.

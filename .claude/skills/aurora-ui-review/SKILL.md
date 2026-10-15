@@ -5,7 +5,7 @@ description: Review and verify an Aurora Dashboard UI implementation (routes, li
 
 # Aurora UI Review
 
-This skill verifies that a UI implementation in `packages/aurora/src/client` does what the epic requires. It also checks that the UI follows the **relevant** Juno UX guidelines, uses `juno-ui-components` correctly, and fits the patterns of the existing Aurora UIs.
+This skill verifies that a UI implementation in `packages/aurora/src/client` does what the epic requires. It also checks that the UI follows the **relevant** Juno UX guidelines and uses `juno-ui-components` correctly. Existing Aurora UIs are used only as a style reference for suggested fixes, never as a rule.
 
 **This skill only analyzes.** It collects, classifies and documents issues in a Markdown report under `tmp/aurora-reviews/` (gitignored; shared with verify and verifyUI), and it **never changes code**. To fix findings, the user runs `aurora-findings-remediation` with the report. The report is written so that skill can work from it alone.
 
@@ -17,14 +17,12 @@ Talk to the user in the language they write in. The report is in English.
 - **No unreasonable assumptions.** If something needed for a judgment is missing or ambiguous, stop and ask. Examples: the epic link can't be opened; the scope is unclear; it's unclear whether the UI is meant to be read-only or full CRUD; a design screenshot contradicts the epic; a requirement can be read two ways. Items you can't decide go into **Open Questions**, not Findings.
 - **Only relevant guidelines.** Apply a Juno guideline only if the reviewed UI contains what it governs (`references/juno-guidelines-map.md`). For example: no modal checks for a read-only UI without modals; no wizard or sign-in checks for resource pages.
 - **Read the guideline, don't recall it.** Fetch the actual Juno doc section before writing a finding, and cite it (`docs/ux/<file>.md#<section>`).
-- **Check the component API in the installed package.** Verify props and variants against the `.d.ts` files of the version in `node_modules` (`scripts/locate_juno.sh`), not against memory or Storybook for a different version.
-- **Precedence when sources disagree:**
+- **Check the component API against the real source.** Verify props and variants via the `sap_juno_lookup` agent (`locate_juno.sh` records the installed version for the report), not against memory or Storybook for a different version.
+- **Authority — Juno only.** The UI/UX authority is, in order:
   1. The epic's explicit requirements (and design decisions the user provides).
-  2. The Juno UX guidelines.
-  3. The repo's UI rules (`.github/copilot-instructions.md`, Part B).
-  4. The conventions of the existing Aurora UIs.
+  2. The Juno UX guidelines (`docs/ux`) and the `juno-ui-components` API.
 
-  If the epic contradicts a Juno guideline, follow the epic and note the deviation as Info. If Juno and the repo rules contradict each other, that is an Open Question.
+  There is **no Aurora UI/UX rule tier** — the repo's own UI conventions are not an authority here. If the epic contradicts a Juno guideline, follow the epic and note the deviation as Info. Existing Aurora UIs (`references/baseline.md`) are reference only, for fix style — never a source of findings.
 
 - **No tooling runs.** Don't run any pnpm scripts or other checks (typecheck, lint, format, tests, i18n, build) during the review, and don't start the dev server. This keeps the review fast, and it never modifies files (e.g. `lingui extract` rewrites catalogs). Review test files by reading them. Tooling is covered by CI and by `aurora-findings-remediation`, which runs the checks after fixing.
 - **Stay in scope.** Review only the in-scope changes. Problems in untouched existing UIs go under "Pre-existing / Out of Scope" (Info). They are listed for awareness only.
@@ -48,8 +46,8 @@ Follow `references/checklist.md`. Summary:
 1. **Prepare.** Run `scripts/init_findings_dir.sh` and `scripts/locate_juno.sh`. Record the commit SHA and the Juno version.
 2. **Requirements.** Extract every explicit UI requirement from the epic into `REQ-NN`. Record each with its epic section and priority, and map it to the files that implement it. Ambiguous items go to Open Questions.
 3. **Pick the relevant guidelines.** Use `references/juno-guidelines-map.md` to select the Juno docs that apply to what's in scope, and fetch them.
-4. **Baseline.** Read the existing UIs and repo rules that apply (`references/baseline.md`).
-5. **Review.** Go through the in-scope files with the checklist categories: requirements, page structure and actions, DataGrid, states, details view, navigation, modals and forms (full mode), permissions, UX writing, accessibility, Juno component API, data fetching and URL state, i18n, tests.
+4. **Reference UIs.** Skim the existing Aurora UIs for fix style only (`references/baseline.md`) — not a source of findings.
+5. **Review.** Go through the in-scope files with the checklist: requirements, Juno components & custom code, colour & tokens, states, DataGrid & page structure, modals & forms (full mode), messages & variants, UX writing, accessibility, navigation, component API, tests.
 6. **Classify** each finding with severity, category, confidence and the rule source (`references/classification.md`).
 7. **Write the report** to `tmp/aurora-reviews/ui-review-<resource>-<YYYY-MM-DD>.md`, using `assets/report-template.md`. If that file already exists, append `-2`, `-3`, ...
 8. **Stop and present:**
@@ -72,7 +70,7 @@ Don't fix anything within this skill, even if asked in the same conversation. Ha
 | `references/checklist.md`           | Analysis procedure and all checks per category                                 |
 | `references/juno-guidelines-map.md` | Which Juno UX doc applies to what, with source URLs and the key rules to check |
 | `references/juno-components.md`     | Verifying usage against the installed `juno-ui-components` API                 |
-| `references/baseline.md`            | Existing Aurora UIs, repo UI rules, known patterns and deviations              |
+| `references/baseline.md`            | Existing Aurora UIs for fix style + known anti-patterns (reference only, no authority) |
 | `references/classification.md`      | Severity, category, confidence and status definitions                          |
 | `assets/report-template.md`         | Findings report structure                                                      |
 | `scripts/init_findings_dir.sh`      | Creates the shared `tmp/aurora-reviews/` dir (gitignored) and prints its path  |

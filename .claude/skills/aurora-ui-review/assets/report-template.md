@@ -1,86 +1,109 @@
-# UI Review: <Resource>
+# 🧪 UI Review — <Resource>
 
-|             |                                                                                                                           |
-| ----------- | ------------------------------------------------------------------------------------------------------------------------- |
-| **Date**    | <YYYY-MM-DD>                                                                                                              |
-| **Commit**  | `<sha>` (base: `<base ref>`)                                                                                              |
-| **Scope**   | <n> files: <short description, e.g. "Network ports: routes, list, details, nav, card, tests">                             |
-| **Epic**    | <title / link>                                                                                                            |
-| **UI mode** | Read-only / Full CRUD                                                                                                     |
-| **Sources** | Juno docs: <files>; repo rules: `.github/copilot-instructions.md`; juno-ui-components@<version>; design: <link or "none"> |
-| **Status**  | Analysis complete                                                                                                         |
+**Scope** <n> files: <short description> · **Commit** `<sha>` (base `<base ref>`) · **Date** <YYYY-MM-DD> · **UI mode** Read-only / Full CRUD · **Epic** <title / link>
 
-## Summary
+**Sources** — Juno docs: <files> · `juno-ui-components@<version>` · design: <link or "none">
 
-<2–4 sentences: overall verdict, the most important problems, what's solid.>
+> [!NOTE]
+> **Verdict —** <2-4 sentences: overall, the most important problems, what's solid.> Analysis only — no code was changed; fixes run separately via `aurora-findings-remediation`.
+
+**Legend —** result `✅ pass` · `❌ not valid` · `⚠️ open question` · `◻️ not verified`  severity `🔴 Critical` · `🟠 High` · `🟡 Medium` · `🔵 Low` · `⚪ Info`
+
+Tooling (typecheck, lint, format, tests, i18n) was **not** run; CI and `aurora-findings-remediation` cover it.
+
+---
+
+## 📊 Scorecard
+
+**Severity:**  🔴 0  ·  🟠 0  ·  🟡 0  ·  🔵 0  ·  ⚪ 0
 
 | Severity | Open | Fixed | Deferred | Won't Fix |
-| -------- | ---- | ----- | -------- | --------- |
-| Critical | 0    | 0     | 0        | 0         |
-| High     | 0    | 0     | 0        | 0         |
-| Medium   | 0    | 0     | 0        | 0         |
-| Low      | 0    | 0     | 0        | 0         |
-| Info     | 0    | –     | –        | –         |
+| -------- | :--: | :---: | :------: | :-------: |
+| Critical |  0   |   0   |    0     |     0     |
+| High     |  0   |   0   |    0     |     0     |
+| Medium   |  0   |   0   |    0     |     0     |
+| Low      |  0   |   0   |    0     |     0     |
+| Info     |  0   |   –   |    –     |     –     |
 
-Tooling (typecheck, lint, format, tests, i18n) was not run during the review; CI and `aurora-findings-remediation` cover it.
+## 🎯 Findings at a Glance
 
-## Requirements Traceability
+| ID | Sev | Category | Finding |
+|:---|:--:|:---|:---|
+| UI-001 | 🟡 | States | <short finding> |
 
-| ID     | Requirement (epic section)                    | Priority | Status      | Evidence / Finding |
-| ------ | --------------------------------------------- | -------- | ----------- | ------------------ |
-| REQ-01 | <requirement> (_"<short quote>"_, §<section>) | P1       | Implemented | `<file>:<line>`    |
-| REQ-02 | <requirement>                                 | P2       | Missing     | UI-003             |
-| REQ-03 | <requirement>                                 | P2       | Unclear     | Q-1                |
+---
 
-## Findings
+## 📋 Requirements Traceability
 
-### Critical
+| ID | Requirement (epic §) | Priority | Status | Evidence / Finding |
+|:---|:---|:--:|:---|:---|
+| REQ-01 | <requirement> (_"<short quote>"_, §<section>) | P1 | ✅ Implemented | `<file>:<line>` |
+| REQ-02 | <requirement> | P2 | ❌ Missing | UI-003 |
+| REQ-03 | <requirement> | P2 | ⚠️ Unclear | Q-1 |
 
-_None._
+---
+---
 
-### High
+# Findings
 
-#### UI-001: <Short title>
+### 🟡 UI-001 — <short title>
 
-- **Category:** <States>
-- **Confidence:** <Confirmed>
-- **Status:** Open
-- **Location:** `packages/aurora/src/client/routes/<...>.tsx:<line>`
-- **Rule:** <Epic §… / Juno docs/ux/<file>.md#<section> / repo B.<n> / juno-ui-components .d.ts / reference implementation `<file>`>
-- **Expected:** <what the rule requires>
-- **Actual:** <what the code does>
+| | |
+|:---|:---|
+| **Severity** | 🟡 Medium |
+| **Category** | <States / Colour / Components / Custom Code / Modals & Forms / UX Writing / Accessibility / Component API / …> |
+| **Confidence** | <Confirmed / Likely> |
+| **Status** | Open |
+| **Where** | `packages/aurora/src/client/routes/<…>.tsx:<line>` |
+| **Rule** | <Epic §… / Juno `docs/ux/<file>.md#<section>` / `juno-ui-components <Name>.component.tsx:<line>`> |
 
-  ```tsx
-  // relevant excerpt (keep it short)
-  ```
+**What's wrong** — <plain explanation a dev can act on, no jargon>
 
-- **Impact:** <what goes wrong for users or callers>
-- **Recommendation:** <how to fix, following the module's conventions>
+**Current code**
+```tsx
+// <file>:<line>
+<the offending snippet, kept short>
+```
 
-### Medium
+**Why it's not valid** — <concrete runtime/user impact>
 
-### Low
+**How to fix**
+```tsx
+<the corrected, Juno-conformant snippet>
+```
 
-### Info
+---
 
-## Open Questions
+_(repeat the block per finding, ordered by severity then file)_
 
-| ID  | Question   | Why it matters                | Blocks         |
-| --- | ---------- | ----------------------------- | -------------- |
+---
+---
+
+## ⚠️ Open Questions
+
+| ID | Question | Why it matters | Blocks |
+|:---|:---|:---|:---|
 | Q-1 | <question> | <which verdict depends on it> | REQ-03, UI-00x |
 
-## Verified OK
+## ✅ Verified OK
+- <check>: <one-line evidence + Juno source>
 
-- <check>: <one-line evidence>
-
-## Not Verified
-
+## ◻️ Not Verified
 - <check>: <reason, e.g. "Juno doc unavailable", "needs the running app (hover, focus)">
 
-## Pre-existing / Out of Scope
+## 🧹 Pre-existing / Out of Scope
+- <issue in untouched code, location> (⚪ Info)
 
-- <issue in untouched code, location> (Info)
+---
 
-## Remediation Log
+## 📚 Appendix: Sources
+
+Self-contained — follow each without this skill installed.
+
+**Juno UX docs** — `docs/ux/<file>.md#<section>` _(<finding ids>)_
+**Juno component source** — `<Name>.component.tsx:<line>` (via `sap_juno_lookup`) _(<finding ids>)_
+**Juno Storybook** — https://cloudoperators.github.io/juno/
+
+## 🔧 Remediation Log
 
 _Filled in by `aurora-findings-remediation`: one entry per run (findings, answers, files changed, verification, manual checks, proposed commits)._

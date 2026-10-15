@@ -87,11 +87,11 @@ For the scoped `*.tsx` files:
 3. **Check each call site**:
    - props exist and values are valid (`variant`, `size`…); required props set; no deprecated component/prop
    - composition matches the stories (children, parent/child pairs); a hand-rolled thing a story already blesses is a finding
-   - no raw HTML / custom component where a Juno one exists
+   - no raw HTML / custom component where a Juno one exists — **category `Custom Code`** (a finding when Juno has an equivalent; Info, still labelled, when it does not)
    - **right component for the data**: key/value attributes of one entity → `DescriptionList`, not a two-column `DataGrid` with a bold label cell. `text-theme-link` inside a `DataGridRow` that already has `onClick` is wrong — the row is natively clickable; remove the colour, don't fake a link
    - **empty/loading/error structure**: for each `DataGrid`/table, its `length === 0` / `isLoading` / `isError` branch must return the state component (`Status`/`Message`) **instead of** the grid, not nested as a row below the head cells
    - **DataGrid structure** (only if a `DataGrid` is imported): check the call site against `build-datagrid`'s decision trees and Invariants — column assembly/order (checkbox `_select` first, primary identifier, status near left, `_actions` last and min-content), zone/toolbar wrapping (Zone 1 a bare `Stack`; Zones 2 & 3 each their own `DataGridToolbar`, never merged), `colSpan={columns}` on state rows, `e.stopPropagation()` on every interactive child of a row with `onClick`, empty cell `- -`, no `DataGridFoot` unless requested. Any Invariant violation is a finding.
-   - no inline `style`, no hard-coded colours — only `theme-*` tokens
+   - no inline `style`, no hard-coded colours — only `theme-*` tokens. A colour utility not backed by a Juno token (raw Tailwind ramp like `text-red-600`, or an invented name) is **invalid — category `Colour`**: Juno resets the default palette, so it renders nothing.
 4. **Check house rules** — read `sap_juno_appkit/references/house-rules.md` and check each against the scoped files (empty value `- -`, heading hierarchy, spacing totals, prop-vs-CSS, DataGrid toolbar order…).
 
 ## 6. Merge findings

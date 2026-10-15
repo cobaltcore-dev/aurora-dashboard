@@ -1,123 +1,69 @@
 # Analysis checklist
 
-Work through the passes in order. They follow the repo's three review passes, preceded by requirements and followed by component API and tests. For each check, either record a finding, list it under "Verified OK", or mark it "not verified" with the reason. Skip checks for features that are out of scope (e.g. modals in a read-only UI), and say so in the report.
+**Authority is Juno only** — the Juno UX docs (`docs/ux`, mapped in `juno-guidelines-map.md`) and the `juno-ui-components` API (exact detail via the `sap_juno_lookup` agent). **There are no Aurora-specific UI/UX rules here.** A check is a finding only when it is backed by a Juno doc/component or by the epic; cite that source on every finding. (Aurora keeps *technical* rules for the BFF/server review only — not for UI/UX.)
+
+Work through the passes in order. For each check: record a finding, list it under "Verified OK", or mark it "not verified" with the reason. Skip out-of-scope features (e.g. modals in a read-only UI) and say so.
 
 ## 0. Prepare
 
 - [ ] Run `scripts/init_findings_dir.sh` and `scripts/locate_juno.sh`. Record the commit SHA, the base ref, the file list and the Juno version.
 - [ ] Read every in-scope file completely, plus the parent route files they depend on.
-- [ ] Fetch the applicable Juno docs (`juno-guidelines-map.md`) and open `.github/copilot-instructions.md`.
+- [ ] Fetch the applicable Juno docs (`juno-guidelines-map.md`). Every finding cites a Juno doc section or a `juno-ui-components` `file:line` (via `sap_juno_lookup`).
 
 ## 1. Requirements traceability (epic)
 
-- [ ] Extract each explicit UI requirement into `REQ-NN`, with its epic section (quote the key phrase) and priority. Typical sources:
-  - navigation and route paths;
-  - list columns and their content;
-  - details sections and fields;
-  - copy-to-clipboard;
-  - actions and their permission keys;
-  - states and error messages;
-  - filters, sorting and pagination.
-- [ ] For each requirement, record its status: Implemented / Partial / Missing / Out of Scope (cite where it is excluded) / Unclear (→ Open Question). Missing or Partial in-scope requirements are findings (category `Requirements`).
-- [ ] Check the reverse too: UI elements the epic or design decisions **exclude** must not be present. Example: a column removed in a design review, or write actions in a read-only scope.
-- [ ] If a design is provided, compare the layout and content with it. Report differences only if they also contradict the epic, or if the user said the design is binding.
+- [ ] Extract each explicit UI requirement into `REQ-NN`, with its epic section (quote the key phrase) and priority. Typical sources: navigation and route paths; list columns and content; details sections and fields; copy-to-clipboard; actions and their permission keys; states and error messages; filters, sorting and pagination.
+- [ ] For each requirement, record its status: Implemented / Partial / Missing / Out of Scope (cite where excluded) / Unclear (→ Open Question). Missing or Partial in-scope requirements are findings (category `Requirements`).
+- [ ] Check the reverse too: UI elements the epic or design decisions **exclude** must not be present.
+- [ ] If a design is provided, compare layout and content; report differences only if they also contradict the epic or the user said the design is binding.
 
-## 2. Pass 1: Security & Data (repo B.7, B.8, B.15)
+## 2. Juno components & custom code
 
-- [ ] **Data fetching (B.7, A.2, A.3).** Use typed tRPC only. Page-critical data comes via the route loader or the module's established pattern. tRPC errors are handled, and `FORBIDDEN` gets its own treatment (Juno `error-handling-loading-empty-states.md#authenticationauthorization-errors`).
-- [ ] **Server-code imports.** Client code must only use `import type` from `@/server/...` types. A value import pulls server code into the browser bundle.
-- [ ] **Permissions (B.8, Juno `ui-for-unauthorized-users.md`, `page-level-actions.md#disabled-vs-hidden-actions`):**
-  - Every action uses the permission key the epic names.
-  - Checks fail closed: nothing renders before permissions resolve.
-  - Hide vs. disable follows the guideline.
-  - Props are named `can<Verb><Noun>`.
-  - No Create, bulk or selection elements without the corresponding permission (Juno `datagrid.md#render-elements-based-on-user-permissions`).
-- [ ] **Project scoping.** Every query passes the current `project_id`. The UI never shows another project's data unless the epic requires it.
-- [ ] **Rows (B.15, Juno `datagrid.md#clickable-items--rows`):**
-  - If a row navigates, the whole row is clickable, with hover feedback.
-  - Nested interactive elements call `event.stopPropagation()`.
-  - The identifying column comes first and the action column last.
-  - The action column uses a `PopupMenu`.
+- [ ] **Juno components are used where they exist.** Any raw HTML element where a Juno component exists (raw `<table>`, `<button>`, `<input>`, `<select>`, an inline `<svg>` icon instead of Juno `Icon`), or a hand-built widget duplicating a Juno capability, is **Custom Code** (category `Custom Code`): a finding when Juno has an equivalent, Info (still labelled) when it does not. Confirm the Juno equivalent via `sap_juno_lookup`.
+- [ ] **Component API** (`juno-components.md`): no deprecated/fallback props; documented callbacks used, not DOM pass-through props; controlled components kept in sync with their state source; semantic variants correct. Verify each via `sap_juno_lookup`.
 
-## 3. Pass 2: UI Correctness (repo B.1, B.4, B.5, B.6, B.9, B.11)
+## 3. Colour & tokens
 
-- [ ] **Components (B.1, A.4).** Juno components are used where they exist (Quick Reject: raw `<table>`, `<button>`, ...).
-- [ ] **Color tokens (B.4).** Use `text-theme-*` / `bg-theme-*`, no hardcoded Tailwind colors.
-- [ ] **States (B.6, Juno `datagrid.md#datagrid-empty-loading-and-error-states`, `error-handling-loading-empty-states.md`):**
-  - Loading, empty, **filtered-empty (`"no-matches"`)** and error states use `Status` inside a full-width `DataGridRow` / `DataGridCell`, scoped to the grid.
-  - The error state offers a retry where possible.
-  - The details page handles pending, error and not-found.
-  - Sub-resource sections (tabs) have their own loading, error and empty states.
-- [ ] **URL state (B.9).** Search, sort, filters, page and active tab live in search params. Invalid values are dropped in `validateSearch`. The page resets when search, sort or filter change. Check the behaviour against Juno `datagrid.md#filter-and-sort-persistence-on-navigation`.
-- [ ] **Modals (B.5, Juno `modals.md`), full mode only:**
-  - One primary action; no modal without a prior user interaction.
-  - Cancel and close are disabled while the operation is pending.
-  - Destructive actions use `confirmButtonVariant="primary-danger"` and a specific, non-alarmist title.
-  - Messages inside the modal don't conflict with its variant.
-  - The modal has an accessible name.
-- [ ] **Forms (B.11, Juno `forms.md`), full mode only:**
-  - Field order, required vs optional marking, and labels.
-  - Validation timing, inline vs summary errors, and cross-field rules.
-  - Submit and cancel placement.
+- [ ] **Every colour utility must resolve to a Juno token.** Juno resets the default Tailwind palette (`global.css` `--color-*: initial`), so raw Tailwind ramps (`text-red-600`, `bg-gray-50`, …) and invented names (`text-juno-red`) render nothing → **invalid** (category `Colour`). Use the semantic `theme-*` tokens (`text-theme-error`, `text-theme-success`, …). `white`/`black` and the `sap-*`/`juno-*` tokens are valid.
+- [ ] **Never colour alone** to signal meaning (`semantic-variants.md`) — pair with text/icon.
+- [ ] Prefix: utilities use the prefix the app's Tailwind build configures (an inconsistent mix means one set is dead CSS — flag it). The app's own build config may be read to confirm which; it is an implementation fact, not a UX authority.
 
-## 4. Pass 3: Style & Consistency (repo B.2, B.3, B.10, B.12–B.14, B.16–B.19)
+## 4. States (`datagrid.md`, `error-handling-loading-empty-states.md`)
 
-- [ ] **List zones (B.2, Juno `datagrid.md#datagrid-header--toolbar`).** Each toolbar element is in the right zone (sort and primary action, filters and search, view state, bulk actions, refresh).
-- [ ] **Page-level actions (Juno `page-level-actions.md`):**
-  - One primary action; the overflow menu composition.
-  - Refresh button rules, if present: visible, leftmost, "Refresh Page", disabled while refreshing.
-  - Icon-only buttons.
-  - Pages with tabs: page actions above the tab bar and static; tab-scoped actions below it.
-- [ ] **Spacing (B.3).** Only approved spacing values.
-- [ ] **Toasts vs messages (B.10, B.16, Juno `messages-and-notifications.md`):**
-  - Toasts go through `*ToastNotifications` helpers.
-  - Persistent or actionable errors use `<Message>`, not a toast.
-  - Variants are used as intended (Juno `semantic-variants.md`).
-- [ ] **Naming and imports (B.12, B.13).** PascalCase resource-specific files; `@/` imports instead of deep `../../` paths; import order.
-- [ ] **Accessibility (B.14, Juno `accessibility.md`):**
-  - Icon-only buttons have `aria-label`.
-  - Error elements use `role="alert"` and `aria-live`.
-  - Focus is visible, and rows and menus are keyboard reachable.
-  - Modals and tab lists have accessible names.
-- [ ] **Hooks (B.17, A.1):**
-  - Shared hooks are reused (`useProjectId`, `useModal`, `useSetBreadcrumb`, `useErrorTranslation`, ...).
-  - No hooks after an early return.
-  - No unnecessary `useEffect`; `use()` where appropriate.
-- [ ] **Menus (B.18, Juno `popup-and-overflow-menus.md`).**
-  - Item order and grouping.
-  - "Delete" is last in its group, with a divider before it in single-entity menus.
-  - Read-only scope: only the allowed items, e.g. "Show Details".
-- [ ] **UX writing (B.19, Juno `ux-writing-content-design.md`):**
-  - **Title Case** for page and section headings, column headers, buttons, tab labels, and modal, message and toast titles.
-  - Active, impersonal voice: no "Please", "We", "Thanks", exclamation marks or all-caps.
-  - Consistent terminology across list, details and navigation (same names for the same things).
-  - Empty-state wording explains why there's nothing to show and what to do next.
-- [ ] **Values and IDs.**
-  - Placeholders for missing values are consistent within and across the resource's views.
-  - IDs shown where the epic or design asks, and copyable where required.
-  - No IDs where design decisions exclude them.
-- [ ] **Navigation and card.**
-  - The navigation label and section match the epic.
-  - The card and the nav entry are gated by the same service and `enabledServices` checks.
-  - The route's `staticData` section, service, crumb and analytics name are consistent with the sibling routes.
+- [ ] Loading, empty, **no-matches** and error states use `Status` inside a full-width `DataGridRow` / `DataGridCell`, scoped to the grid.
+- [ ] **Empty vs no-matches distinguished** — "no data exists" and "no data matches your filters" use different variants/copy.
+- [ ] The error state offers a retry where possible. The details page handles pending, error and not-found. Sub-resource sections (tabs) have their own states.
 
-## 5. Juno component API
+## 5. DataGrid & page structure (`datagrid.md`, `page-level-actions.md`, `page-content-area.md`)
 
-Follow `juno-components.md`.
+- [ ] Toolbar zones (sort/primary action · filters/search · view state/bulk/refresh). Clickable rows: whole row clickable with hover feedback; nested interactive elements call `event.stopPropagation()`; identifying column first, action column last with a `PopupMenu`. Filter/sort persistence per `datagrid.md`.
+- [ ] One `primary` action per page; overflow composition; refresh button rules; tabbed pages keep page actions above the tab bar.
+- [ ] Every page has Page Header + Content Area + Page Footer.
 
-- [ ] No deprecated or fallback props.
-- [ ] Documented callbacks used rather than DOM pass-through props.
-- [ ] Controlled components kept in sync with their state source.
-- [ ] Semantic variants are correct.
+## 6. Modals & forms (`modals.md`, `forms.md`) — full mode only
 
-## 6. Tests
+- [ ] Modals: one primary action; no modal without prior user interaction; cancel/close disabled while pending; destructive uses `confirmButtonVariant="primary-danger"` + a specific, non-alarmist title; messages inside don't conflict with the variant; the modal has an accessible name.
+- [ ] Forms: field order, required vs optional marking, labels; validation timing (inline vs summary), cross-field rules; submit/cancel placement.
 
-- [ ] Each new component has a test file that follows the existing UI test patterns: row, container, list, details view, sub-resource tables, and modals and hooks in full mode.
-- [ ] The tests cover the epic's requirements:
-  - columns and fields;
-  - states (loading, empty, filtered-empty, error, not found);
-  - permission gating (actions hidden or disabled);
-  - navigation;
-  - URL state (search, sort, page, tab).
-- [ ] Assertions test behaviour, not implementation details. No test asserts the exact behaviour a guideline forbids, e.g. a toast for a persistent error.
-- [ ] Review the tests **statically**: read them and judge coverage and correctness. Don't run them (see "No tooling runs" in `SKILL.md`).
+## 7. Messages, toasts, variants (`messages-and-notifications.md`, `semantic-variants.md`)
+
+- [ ] Persistent or actionable errors use `<Message>`, transient feedback uses a toast. Variants used by meaning (`info`/`success`/`warning`/`error`/`danger`).
+
+## 8. UX writing (`ux-writing-content-design.md`)
+
+- [ ] **Title Case** for page/section headings, column headers, buttons, tab labels, and modal/message/toast titles. Active, impersonal voice (no "Please"/"We"/"Thanks", no exclamation marks, no all-caps). Consistent terminology across list, details and navigation. Empty-state wording explains why there's nothing and what to do next.
+
+## 9. Accessibility (`accessibility.md`)
+
+- [ ] Icon-only buttons have an accessible name (`aria-label` or `title`). Dynamic error elements use `role="alert"` / `aria-live`. Focus is visible; rows and menus are keyboard reachable. Modals and tab lists have accessible names.
+
+## 10. Navigation (`navigation-side-navigation.md`)
+
+- [ ] The side-navigation entry label, position and active state follow the Juno rules and match the epic.
+
+## 11. Tests
+
+- [ ] Each new component has a test file following the existing UI test patterns (row, container, list, details, sub-resource tables, modals/hooks in full mode).
+- [ ] Tests cover the epic's requirements: columns and fields; states (loading, empty, no-matches, error, not found); permission gating; navigation; URL state.
+- [ ] Assertions test behaviour, not implementation details; no test asserts a behaviour a Juno rule forbids (e.g. a toast for a persistent error).
+- [ ] Review the tests **statically** — read and judge coverage; don't run them (see "No tooling runs" in `SKILL.md`).

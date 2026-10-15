@@ -13,7 +13,7 @@ Each component's API and JSDoc is in `build/components/<Name>/<Name>.component.d
 
 ## What to check
 
-Strict TypeScript already rejects invalid prop types and values (repo rules). Focus on what the compiler can't catch:
+Strict TypeScript already rejects invalid prop types and values. Focus on what the compiler can't catch:
 
 - **Deprecated or fallback props.** Search the `.d.ts` for `@deprecated` and for JSDoc phrases like "fallback", "backward compatibility" or "legacy".
   - Example: `Pagination.pages` is a fallback for `totalPages`.
