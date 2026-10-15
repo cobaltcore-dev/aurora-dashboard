@@ -26,6 +26,7 @@ Talk to the user in the language they write in. The report is in English.
 
 - **No tooling runs.** Don't run any pnpm scripts or other checks (typecheck, lint, format, tests, i18n, build) during the review, and don't start the dev server. This keeps the review fast, and it never modifies files (e.g. `lingui extract` rewrites catalogs). Review test files by reading them. Tooling is covered by CI and by `aurora-findings-remediation`, which runs the checks after fixing.
 - **Stay in scope.** Review only the in-scope changes. Problems in untouched existing UIs go under "Pre-existing / Out of Scope" (Info). They are listed for awareness only.
+- **Disposition is mandatory (no silent drop).** Every applicable check in `references/checklist.md` ends in exactly one explicit disposition — finding, Verified OK, not verified (reason), or n/a (reason) — and appears in the report's **Coverage Ledger**. Nothing is omitted because it feels minor: a Low/Info result is still a disposition. The rule is **enumerate** (each rule is one explicit, cited check — never only prose or a contradiction), **disposition** (every applicable check is accounted for), **no-silent-drop** (soft findings can't evaporate; the remediation step resolves each one explicitly, including ⚠️).
 
 ## Intake
 

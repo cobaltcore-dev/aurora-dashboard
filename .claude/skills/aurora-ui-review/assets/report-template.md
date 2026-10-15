@@ -89,6 +89,16 @@ _(repeat the block per finding, ordered by severity then file)_
 | :-- | :--------- | :---------------------------- | :------------- |
 | Q-1 | <question> | <which verdict depends on it> | REQ-03, UI-00x |
 
+## 📑 Coverage Ledger
+
+Every applicable checklist item (`references/checklist.md`), one row, exactly one disposition. An applicable check may **not** be absent; `➖ n/a` and `◻️ not verified` require a reason. This is the no-silent-drop guard — a known rule can't quietly disappear.
+
+| Check (checklist §)                             |   Disposition   | Finding / reason                          |
+| :---------------------------------------------- | :-------------: | :---------------------------------------- |
+| DataGrid: primary/"Create" action in Zone 1 (§5) | ✅ / ❌ / ➖ / ◻️ | `datagrid.md#zone-1` · UI-00x / reason    |
+| DataGrid: search end-aligned (§5)               | ✅ / ❌ / ➖ / ◻️ | Storybook `DataGridHeader/WithSearchOnly` |
+| _(one row per applicable checklist item)_       |                 |                                           |
+
 ## ✅ Verified OK
 
 - <check>: <one-line evidence + Juno source>
@@ -114,3 +124,9 @@ Self-contained — follow each without this skill installed.
 ## 🔧 Remediation Log
 
 _Filled in by `aurora-findings-remediation`: one entry per run (findings, answers, files changed, verification, manual checks, proposed commits)._
+
+**Remediation disposition (mandatory — no silent drop).** Every finding in this report — each severity, ❌ and ⚠️ alike — gets exactly one resolution row. A finding left unaddressed is recorded as `Skipped` with a reason and who decided (e.g. a scope decision like "read-only P1, stubs left"), never silently omitted.
+
+| Finding | Resolution                                        | Reason   | Decided by             |
+| :------ | :------------------------------------------------ | :------- | :--------------------- |
+| UI-001  | Fixed / Skipped / Deferred / Won't Fix / Obsolete | <reason> | <user / scope decision> |

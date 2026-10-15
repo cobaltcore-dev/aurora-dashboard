@@ -51,7 +51,8 @@ Storybook (hosted): https://cloudoperators.github.io/juno/ .
 | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | App frame / page scaffold                                | `AppShell` (+ `AppShellProvider`)                                                                 |
 | Page title                                               | `ContentHeading` inside `Container py`                                                            |
-| Primary page action(s)                                   | `ContentAreaToolbar` + one `primary` `Button`                                                     |
+| Primary **page** action (non-list, or not tied to a grid)| `ContentAreaToolbar` + one `primary` `Button`                                                     |
+| Primary action of a **list/DataGrid** ("Create" adds rows)| DataGrid header **Zone 1** (bare `Stack`, **not** `ContentHeader`/`ContentAreaToolbar`) — `docs/ux/datagrid.md` §Zone 1 |
 | Text / number input · pick one · searchable pick         | `TextInput` · `Select`/`NativeSelect` · `ComboBox`                                                |
 | On/off instantly · boolean in a form                     | `Switch` · `Checkbox`                                                                             |
 | Date / time / range                                      | `DateTimePicker`                                                                                  |

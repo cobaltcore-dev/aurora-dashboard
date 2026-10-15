@@ -4,6 +4,8 @@
 
 Work through the passes in order. For each check: record a finding, list it under "Verified OK", or mark it "not verified" with the reason. Skip out-of-scope features (e.g. modals in a read-only UI) and say so.
 
+**Disposition is mandatory — nothing silent.** Every checklist item below (each `- [ ]`) must end the review in exactly one explicit state: a finding, "Verified OK", "not verified (reason)", or "n/a (reason)". An applicable check may never be absent from the report — the **Coverage Ledger** (see `assets/report-template.md`) lists every item with its disposition, 1:1 with this checklist. A soft (Low/Info) result is still a disposition, not a licence to drop the item. The governing rule is **enumerate → disposition → no-silent-drop**: each rule is one explicit, cited check (never only prose, never contradictory); every applicable check is accounted for; soft findings cannot evaporate. This is what stops a known rule (e.g. search alignment, primary-action placement) from quietly disappearing.
+
 ## 0. Prepare
 
 - [ ] Run `scripts/init_findings_dir.sh` and `scripts/locate_juno.sh`. Record the commit SHA, the base ref, the file list and the Juno version.
@@ -44,7 +46,10 @@ Work through the passes in order. For each check: record a finding, list it unde
   - **Cell rendering** (DT-8): empty value always `- -` (two hyphens space-separated), Badge only when `statusVariantMap` explicitly provided (labelMap alone renders plain text), boolean labelMap keys are `"true"`/`"false"` (String), `col.bold` never inferred (primary doesn't imply bold)
   - **Bulk select-all** (DT-9): checkbox state derived from selected count vs total count
   - **All 17 Invariants**: read `build-datagrid/SKILL.md` Invariants section and verify each (e.g. no `DataGridFoot` unless requested, `PopupMenu` requires `PortalProvider`, action column always in `minContentColumns`, column headers are nouns not verbs, etc.)
-- [ ] **Toolbar zones & clickable rows** (`datagrid.md`): whole row clickable with hover feedback when `onClick` set; filter/sort persistence; identifying column first, action column last with `PopupMenu`
+- [ ] **Toolbar zones, placement & alignment** (`datagrid.md`): check the zone placement **and alignment** of every toolbar element.
+  - [ ] **Primary / "Create" action is in the DataGrid header Zone 1** (part of the grid — a bare `Stack` above the toolbar), **not** in the page `ContentHeader`, when the action creates items in the grid. Cite `datagrid.md` §"Zone 1": _"If users can create new items in the DataGrid, this can be done using the primary action button"_.
+  - [ ] **Search is end/right-aligned in Zone 2** — `Stack distribution="end"` when search is the only Zone-2 control; `"between"` when a filter sits to its left. Source: Juno Storybook `Components/DataGrid/DataGridHeader` → `WithSearchOnly`.
+  - [ ] **Clickable rows**: whole row clickable with hover feedback when `onClick` set; nested interactive elements call `event.stopPropagation()`; filter/sort persistence; identifying column first, action column last with a `PopupMenu`.
 - [ ] **Page-level actions** (`page-level-actions.md`): one `primary` action per page; overflow composition; refresh button rules; tabbed pages keep page actions above the tab bar
 - [ ] **Page structure** (`page-content-area.md`): every page has Page Header + Content Area + Page Footer
 

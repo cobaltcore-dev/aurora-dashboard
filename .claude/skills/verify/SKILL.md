@@ -197,4 +197,4 @@ Phase 1 ✅ · Phase 2 🚧 · Phase 3 ⏳
 **Verdicts:** PASS — ran it, change works at its surface. FAIL — ran it, doesn't, or breaks
 something else, or claim/diff disagree. BLOCKED — couldn't reach an observable state (say
 where). SKIP — no runtime surface. No partial pass; "3 of 4" is FAIL until explained. When
-in doubt, FAIL. List at most ~10 findings, worst first; if nothing, write `✅ No findings`.
+in doubt, FAIL. The **Findings** section highlights at most ~10, worst first (if nothing, write `✅ No findings`) — but highlighting is not dropping: every ❌/⚠️ folded in from the subagents (step 4) is carried, and when the user asks to fix them, each one gets an explicit resolution (fixed, or skipped with a reason and who decided — e.g. a scope decision like "read-only P1, stubs left"). A soft ⚠️ is never silently left out of the fix pass.

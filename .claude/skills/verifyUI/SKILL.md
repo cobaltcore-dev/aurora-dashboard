@@ -63,7 +63,7 @@ Check whether the Juno source in `tmp/juno` has moved since `sap_juno_appkit`'s 
 
 ## 4. Visual checklist — 12 points (visual-only / full)
 
-Load `sap_juno_appkit` first; its UX non-negotiables and decision index are the authority for items 5–8 and 12. Dispatch `sap_juno_lookup` for any exact prop/variant/token/rule beyond it. Work through every item in order; output one line each: ✅ pass · ❌ finding · ⚠️ risk · ➖ n/a (one-line reason). Never skip silently.
+Load `sap_juno_appkit` first; its UX non-negotiables and decision index are the authority for items 5–8 and 12. Dispatch `sap_juno_lookup` for any exact prop/variant/token/rule beyond it. Work through every item in order; output one line each: ✅ pass · ❌ finding · ⚠️ risk · ➖ n/a (one-line reason). Never skip silently. **Every item (and every sub-bullet of item 8) must emit its own disposition line** — a ⚠️/soft result is still a line, never an omission. Dropping an applicable check is itself a process failure.
 
 1. **Page type** — list/landing, entity detail, modal, drawer, form, empty state, other. State it; the rest depends on it.
 2. **Breadcrumb & IA** — present? correct hierarchy? parent labels match the rest of the app?
@@ -72,7 +72,12 @@ Load `sap_juno_appkit` first; its UX non-negotiables and decision index are the 
 5. **Primary action — one per page** — exactly one `primary` (or `primary-danger` on a destructive surface). Zero or >1 is a finding. In a modal, confirm = the one primary, Cancel = `default`/`subdued`.
 6. **Nomenclature** — consistent terms for one concept (not "Delete" vs "Remove"); no vague labels; no casing mix. Cross-page too if multiple screenshots.
 7. **Overflow menus (⋮)** — labels clear & consistent with item 6; destructive last, common/primary first.
-8. **DataGridToolbar** — present above any DataGrid; contains search/filter (if filterable), bulk controls (if selectable), Add/Create (if applicable). ComboBox/Filter left, Search right (house rule). No vertical gap between toolbar and grid. Zone layout authority: `build-datagrid` (DT-2 inclusion, DT-3/4/5 contents).
+8. **DataGridToolbar & header zones** — present above any DataGrid; check each as its own ✅/❌/⚠️/➖ line, none skipped:
+   - **Zone 1 primary-action placement** — a primary/"Create" action that adds items to the grid sits in Zone 1 (a bare `Stack` above the toolbar, part of the grid), **not** in the page `ContentHeader` (`docs/ux/datagrid.md` §Zone 1: _"If users can create new items in the DataGrid, this can be done using the primary action button"_).
+   - **Search alignment** — Search is end/right-aligned (`Stack distribution="end"` when it's the only Zone-2 control; `"between"` with a filter to its left). Source: Juno Storybook `Components/DataGrid/DataGridHeader` → `WithSearchOnly`; house rule "ComboBox/Filter left, Search right".
+   - **Zone contents** — search/filter (if filterable), bulk controls (if selectable), Add/Create (if applicable); each element in its designated zone.
+   - **No vertical gap** between toolbar and grid.
+   - Zone inclusion/contents authority: `build-datagrid` (DT-2 inclusion, DT-3/4/5 contents).
 9. **Tables** — real/representative data (not placeholder); no cells truncating/overflowing; narrow-viewport handling (scroll or responsive). Long text that breaks structure/spacing is a defect (house rule).
 10. **Detail nav** — on a list page with a detail view: visible row hover affordance (cursor/highlight) and clicking a row navigates. Static rows with no hover/click affordance is a finding. (In `full` mode, item 5 of the source check is authoritative — see step 6.)
 11. **Positioning** — CTAs placed consistently (page actions top-right); badges/icons/labels aligned; nothing out of place or overlapping.

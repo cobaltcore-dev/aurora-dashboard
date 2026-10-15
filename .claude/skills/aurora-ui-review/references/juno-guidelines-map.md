@@ -41,7 +41,7 @@ Component docs (Storybook): `https://cloudoperators.github.io/juno/?path=/docs/c
 - **Permission-dependent elements:**
   - No "Create […]" button when the user can't create.
   - No bulk-action elements or selection checkboxes when the user can't perform any bulk action.
-- **Toolbar zones.** Zone 1: predefined filters (tabs), sorting, actions. Zone 2: filters and search. Zone 3: view state, bulk actions, refresh. Check the zone placement of every toolbar element.
+- **Toolbar zones.** Zone 1: predefined filter tabs, sorting, overflow, and the **primary action** — including a "Create" that adds items to the grid (`datagrid.md` §"Zone 1": _"If users can create new items in the DataGrid, this can be done using the primary action button"_). Zone 1 is a bare `Stack` above the toolbar, **not** the page `ContentHeader`. Zone 2: filters and **search**, where search is end/right-aligned (`Stack distribution="end"` when it is the only Zone-2 control; Storybook `DataGridHeader/WithSearchOnly`). Zone 3: view state, bulk actions, refresh. Check the zone placement **and alignment** of every toolbar element.
 - **Persistence.** Read the "Filter and Sort Persistence on Navigation" section and check the list's search, sort and filter behaviour against it.
 
 ### `page-level-actions.md`

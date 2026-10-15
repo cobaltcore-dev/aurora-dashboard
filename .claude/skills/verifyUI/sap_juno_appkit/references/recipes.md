@@ -92,9 +92,13 @@ Validation on any input: `invalid` + `errortext`, `valid` + `successtext`, `help
 <Container py>
   <ContentHeading>Resources</ContentHeading>
 
-  <ContentAreaToolbar>
+  {/* Zone 1 — the primary action belongs to the DataGrid header (a bare Stack above the
+      toolbar), NOT a page-level toolbar: a "Create" that adds rows to the grid is the grid's
+      primary action. Source: docs/ux/datagrid.md §Zone 1 ("If users can create new items in
+      the DataGrid, this can be done using the primary action button"); build-datagrid DT-3. */}
+  <Stack distribution="end" className="jn:pb-2">
     <Button variant="primary" icon="addCircle" label="New Resource" onClick={openPanel} />
-  </ContentAreaToolbar>
+  </Stack>
 
   <DataGrid columns={4}>
     <DataGridRow>

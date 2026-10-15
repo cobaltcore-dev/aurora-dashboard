@@ -25,7 +25,8 @@ headings below it descend strictly `h2` → `h3` → … Headings not marked up 
 ### Empty-value placeholder
 
 - **Rule:** `- -` (two hyphens, space-separated) is the placeholder for an empty value — never `null`, `undefined`, `""`, `—`, or `N/A`.
-- **Date:** 2026-10-15 · **Origin:** session — adopted from the `build-datagrid` spec (Invariant #7) and promoted to the app-wide placeholder. **Supersedes** the prior `—` decision (2026-10-14); pending sign-off.
+- **Date:** 2026-10-15 · **Origin:** session — adopted from the `build-datagrid` spec (Invariant #7) and promoted to the app-wide placeholder. **Supersedes** the prior `—` decision (2026-10-14).
+- _Checked (Juno-confirmed, not just a house rule):_ `docs/ux/datagrid.md` §"Content and Writing": _"When a cell value is empty or unknown, render `- -` (two hyphens separated by a space) as a placeholder."_ This is Juno canon — cite the doc, not this entry.
 
 ### DescriptionList — two columns
 
@@ -61,6 +62,7 @@ headings below it descend strictly `h2` → `h3` → … Headings not marked up 
 - **Rule:** ComboBox and Filter are always on the left, Search on the right.
 - **Rule:** No vertical space between the DataGrid header (toolbar) and the DataGrid.
 - **Date:** 2026-10-14 · **Origin:** session
+- _Checked (Juno-corroborated):_ "Search on the right" matches the Juno Storybook `Components/DataGrid/DataGridHeader` → `WithSearchOnly`, where a search-only Zone 2 uses `Stack distribution="end"`. Cite that story alongside this rule.
 - _Checked:_ "no vertical space" is consistent with `DataGridToolbar` separating via `border-b`, not margin.
 - _Not recorded (contradicts docs):_ "positions stay fixed when one element is absent" — `docs/ux/datagrid.md` says remaining space is redistributed and positions shift ("accepted tradeoff"). Dropped per the Juno-docs-win convention.
 

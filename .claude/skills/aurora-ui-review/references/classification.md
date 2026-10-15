@@ -14,6 +14,8 @@ Give every finding exactly one severity, one category, one confidence level and 
 
 When in doubt between two severities, pick the lower one and explain why.
 
+Picking the lower severity (or Info) never means dropping the finding: every finding, down to Low/Info, is still reported, carried in the Coverage Ledger, and dispositioned. "In doubt → lower" decides the tier, not whether to record it.
+
 ## Category
 
 `Requirements` · `Components / Custom Code` · `Colour` · `States` · `DataGrid` · `Page Structure & Actions` · `Modals & Forms` · `Messages & Notifications` · `UX Writing` · `Accessibility` · `Navigation` · `Component API` · `Tests`
