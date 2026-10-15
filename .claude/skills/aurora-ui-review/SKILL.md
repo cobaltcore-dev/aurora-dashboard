@@ -1,13 +1,13 @@
 ---
 name: aurora-ui-review
-description: Review and verify an Aurora Dashboard UI implementation (routes, list views, details views, modals, navigation and service cards, component tests under packages/aurora/src/client) against the epic description, the Juno UX guidelines (cloudoperators/juno docs/ux) and the juno-ui-components API. Writes a classified findings report to findings/ in the repo root. It only analyzes and never changes code; findings are fixed separately with the aurora-findings-remediation skill. Use this skill whenever the user asks to review, verify, audit, check or validate UI / frontend / page / component changes, compare a UI with an epic, Figma or the Juno guidelines, even if they don't name the skill.
+description: Review and verify an Aurora Dashboard UI implementation (routes, list views, details views, modals, navigation and service cards, component tests under packages/aurora/src/client) against the epic description, the Juno UX guidelines (cloudoperators/juno docs/ux) and the juno-ui-components API. Writes a classified findings report to the gitignored tmp/aurora-reviews/ (alongside the verify and verifyUI reports). It only analyzes and never changes code; findings are fixed separately with the aurora-findings-remediation skill. Use this skill whenever the user asks to review, verify, audit, check or validate UI / frontend / page / component changes, compare a UI with an epic, Figma or the Juno guidelines, even if they don't name the skill.
 ---
 
 # Aurora UI Review
 
 This skill verifies that a UI implementation in `packages/aurora/src/client` does what the epic requires. It also checks that the UI follows the **relevant** Juno UX guidelines, uses `juno-ui-components` correctly, and fits the patterns of the existing Aurora UIs.
 
-**This skill only analyzes.** It collects, classifies and documents issues in a Markdown report under `findings/` in the repo root, and it **never changes code**. To fix findings, the user runs `aurora-findings-remediation` with the report. The report is written so that skill can work from it alone.
+**This skill only analyzes.** It collects, classifies and documents issues in a Markdown report under `tmp/aurora-reviews/` (gitignored; shared with verify and verifyUI), and it **never changes code**. To fix findings, the user runs `aurora-findings-remediation` with the report. The report is written so that skill can work from it alone.
 
 Talk to the user in the language they write in. The report is in English.
 
@@ -50,7 +50,7 @@ Follow `references/checklist.md`. Summary:
 4. **Baseline.** Read the existing UIs and repo rules that apply (`references/baseline.md`).
 5. **Review.** Go through the in-scope files with the checklist categories: requirements, page structure and actions, DataGrid, states, details view, navigation, modals and forms (full mode), permissions, UX writing, accessibility, Juno component API, data fetching and URL state, i18n, tests.
 6. **Classify** each finding with severity, category, confidence and the rule source (`references/classification.md`).
-7. **Write the report** to `findings/ui-review-<resource>-<YYYY-MM-DD>.md`, using `assets/report-template.md`. If that file already exists, append `-2`, `-3`, ...
+7. **Write the report** to `tmp/aurora-reviews/ui-review-<resource>-<YYYY-MM-DD>.md`, using `assets/report-template.md`. If that file already exists, append `-2`, `-3`, ...
 8. **Stop and present:**
    - the report path;
    - finding counts by severity;
@@ -74,6 +74,6 @@ Don't fix anything within this skill, even if asked in the same conversation. Ha
 | `references/baseline.md`            | Existing Aurora UIs, repo UI rules, known patterns and deviations              |
 | `references/classification.md`      | Severity, category, confidence and status definitions                          |
 | `assets/report-template.md`         | Findings report structure                                                      |
-| `scripts/init_findings_dir.sh`      | Creates `findings/` and keeps it out of git (local exclude)                    |
+| `scripts/init_findings_dir.sh`      | Creates the shared `tmp/aurora-reviews/` dir (gitignored) and prints its path  |
 | `scripts/locate_juno.sh`            | Finds the installed `juno-ui-components` (path, version, component types)      |
 | `scripts/verify.sh`                 | typecheck, lint, format (changed files), tests; `--i18n`, `--build`            |

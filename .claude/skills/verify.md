@@ -6,6 +6,12 @@ argument-hint: <epic/issue/PR number or URL | branch | commit | path>
 
 # verify
 
+**verify is the center.** It establishes a running app, then orchestrates the review
+subagents around it — `verifyUI` (UI screenshot + Juno source), `aurora-bff-review`
+(BFF/server), and `code-review` (diff bugs/cleanups). verify owns the login, the report,
+and the verdict; the subagents produce findings it folds in. It does not guess what to
+run or whether the app is up — it **asks** (steps 1.5 and 2).
+
 **Verification is runtime observation.** Build the app, run it, drive it to where the
 changed code executes, and capture what you see. That capture is your evidence. Don't
 run tests, don't typecheck, don't import-and-call — those prove CI runs, not that the
@@ -52,15 +58,43 @@ State the commit count. The diff is ground truth; any description is a claim abo
 if they disagree, that's a finding. No runtime surface at all (docs-only, types-only,
 tests-only) → **SKIP**, one line, still save the report.
 
-## 2. Get a handle
+## 1.5 Ask — context & plan
 
-Check `.claude/skills/` for a `verifier-*`/`run-*` helper first. For BFF/backend/server/tRPC
-changes under `packages/aurora/src/server`, use the `aurora-bff-review` skill from
-`.claude/skills/verifyArch/` instead of this generic verify protocol — it validates against
-the epic and OpenStack API docs. Otherwise cold-start from README/package.json. For this repo
-the app is the dashboard: `pnpm dev` (serves on `:4001` against the configured
-`IDENTITY_ENDPOINT`). Confirm the backend is reachable before driving. Timebox cold start
-~15 min; stuck → **BLOCKED** with exactly where it stopped.
+Before touching the app, pause once and ask the user two things (one message):
+
+1. **More context?** Offer to pull the spec — user stories, epic, issue, acceptance
+   criteria. If the user names or pastes one, read it (`gh issue view <n>` /
+   `gh pr view <n>` / WebFetch the link) and fold it into the Claim. If they say the diff
+   is enough, skip it.
+2. **Which reviews?** Propose a default from the diff surfaces (`*.tsx`/routes → UI,
+   `packages/aurora/src/server` → BFF, any diff → code-review) and let the user pick which
+   subagent reviews to run — any combination of:
+   - **`verifyUI`** — UI screenshot + 12-point visual UX check against the Juno design
+     system (GUI surfaces, pixels).
+   - **`aurora-ui-review`** — static review of the `*.tsx`/component source against the
+     epic + Juno guidelines; writes a classified report to `tmp/aurora-reviews/`.
+   - **`aurora-bff-review`** — BFF/server/tRPC vs the epic + OpenStack API docs.
+   - **`code-review`** — diff bugs and cleanups.
+
+Run exactly what the user selects in steps 3–5; don't add reviews they didn't ask for.
+
+## 2. Get a handle — ask running? then URL
+
+**Don't assume you must cold-start, and don't guess from turbo/ports.** Ask the user:
+
+1. **Is the app already running?**
+2. **If yes →** ask the user to paste the URL. Use that as the surface. Do not start
+   `pnpm dev`, do not probe ports to guess the URL.
+3. **If no →** start `pnpm dev` yourself (serves on `:4001` against the configured
+   `IDENTITY_ENDPOINT`), open the browser to the login screen, and **pause** — tell the
+   user the login screen is up and ask them to sign in (see the never-auto-fill login rule
+   above). Only after they confirm they're authenticated do you navigate to the changed
+   screen.
+
+For BFF/backend/server/tRPC changes under `packages/aurora/src/server`, use the
+`aurora-bff-review` skill instead of this generic verify protocol — it validates against
+the epic and OpenStack API docs. Confirm the backend is reachable before driving. Timebox
+cold start ~15 min; stuck → **BLOCKED** with exactly where it stopped.
 
 ## 3. Surface — where a user meets the change
 
@@ -74,13 +108,21 @@ the app is the dashboard: `pnpm dev` (serves on `:4001` against the configured
 Internal function is not a surface — follow it to the CLI/request/render that reaches it
 and drive that. Tests in the diff are the author's evidence, not a surface.
 
-**GUI surface → also check it against Juno.** When the change reaches pixels (`*.tsx`,
-routes, Juno components), "it works" is not enough — the running screen must obey the Juno
-design system. After you've captured the screen (step 4), hand the screenshots and the code
-scope to the **`verifyUI`** skill: it runs the 12-point UX checklist and the source
-Juno-usage check against `sap_juno_appkit` + the real Juno source, and writes its own report
-to `tmp/aurora-reviews/`. Fold its ❌/⚠️ into your findings (cite the Juno rule). A visible
-UX-rule violation is a ❌. (CLI/server/library surfaces skip this.)
+**GUI surface → run the reviews the user chose (step 1.5).** When the change reaches
+pixels (`*.tsx`, routes, Juno components), "it works" is not enough — the running screen
+must obey the Juno design system. After you've captured the screen (step 4), spin up the
+selected review subagents, each writing its own report to `tmp/aurora-reviews/`:
+
+- **`verifyUI`** — hand it the screenshots and the code scope; it runs the 12-point UX
+  checklist and the source Juno-usage check against `sap_juno_appkit` + the real Juno
+  source.
+- **`aurora-ui-review`** — static `*.tsx`/component review vs the epic + Juno guidelines,
+  if selected (writes to `tmp/aurora-reviews/`).
+- **`code-review`** — the diff bugs/cleanups pass, if selected.
+
+Fold every ❌/⚠️ back into your findings, cited to the subagent and the rule (e.g. the Juno
+rule). A visible UX-rule violation is a ❌. (CLI/server/library surfaces skip the UI
+reviews; BFF/server changes go through `aurora-bff-review` instead — step 2.)
 
 ## 4. Drive it
 
