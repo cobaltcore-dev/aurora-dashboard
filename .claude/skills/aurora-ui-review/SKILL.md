@@ -64,14 +64,14 @@ Don't fix anything within this skill, even if asked in the same conversation. Ha
 
 ## Files in this skill
 
-| File                                | Use                                                                            |
-| ----------------------------------- | ------------------------------------------------------------------------------ |
-| `references/intake.md`              | Intake questions and scope confirmation                                        |
-| `references/checklist.md`           | Analysis procedure and all checks per category                                 |
-| `references/juno-guidelines-map.md` | Which Juno UX doc applies to what, with source URLs and the key rules to check |
-| `references/juno-components.md`     | Verifying usage against the installed `juno-ui-components` API                 |
+| File                                | Use                                                                                    |
+| ----------------------------------- | -------------------------------------------------------------------------------------- |
+| `references/intake.md`              | Intake questions and scope confirmation                                                |
+| `references/checklist.md`           | Analysis procedure and all checks per category                                         |
+| `references/juno-guidelines-map.md` | Which Juno UX doc applies to what, with source URLs and the key rules to check         |
+| `references/juno-components.md`     | Verifying usage against the installed `juno-ui-components` API                         |
 | `references/baseline.md`            | Existing Aurora UIs for fix style + known anti-patterns (reference only, no authority) |
-| `references/classification.md`      | Severity, category, confidence and status definitions                          |
-| `assets/report-template.md`         | Findings report structure                                                      |
-| `scripts/init_findings_dir.sh`      | Creates the shared `tmp/aurora-reviews/` dir (gitignored) and prints its path  |
-| `scripts/locate_juno.sh`            | Finds the installed `juno-ui-components` (path, version, component types)      |
+| `references/classification.md`      | Severity, category, confidence and status definitions                                  |
+| `assets/report-template.md`         | Findings report structure                                                              |
+| `scripts/init_findings_dir.sh`      | Creates the shared `tmp/aurora-reviews/` dir (gitignored) and prints its path          |
+| `scripts/locate_juno.sh`            | Finds the installed `juno-ui-components` (path, version, component types)              |

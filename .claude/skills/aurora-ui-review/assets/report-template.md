@@ -7,7 +7,7 @@
 > [!NOTE]
 > **Verdict —** <2-4 sentences: overall, the most important problems, what's solid.> Analysis only — no code was changed; fixes run separately via `aurora-findings-remediation`.
 
-**Legend —** result `✅ pass` · `❌ not valid` · `⚠️ open question` · `◻️ not verified`  severity `🔴 Critical` · `🟠 High` · `🟡 Medium` · `🔵 Low` · `⚪ Info`
+**Legend —** result `✅ pass` · `❌ not valid` · `⚠️ open question` · `◻️ not verified` severity `🔴 Critical` · `🟠 High` · `🟡 Medium` · `🔵 Low` · `⚪ Info`
 
 Tooling (typecheck, lint, format, tests, i18n) was **not** run; CI and `aurora-findings-remediation` cover it.
 
@@ -15,7 +15,7 @@ Tooling (typecheck, lint, format, tests, i18n) was **not** run; CI and `aurora-f
 
 ## 📊 Scorecard
 
-**Severity:**  🔴 0  ·  🟠 0  ·  🟡 0  ·  🔵 0  ·  ⚪ 0
+**Severity:** 🔴 0 · 🟠 0 · 🟡 0 · 🔵 0 · ⚪ 0
 
 | Severity | Open | Fixed | Deferred | Won't Fix |
 | -------- | :--: | :---: | :------: | :-------: |
@@ -27,39 +27,41 @@ Tooling (typecheck, lint, format, tests, i18n) was **not** run; CI and `aurora-f
 
 ## 🎯 Findings at a Glance
 
-| ID | Sev | Category | Finding |
-|:---|:--:|:---|:---|
-| UI-001 | 🟡 | States | <short finding> |
+| ID     | Sev | Category | Finding         |
+| :----- | :-: | :------- | :-------------- |
+| UI-001 | 🟡  | States   | <short finding> |
 
 ---
 
 ## 📋 Requirements Traceability
 
-| ID | Requirement (epic §) | Priority | Status | Evidence / Finding |
-|:---|:---|:--:|:---|:---|
-| REQ-01 | <requirement> (_"<short quote>"_, §<section>) | P1 | ✅ Implemented | `<file>:<line>` |
-| REQ-02 | <requirement> | P2 | ❌ Missing | UI-003 |
-| REQ-03 | <requirement> | P2 | ⚠️ Unclear | Q-1 |
+| ID     | Requirement (epic §)                          | Priority | Status         | Evidence / Finding |
+| :----- | :-------------------------------------------- | :------: | :------------- | :----------------- |
+| REQ-01 | <requirement> (_"<short quote>"_, §<section>) |    P1    | ✅ Implemented | `<file>:<line>`    |
+| REQ-02 | <requirement>                                 |    P2    | ❌ Missing     | UI-003             |
+| REQ-03 | <requirement>                                 |    P2    | ⚠️ Unclear     | Q-1                |
 
 ---
+
 ---
 
 # Findings
 
 ### 🟡 UI-001 — <short title>
 
-| | |
-|:---|:---|
-| **Severity** | 🟡 Medium |
-| **Category** | <States / Colour / Components / Custom Code / Modals & Forms / UX Writing / Accessibility / Component API / …> |
-| **Confidence** | <Confirmed / Likely> |
-| **Status** | Open |
-| **Where** | `packages/aurora/src/client/routes/<…>.tsx:<line>` |
-| **Rule** | <Epic §… / Juno `docs/ux/<file>.md#<section>` / `juno-ui-components <Name>.component.tsx:<line>`> |
+|                |                                                                                                                |
+| :------------- | :------------------------------------------------------------------------------------------------------------- |
+| **Severity**   | 🟡 Medium                                                                                                      |
+| **Category**   | <States / Colour / Components / Custom Code / Modals & Forms / UX Writing / Accessibility / Component API / …> |
+| **Confidence** | <Confirmed / Likely>                                                                                           |
+| **Status**     | Open                                                                                                           |
+| **Where**      | `packages/aurora/src/client/routes/<…>.tsx:<line>`                                                             |
+| **Rule**       | <Epic §… / Juno `docs/ux/<file>.md#<section>` / `juno-ui-components <Name>.component.tsx:<line>`>              |
 
 **What's wrong** — <plain explanation a dev can act on, no jargon>
 
 **Current code**
+
 ```tsx
 // <file>:<line>
 <the offending snippet, kept short>
@@ -68,6 +70,7 @@ Tooling (typecheck, lint, format, tests, i18n) was **not** run; CI and `aurora-f
 **Why it's not valid** — <concrete runtime/user impact>
 
 **How to fix**
+
 ```tsx
 <the corrected, Juno-conformant snippet>
 ```
@@ -77,21 +80,25 @@ Tooling (typecheck, lint, format, tests, i18n) was **not** run; CI and `aurora-f
 _(repeat the block per finding, ordered by severity then file)_
 
 ---
+
 ---
 
 ## ⚠️ Open Questions
 
-| ID | Question | Why it matters | Blocks |
-|:---|:---|:---|:---|
+| ID  | Question   | Why it matters                | Blocks         |
+| :-- | :--------- | :---------------------------- | :------------- |
 | Q-1 | <question> | <which verdict depends on it> | REQ-03, UI-00x |
 
 ## ✅ Verified OK
+
 - <check>: <one-line evidence + Juno source>
 
 ## ◻️ Not Verified
+
 - <check>: <reason, e.g. "Juno doc unavailable", "needs the running app (hover, focus)">
 
 ## 🧹 Pre-existing / Out of Scope
+
 - <issue in untouched code, location> (⚪ Info)
 
 ---

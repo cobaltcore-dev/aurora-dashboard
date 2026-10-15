@@ -1,6 +1,6 @@
 # Analysis checklist
 
-**Authority is Juno only** — the Juno UX docs (`docs/ux`, mapped in `juno-guidelines-map.md`) and the `juno-ui-components` API (exact detail via the `sap_juno_lookup` agent). **There are no Aurora-specific UI/UX rules here.** A check is a finding only when it is backed by a Juno doc/component or by the epic; cite that source on every finding. (Aurora keeps *technical* rules for the BFF/server review only — not for UI/UX.)
+**Authority is Juno only** — the Juno UX docs (`docs/ux`, mapped in `juno-guidelines-map.md`) and the `juno-ui-components` API (exact detail via the `sap_juno_lookup` agent). **There are no Aurora-specific UI/UX rules here.** A check is a finding only when it is backed by a Juno doc/component or by the epic; cite that source on every finding. (Aurora keeps _technical_ rules for the BFF/server review only — not for UI/UX.)
 
 Work through the passes in order. For each check: record a finding, list it under "Verified OK", or mark it "not verified" with the reason. Skip out-of-scope features (e.g. modals in a read-only UI) and say so.
 

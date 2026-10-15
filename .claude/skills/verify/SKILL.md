@@ -9,8 +9,9 @@ argument-hint: <epic/issue/PR number or URL | branch | commit | path>
 **verify is the center.** It establishes a running app, then orchestrates the review
 subagents around it — `verifyUI` (UI screenshot + Juno source), `aurora-bff-review`
 (BFF/server), and `code-review` (diff bugs/cleanups). verify owns the login, the report,
-and the verdict; the subagents produce findings it folds in. It does not guess what to
-run or whether the app is up — it **asks** (steps 1.5 and 2).
+and the verdict; the subagents produce findings it folds in. It does not guess what to run
+or whether the app is up — it **STOPs and asks** at two blocking gates (step 1.5: which
+reviews; step 2: is it running + the URL). Clear those gates before any app interaction.
 
 **Verification is runtime observation.** Build the app, run it, drive it to where the
 changed code executes, and capture what you see. That capture is your evidence. Don't
@@ -21,13 +22,21 @@ change works. Go to the real surface (CLI, socket, pixels) and drive it.
 every verify run, no exception. An inline-only reply is not acceptable; the chat reply is
 just the path plus the verdict and ❌ count.
 
-**Login — never auto-fill credentials.** The backend may differ from run to run,
-and real credentials are the user's to enter. When a GUI run hits a login form, open
-the browser to it, leave every field blank, and **pause** — tell the user the login
-screen is up and ask them to type their domain / user / password and sign in. Only
-after they confirm they're authenticated do you navigate to the changed screen. Do not
-hardcode or guess a domain/user/password, and do not read them from `.env` to fill the
-form on the user's behalf.
+**Login — never auto-fill credentials. Hard rule, not a preference.** Real credentials
+are the user's to enter and this repo is public. When a GUI run hits a login form, open
+the browser to it, leave **every field blank**, and **STOP** — tell the user the login
+screen is up and ask them to type their own domain / user / password and sign in. Only
+after they confirm they're authenticated do you navigate to the changed screen. You must
+**never**:
+
+- read `apps/dashboard/.env` or any `.env*` to obtain a domain / user / password;
+- `grep` / `cat` / open any file to fish out `TEST_*_USER`, `TEST_*_PASSWORD`, or an identity endpoint;
+- type a hardcoded or guessed credential into any field;
+- echo a credential value into the chat or into a report.
+
+If you catch yourself about to read a secret "just to log in," that is the violation —
+hand the login to the user instead. The only credential-shaped thing you may touch is the
+blank form you present to them.
 
 **Artifacts — all under `tmp/aurora-reviews/`.** This is the only `tmp/` path that is
 gitignored (`.gitignore` has `tmp/aurora-reviews/`, not `tmp/` itself). Everything this
@@ -58,9 +67,11 @@ State the commit count. The diff is ground truth; any description is a claim abo
 if they disagree, that's a finding. No runtime surface at all (docs-only, types-only,
 tests-only) → **SKIP**, one line, still save the report.
 
-## 1.5 Ask — context & plan
+## 1.5 STOP — ask context & which reviews (blocking gate)
 
-Before touching the app, pause once and ask the user two things (one message):
+**This is a hard gate. Do not touch the app, start a server, open a browser, or spawn any
+subagent until the user has answered both questions below.** Ask them together in one
+message, then wait for the reply:
 
 1. **More context?** Offer to pull the spec — user stories, epic, issue, acceptance
    criteria. If the user names or pastes one, read it (`gh issue view <n>` /
@@ -77,19 +88,25 @@ Before touching the app, pause once and ask the user two things (one message):
    - **`code-review`** — diff bugs and cleanups.
 
 Run exactly what the user selects in steps 3–5; don't add reviews they didn't ask for.
+Reading the diff/spec (step 1) is fine before this gate — anything that _runs_ the app is not.
 
-## 2. Get a handle — ask running? then URL
+## 2. STOP — ask running? then URL (blocking gate)
 
-**Don't assume you must cold-start, and don't guess from turbo/ports.** Ask the user:
+**This is a hard gate. Never infer whether the app is up from `turbo`, running processes,
+or open ports, and never guess the URL.** Ask the user and wait:
 
-1. **Is the app already running?**
-2. **If yes →** ask the user to paste the URL. Use that as the surface. Do not start
-   `pnpm dev`, do not probe ports to guess the URL.
+1. **Is the app already running?** — ask outright; do not probe `lsof`/ports/`turbo` to
+   decide for them.
+2. **If yes →** ask the user to paste the URL, and use exactly that as the surface. Do not
+   start `pnpm dev`, do not scan ports to reconstruct the URL.
 3. **If no →** start `pnpm dev` yourself (serves on `:4001` against the configured
-   `IDENTITY_ENDPOINT`), open the browser to the login screen, and **pause** — tell the
-   user the login screen is up and ask them to sign in (see the never-auto-fill login rule
-   above). Only after they confirm they're authenticated do you navigate to the changed
-   screen.
+   `IDENTITY_ENDPOINT`), open the browser to the login screen, and **STOP** — tell the user
+   the login screen is up and ask them to sign in themselves (see the never-auto-fill login
+   rule above). Only after they confirm they're authenticated do you navigate to the
+   changed screen.
+
+Then — because the user drives their own login — **STOP again after they've picked/started
+the app and ask them to log in and tell you when they're in**, before you navigate anywhere.
 
 For BFF/backend/server/tRPC changes under `packages/aurora/src/server`, use the
 `aurora-bff-review` skill instead of this generic verify protocol — it validates against
