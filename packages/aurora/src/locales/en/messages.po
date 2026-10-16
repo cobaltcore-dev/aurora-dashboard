@@ -502,6 +502,9 @@ msgstr "Allocate Floating IP"
 msgid "Allocating Floating IP..."
 msgstr "Allocating Floating IP..."
 
+msgid "Allocation Pools"
+msgstr "Allocation Pools"
+
 msgid "Allowed Headers"
 msgstr "Allowed Headers"
 
@@ -2491,11 +2494,11 @@ msgstr "Loading Metadata..."
 msgid "Loading more..."
 msgstr "Loading more..."
 
-msgid "Loading Network Details..."
-msgstr "Loading Network Details..."
+msgid "Loading Network Details"
+msgstr "Loading Network Details"
 
-msgid "Loading Networks..."
-msgstr "Loading Networks..."
+msgid "Loading Networks"
+msgstr "Loading Networks"
 
 msgid "Loading Object Info..."
 msgstr "Loading Object Info..."
@@ -2842,8 +2845,8 @@ msgstr "No security groups found"
 msgid "No services available for this project."
 msgstr "No services available for this project."
 
-msgid "No subnets associated with this network"
-msgstr "No subnets associated with this network"
+msgid "No Subnets"
+msgstr "No Subnets"
 
 msgid "No Suggested Images Found"
 msgstr "No Suggested Images Found"
@@ -3220,6 +3223,9 @@ msgstr "Read ACLs"
 msgid "Read ACLs — Preview"
 msgstr "Read ACLs — Preview"
 
+msgid "Refresh"
+msgstr "Refresh"
+
 msgid "Region"
 msgstr "Region"
 
@@ -3276,6 +3282,9 @@ msgstr "Restore Folder"
 
 msgid "Restore Version"
 msgstr "Restore Version"
+
+msgid "Retry"
+msgstr "Retry"
 
 msgid "Reveal"
 msgstr "Reveal"
@@ -3373,6 +3382,9 @@ msgstr "Scope"
 msgid "Search buckets..."
 msgstr "Search buckets..."
 
+msgid "Search by name"
+msgstr "Search by name"
+
 msgid "Search containers..."
 msgstr "Search containers..."
 
@@ -3387,9 +3399,6 @@ msgstr "Search floating IPs..."
 
 msgid "Search lifecycle rules..."
 msgstr "Search lifecycle rules..."
-
-msgid "Search networks..."
-msgstr "Search networks..."
 
 msgid "Search objects..."
 msgstr "Search objects..."
@@ -3976,8 +3985,8 @@ msgstr "There are no items to display."
 msgid "There Are No Lifecycle Rules for This Bucket"
 msgstr "There Are No Lifecycle Rules for This Bucket"
 
-msgid "There are no networks in this project."
-msgstr "There are no networks in this project."
+msgid "There are no networks in this project. Networks can be created through the API or CLI."
+msgstr "There are no networks in this project. Networks can be created through the API or CLI."
 
 msgid "There are no pending shared images for this project with the current filters applied. Try adjusting your filter criteria or check the All Images tab."
 msgstr "There are no pending shared images for this project with the current filters applied. Try adjusting your filter criteria or check the All Images tab."
@@ -4122,6 +4131,9 @@ msgstr "This key is reserved and managed separately"
 
 msgid "This member already has access to this image."
 msgstr "This member already has access to this image."
+
+msgid "This network has no subnets. Subnets can be added through the API or CLI."
+msgstr "This network has no subnets. Subnets can be added through the API or CLI."
 
 msgid "This object and all its versions will be permanently deleted and cannot be restored."
 msgstr "This object and all its versions will be permanently deleted and cannot be restored."
@@ -4480,8 +4492,8 @@ msgstr "You can re-enable versioning at any time"
 msgid "You can rename the object by changing the name here."
 msgstr "You can rename the object by changing the name here."
 
-msgid "You do not have permission to view networks"
-msgstr "You do not have permission to view networks"
+msgid "You do not have permission to view networks."
+msgstr "You do not have permission to view networks."
 
 msgid "You do not have permission to view security groups"
 msgstr "You do not have permission to view security groups"

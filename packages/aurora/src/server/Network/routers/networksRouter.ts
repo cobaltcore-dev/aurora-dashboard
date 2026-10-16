@@ -27,7 +27,6 @@ const LIST_NETWORKS_QUERY_KEY_MAP: Record<string, string> = {
   tags_any: "tags-any",
   not_tags: "not-tags",
   not_tags_any: "not-tags-any",
-  "router:external": "router:external",
 }
 
 const withQuery = (baseUrl: string, params: URLSearchParams): string => {
@@ -229,7 +228,11 @@ export const networksRouter = {
     withErrorHandling(async () => {
       const network = getNetworkService(ctx)
 
-      await requestOrThrow(() => network.del(networkUrl(input.network_id)), NetworkErrorHandlers.delete, input.network_id)
+      await requestOrThrow(
+        () => network.del(networkUrl(input.network_id)),
+        NetworkErrorHandlers.delete,
+        input.network_id
+      )
     }, "delete network")
   ),
 }

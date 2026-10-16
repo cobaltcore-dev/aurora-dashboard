@@ -54,19 +54,17 @@ export const NetworkDetailsView = ({ network }: NetworkDetailsViewProps) => {
     { label: t`MTU`, value: network.mtu != null ? network.mtu : PLACEHOLDER },
     {
       label: t`Port Security Enabled`,
-      value: network.port_security_enabled == null ? PLACEHOLDER : network.port_security_enabled ? t`Yes` : t`No`,
+      value: network.port_security_enabled != null ? (network.port_security_enabled ? t`Yes` : t`No`) : PLACEHOLDER,
     },
   ]
 
   const providerItems: DetailItem[] = [
-    ...(network["provider:network_type"] != null
-      ? [{ label: t`Network Type`, value: network["provider:network_type"] || PLACEHOLDER }]
-      : []),
-    ...(network["provider:physical_network"] != null
-      ? [{ label: t`Physical Network`, value: network["provider:physical_network"] || PLACEHOLDER }]
+    ...(network["provider:network_type"] ? [{ label: t`Network Type`, value: network["provider:network_type"] }] : []),
+    ...(network["provider:physical_network"]
+      ? [{ label: t`Physical Network`, value: network["provider:physical_network"] }]
       : []),
     ...(network["provider:segmentation_id"] != null
-      ? [{ label: t`Segmentation ID`, value: network["provider:segmentation_id"] }]
+      ? [{ label: t`Segmentation ID`, value: String(network["provider:segmentation_id"]) }]
       : []),
   ]
 
@@ -87,15 +85,16 @@ export const NetworkDetailsView = ({ network }: NetworkDetailsViewProps) => {
           <Status
             status="empty"
             title={t`No Subnets`}
-            body={t`There are no subnets associated with this network.`}
+            body={t`This network has no subnets. Subnets can be added through the API or CLI.`}
           />
         ) : (
-          <DataGrid columns={5}>
+          <DataGrid columns={6}>
             <DataGridRow>
               <DataGridHeadCell>{t`Name`}</DataGridHeadCell>
               <DataGridHeadCell>{t`CIDR`}</DataGridHeadCell>
               <DataGridHeadCell>{t`IP Version`}</DataGridHeadCell>
               <DataGridHeadCell>{t`Gateway IP`}</DataGridHeadCell>
+              <DataGridHeadCell>{t`Allocation Pools`}</DataGridHeadCell>
               <DataGridHeadCell>{t`DHCP`}</DataGridHeadCell>
             </DataGridRow>
             {subnets.map((subnet) => (
@@ -105,7 +104,12 @@ export const NetworkDetailsView = ({ network }: NetworkDetailsViewProps) => {
                 <DataGridCell>{subnet.ip_version != null ? `IPv${subnet.ip_version}` : PLACEHOLDER}</DataGridCell>
                 <DataGridCell>{subnet.gateway_ip || PLACEHOLDER}</DataGridCell>
                 <DataGridCell>
-                  {subnet.enable_dhcp == null ? PLACEHOLDER : subnet.enable_dhcp ? t`Enabled` : t`Disabled`}
+                  {subnet.allocation_pools && subnet.allocation_pools.length > 0
+                    ? subnet.allocation_pools.map((pool) => `${pool.start} - ${pool.end}`).join(", ")
+                    : PLACEHOLDER}
+                </DataGridCell>
+                <DataGridCell>
+                  {subnet.enable_dhcp != null ? (subnet.enable_dhcp ? t`Enabled` : t`Disabled`) : PLACEHOLDER}
                 </DataGridCell>
               </DataGridRow>
             ))}

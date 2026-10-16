@@ -73,43 +73,60 @@ function RouteComponent() {
     })
   }
 
+  const backAction = (
+    <Button onClick={handleBack} variant="subdued">
+      <Trans>Back to Networks</Trans>
+    </Button>
+  )
+
   if (isLoading) {
-    return <Status status="progress" title={t`Loading Network Details...`} />
+    return (
+      <Stack direction="vertical" gap="4">
+        <ContentHeader title={t`Network`} projectId={projectId} actions={backAction} />
+        <Status status="progress" title={t`Loading Network Details`} />
+      </Stack>
+    )
   }
 
   if (isError) {
     const errorMessage = error?.message || t`Unknown Error`
     return (
-      <Status
-        status="error"
-        title={t`Error Loading Network`}
-        body={errorMessage}
-        action={
-          <Button onClick={handleBack} variant="primary">
-            <Trans>Back to Networks</Trans>
-          </Button>
-        }
-      />
+      <Stack direction="vertical" gap="4">
+        <ContentHeader title={t`Network`} projectId={projectId} actions={backAction} />
+        <Status
+          status="error"
+          title={t`Error Loading Network`}
+          body={errorMessage}
+          action={
+            <Button onClick={handleBack}>
+              <Trans>Back to Networks</Trans>
+            </Button>
+          }
+        />
+      </Stack>
     )
   }
 
   if (!network) {
     return (
-      <Status
-        status="empty"
-        title={t`Network Not Found`}
-        action={
-          <Button onClick={handleBack} variant="primary">
-            <Trans>Back to Networks</Trans>
-          </Button>
-        }
-      />
+      <Stack direction="vertical" gap="4">
+        <ContentHeader title={t`Network`} projectId={projectId} actions={backAction} />
+        <Status
+          status="empty"
+          title={t`Network Not Found`}
+          action={
+            <Button onClick={handleBack}>
+              <Trans>Back to Networks</Trans>
+            </Button>
+          }
+        />
+      </Stack>
     )
   }
 
   return (
-    <Stack direction="vertical">
-      <ContentHeader title={network.name || network.id} projectId={projectId} />
+    <Stack direction="vertical" gap="4">
+      <ContentHeader title={network.name || network.id} projectId={projectId} actions={backAction} />
       <NetworkDetailsView network={network} />
     </Stack>
   )
