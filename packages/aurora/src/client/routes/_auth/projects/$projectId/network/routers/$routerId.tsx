@@ -55,7 +55,7 @@ interface RouterLoadErrorProps {
 function RouterLoadError({ error, onRetry }: RouterLoadErrorProps) {
   const { t } = useLingui()
   const navigate = useNavigate()
-  const { projectId } = useParams({ from: ROUTE_ID })
+  const { projectId } = useParams({ from: "/_auth/projects/$projectId/network/routers/$routerId" })
 
   const errorCode = getTrpcErrorCode(error)
   const statusCode: number | undefined = HTTP_STATUS_BY_TRPC_CODE[errorCode]
@@ -114,7 +114,7 @@ function RouterErrorComponent({ error, reset }: ErrorComponentProps) {
   return <RouterLoadError error={error} onRetry={handleRetry} />
 }
 
-export const Route = createFileRoute(ROUTE_ID)({
+export const Route = createFileRoute("/_auth/projects/$projectId/network/routers/$routerId")({
   staticData: {
     section: "network",
     service: "routers",

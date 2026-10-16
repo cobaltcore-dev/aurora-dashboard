@@ -502,6 +502,9 @@ msgstr "Floating IP zuweisen"
 msgid "Allocating Floating IP..."
 msgstr "Floating IP wird zugewiesen..."
 
+msgid "Allocation Pools"
+msgstr ""
+
 msgid "Allowed Headers"
 msgstr ""
 
@@ -615,6 +618,9 @@ msgstr "Zurück zu Floating IPs"
 
 msgid "Back to Images"
 msgstr "Zurück zu Images"
+
+msgid "Back to Networks"
+msgstr ""
 
 msgid "Back to Routers"
 msgstr ""
@@ -1102,6 +1108,9 @@ msgstr "Image erstellen"
 msgid "Create Lifecycle Rule"
 msgstr ""
 
+msgid "Create Network"
+msgstr ""
+
 msgid "Create New Flavor"
 msgstr "Neuen Flavor erstellen"
 
@@ -1351,6 +1360,9 @@ msgstr "Geräte-ID"
 msgid "Device Owner"
 msgstr "Geräteeigentümer"
 
+msgid "DHCP"
+msgstr ""
+
 msgid "Direction"
 msgstr "Richtung"
 
@@ -1382,6 +1394,9 @@ msgid "DNS name must be at most 63 characters."
 msgstr "Der DNS-Name darf höchstens 63 Zeichen lang sein."
 
 msgid "Done"
+msgstr ""
+
+msgid "Down"
 msgstr ""
 
 msgid "DOWN"
@@ -1630,6 +1645,9 @@ msgstr ""
 msgid "Error Loading Image"
 msgstr ""
 
+msgid "Error Loading Network"
+msgstr ""
+
 msgid "Error Loading Router"
 msgstr ""
 
@@ -1670,6 +1688,9 @@ msgid "Expires in {selectedPresetLabel} — at {expiresAtFormatted}"
 msgstr "Läuft ab in {selectedPresetLabel} — um {expiresAtFormatted}"
 
 msgid "Expose Headers"
+msgstr ""
+
+msgid "External"
 msgstr ""
 
 msgid "External Fixed IPs"
@@ -1889,6 +1910,9 @@ msgid "Failed to Load Metadata"
 msgstr ""
 
 msgid "Failed to Load Metadata Configuration"
+msgstr ""
+
+msgid "Failed to Load Networks"
 msgstr ""
 
 msgid "Failed to Load Object Metadata"
@@ -2147,6 +2171,9 @@ msgid "Full Path"
 msgstr ""
 
 msgid "Full path:"
+msgstr ""
+
+msgid "Gateway IP"
 msgstr ""
 
 msgid "General Image Data"
@@ -2467,6 +2494,12 @@ msgstr ""
 msgid "Loading more..."
 msgstr "Weitere werden geladen..."
 
+msgid "Loading Network Details"
+msgstr ""
+
+msgid "Loading Networks"
+msgstr ""
+
 msgid "Loading Object Info..."
 msgstr ""
 
@@ -2629,6 +2662,9 @@ msgstr ""
 msgid "Moving..."
 msgstr "Wird verschoben..."
 
+msgid "MTU"
+msgstr ""
+
 msgid "Must be a valid IPv4 or IPv6 address (for example: 172.24.4.228 or 2001:db8::1)."
 msgstr "Muss eine gültige IPv4- oder IPv6-Adresse sein (z. B.: 172.24.4.228 oder 2001:db8::1)."
 
@@ -2662,7 +2698,19 @@ msgstr "Netzwerk & Routing"
 msgid "Network ID"
 msgstr "Netzwerk-ID"
 
+msgid "Network Information"
+msgstr ""
+
 msgid "Network Name"
+msgstr ""
+
+msgid "Network Not Found"
+msgstr ""
+
+msgid "Network Type"
+msgstr ""
+
+msgid "Networks"
 msgstr ""
 
 msgid "New Folder"
@@ -2734,7 +2782,16 @@ msgstr ""
 msgid "No limit"
 msgstr "Kein Limit"
 
+msgid "No Matching Networks"
+msgstr ""
+
 msgid "No Metadata Properties Found"
+msgstr ""
+
+msgid "No Networks Found"
+msgstr ""
+
+msgid "No networks match your search. Clear the search to view all networks."
 msgstr ""
 
 msgid "No new versions will be created"
@@ -2787,6 +2844,9 @@ msgstr "Keine Sicherheitsgruppen gefunden"
 
 msgid "No services available for this project."
 msgstr "Keine Dienste für dieses Projekt verfügbar."
+
+msgid "No Subnets"
+msgstr ""
 
 msgid "No Suggested Images Found"
 msgstr ""
@@ -2968,6 +3028,9 @@ msgstr "Teilweise erfolgreich gelöscht"
 msgid "Pending"
 msgstr "Ausstehend"
 
+msgid "Physical Network"
+msgstr ""
+
 msgid "Please enter a valid number of minutes greater than 0"
 msgstr "Bitte geben Sie eine gültige Anzahl von Minuten größer als 0 ein"
 
@@ -3009,6 +3072,9 @@ msgstr "Port-Name"
 
 msgid "Port Range"
 msgstr "Port-Bereich"
+
+msgid "Port Security Enabled"
+msgstr ""
 
 msgid "Pre-signed URL"
 msgstr "Vorsignierte URL"
@@ -3112,6 +3178,9 @@ msgstr "Protokoll"
 msgid "Protocol name (e.g. tcp, udp, icmp, gre) or IP protocol number 0-255."
 msgstr ""
 
+msgid "Provider Network"
+msgstr ""
+
 msgid "Public"
 msgstr "Öffentlich"
 
@@ -3153,6 +3222,9 @@ msgstr "Lese-ACLs"
 
 msgid "Read ACLs — Preview"
 msgstr "Lese-ACLs — Vorschau"
+
+msgid "Refresh"
+msgstr ""
 
 msgid "Region"
 msgstr ""
@@ -3209,6 +3281,9 @@ msgid "Restore Folder"
 msgstr ""
 
 msgid "Restore Version"
+msgstr ""
+
+msgid "Retry"
 msgstr ""
 
 msgid "Reveal"
@@ -3307,6 +3382,9 @@ msgstr ""
 msgid "Search buckets..."
 msgstr "Buckets suchen..."
 
+msgid "Search by name"
+msgstr ""
+
 msgid "Search containers..."
 msgstr "Container suchen..."
 
@@ -3384,6 +3462,9 @@ msgstr ""
 
 msgid "Security Groups"
 msgstr "Security Groups"
+
+msgid "Segmentation ID"
+msgstr ""
 
 msgid "Select"
 msgstr "Auswählen"
@@ -3638,6 +3719,9 @@ msgid "Subnet"
 msgstr "Subnet"
 
 msgid "Subnet ID:"
+msgstr ""
+
+msgid "Subnets"
 msgstr ""
 
 msgid "Successfully activated {successCount} of {totalCount} image(s)"
@@ -3901,6 +3985,9 @@ msgstr "Es gibt keine Elemente zum Anzeigen."
 msgid "There Are No Lifecycle Rules for This Bucket"
 msgstr ""
 
+msgid "There are no networks in this project. Networks can be created through the API or CLI."
+msgstr ""
+
 msgid "There are no pending shared images for this project with the current filters applied. Try adjusting your filter criteria or check the All Images tab."
 msgstr ""
 
@@ -4044,6 +4131,9 @@ msgstr "Dieser Schlüssel ist reserviert und wird separat verwaltet"
 
 msgid "This member already has access to this image."
 msgstr "Dieses Mitglied hat bereits Zugriff auf dieses Image."
+
+msgid "This network has no subnets. Subnets can be added through the API or CLI."
+msgstr ""
 
 msgid "This object and all its versions will be permanently deleted and cannot be restored."
 msgstr ""
@@ -4191,6 +4281,9 @@ msgstr ""
 
 msgid "Unnamed"
 msgstr "Unbenannt"
+
+msgid "Up"
+msgstr ""
 
 msgid "UP"
 msgstr ""
@@ -4398,6 +4491,9 @@ msgstr ""
 
 msgid "You can rename the object by changing the name here."
 msgstr "Sie können das Objekt umbenennen, indem Sie den Namen hier ändern."
+
+msgid "You do not have permission to view networks."
+msgstr ""
 
 msgid "You do not have permission to view security groups"
 msgstr ""
