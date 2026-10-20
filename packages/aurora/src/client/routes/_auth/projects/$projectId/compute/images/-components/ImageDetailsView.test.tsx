@@ -116,18 +116,18 @@ describe("ImageDetailsView", () => {
       expect(screen.getByText(expectedDate)).toBeInTheDocument()
     })
 
-    it("should display N/A when created_at is undefined", () => {
+    it("should display a placeholder when created_at is undefined", () => {
       const imageWithoutCreatedAt = { ...mockImage, created_at: undefined }
       setup(<GeneralImageData image={imageWithoutCreatedAt} />)
 
-      expect(screen.getByText("N/A")).toBeInTheDocument()
+      expect(screen.getAllByText("- -").length).toBeGreaterThan(0)
     })
 
-    it("should display N/A when updated_at is undefined", () => {
+    it("should display a placeholder when updated_at is undefined", () => {
       const imageWithoutUpdatedAt = { ...mockImage, updated_at: undefined }
       setup(<GeneralImageData image={imageWithoutUpdatedAt} />)
 
-      expect(screen.getByText("N/A")).toBeInTheDocument()
+      expect(screen.getAllByText("- -").length).toBeGreaterThan(0)
     })
 
     it("should render status with correct text value", () => {

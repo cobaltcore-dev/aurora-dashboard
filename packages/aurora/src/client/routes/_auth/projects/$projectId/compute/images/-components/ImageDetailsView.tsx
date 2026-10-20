@@ -109,11 +109,11 @@ export const GeneralImageData: React.FC<{ image: GlanceImage }> = ({ image }) =>
     { label: t`Container Format`, value: <span className="uppercase">{image.container_format}</span> },
     {
       label: t`Created At`,
-      value: image.created_at ? new Date(image.created_at).toLocaleDateString() : t`N/A`,
+      value: image.created_at ? new Date(image.created_at).toLocaleDateString() : "",
     },
     {
       label: t`Updated At`,
-      value: image.updated_at ? new Date(image.updated_at).toLocaleDateString() : t`N/A`,
+      value: image.updated_at ? new Date(image.updated_at).toLocaleDateString() : "",
     },
   ]
 
