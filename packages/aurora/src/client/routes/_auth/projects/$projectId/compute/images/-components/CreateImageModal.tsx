@@ -114,7 +114,9 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
     if (type === "number") {
       // min_disk / min_ram are optional — an empty field is valid and means 0. Clear any error
       // and reset to the default so the field (and the Create button) don't stay blocked.
-      if (value.trim() === "") {
+      // Bad input (e.g. "1e", "-") also surfaces value="" but sets validity.badInput, so exclude
+      // it here and let it fall through to the validation branch below.
+      if (value.trim() === "" && !e.target.validity.badInput) {
         setProperties((prev) => ({ ...prev, [name]: 0 }))
         setErrors((prev) => {
           const newErrors = { ...prev }
