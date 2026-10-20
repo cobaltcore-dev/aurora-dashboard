@@ -4198,12 +4198,6 @@ msgstr ""
 msgid "Unknown Error"
 msgstr ""
 
-msgid "Unnamed"
-msgstr "Unbenannt"
-
-msgid "Up"
-msgstr ""
-
 msgid "UP"
 msgstr ""
 
