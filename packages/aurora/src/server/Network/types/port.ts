@@ -76,6 +76,8 @@ export const PortSchema = z.object({
 
 export const PortListResponseSchema = z.object({
   ports: z.array(PortSchema),
+  // Present when Neutron paginates the result; the `next` link drives the BFF's full-list fetch
+  ports_links: z.array(z.object({ rel: z.string(), href: z.string() })).optional(),
 })
 
 export const PortResponseSchema = z.object({

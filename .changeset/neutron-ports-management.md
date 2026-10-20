@@ -10,3 +10,4 @@ Add Neutron Ports management (BFF and read-only UI)
 - Add a "Ports" entry under Network in the side navigation and a "Ports" card on the project overview; both require `ports` in `enabledServices`
 - Add a Ports list view (Name / ID, Description, Network, Fixed IPs / Subnet, Device Owner / ID, Status) with search, sorting and pagination; the list can be reused for a single network, which hides the Network column
 - Add a port details view with copy-to-clipboard for IDs, IP addresses and the MAC address
+- Keep the active tab of the router details view in the URL (`?tab=`), so it is preserved on reload and when sharing a link

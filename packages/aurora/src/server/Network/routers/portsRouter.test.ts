@@ -255,6 +255,65 @@ describe("portsRouter.list", () => {
     expect(params.has("searchTerm")).toBe(false)
   })
 
+  describe("pagination", () => {
+    it("follows ports_links to fetch every page before resolving names and searching", async () => {
+      const page1 = [{ ...defaultPorts[0], id: "port-1" }]
+      const page2 = [{ ...defaultPorts[1], id: "port-2" }]
+      const ctx = createMockContext()
+
+      const okJson = (body: unknown) =>
+        Promise.resolve({ ok: true, status: 200, statusText: "OK", json: vi.fn().mockResolvedValue(body) })
+
+      ctx.__networkGetMock.mockImplementation((url: string) => {
+        if (url.startsWith("v2.0/networks")) return okJson({ networks: defaultNetworks })
+        if (url.startsWith("v2.0/subnets")) return okJson({ subnets: defaultSubnets })
+        // First page carries a `next` link; the page it points to has none, which ends the loop.
+        const marker = new URLSearchParams(url.split("?")[1]).get("marker")
+        return marker
+          ? okJson({ ports: page2 })
+          : okJson({
+              ports: page1,
+              ports_links: [{ rel: "next", href: "http://neutron/v2.0/ports?marker=port-1&limit=1" }],
+            })
+      })
+
+      const caller = createCaller(ctx)
+      const result = await caller.ports.list({ project_id: TEST_PROJECT_ID })
+
+      // Ports from both pages are returned, not just the first page
+      expect(result.map((port) => port.id)).toEqual(["port-1", "port-2"])
+
+      const portsRequests = requestedUrls(ctx).filter((url) => url.startsWith("v2.0/ports"))
+      expect(portsRequests).toHaveLength(2)
+      // The second request reuses the `next` link's query against the known base path
+      expect(portsRequests[1]).toBe("v2.0/ports?marker=port-1&limit=1")
+    })
+
+    it("includes ports from later pages in the BFF-side search", async () => {
+      const ctx = createMockContext()
+      const okJson = (body: unknown) =>
+        Promise.resolve({ ok: true, status: 200, statusText: "OK", json: vi.fn().mockResolvedValue(body) })
+
+      ctx.__networkGetMock.mockImplementation((url: string) => {
+        if (url.startsWith("v2.0/networks")) return okJson({ networks: defaultNetworks })
+        if (url.startsWith("v2.0/subnets")) return okJson({ subnets: defaultSubnets })
+        const marker = new URLSearchParams(url.split("?")[1]).get("marker")
+        return marker
+          ? okJson({ ports: [{ ...defaultPorts[1], id: "port-2", name: "reserved-ip" }] })
+          : okJson({
+              ports: [{ ...defaultPorts[0], id: "port-1", name: "db-port" }],
+              ports_links: [{ rel: "next", href: "http://neutron/v2.0/ports?marker=port-1" }],
+            })
+      })
+
+      const caller = createCaller(ctx)
+      const result = await caller.ports.list({ project_id: TEST_PROJECT_ID, searchTerm: "reserved" })
+
+      // The matching port lives on the second page; without pagination it would be missing
+      expect(result.map((port) => port.id)).toEqual(["port-2"])
+    })
+  })
+
   describe("name enrichment", () => {
     it("adds the network name and the IP version and subnet name of each fixed IP", async () => {
       const caller = createCaller(createMockContext())

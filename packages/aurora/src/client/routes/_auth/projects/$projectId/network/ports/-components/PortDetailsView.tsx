@@ -48,7 +48,7 @@ export function PortDetailsView({ port }: PortDetailsViewProps) {
           <Stack direction="vertical" gap="2" data-testid="port-fixed-ips">
             {port.fixed_ips.map((fixedIp) => (
               <Stack key={`${fixedIp.subnet_id}-${fixedIp.ip_address}`} direction="vertical" gap="0.5">
-                <Stack alignment="center" gap="1">
+                <Stack alignment="center" gap="2">
                   <ClipboardText text={fixedIp.ip_address} className="font-bold" />
                   {fixedIp.ip_version && <span className="text-theme-light">{`IPv${fixedIp.ip_version}`}</span>}
                 </Stack>

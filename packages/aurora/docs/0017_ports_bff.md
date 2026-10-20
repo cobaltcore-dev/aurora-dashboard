@@ -78,6 +78,8 @@ Applied BFF-side (not sent to Neutron):
 
 Returns `PortListItem[]`: ports from the Neutron envelope `{ ports: [...] }`, enriched with the network name and, for every fixed IP, the IP version and subnet name.
 
+The BFF follows Neutron's pagination: it requests pages via the `next` link in `ports_links` until there is none, so the returned list is complete even on deployments with a `pagination_max_limit`. The BFF-side search and the client-side pagination therefore see every port, not just the first page.
+
 #### Name Enrichment
 
 A port only references its network and subnets by ID. The BFF resolves the names with **batched requests for the whole list** (not per port), in parallel:
@@ -98,12 +100,12 @@ All lookups are best-effort, so the list is always returned:
 
 #### Error Handling
 
-| HTTP Status | tRPC Code               | Message                       |
-| ----------- | ----------------------- | ----------------------------- |
-| 400         | `BAD_REQUEST`           | Invalid request data for Port |
-| 401         | `UNAUTHORIZED`          | Unauthorized access to Port   |
-| 403         | `FORBIDDEN`             | Access forbidden to Port      |
-| default     | `INTERNAL_SERVER_ERROR` | Failed to process Port        |
+| HTTP Status | tRPC Code               | Message                                          |
+| ----------- | ----------------------- | ------------------------------------------------ |
+| 400         | `BAD_REQUEST`           | Invalid request data for Port: {Neutron message} |
+| 401         | `UNAUTHORIZED`          | Unauthorized access to Port: {Neutron message}   |
+| 403         | `FORBIDDEN`             | Access forbidden to Port: {Neutron message}      |
+| default     | `INTERNAL_SERVER_ERROR` | Failed to process Port: {Neutron message}        |
 
 ---
 
@@ -127,12 +129,12 @@ Returns `PortDetails`: the port with the same network/subnet enrichment as `list
 
 #### Error Handling
 
-| HTTP Status | tRPC Code               | Message                       |
-| ----------- | ----------------------- | ----------------------------- |
-| 401         | `UNAUTHORIZED`          | Unauthorized access to {id}   |
-| 403         | `FORBIDDEN`             | Access forbidden to {id}      |
-| 404         | `NOT_FOUND`             | Port {port_id} was not found. |
-| default     | `INTERNAL_SERVER_ERROR` | Failed to process {id}        |
+| HTTP Status | tRPC Code               | Message                                        |
+| ----------- | ----------------------- | ---------------------------------------------- |
+| 401         | `UNAUTHORIZED`          | Unauthorized access to {id}: {Neutron message} |
+| 403         | `FORBIDDEN`             | Access forbidden to {id}: {Neutron message}    |
+| 404         | `NOT_FOUND`             | Port {port_id} was not found.                  |
+| default     | `INTERNAL_SERVER_ERROR` | Failed to process {id}: {Neutron message}      |
 
 ---
 
@@ -193,12 +195,12 @@ Returns the created `Port`.
 | HTTP Status | tRPC Code               | Message                                                                                         |
 | ----------- | ----------------------- | ----------------------------------------------------------------------------------------------- |
 | 400         | `BAD_REQUEST`           | Invalid request data for Port: {Neutron message}                                                |
-| 401         | `UNAUTHORIZED`          | Unauthorized access to Port                                                                     |
-| 403         | `FORBIDDEN`             | Access forbidden to Port                                                                        |
+| 401         | `UNAUTHORIZED`          | Unauthorized access to Port: {Neutron message}                                                  |
+| 403         | `FORBIDDEN`             | Access forbidden to Port: {Neutron message}                                                     |
 | 404         | `NOT_FOUND`             | The selected network, subnet or security group was not found.                                   |
 | 409         | `CONFLICT`              | The requested IP or MAC address is already in use, or the subnet has no free IP addresses left. |
 | 409 (quota) | `CONFLICT`              | Port quota exceeded. Delete unused resources or contact an administrator to increase the quota. |
-| default     | `INTERNAL_SERVER_ERROR` | Failed to process Port                                                                          |
+| default     | `INTERNAL_SERVER_ERROR` | Failed to process Port: {Neutron message}                                                       |
 
 ---
 
@@ -242,13 +244,13 @@ Returns the updated `Port`.
 | HTTP Status | tRPC Code               | Message                                                                                         |
 | ----------- | ----------------------- | ----------------------------------------------------------------------------------------------- |
 | 400         | `BAD_REQUEST`           | Invalid request data for {port_id}: {Neutron message}                                           |
-| 401         | `UNAUTHORIZED`          | Unauthorized access to {port_id}                                                                |
-| 403         | `FORBIDDEN`             | Access forbidden to {port_id}                                                                   |
+| 401         | `UNAUTHORIZED`          | Unauthorized access to {port_id}: {Neutron message}                                             |
+| 403         | `FORBIDDEN`             | Access forbidden to {port_id}: {Neutron message}                                                |
 | 404         | `NOT_FOUND`             | Port {port_id} or a referenced subnet or security group was not found.                          |
 | 409         | `CONFLICT`              | The requested IP or MAC address is already in use, or the subnet has no free IP addresses left. |
 | 409 (quota) | `CONFLICT`              | Port quota exceeded. Delete unused resources or contact an administrator to increase the quota. |
-| 412         | `PRECONDITION_FAILED`   | Precondition failed - revision number mismatch in {port_id}                                     |
-| default     | `INTERNAL_SERVER_ERROR` | Failed to process {port_id}                                                                     |
+| 412         | `PRECONDITION_FAILED`   | Precondition failed - revision number mismatch in {port_id}: {Neutron message}                  |
+| default     | `INTERNAL_SERVER_ERROR` | Failed to process {port_id}: {Neutron message}                                                  |
 
 ---
 
@@ -279,12 +281,12 @@ Returns `true` on success (OpenStack returns `204 No Content`).
 
 | HTTP Status | tRPC Code               | Message                                                                                                                |
 | ----------- | ----------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| 401         | `UNAUTHORIZED`          | Unauthorized access to {port_id}                                                                                       |
-| 403         | `FORBIDDEN`             | Access forbidden to {port_id}                                                                                          |
+| 401         | `UNAUTHORIZED`          | Unauthorized access to {port_id}: {Neutron message}                                                                    |
+| 403         | `FORBIDDEN`             | Access forbidden to {port_id}: {Neutron message}                                                                       |
 | 404         | `NOT_FOUND`             | Port {port_id} was not found.                                                                                          |
 | 409         | `CONFLICT`              | The port is still in use by another resource (e.g. a router interface) and can't be deleted directly. Detach it first. |
-| 412         | `PRECONDITION_FAILED`   | Precondition failed - revision number mismatch in {port_id}                                                            |
-| default     | `INTERNAL_SERVER_ERROR` | Failed to process {port_id}                                                                                            |
+| 412         | `PRECONDITION_FAILED`   | Precondition failed - revision number mismatch in {port_id}: {Neutron message}                                         |
+| default     | `INTERNAL_SERVER_ERROR` | Failed to process {port_id}: {Neutron message}                                                                         |
 
 ## Data Types
 

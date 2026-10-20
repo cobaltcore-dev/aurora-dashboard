@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import {
   DataGrid,
@@ -32,18 +32,6 @@ export const PortListContainer = ({
   onPageChange,
 }: PortListContainerProps) => {
   const { t } = useLingui()
-  const [inputPage, setInputPage] = useState<string>(currentPage.toString())
-
-  useEffect(() => {
-    setInputPage(currentPage.toString())
-  }, [currentPage])
-
-  const updateCurrentPage = (newPage: number) => {
-    if (newPage >= 1 && newPage <= totalPages) {
-      onPageChange?.(newPage)
-      setInputPage(newPage.toString())
-    }
-  }
 
   const columns = isNetworkScoped ? 6 : 7
 
@@ -67,6 +55,9 @@ export const PortListContainer = ({
             <Trans>Name / ID</Trans>
           </DataGridHeadCell>
           <DataGridHeadCell>
+            <Trans>Status</Trans>
+          </DataGridHeadCell>
+          <DataGridHeadCell>
             <Trans>Description</Trans>
           </DataGridHeadCell>
           {!isNetworkScoped && (
@@ -79,9 +70,6 @@ export const PortListContainer = ({
           </DataGridHeadCell>
           <DataGridHeadCell>
             <Trans>Device Owner / ID</Trans>
-          </DataGridHeadCell>
-          <DataGridHeadCell>
-            <Trans>Status</Trans>
           </DataGridHeadCell>
           <DataGridHeadCell></DataGridHeadCell>
         </DataGridRow>
@@ -98,29 +86,50 @@ export const PortListContainer = ({
       </DataGrid>
       {totalPages > 1 && (
         <Stack distribution="center" className="py-4">
-          <Pagination
-            variant="input"
-            currentPage={currentPage}
-            pages={totalPages}
-            onPressPrevious={() => updateCurrentPage(Math.max(currentPage - 1, 1))}
-            onPressNext={() => updateCurrentPage(Math.min(currentPage + 1, totalPages))}
-            onSelectChange={(selectedPage: number) => {
-              updateCurrentPage(selectedPage)
-            }}
-            onInputChange={(newInputPage?: number) => {
-              setInputPage(newInputPage === undefined ? "" : String(newInputPage))
-            }}
-            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-              if (e.key === "Enter" && inputPage !== "") {
-                const newPage = parseInt(inputPage, 10)
-                if (!isNaN(newPage) && newPage >= 1 && newPage <= totalPages) {
-                  updateCurrentPage(newPage)
-                }
-              }
-            }}
-          />
+          {/* Keyed on currentPage: an external page change (e.g. back/forward) remounts the input with
+              the new value, so no effect is needed to mirror the prop into the typed text. */}
+          <PageInput key={currentPage} currentPage={currentPage} totalPages={totalPages} onPageChange={onPageChange} />
         </Stack>
       )}
     </>
+  )
+}
+
+/** Page-number input for the list pagination. Holds the free-typed value locally; the parent remounts it
+ *  (keyed on currentPage) when the page changes externally, so no prop-to-state effect is needed. */
+function PageInput({
+  currentPage,
+  totalPages,
+  onPageChange,
+}: {
+  currentPage: number
+  totalPages: number
+  onPageChange?: (page: number) => void
+}) {
+  const [inputPage, setInputPage] = useState<string>(currentPage.toString())
+
+  const commitPage = (newPage: number) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      onPageChange?.(newPage)
+      setInputPage(newPage.toString())
+    }
+  }
+
+  return (
+    <Pagination
+      variant="input"
+      currentPage={currentPage}
+      pages={totalPages}
+      onPressPrevious={() => commitPage(Math.max(currentPage - 1, 1))}
+      onPressNext={() => commitPage(Math.min(currentPage + 1, totalPages))}
+      onSelectChange={(selectedPage: number) => commitPage(selectedPage)}
+      onInputChange={(newInputPage?: number) => setInputPage(newInputPage === undefined ? "" : String(newInputPage))}
+      onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter" && inputPage !== "") {
+          const newPage = parseInt(inputPage, 10)
+          if (!isNaN(newPage) && newPage >= 1 && newPage <= totalPages) commitPage(newPage)
+        }
+      }}
+    />
   )
 }

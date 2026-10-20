@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router"
+import { z } from "zod"
 import { t } from "@lingui/core/macro"
 import { useLingui } from "@lingui/react/macro"
-import { z } from "zod"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import { Ports } from "./-components/PortsList"

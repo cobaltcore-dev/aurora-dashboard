@@ -9,7 +9,7 @@ import type { TrpcClient } from "@/client/trpcClient"
 import type { PortListItem } from "@/server/Network/types/port"
 import { Ports } from "./PortsList"
 
-// Mocked URL search params as a small external store, so navigate() re-renders like the real port
+// Mocked URL search params as a small external store, so navigate() re-renders like the real route
 const { searchStore } = vi.hoisted(() => {
   const listeners = new Set<() => void>()
   return {
@@ -119,6 +119,10 @@ const lastNavigateSearch = () => {
   return opts.search({})
 }
 
+/** Testids of the rendered port rows, in DOM order (to assert client-side sorting). */
+const renderedPortIds = () =>
+  Array.from(document.querySelectorAll('[data-testid^="port-port-"]')).map((el) => el.getAttribute("data-testid"))
+
 describe("Ports", () => {
   beforeEach(() => {
     i18n.activate("en")
@@ -145,32 +149,27 @@ describe("Ports", () => {
       expect(screen.getByTestId("port-port-2")).toHaveTextContent("internal-port")
     })
 
-    it("queries ports for the project with default sorting", async () => {
+    it("fetches the full list for the project once, without sort or search params", async () => {
       const { query } = await renderList()
 
       await screen.findByTestId("port-list-container")
 
-      expect(query).toHaveBeenCalledWith({
-        project_id: "proj-1",
-        sort_key: "name",
-        sort_dir: "asc",
-        searchTerm: undefined,
-      })
+      expect(query).toHaveBeenCalledTimes(1)
+      expect(query).toHaveBeenCalledWith({ project_id: "proj-1", network_id: undefined })
     })
 
-    it("uses search, sort and direction from the URL for the initial query", async () => {
+    it("applies the search and sort from the URL client-side, not via the query", async () => {
       searchStore.params = { search: "edge", sortBy: "status", sortDirection: "desc" }
       const { query } = await renderList()
 
       await screen.findByTestId("port-list-container")
 
-      expect(query).toHaveBeenCalledWith({
-        project_id: "proj-1",
-        sort_key: "status",
-        sort_dir: "desc",
-        searchTerm: "edge",
-      })
+      // The fetch is unaffected by sort/search; they are applied in memory
+      expect(query).toHaveBeenCalledWith({ project_id: "proj-1", network_id: undefined })
       expect(screen.getByRole("searchbox")).toHaveValue("edge")
+      // "edge" matches only port-1
+      expect(screen.getByTestId("port-port-1")).toBeInTheDocument()
+      expect(screen.queryByTestId("port-port-2")).not.toBeInTheDocument()
     })
 
     it("does not render a create action (read-only)", async () => {
@@ -183,18 +182,12 @@ describe("Ports", () => {
   })
 
   describe("Network scope", () => {
-    it("queries only the ports of the given network", async () => {
+    it("fetches only the ports of the given network", async () => {
       const { query } = await renderList(undefined, "net-1")
 
       await screen.findByTestId("port-list-container")
 
-      expect(query).toHaveBeenCalledWith({
-        project_id: "proj-1",
-        network_id: "net-1",
-        sort_key: "name",
-        sort_dir: "asc",
-        searchTerm: undefined,
-      })
+      expect(query).toHaveBeenCalledWith({ project_id: "proj-1", network_id: "net-1" })
     })
 
     it("tells the container that the list is scoped to a network", async () => {
@@ -212,18 +205,26 @@ describe("Ports", () => {
   })
 
   describe("Sorting", () => {
-    it("sorts by device owner from the URL", async () => {
-      searchStore.params = { sortBy: "device_owner" }
-      const { query } = await renderList()
-
+    it("sorts client-side when the URL sort changes, without refetching", async () => {
+      const ports = [makePort("port-a", "beta"), makePort("port-b", "alpha")]
+      const { query } = await renderList(vi.fn().mockResolvedValue(ports))
       await screen.findByTestId("port-list-container")
 
-      expect(query).toHaveBeenCalledWith(expect.objectContaining({ sort_key: "device_owner" }))
+      // Default: name ascending → alpha (port-b) before beta (port-a)
+      expect(renderedPortIds()).toEqual(["port-port-b", "port-port-a"])
+
+      await act(async () => {
+        setUrlSearch({ sortBy: "name", sortDirection: "desc" })
+      })
+
+      expect(renderedPortIds()).toEqual(["port-port-a", "port-port-b"])
+      // Sorting is client-side: the list was fetched only once
+      expect(query).toHaveBeenCalledTimes(1)
     })
   })
 
   describe("Errors", () => {
-    it("shows an inline error when listing is forbidden", async () => {
+    it("shows a page-level info message when listing is forbidden", async () => {
       const forbidden = new TRPCClientError("You are not allowed to list ports", {
         result: {
           error: {
@@ -235,8 +236,13 @@ describe("Ports", () => {
       } as never)
       await renderList(vi.fn().mockRejectedValue(forbidden))
 
-      expect(await screen.findByText("You are not allowed to list ports")).toBeInTheDocument()
-      expect(screen.getByText("Failed to Load Ports")).toBeInTheDocument()
+      expect(await screen.findByText("Insufficient Permissions")).toBeInTheDocument()
+      expect(
+        screen.getByText("You do not have the required permissions to view ports in this project.")
+      ).toBeInTheDocument()
+      // The raw BFF message is not surfaced, and it is not shown as a red error state
+      expect(screen.queryByText("You are not allowed to list ports")).not.toBeInTheDocument()
+      expect(screen.queryByText("Failed to Load Ports")).not.toBeInTheDocument()
       expect(screen.queryByTestId("port-list-container")).not.toBeInTheDocument()
     })
 
@@ -252,7 +258,7 @@ describe("Ports", () => {
   })
 
   describe("Retry", () => {
-    it("loads the ports again when Try Again is clicked", async () => {
+    it("fetches again when Try Again is clicked", async () => {
       const user = userEvent.setup()
       const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined)
       const query = vi.fn().mockRejectedValueOnce(new Error("Neutron is unavailable")).mockResolvedValue(mockPorts)
@@ -263,28 +269,7 @@ describe("Ports", () => {
       expect(await screen.findByTestId("port-port-1")).toBeInTheDocument()
       expect(screen.queryByText("Failed to Load Ports")).not.toBeInTheDocument()
       expect(query).toHaveBeenCalledTimes(2)
-      expect(query).toHaveBeenLastCalledWith({
-        project_id: "proj-1",
-        sort_key: "name",
-        sort_dir: "asc",
-        searchTerm: undefined,
-      })
-
-      consoleError.mockRestore()
-    })
-
-    it("recovers when the URL changes after a failure", async () => {
-      const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined)
-      const query = vi.fn().mockRejectedValueOnce(new Error("Neutron is unavailable")).mockResolvedValue(mockPorts)
-      await renderList(query)
-      await screen.findByText("Failed to Load Ports")
-
-      await act(async () => {
-        setUrlSearch({ search: "edge" })
-      })
-
-      expect(await screen.findByTestId("port-list-container")).toBeInTheDocument()
-      expect(query).toHaveBeenLastCalledWith(expect.objectContaining({ searchTerm: "edge" }))
+      expect(query).toHaveBeenLastCalledWith({ project_id: "proj-1", network_id: undefined })
 
       consoleError.mockRestore()
     })
@@ -301,22 +286,27 @@ describe("Ports", () => {
       } as never)
       await renderList(vi.fn().mockRejectedValue(forbidden))
 
-      await screen.findByText("You are not allowed to list ports")
+      await screen.findByText("Insufficient Permissions")
       expect(screen.queryByRole("button", { name: "Try Again" })).not.toBeInTheDocument()
     })
   })
 
   describe("Search", () => {
-    it("refetches with the search term and updates the URL on submit", async () => {
+    it("filters client-side and updates the URL on submit, without refetching", async () => {
       const user = userEvent.setup()
       const { query } = await renderList()
 
       await screen.findByTestId("port-list-container")
       await user.type(screen.getByRole("searchbox"), "edge{enter}")
 
+      // "edge" matches only port-1; filtering is in memory
       await waitFor(() => {
-        expect(query).toHaveBeenLastCalledWith(expect.objectContaining({ searchTerm: "edge" }))
+        expect(screen.queryByTestId("port-port-2")).not.toBeInTheDocument()
       })
+      expect(screen.getByTestId("port-port-1")).toBeInTheDocument()
+      // The list was fetched once; typing does not refetch
+      expect(query).toHaveBeenCalledTimes(1)
+      // The URL still reflects the search for shareable links / back-forward
       expect(mockNavigate).toHaveBeenLastCalledWith(expect.objectContaining({ replace: true }))
       expect(lastNavigateSearch()).toEqual({ search: "edge", page: undefined })
     })
@@ -338,23 +328,21 @@ describe("Ports", () => {
   })
 
   describe("URL changes", () => {
-    it("refetches and updates the search input when the URL search params change (e.g. back/forward)", async () => {
+    it("updates the search input and filters when the URL changes (e.g. back/forward), without refetching", async () => {
       const { query } = await renderList()
       await screen.findByTestId("port-list-container")
 
       await act(async () => {
-        setUrlSearch({ search: "backend", sortBy: "status", sortDirection: "desc" })
+        setUrlSearch({ search: "internal" })
       })
 
       await waitFor(() => {
-        expect(query).toHaveBeenLastCalledWith({
-          project_id: "proj-1",
-          sort_key: "status",
-          sort_dir: "desc",
-          searchTerm: "backend",
-        })
+        expect(screen.getByRole("searchbox")).toHaveValue("internal")
       })
-      expect(screen.getByRole("searchbox")).toHaveValue("backend")
+      // "internal" matches only port-2
+      expect(screen.getByTestId("port-port-2")).toBeInTheDocument()
+      expect(screen.queryByTestId("port-port-1")).not.toBeInTheDocument()
+      expect(query).toHaveBeenCalledTimes(1)
     })
 
     it("clears the search input when the search is removed from the URL", async () => {
@@ -380,32 +368,6 @@ describe("Ports", () => {
       })
 
       expect(query).toHaveBeenCalledTimes(1)
-    })
-
-    it("keeps the list visible while the next query loads", async () => {
-      let resolveNext: (ports: PortListItem[]) => void = () => undefined
-      const query = vi
-        .fn()
-        .mockResolvedValueOnce(mockPorts)
-        .mockImplementationOnce(() => new Promise((resolve) => (resolveNext = resolve)))
-      await renderList(query)
-      await screen.findByTestId("port-list-container")
-
-      await act(async () => {
-        setUrlSearch({ search: "internal" })
-      })
-
-      expect(screen.getByTestId("port-port-1")).toBeInTheDocument()
-      expect(screen.queryByText("Loading Ports...")).not.toBeInTheDocument()
-
-      await act(async () => {
-        resolveNext([mockPorts[1]])
-      })
-
-      await waitFor(() => {
-        expect(screen.queryByTestId("port-port-1")).not.toBeInTheDocument()
-      })
-      expect(screen.getByTestId("port-port-2")).toBeInTheDocument()
     })
   })
 
@@ -445,34 +407,6 @@ describe("Ports", () => {
 
       expect(lastNavigateSearch()).toEqual({ page: 2 })
       expect(container).toHaveAttribute("data-current-page", "2")
-    })
-
-    it("keeps a valid page while the next query loads (e.g. back from a filtered list)", async () => {
-      let resolveNext: (ports: PortListItem[]) => void = () => undefined
-      const manyPorts = Array.from({ length: 200 }, (_, i) => makePort(`port-${i}`))
-      const query = vi
-        .fn()
-        .mockResolvedValueOnce([makePort("port-1")])
-        .mockImplementationOnce(() => new Promise((resolve) => (resolveNext = resolve)))
-      searchStore.params = { search: "edge" }
-      await renderList(query)
-      await screen.findByTestId("port-list-container")
-
-      // Back to the unfiltered list on page 4: the filtered result (1 page) is still shown
-      await act(async () => {
-        setUrlSearch({ page: 4 })
-      })
-      expect(mockNavigate).not.toHaveBeenCalled()
-
-      await act(async () => {
-        resolveNext(manyPorts)
-      })
-
-      const container = await screen.findByTestId("port-list-container")
-      await waitFor(() => {
-        expect(container).toHaveAttribute("data-current-page", "4")
-      })
-      expect(mockNavigate).not.toHaveBeenCalled()
     })
 
     it("resets to the first page when the page in the URL is out of range", async () => {

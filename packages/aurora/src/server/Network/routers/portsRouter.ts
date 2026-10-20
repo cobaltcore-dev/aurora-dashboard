@@ -24,7 +24,7 @@ import {
   filterPortsBySearchTerm,
 } from "../helpers/portHelpers"
 import { getNetworkService, parseOrThrow } from "../helpers/index"
-import { requestOrThrow, withQuery } from "../helpers/requestHelpers"
+import { requestOrThrow, withQuery, nextPageUrl } from "../helpers/requestHelpers"
 import { fetchNetworkSummaries, fetchSecurityGroupSummaries, fetchSubnetSummaries } from "../helpers/lookupHelpers"
 
 const PORTS_BASE_URL = "v2.0/ports"
@@ -62,13 +62,26 @@ export const portsRouter = {
 
         // project_id is forwarded as a filter, so admin roles also only see the current project's ports here
         const queryParams = appendQueryParamsFromObject(openstackFilters, { keyMap: LIST_PORTS_QUERY_KEY_MAP })
-        const response = await requestOrThrow(
-          () => network.get(withQuery(PORTS_BASE_URL, queryParams)),
-          PortErrorHandlers.list
-        )
 
-        const data = await response.json()
-        const { ports } = parseOrThrow(PortListResponseSchema, data, "portsRouter.list")
+        // Neutron caps a list at `pagination_max_limit` and exposes the rest through the `next` link in
+        // `ports_links`. Follow it so the BFF returns the complete list; otherwise the client-side search
+        // and pagination would silently operate on the first page only. `visited` guards against a
+        // non-advancing `next` (a server bug) looping forever; healthy data ends when there is no `next`.
+        const ports: Port[] = []
+        const visited = new Set<string>()
+        let nextUrl: string | undefined = withQuery(PORTS_BASE_URL, queryParams)
+        while (nextUrl && !visited.has(nextUrl)) {
+          visited.add(nextUrl)
+          const url = nextUrl
+          const response = await requestOrThrow(() => network.get(url), PortErrorHandlers.list)
+          const { ports: pagePorts, ports_links } = parseOrThrow(
+            PortListResponseSchema,
+            await response.json(),
+            "portsRouter.list"
+          )
+          ports.push(...pagePorts)
+          nextUrl = nextPageUrl(PORTS_BASE_URL, ports_links)
+        }
 
         // Names are resolved before searching, so the search also matches network and subnet names.
         // Lookups are batched for the whole list (not per port) and best-effort.

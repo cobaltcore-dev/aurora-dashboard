@@ -388,9 +388,6 @@ msgstr "Access Status:"
 msgid "Access to S3 Object Storage requires an access key (access key ID + secret access key)."
 msgstr "Access to S3 Object Storage requires an access key (access key ID + secret access key)."
 
-msgid "Access to this port is not permitted."
-msgstr "Access to this port is not permitted."
-
 msgid "Access to this router is not permitted."
 msgstr "Access to this router is not permitted."
 
@@ -3040,6 +3037,9 @@ msgstr "Port (from)"
 msgid "Port (to)"
 msgstr "Port (to)"
 
+msgid "Port actions"
+msgstr "Port actions"
+
 msgid "Port Forwarding"
 msgstr "Port Forwarding"
 
@@ -3543,6 +3543,9 @@ msgstr "Services"
 
 msgid "Session Changed"
 msgstr "Session Changed"
+
+msgid "Session Expired"
+msgstr "Session Expired"
 
 msgid "Session expires in"
 msgstr "Session expires in"
@@ -4471,6 +4474,12 @@ msgstr "You can rename the object by changing the name here."
 msgid "You do not have permission to view security groups"
 msgstr "You do not have permission to view security groups"
 
+msgid "You do not have the required permissions to access this port."
+msgstr "You do not have the required permissions to access this port."
+
+msgid "You do not have the required permissions to view ports in this project."
+msgstr "You do not have the required permissions to view ports in this project."
+
 msgid "You don't have permission to access flavor access information for this flavor."
 msgstr "You don't have permission to access flavor access information for this flavor."
 
@@ -4524,6 +4533,9 @@ msgstr "Your credentials are valid but you don't have permission to perform this
 
 msgid "Your session has expired. Please log in again."
 msgstr "Your session has expired. Please log in again."
+
+msgid "Your session has expired. Sign in again to continue."
+msgstr "Your session has expired. Sign in again to continue."
 
 msgid "Your session was changed or ended in another browser tab. This can happen if you logged out or switched to a different account or domain elsewhere. Log in again to continue."
 msgstr "Your session was changed or ended in another browser tab. This can happen if you logged out or switched to a different account or domain elsewhere. Log in again to continue."

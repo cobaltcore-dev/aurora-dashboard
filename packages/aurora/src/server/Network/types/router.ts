@@ -79,6 +79,8 @@ export const RouterSchema = z.object({
 
 export const RouterListResponseSchema = z.object({
   routers: z.array(RouterSchema),
+  // Present when Neutron paginates the result; the `next` link drives the BFF's full-list fetch
+  routers_links: z.array(z.object({ rel: z.string(), href: z.string() })).optional(),
 })
 
 export const RouterResponseSchema = z.object({

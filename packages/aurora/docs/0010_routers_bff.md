@@ -68,6 +68,8 @@ Applied BFF-side (not sent to Neutron):
 
 Returns `RouterListItem[]`: routers from the Neutron envelope `{ routers: [...] }` with the external gateway enriched with names.
 
+The BFF follows Neutron's pagination: it requests pages via the `next` link in `routers_links` until there is none, so the returned list is complete even on deployments with a `pagination_max_limit`. The BFF-side search and filters therefore see every router, not just the first page.
+
 #### Private Networks and Name Enrichment
 
 The router object only references the external network and subnets by ID, and contains no information about the internal (private) networks it is attached to. After BFF-side filtering, the BFF enriches the remaining routers with **batched requests for the whole list** (not per router):
@@ -77,7 +79,7 @@ The router object only references the external network and subnets by ID, and co
    - `device_owner` is restricted to interface ports (`network:router_interface`, `network:router_interface_distributed`, `network:ha_router_replicated_interface`), so gateway and SNAT ports are not returned.
    - Network IDs are grouped per router and deduplicated into `private_networks`.
 2. **Names** - in parallel:
-   - `GET /v2.0/networks?id=...&fields=id&fields=name` - one request for external **and** private networks; sets `external_gateway_info.network_name` and `private_networks[].network_name`
+   - `GET /v2.0/networks?id=...&fields=id&fields=name` - external **and** private networks in one lookup (chunked into requests of at most 50 IDs); sets `external_gateway_info.network_name` and `private_networks[].network_name`
    - `GET /v2.0/subnets?id=...&fields=id&fields=name` - sets `external_gateway_info.external_fixed_ips[].subnet_name`
 
 No request is made when there is nothing to look up. All lookups are best-effort, so the list is always returned:
@@ -116,7 +118,7 @@ Retrieves a single router.
 
 #### Response
 
-Returns `RouterDetails`: the `Router` with the external gateway enriched with `network_name` and `external_fixed_ips[].subnet_name`, using the same best-effort networks/subnets lookup as `list` (two requests; none when the router has no gateway).
+Returns `RouterDetails`: the `Router` with the external gateway enriched with `network_name` and `external_fixed_ips[].subnet_name`, using the same best-effort networks/subnets lookup as `list` (two lookups, each chunked into requests of at most 50 IDs; none when the router has no gateway).
 
 #### Error Handling
 

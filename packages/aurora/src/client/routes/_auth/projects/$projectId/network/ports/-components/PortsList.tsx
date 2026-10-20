@@ -1,11 +1,11 @@
-import { use, Suspense, useState, useRef, useEffect, useCallback, useMemo, useDeferredValue } from "react"
+import { use, Suspense, useState, useRef, useEffect, useCallback, useMemo } from "react"
 import { useSearch, useNavigate } from "@tanstack/react-router"
 import { ErrorBoundary } from "react-error-boundary"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { TRPCClientError } from "@trpc/client"
 import { TrpcClient } from "@/client/trpcClient"
-import { Button, Stack, DataGridToolbar, SearchInput, Status } from "@cloudoperators/juno-ui-components"
-import type { PortListItem, PortQueryParameters } from "@/server/Network/types/port"
+import { Button, Stack, DataGridToolbar, SearchInput, Message, Status } from "@cloudoperators/juno-ui-components"
+import type { PortListItem } from "@/server/Network/types/port"
 import { SortInput } from "@/client/components/ListToolbar/SortInput"
 import { SortSettings } from "@/client/components/ListToolbar/types"
 import type { PortsSearchParams } from "@/client/routes/_auth/projects/$projectId/network/ports/index"
@@ -13,7 +13,8 @@ import { PortListContainer } from "./PortListContainer"
 
 const PAGE_SIZE = 50
 
-type PortSortKey = NonNullable<PortQueryParameters["sort_key"]>
+/** The sort keys the list offers; all map to string fields on PortListItem. */
+type PortSortKey = "name" | "status" | "device_owner"
 
 interface PortsProps {
   client: TrpcClient
@@ -31,71 +32,99 @@ type RequiredSortSettings = {
   sortDirection: "asc" | "desc"
 }
 
-type PortsResult = { ports: PortListItem[]; listError?: string }
+type PortsResult = { ports: PortListItem[]; forbidden?: boolean }
 
+/**
+ * Fetches the full port list once per (project, network). Sorting, search and pagination are done
+ * client-side over this list, so changing any of them never triggers another request.
+ */
 const createPortsPromise = (
   client: TrpcClient,
   project: string,
-  networkId: string | undefined,
-  sortBy: PortSortKey,
-  sortDirection: "asc" | "desc",
-  searchTerm: string
+  networkId: string | undefined
 ): Promise<PortsResult> => {
   return client.network.ports.list
-    .query({
-      project_id: project,
-      network_id: networkId,
-      sort_key: sortBy,
-      sort_dir: sortDirection,
-      searchTerm: searchTerm || undefined,
-    })
-    .then((ports) => ({ ports, listError: undefined }))
+    .query({ project_id: project, network_id: networkId })
+    .then((ports) => ({ ports, forbidden: false }))
     .catch((err: unknown) => {
+      // 403 is an expected "no access" state, not a failure: render it as a page-level info message
+      // (B.6) rather than letting it reach the error boundary.
       if (err instanceof TRPCClientError && err.data?.code === "FORBIDDEN") {
-        return { ports: [], listError: err.message }
+        return { ports: [], forbidden: true }
       }
       throw err
     })
 }
 
+/** Fields the search matches, mirroring the BFF's `filterPortsBySearchTerm`. */
+const searchableValues = (port: PortListItem): Array<string | undefined> => [
+  port.id,
+  port.name,
+  port.description,
+  port.network_id,
+  port.network_name,
+  port.mac_address,
+  port.device_id,
+  port.device_owner,
+  ...port.fixed_ips.flatMap((fixedIp) => [fixedIp.ip_address, fixedIp.subnet_id, fixedIp.subnet_name]),
+]
+
+/** Case-insensitive substring search across everything the list shows. */
+const filterPorts = (ports: PortListItem[], searchTerm: string): PortListItem[] => {
+  const term = searchTerm.trim().toLowerCase()
+  if (!term) return ports
+  return ports.filter((port) => searchableValues(port).some((value) => value?.toLowerCase().includes(term)))
+}
+
+const sortValue = (port: PortListItem, key: PortSortKey): string => {
+  switch (key) {
+    case "status":
+      return port.status
+    case "device_owner":
+      return port.device_owner
+    case "name":
+      return port.name
+  }
+}
+
+/** Stable client-side sort on the selected key and direction (natural order for embedded numbers). */
+const sortPorts = (ports: PortListItem[], sortBy: PortSortKey, sortDirection: "asc" | "desc"): PortListItem[] => {
+  const factor = sortDirection === "desc" ? -1 : 1
+  return [...ports].sort(
+    (a, b) =>
+      factor *
+      sortValue(a, sortBy).localeCompare(sortValue(b, sortBy), undefined, { numeric: true, sensitivity: "base" })
+  )
+}
+
 function PortsContent({
   portsPromise,
   searchTerm,
-  setSearchTerm,
+  onSearchChange,
   sortSettings,
-  handleSortChange,
+  onSortChange,
   currentPage,
   onPageChange,
-  isStale,
   isNetworkScoped,
 }: {
   portsPromise: Promise<PortsResult>
   searchTerm: string
-  setSearchTerm: (term: string) => void
+  onSearchChange: (term: string) => void
   sortSettings: RequiredSortSettings
-  handleSortChange: (settings: SortSettings) => void
+  onSortChange: (settings: SortSettings) => void
   currentPage: number
   onPageChange: (page: number) => void
-  /** True while the shown ports are from the previous query and the next one is still loading */
-  isStale: boolean
   isNetworkScoped: boolean
 }) {
   const { t } = useLingui()
-  const { ports, listError } = use(portsPromise)
+  const { ports, forbidden } = use(portsPromise)
+
+  // Local input value for instant typing. The URL (searchTerm) stays the source of truth and is updated
+  // debounced for shareable links; filtering uses the local value so results update on every keystroke.
   const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm)
   const debounceTimer = useRef<number | undefined>(undefined)
   // Last term this input sent to the URL, so only external URL changes (back/forward, links) overwrite the input
   const submittedSearchTerm = useRef(searchTerm)
-
-  const submitSearchTerm = (term: string) => {
-    clearTimeout(debounceTimer.current)
-    submittedSearchTerm.current = term
-    setSearchTerm(term)
-  }
-
-  const totalPages = Math.max(1, Math.ceil(ports.length / PAGE_SIZE))
-  const safePage = Math.min(currentPage, totalPages)
-  const paginatedPorts = ports.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
 
   useEffect(() => () => clearTimeout(debounceTimer.current), [])
 
@@ -106,14 +135,32 @@ function PortsContent({
     setLocalSearchTerm(searchTerm)
   }, [searchTerm])
 
-  // Validate the page only against the current query's result: while the previous result is still shown,
-  // its page count says nothing about the URL's page (e.g. back/forward from a filtered to an unfiltered list).
-  useEffect(() => {
-    if (!isStale && currentPage > totalPages) onPageChange(1)
-  }, [isStale, totalPages, currentPage, onPageChange])
+  const submitSearchTerm = (term: string) => {
+    clearTimeout(debounceTimer.current)
+    submittedSearchTerm.current = term
+    onSearchChange(term)
+  }
 
-  if (listError) {
-    return <Status status="error" title={t`Failed to Load Ports`} body={listError} />
+  const visiblePorts = useMemo(
+    () => sortPorts(filterPorts(ports, localSearchTerm), sortSettings.sortBy, sortSettings.sortDirection),
+    [ports, localSearchTerm, sortSettings.sortBy, sortSettings.sortDirection]
+  )
+
+  const totalPages = Math.max(1, Math.ceil(visiblePorts.length / PAGE_SIZE))
+  const safePage = Math.min(currentPage, totalPages)
+  const paginatedPorts = visiblePorts.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
+
+  // Reset to page 1 when the URL's page is past the end of the current (filtered) result
+  useEffect(() => {
+    if (currentPage > totalPages) onPageChange(1)
+  }, [currentPage, totalPages, onPageChange])
+
+  if (forbidden) {
+    return (
+      <Message variant="info" title={t`Insufficient Permissions`}>
+        <Trans>You do not have the required permissions to view ports in this project.</Trans>
+      </Message>
+    )
   }
 
   return (
@@ -126,8 +173,8 @@ function PortsContent({
           sortDirection={sortSettings.sortDirection}
           selectClassName="min-w-45"
           selectWidth="auto"
-          onSortByChange={(v) => handleSortChange({ ...sortSettings, sortBy: v })}
-          onSortDirectionChange={(dir) => handleSortChange({ ...sortSettings, sortDirection: dir })}
+          onSortByChange={(v) => onSortChange({ ...sortSettings, sortBy: v })}
+          onSortDirectionChange={(dir) => onSortChange({ ...sortSettings, sortDirection: dir })}
         />
       </Stack>
 
@@ -155,7 +202,7 @@ function PortsContent({
 
       <PortListContainer
         ports={paginatedPorts}
-        hasSearch={Boolean(searchTerm.trim())}
+        hasSearch={Boolean(localSearchTerm.trim())}
         isNetworkScoped={isNetworkScoped}
         currentPage={safePage}
         totalPages={totalPages}
@@ -170,8 +217,8 @@ export const Ports = ({ client, project, networkId }: PortsProps) => {
   const navigate = useNavigate()
   const searchParams = useSearch({ strict: false }) as PortsSearchParams
 
-  // The URL is the single source of truth for search, sort and page, so back/forward navigation
-  // and links with different search params update the controls and the query.
+  // The URL is the single source of truth for search, sort and page. They drive client-side transforms
+  // of the already-fetched list, so back/forward navigation and shared links stay in sync without refetching.
   const searchTerm = searchParams.search ?? ""
   const sortBy: PortSortKey = searchParams.sortBy || "name"
   const sortDirection = searchParams.sortDirection || "asc"
@@ -187,18 +234,14 @@ export const Ports = ({ client, project, networkId }: PortsProps) => {
     sortDirection,
   }
 
-  // Bumped by "Try Again" to create a fresh query with the same parameters
+  // Bumped by "Try Again" to create a fresh promise (the only thing that re-fetches besides a scope change)
   const [retryCount, setRetryCount] = useState(0)
 
   const portsPromise = useMemo(
-    () => createPortsPromise(client, project, networkId, sortBy, sortDirection, searchTerm),
+    () => createPortsPromise(client, project, networkId),
     // retryCount is not used in the factory, it only forces a new promise on "Try Again"
-    [client, project, networkId, sortBy, sortDirection, searchTerm, retryCount]
+    [client, project, networkId, retryCount]
   )
-  // Keeps the current list (and the search input) on screen while the next query loads,
-  // instead of falling back to the Suspense loading state on every search or sort change
-  const deferredPortsPromise = useDeferredValue(portsPromise)
-  const isStale = deferredPortsPromise !== portsPromise
 
   const handleSortChange = (newSortSettings: SortSettings) => {
     navigate({
@@ -238,10 +281,8 @@ export const Ports = ({ client, project, networkId }: PortsProps) => {
   return (
     <div className="relative">
       <ErrorBoundary
-        // Resets the boundary whenever the query changes: on "Try Again" and when the URL
-        // (project, network, search, sort) changes. Keyed on the deferred promise, so the reset happens
-        // together with the render that uses the new query instead of re-throwing the failed one.
-        resetKeys={[deferredPortsPromise]}
+        // Resets the boundary when the fetch changes: on "Try Again" and on a project/network change.
+        resetKeys={[portsPromise]}
         fallbackRender={({ error }) => (
           <Status
             status="error"
@@ -257,14 +298,13 @@ export const Ports = ({ client, project, networkId }: PortsProps) => {
       >
         <Suspense fallback={<Status status="progress" title={t`Loading Ports...`} />}>
           <PortsContent
-            portsPromise={deferredPortsPromise}
+            portsPromise={portsPromise}
             searchTerm={searchTerm}
-            setSearchTerm={handleSearchChange}
+            onSearchChange={handleSearchChange}
             sortSettings={sortSettings}
-            handleSortChange={handleSortChange}
+            onSortChange={handleSortChange}
             currentPage={currentPage}
             onPageChange={handlePageChange}
-            isStale={isStale}
             isNetworkScoped={Boolean(networkId)}
           />
         </Suspense>

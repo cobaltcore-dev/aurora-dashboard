@@ -1,11 +1,13 @@
 import { useNavigate } from "@tanstack/react-router"
 import { useLingui } from "@lingui/react/macro"
 import {
+  Button,
   DataGridCell,
   DataGridRow,
   PopupMenu,
   PopupMenuItem,
   PopupMenuOptions,
+  PopupMenuToggle,
   Stack,
 } from "@cloudoperators/juno-ui-components"
 import type { PortListItem } from "@/server/Network/types/port"
@@ -46,6 +48,7 @@ export const PortTableRow = ({ port, showNetwork = true }: PortTableRowProps) =>
       <DataGridCell>
         <TwoLineCell primary={port.name || port.id} secondary={port.name ? port.id : undefined} />
       </DataGridCell>
+      <DataGridCell>{port.status}</DataGridCell>
       <DataGridCell>{port.description ? <span className="break-all">{port.description}</span> : "–"}</DataGridCell>
       {showNetwork && (
         <DataGridCell>
@@ -54,7 +57,7 @@ export const PortTableRow = ({ port, showNetwork = true }: PortTableRowProps) =>
       )}
       <DataGridCell>
         {port.fixed_ips.length > 0 ? (
-          <Stack direction="vertical" gap="1">
+          <Stack direction="vertical" gap="2">
             {port.fixed_ips.map((fixedIp) => (
               <TwoLineCell
                 key={`${fixedIp.subnet_id}-${fixedIp.ip_address}`}
@@ -74,9 +77,11 @@ export const PortTableRow = ({ port, showNetwork = true }: PortTableRowProps) =>
           "–"
         )}
       </DataGridCell>
-      <DataGridCell>{port.status}</DataGridCell>
       <DataGridCell onClick={(e) => e.stopPropagation()}>
         <PopupMenu>
+          <PopupMenuToggle as="div">
+            <Button icon="moreVert" title={t`Port actions`} aria-label={t`Port actions`} />
+          </PopupMenuToggle>
           <PopupMenuOptions>
             <PopupMenuItem label={t`Show Details`} onClick={navigateToDetailsPage} />
           </PopupMenuOptions>

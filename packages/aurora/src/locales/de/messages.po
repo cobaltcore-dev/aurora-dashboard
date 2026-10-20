@@ -388,9 +388,6 @@ msgstr "Zugriffsstatus:"
 msgid "Access to S3 Object Storage requires an access key (access key ID + secret access key)."
 msgstr ""
 
-msgid "Access to this port is not permitted."
-msgstr ""
-
 msgid "Access to this router is not permitted."
 msgstr ""
 
@@ -3040,6 +3037,9 @@ msgstr "Port (von)"
 msgid "Port (to)"
 msgstr "Port (bis)"
 
+msgid "Port actions"
+msgstr ""
+
 msgid "Port Forwarding"
 msgstr "Port Forwarding"
 
@@ -3542,6 +3542,9 @@ msgid "Services"
 msgstr "Services"
 
 msgid "Session Changed"
+msgstr ""
+
+msgid "Session Expired"
 msgstr ""
 
 msgid "Session expires in"
@@ -4471,6 +4474,12 @@ msgstr "Sie können das Objekt umbenennen, indem Sie den Namen hier ändern."
 msgid "You do not have permission to view security groups"
 msgstr ""
 
+msgid "You do not have the required permissions to access this port."
+msgstr ""
+
+msgid "You do not have the required permissions to view ports in this project."
+msgstr ""
+
 msgid "You don't have permission to access flavor access information for this flavor."
 msgstr "Sie haben keine Berechtigung, auf die Zugriffsinformationen für diesen Flavor zuzugreifen."
 
@@ -4524,6 +4533,9 @@ msgstr ""
 
 msgid "Your session has expired. Please log in again."
 msgstr "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an."
+
+msgid "Your session has expired. Sign in again to continue."
+msgstr ""
 
 msgid "Your session was changed or ended in another browser tab. This can happen if you logged out or switched to a different account or domain elsewhere. Log in again to continue."
 msgstr ""

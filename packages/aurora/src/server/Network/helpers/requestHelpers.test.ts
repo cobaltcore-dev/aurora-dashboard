@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest"
 import { TRPCError } from "@trpc/server"
 import { SignalOpenstackApiError } from "@cobaltcore-dev/signal-openstack"
-import { requestOrThrow, pickDefined, chunk, withQuery } from "./requestHelpers"
+import { requestOrThrow, pickDefined, chunk, withQuery, nextPageUrl } from "./requestHelpers"
 import { RouterErrorHandlers } from "./routerHelpers"
 import { DEFAULT_ERROR_NAME, HTTP_STATUS_ERROR_MAP } from "./index"
 
@@ -91,5 +91,24 @@ describe("withQuery", () => {
 
   it("returns the base URL when there are no params", () => {
     expect(withQuery("v2.0/ports", new URLSearchParams())).toBe("v2.0/ports")
+  })
+})
+
+describe("nextPageUrl", () => {
+  it("returns the base URL plus the `next` link's query", () => {
+    const links = [{ rel: "next", href: "http://neutron:9696/v2.0/ports?marker=port-9&limit=100" }]
+    expect(nextPageUrl("v2.0/ports", links)).toBe("v2.0/ports?marker=port-9&limit=100")
+  })
+
+  it("returns undefined when there is no `next` link", () => {
+    expect(
+      nextPageUrl("v2.0/ports", [{ rel: "previous", href: "http://neutron/v2.0/ports?marker=port-1" }])
+    ).toBeUndefined()
+    expect(nextPageUrl("v2.0/ports", [])).toBeUndefined()
+    expect(nextPageUrl("v2.0/ports", undefined)).toBeUndefined()
+  })
+
+  it("returns the base URL when the `next` href has no query string", () => {
+    expect(nextPageUrl("v2.0/ports", [{ rel: "next", href: "http://neutron/v2.0/ports" }])).toBe("v2.0/ports")
   })
 })
