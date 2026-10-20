@@ -182,7 +182,7 @@ export const DeleteImagesModal: React.FC<DeleteImagesModalProps> = ({
                 <Stack direction="vertical" gap="1">
                   {visibleDeletable.map((image) => (
                     <div key={image.id} className="text-theme-default text-sm">
-                      <span className="font-medium">{image.name || t`Unnamed`}</span>
+                      <span className="font-medium">{image.name || "- -"}</span>
                       <span className="text-theme-light ml-2 text-xs">({image.id})</span>
                     </div>
                   ))}
@@ -212,7 +212,7 @@ export const DeleteImagesModal: React.FC<DeleteImagesModalProps> = ({
                 <Stack direction="vertical" gap="1">
                   {[...visibleUnowned, ...visibleProtected].map((image) => (
                     <div key={image.id} className="text-theme-default text-sm">
-                      <span className="font-medium">{image.name || t`Unnamed`}</span>
+                      <span className="font-medium">{image.name || "- -"}</span>
                       <span className="text-theme-light ml-2 text-xs">({image.id})</span>
                     </div>
                   ))}

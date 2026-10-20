@@ -4201,6 +4201,9 @@ msgstr "Unknown Error"
 msgid "Unnamed"
 msgstr "Unnamed"
 
+msgid "Up"
+msgstr "Up"
+
 msgid "UP"
 msgstr "UP"
 

@@ -37,12 +37,11 @@ const SharedImageBox: React.FC<{
   onStatusChange: (status: MemberStatus) => void
   isLoading: boolean
 }> = ({ image, myMemberData, canUpdateMember, onStatusChange, isLoading }) => {
-  const { t } = useLingui()
   const isPending = myMemberData.status === MEMBER_STATUSES.PENDING
   const isRejected = myMemberData.status === MEMBER_STATUSES.REJECTED
 
-  const sharedAt = myMemberData.created_at ? new Date(myMemberData.created_at).toLocaleString() : t`N/A`
-  const updatedAt = myMemberData.updated_at ? new Date(myMemberData.updated_at).toLocaleString() : t`N/A`
+  const sharedAt = myMemberData.created_at ? new Date(myMemberData.created_at).toLocaleString() : "- -"
+  const updatedAt = myMemberData.updated_at ? new Date(myMemberData.updated_at).toLocaleString() : "- -"
   const ownerProject = image.owner ?? ""
 
   return (

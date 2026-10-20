@@ -15,3 +15,8 @@
 - Keep Create Image disabled while any field (including optional) has a validation error
 - Reject scientific notation (e.g. `1e5`) in Min Disk / Min RAM; treat empty as 0
 - Clarify sharing error: a project may just not be found (sharing to projects you can't access is allowed)
+- Show the images list loading indicator as a full-width grid row
+- Fall empty names back to "- -" in image action modals (ID is shown separately)
+- Replace remaining "N/A" placeholders with "- -" across image rows, details, and modals
+- Use theme tokens instead of raw palette colors in the Create Image modal (dark-mode safe)
+- Reorder Create Image fields so Disk/Container Format sit with the file, grouping required fields
