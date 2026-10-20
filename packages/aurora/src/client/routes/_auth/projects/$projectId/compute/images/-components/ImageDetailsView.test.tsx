@@ -258,6 +258,17 @@ describe("ImageDetailsView", () => {
       expect(screen.getByText("null")).toBeInTheDocument()
     })
 
+    it("should render empty array values as a placeholder", () => {
+      const imageWithCustomProps = {
+        ...mockImage,
+        tags: [],
+      }
+      setup(<CustomPropertiesSection image={imageWithCustomProps} />)
+
+      expect(screen.getByText("tags")).toBeInTheDocument()
+      expect(screen.getByText("- -")).toBeInTheDocument()
+    })
+
     it("should render object properties as JSON string", () => {
       const imageWithCustomProps = {
         ...mockImage,

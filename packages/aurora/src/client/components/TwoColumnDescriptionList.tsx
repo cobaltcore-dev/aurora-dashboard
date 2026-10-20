@@ -11,8 +11,8 @@ interface TwoColumnDescriptionListProps {
   items: DetailListItem[]
 }
 
-// Hyphen-space-hyphen placeholder shown when a detail value is empty (null, undefined, "", or [])
-const EmptyValue = () => <span className="text-theme-disabled">- -</span>
+// Placeholder shown when a detail value is empty (null, undefined, "", or [])
+const EmptyValue = () => <>- -</>
 
 const isEmptyValue = (value: DetailListItem["value"]): boolean =>
   value === null || value === undefined || value === "" || (Array.isArray(value) && value.length === 0)

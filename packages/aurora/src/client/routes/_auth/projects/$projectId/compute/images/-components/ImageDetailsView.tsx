@@ -186,6 +186,8 @@ export const CustomPropertiesSection: React.FC<{ image: GlanceImage }> = ({ imag
               <DescriptionDefinition>
                 {value === null || value === undefined ? (
                   <span>null</span>
+                ) : Array.isArray(value) && value.length === 0 ? (
+                  <span>- -</span>
                 ) : typeof value === "object" ? (
                   <span className="break-all">{JSON.stringify(value)}</span>
                 ) : typeof value === "boolean" ? (
