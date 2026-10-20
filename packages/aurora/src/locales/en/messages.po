@@ -3790,6 +3790,12 @@ msgstr "The image \"{imageName}\" could not be created: {errorMessage}"
 msgid "The image \"{imageName}\" could not be updated: {errorMessage}"
 msgstr "The image \"{imageName}\" could not be updated: {errorMessage}"
 
+msgid "The image service rejected this change: {reason}"
+msgstr "The image service rejected this change: {reason}"
+
+msgid "The image service rejected this change."
+msgstr "The image service rejected this change."
+
 msgid "The image upload was cancelled."
 msgstr "The image upload was cancelled."
 
@@ -4062,6 +4068,9 @@ msgstr "This project doesn't exist or is not accessible from your current domain
 
 msgid "This property is reserved and cannot be modified"
 msgstr "This property is reserved and cannot be modified"
+
+msgid "This property is reserved and cannot be modified."
+msgstr "This property is reserved and cannot be modified."
 
 msgid "This router does not exist or has been deleted."
 msgstr "This router does not exist or has been deleted."

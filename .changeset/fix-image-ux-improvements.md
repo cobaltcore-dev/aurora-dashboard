@@ -10,4 +10,5 @@
 - Disable bulk actions button when no items selected
 - Add context-specific empty state messages
 - Use default text color and size for restriction notices in bulk action modals
-- Show a muted "- -" placeholder for empty values in detail views
+- Show a "- -" placeholder for empty values in detail views
+- Explain why reserved/read-only metadata cannot be edited instead of showing a generic error
