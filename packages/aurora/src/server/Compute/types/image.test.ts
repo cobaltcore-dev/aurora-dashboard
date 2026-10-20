@@ -659,6 +659,26 @@ describe("Glance Image Schema Validation", () => {
       const result = createImageInputSchema.safeParse(input)
       expect(result.success).toBe(false)
     })
+
+    it("should reject image name over 255 characters", () => {
+      const longName = "a".repeat(256) // Over 255 character limit
+      const input = {
+        project_id: projectId,
+        name: longName,
+      }
+      const result = createImageInputSchema.safeParse(input)
+      expect(result.success).toBe(false)
+    })
+
+    it("should accept image name at 255 characters", () => {
+      const maxName = "a".repeat(255) // Exactly 255 characters
+      const input = {
+        project_id: projectId,
+        name: maxName,
+      }
+      const result = createImageInputSchema.safeParse(input)
+      expect(result.success).toBe(true)
+    })
   })
 
   describe("Bulk Operations", () => {
