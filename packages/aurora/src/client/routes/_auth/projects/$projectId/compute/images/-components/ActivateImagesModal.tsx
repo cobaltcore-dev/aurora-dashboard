@@ -58,7 +58,7 @@ export const ActivateImagesModal: React.FC<ActivateImagesModalProps> = ({
 
               {/* Images to be activated */}
               <div className="mb-6">
-                <p className="text-sm font-semibold">
+                <p className="font-semibold">
                   <Plural value={deactivatedCount} one="Image to activate (#)" other="Images to activate (#)" />
                 </p>
                 <div className="jn:bg-theme-background-lvl-1 mt-2 max-h-24 overflow-y-auto rounded p-4">
@@ -75,14 +75,14 @@ export const ActivateImagesModal: React.FC<ActivateImagesModalProps> = ({
 
               {(activeCount > 0 || unownedCount > 0) && (
                 <div className="mb-6">
-                  <p className="text-sm font-semibold">
+                  <p className="font-semibold">
                     <Plural
                       value={activeCount + unownedCount}
                       one="Image cannot be activated (#)"
                       other="Images cannot be activated (#)"
                     />
                   </p>
-                  <p className="text-theme-light mt-1 text-xs">
+                  <p className="text-theme-default mt-1">
                     <Trans>These images are already active or you do not have permission to activate them.</Trans>
                   </p>
                   <div className="jn:bg-theme-background-lvl-1 mt-2 max-h-24 overflow-y-auto rounded p-4">

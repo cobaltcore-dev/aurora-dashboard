@@ -9,3 +9,4 @@
 - Enable direct page navigation (e.g. `?page=6`)
 - Disable bulk actions button when no items selected
 - Add context-specific empty state messages
+- Use default text color and size for restriction notices in bulk action modals
