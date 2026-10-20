@@ -29,17 +29,6 @@ import { CONTAINER_FORMATS, DISK_FORMATS, IMAGE_STATUSES, IMAGE_VISIBILITY } fro
 import { parseFiltersFromUrl, buildFilterParams, buildUrlSearchParams, applyFilterSelection } from "../urlHelpers"
 import { createImagesPromise, createPermissionsPromise } from "../apiHelpers"
 
-// Extract marker value from URL or return as-is if already a marker
-function extractMarker(nextValue: string | undefined): string | undefined {
-  if (!nextValue) return undefined
-  // If it's a full URL like "/v2/images?marker=xyz", extract just the marker value
-  if (nextValue.includes("?")) {
-    const url = new URL(nextValue, "http://dummy.com")
-    return url.searchParams.get("marker") || undefined
-  }
-  return nextValue
-}
-
 interface ImagesProps {
   client: TrpcClient
   project: string
@@ -163,7 +152,7 @@ function ImagesContent({
   useEffect(() => () => clearTimeout(debounceTimer.current), [])
 
   if (imagesData.listError) {
-    return <p>{imagesData.listError}</p>
+    return <Status status="error" title={t`Failed to Load Images`} body={imagesData.listError} />
   }
 
   const images = imagesData.images
@@ -205,30 +194,22 @@ function ImagesContent({
 
   // Bulk mutations are available only for images owned by the current project
   const ownedSelectedImages = selectedImageObjects.filter((image) => image.owner === projectId)
+  const unownedSelectedImages = selectedImageObjects.filter((image) => image.owner !== projectId)
 
   const deletableImages = ownedSelectedImages.filter((image) => image.protected !== true)
   const protectedImages = ownedSelectedImages.filter((image) => image.protected === true)
   const activeImages = ownedSelectedImages.filter((image) => image.status === IMAGE_STATUSES.ACTIVE)
   const deactivatedImages = ownedSelectedImages.filter((image) => image.status === IMAGE_STATUSES.DEACTIVATED)
 
-  const isDeleteAllDisabled =
-    !permissions.canDelete ||
-    validSelectedImages.length === 0 ||
-    pageImages
-      .filter((image: GlanceImage) => validSelectedImages.includes(image.id))
-      .every((image: GlanceImage) => image.protected)
+  // For bulk modals, also track the unowned images for display
+  const unownedActiveImages = unownedSelectedImages.filter((image) => image.status === IMAGE_STATUSES.ACTIVE)
+  const unownedDeactivatedImages = unownedSelectedImages.filter((image) => image.status === IMAGE_STATUSES.DEACTIVATED)
+
+  const isDeleteAllDisabled = !permissions.canDelete || validSelectedImages.length === 0 || deletableImages.length === 0
   const isDeactivateAllDisabled =
-    !permissions.canUpdate ||
-    validSelectedImages.length === 0 ||
-    pageImages
-      .filter((image: GlanceImage) => validSelectedImages.includes(image.id))
-      .every((image: GlanceImage) => image.status === IMAGE_STATUSES.DEACTIVATED)
+    !permissions.canUpdate || validSelectedImages.length === 0 || activeImages.length === 0
   const isActivateAllDisabled =
-    !permissions.canUpdate ||
-    validSelectedImages.length === 0 ||
-    pageImages
-      .filter((image: GlanceImage) => validSelectedImages.includes(image.id))
-      .every((image: GlanceImage) => image.status === IMAGE_STATUSES.ACTIVE)
+    !permissions.canUpdate || validSelectedImages.length === 0 || deactivatedImages.length === 0
 
   const memberStatusTabs = {
     items: [
@@ -348,7 +329,7 @@ function ImagesContent({
               />
               <PopupMenu>
                 <PopupMenuToggle as="div">
-                  <Button size="small" icon="moreVert" label={t`Actions`} />
+                  <Button disabled={validSelectedImages.length === 0} size="small" icon="moreVert" label={t`Actions`} />
                 </PopupMenuToggle>
                 <PopupMenuOptions>
                   {permissions.canUpdate && (
@@ -402,12 +383,15 @@ function ImagesContent({
         protectedImages={protectedImages}
         activeImages={activeImages}
         deactivatedImages={deactivatedImages}
+        unownedActiveImages={unownedActiveImages}
+        unownedDeactivatedImages={unownedDeactivatedImages}
         onImageUpdated={onImageUpdated}
         onImageDeleted={onImageDeleted}
         onMemberStatusChanged={onMemberStatusChanged}
         hasAnyBulkAction={permissions.canDelete || permissions.canUpdate}
         pendingSharedIds={pendingSharedIds}
         acceptedSharedIds={acceptedSharedIds}
+        memberStatusView={memberStatusView}
       />
     </>
   )
@@ -477,7 +461,7 @@ export const Images = ({ client, project }: ImagesProps) => {
   const [isFetching, setIsFetching] = useState(true)
   const [imageOverrides, setImageOverrides] = useState<Map<string, GlanceImage>>(new Map())
   const [deletedImageIds, setDeletedImageIds] = useState<Set<string>>(new Set())
-  const [pageMarkers, setPageMarkers] = useState<Map<number, string | undefined>>(new Map([[1, undefined]]))
+
   const [imagesPromise, setImagesPromise] = useState<Promise<ImagesResult>>(
     () =>
       new Promise(() => {
@@ -517,7 +501,8 @@ export const Images = ({ client, project }: ImagesProps) => {
     const urlMemberStatusFilter = urlMemberStatus === "all" ? undefined : urlMemberStatus
     startTransition(() => {
       const effectiveFilters = computeEffectiveFilters(urlMemberStatus, filterSettings.selectedFilters)
-      const marker = pageMarkers.get(currentPage)
+      // Use page number as marker (page > 1 sends the page number, page 1 sends undefined)
+      const marker = currentPage > 1 ? String(currentPage) : undefined
       const newPromise = createImagesPromise(
         client,
         project,
@@ -530,20 +515,19 @@ export const Images = ({ client, project }: ImagesProps) => {
         },
         marker
       )
-      newPromise
-        .then((result) => {
-          setPageMarkers((prev) => {
-            if (!result.next) return prev
-            const nextPage = currentPage + 1
-            if (prev.has(nextPage)) return prev
-            return new Map(prev).set(nextPage, extractMarker(result.next))
-          })
-        })
-        .catch(() => {})
-        .finally(() => setIsFetching(false))
+      newPromise.catch(() => {}).finally(() => setIsFetching(false))
       setImagesPromise(newPromise as Promise<ImagesResult>)
     })
-  }, [client, sortSettings, searchTerm, filterSettings, searchParams.memberStatus, currentPage, pageMarkers])
+  }, [
+    client,
+    sortSettings,
+    searchTerm,
+    filterSettings,
+    searchParams.memberStatus,
+    currentPage,
+    computeEffectiveFilters,
+    project,
+  ])
 
   useEffect(() => {
     const urlFilters = parseFiltersFromUrl(searchParams)
@@ -563,19 +547,8 @@ export const Images = ({ client, project }: ImagesProps) => {
     const urlMemberStatusFilter = urlMemberStatus === "all" ? undefined : urlMemberStatus
     startTransition(() => {
       const effectiveFilters = computeEffectiveFilters(urlMemberStatus, urlFilters)
-      const marker = pageMarkers.get(urlPage)
-
-      // If we don't have a marker for this page and it's not page 1, navigate to page 1
-      if (!marker && urlPage > 1) {
-        navigate({
-          search: ((prev: ImagesSearchParams) => ({
-            ...prev,
-            page: undefined,
-          })) as unknown as true,
-        })
-        setIsFetching(false)
-        return
-      }
+      // Use page number as marker (page > 1 sends the page number, page 1 sends undefined)
+      const marker = urlPage > 1 ? String(urlPage) : undefined
 
       const newPromise = createImagesPromise(
         client,
@@ -589,17 +562,7 @@ export const Images = ({ client, project }: ImagesProps) => {
         },
         marker
       )
-      newPromise
-        .then((result) => {
-          setPageMarkers((prev) => {
-            if (!result.next) return prev
-            const nextPage = urlPage + 1
-            if (prev.has(nextPage)) return prev
-            return new Map(prev).set(nextPage, extractMarker(result.next))
-          })
-        })
-        .catch(() => {})
-        .finally(() => setIsFetching(false))
+      newPromise.catch(() => {}).finally(() => setIsFetching(false))
       setImagesPromise(newPromise as Promise<ImagesResult>)
     })
   }, [
@@ -622,7 +585,6 @@ export const Images = ({ client, project }: ImagesProps) => {
       sortDirection: newSortSettings.sortDirection || "desc",
     }
     setSortSettings(settings)
-    setPageMarkers(new Map([[1, undefined]]))
     navigate({
       search: ((prev: ImagesSearchParams) => ({
         ...prev,
@@ -636,7 +598,6 @@ export const Images = ({ client, project }: ImagesProps) => {
 
   const handleFilterChange = (newFilterSettings: FilterSettings) => {
     setFilterSettings(newFilterSettings)
-    setPageMarkers(new Map([[1, undefined]]))
     navigate({
       search: ((prev: ImagesSearchParams) =>
         buildUrlSearchParams(newFilterSettings.selectedFilters || [], newFilterSettings.filters, {
@@ -652,7 +613,6 @@ export const Images = ({ client, project }: ImagesProps) => {
   const handleSearchChange = (term: string | number | string[] | undefined) => {
     const searchValue = typeof term === "string" ? term : ""
     setSearchTerm(searchValue)
-    setPageMarkers(new Map([[1, undefined]]))
     navigate({
       search: ((prev: ImagesSearchParams) => ({
         ...prev,
@@ -664,7 +624,6 @@ export const Images = ({ client, project }: ImagesProps) => {
   }
 
   const handleMemberStatusChange = (view: "all" | "pending" | "accepted") => {
-    setPageMarkers(new Map([[1, undefined]]))
     navigate({
       search: ((prev: ImagesSearchParams) => ({
         sortBy: prev.sortBy,

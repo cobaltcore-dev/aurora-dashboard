@@ -1,5 +1,54 @@
 # @cobaltcore-dev/aurora
 
+## 2.2.0
+
+### Minor Changes
+
+- b4b47df: feat(config): add per-domain app configuration support
+
+  Consumers can now pass a typed `appConfig` to `createServer` to tailor the app per home domain. The BFF resolves it (base layer plus cascading `overrides` matched against the user's domain) and serves it via the public `appConfig.get` procedure, also exposing the merged result on `ctx.appConfig` for custom procedures.
+
+  - New exports: `AuroraAppConfig` and related types (`Visibility`, `VisibilityDelta`, `ServiceConfig`, ...), `resolveAppConfig`, `auroraAppConfigSchema` (a Zod schema factory for validating externally-loaded config, e.g. from a mounted ConfigMap), `SLOT_NAMES` (server); `AppConfigProvider`, `useAppConfig`, `useFeature`, `useIsAppConfigLoading` (client).
+  - `services` and `slots` each take a `Visibility` rule that declares the posture explicitly: `{ mode: "allowlist", allow: [...] }` shows only the listed keys, `{ mode: "denylist", deny: [...] }` shows everything except the listed keys. Omit for default-open. Switching posture is a one-field edit.
+  - `serviceSettings`, `slotSettings`, and `features` carry per-service, per-slot, and app-wide data respectively, fully decoupled from visibility.
+  - `overrides` adjust membership per domain via `enable`/`disable` deltas (never posture): `enable` shows a key, `disable` hides it; settings and features deep-merge.
+  - Fully optional and backwards compatible: with no `appConfig`, Aurora keeps its default-open behavior.
+  - Removes the unused `projectOverviewBanner` slot from the `Slots` type and its render site. No consumer registered it.
+
+- c084f6a: Added a "Manage Credentials" modal for Ceph S3 Object Storage, reachable from the bucket list's "More Actions" menu, the "Setup Required" empty state and the "S3 Authentication Failed" screen. It lists the user's EC2 access keys in the project, reveals a key's secret on demand, creates and deletes keys, and shows the S3 endpoint and region.
+
+  - New procedure `storage.ceph.ec2Credentials.reveal`; `storage.ceph.containers.status` now also returns `endpoint` and `region`.
+  - `storage.ceph.ec2Credentials.create` no longer returns `secret`; read it through `reveal`.
+  - New permission key `storage:credentials:delete`. Operators with a custom `storage.json` should add `"storage:credential_delete": "rule:storage_viewer"`, otherwise the delete action stays hidden.
+  - `canUser` resolves a rule missing from the policy file to `false` for that key only, instead of failing the whole batch.
+  - When a user holds several keys, Ceph requests are signed with the same one every time (lowest credential id).
+
+- ca33c01: Add Neutron Routers management (BFF and read-only UI)
+
+  - Add `network.routers` tRPC BFF:
+    - Read: `list`, `getById`, `listInterfaces`, `listExtensions`
+    - Write: `create`, `update`, `delete`
+    - Gateway: `setGateway`, `clearGateway`
+    - Interfaces: `addInterface`, `removeInterface`
+  - Enrich routers with external network, external subnet and private network names, and with the routers' private networks, using batched best-effort lookups that fall back to IDs
+  - Map router-specific Neutron errors (e.g. router still has interfaces, quota exceeded) to clear messages
+  - Add a "Routers" entry under Network in the side navigation and a "Routers" card on the project overview
+  - Add a Routers list view (Name, External Network, External Subnet, Private Network, Status) with search, sorting and pagination; only the router ID is shown in the list
+  - Add a router details view with an overview and External Networks / Internal Networks tabs
+
+- 3a2489e: Added comprehensive help hints and validation to all Security Groups form inputs (Create/Edit Security Group, Add Rule, Share Security Group). Every input now shows validation rules and what empty values mean. Fixed issues found during Elektra cross-check: empty Remote Security Group now required, IPv6 CIDR rules work correctly, current group can be selected as remote, failed creates keep the modal open, error toasts removed (errors shown only in modals), default group Edit/Delete hidden, and added Remote column to rules table showing CIDR, group name, or "Any".
+
+### Patch Changes
+
+- a020808: Resolve security advisories via pnpm overrides:
+  - seroval / seroval-plugins: force patched 1.6.3 (fixes fromJSON thenable assimilation and related type confusion)
+  - source-map-js: force patched 1.2.2 (fixes event-loop DoS via indexed source-map section offsets)
+  - fastify: force patched 5.12.5 (fixes multiple advisories)
+  - @fastify/busboy: force patched 3.2.2
+  - brace-expansion: force patched 1.1.21 / 5.0.12 (fixes ReDoS)
+  - shell-quote: force patched 1.11.0 (fixes quote() command injection via line terminator)
+- ee58286: Improved Security Groups detail page layout and component structure. Enhanced `TwoColumnDescriptionList` with flexible column sizing and proper text truncation. Replaced custom tab buttons with Juno's `TabNavigation` component for consistency. Added fallback logic to prevent showing empty RBAC tab when permissions change. Reordered Basic Info fields to show Name first and added "General Information" heading.
+
 ## 2.1.1
 
 ### Patch Changes

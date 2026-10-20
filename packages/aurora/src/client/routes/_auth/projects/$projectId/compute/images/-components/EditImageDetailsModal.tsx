@@ -75,10 +75,28 @@ export const EditImageDetailsModal: React.FC<EditImageDetailsModalProps> = ({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target
 
-    setProperties((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }))
+    if (type === "number") {
+      // For number inputs, check if the input is invalid
+      if (value === "" || e.target.validity.valid === false) {
+        // Invalid number input - set error immediately
+        if (name === "min_disk") {
+          setErrors((prev) => ({ ...prev, min_disk: t`Please enter a valid positive number` }))
+        } else if (name === "min_ram") {
+          setErrors((prev) => ({ ...prev, min_ram: t`Please enter a valid positive number` }))
+        }
+        return // Don't update state with invalid value
+      }
+      const numValue = parseInt(value, 10)
+      setProperties((prev) => ({
+        ...prev,
+        [name]: numValue,
+      }))
+    } else {
+      setProperties((prev) => ({
+        ...prev,
+        [name]: type === "checkbox" ? checked : value,
+      }))
+    }
 
     // Clear error for this field
     if (errors[name]) {
@@ -103,26 +121,6 @@ export const EditImageDetailsModal: React.FC<EditImageDetailsModalProps> = ({
         delete newErrors[name]
         return newErrors
       })
-    }
-  }
-
-  const handleNumericChange = (name: string, value: string) => {
-    const numValue = value === "" ? 0 : parseInt(value, 10)
-
-    if (!isNaN(numValue)) {
-      setProperties((prev) => ({
-        ...prev,
-        [name]: numValue,
-      }))
-
-      // Clear error for this field
-      if (errors[name]) {
-        setErrors((prev) => {
-          const newErrors = { ...prev }
-          delete newErrors[name]
-          return newErrors
-        })
-      }
     }
   }
 
@@ -170,13 +168,15 @@ export const EditImageDetailsModal: React.FC<EditImageDetailsModalProps> = ({
 
     if (!properties.name || properties.name.trim() === "") {
       newErrors.name = t`Image name is required`
+    } else if (properties.name.length > 255) {
+      newErrors.name = t`Image name must be at most 255 characters`
     }
 
-    if (properties.min_disk < 0) {
+    if (isNaN(properties.min_disk) || properties.min_disk < 0) {
       newErrors.min_disk = t`Minimum disk must be 0 or greater`
     }
 
-    if (properties.min_ram < 0) {
+    if (isNaN(properties.min_ram) || properties.min_ram < 0) {
       newErrors.min_ram = t`Minimum RAM must be 0 or greater`
     }
 
@@ -236,6 +236,7 @@ export const EditImageDetailsModal: React.FC<EditImageDetailsModalProps> = ({
                 onChange={handleInputChange}
                 required
                 errortext={errors.name}
+                helptext={t`${properties.name.length}/255 characters`}
               />
             </FormRow>
 
@@ -304,11 +305,11 @@ export const EditImageDetailsModal: React.FC<EditImageDetailsModalProps> = ({
                 name="min_disk"
                 label={t`Minimum Disk (GB)`}
                 type="number"
+                min="0"
                 value={String(properties.min_disk)}
-                onChange={(e) => handleNumericChange("min_disk", e.target.value)}
+                onChange={handleInputChange}
                 helptext={t`Minimum disk size required to boot this image`}
                 errortext={errors.min_disk}
-                // min={0}
               />
             </FormRow>
 
@@ -318,11 +319,11 @@ export const EditImageDetailsModal: React.FC<EditImageDetailsModalProps> = ({
                 name="min_ram"
                 label={t`Minimum RAM (MB)`}
                 type="number"
+                min="0"
                 value={String(properties.min_ram)}
-                onChange={(e) => handleNumericChange("min_ram", e.target.value)}
+                onChange={handleInputChange}
                 helptext={t`Minimum RAM required to boot this image`}
                 errortext={errors.min_ram}
-                // min={0}
               />
             </FormRow>
           </FormSection>
