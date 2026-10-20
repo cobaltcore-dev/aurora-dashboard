@@ -359,6 +359,59 @@ describe("CreateImageModal", () => {
         expect(screen.getByText(/4\/255 characters/i)).toBeInTheDocument()
       })
     })
+
+    test("should reject scientific-notation input in numeric fields", async () => {
+      renderImageModal(true, mockOnClose, mockOnCreate)
+
+      const minDiskInput = screen.getByLabelText(/Min Disk/) as HTMLInputElement
+      // parseInt would silently truncate "1e5" to 1; the field must flag it instead
+      fireEvent.change(minDiskInput, { target: { value: "1e5" } })
+
+      await waitFor(() => {
+        expect(screen.getByText(/Please enter a valid positive number/i)).toBeInTheDocument()
+      })
+    })
+
+    test("should treat an empty numeric field as valid (optional)", async () => {
+      renderImageModal(true, mockOnClose, mockOnCreate)
+
+      const minDiskInput = screen.getByLabelText(/Min Disk/) as HTMLInputElement
+      // First make it invalid, then clear it — clearing should remove the error
+      fireEvent.change(minDiskInput, { target: { value: "1e5" } })
+      await waitFor(() => {
+        expect(screen.getByText(/Please enter a valid positive number/i)).toBeInTheDocument()
+      })
+
+      fireEvent.change(minDiskInput, { target: { value: "" } })
+      await waitFor(() => {
+        expect(screen.queryByText(/Please enter a valid positive number/i)).not.toBeInTheDocument()
+      })
+    })
+
+    test("should disable Create Image when an optional numeric field has a validation error", async () => {
+      const user = userEvent.setup()
+      renderImageModal(true, mockOnClose, mockOnCreate)
+
+      // Fill every required field so only the numeric error can block submission
+      const file = createMockFile()
+      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement
+      const nameInput = screen.getByLabelText(/^Image Name$/)
+      const diskFormatSelect = screen.getByLabelText(/^Disk Format$/)
+
+      await user.upload(fileInput, file)
+      await user.type(nameInput, "Test Image")
+      await user.click(diskFormatSelect)
+      await user.click(screen.getByText(/qcow2 - qemu emulator/i))
+
+      const createButton = screen.getByRole("button", { name: /Create Image/i })
+      await waitFor(() => expect(createButton).not.toBeDisabled())
+
+      // Introduce an invalid value in the optional Min Disk field
+      const minDiskInput = screen.getByLabelText(/Min Disk/) as HTMLInputElement
+      fireEvent.change(minDiskInput, { target: { value: "1e5" } })
+
+      await waitFor(() => expect(createButton).toBeDisabled())
+    })
   })
 
   describe("Form Submission", () => {

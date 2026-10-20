@@ -89,7 +89,7 @@ export const ImageMembersTable: React.FC<ImageMembersTableProps> = ({
       try {
         const project = await utils.project.getProject.fetch({ projectId: trimmedMemberId })
         if (!project) {
-          newErrors.memberId = t`Project not found or you don't have access to it.`
+          newErrors.memberId = t`Project not found.`
         }
       } catch {
         // Ignore validation errors - let backend handle it

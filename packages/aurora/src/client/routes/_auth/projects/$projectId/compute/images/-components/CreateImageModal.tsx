@@ -83,7 +83,9 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
     properties.container_format !== undefined &&
     properties.container_format.trim() !== "" &&
     properties.min_disk >= 0 &&
-    properties.min_ram >= 0
+    properties.min_ram >= 0 &&
+    // Also block submission while any field (including optional ones) has a validation error
+    Object.keys(errors).length === 0
 
   // Get compatible container formats for current disk_format
   const compatibleContainerFormats = useMemo(() => {
@@ -110,8 +112,22 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
     const { name, value, type, checked } = e.target
 
     if (type === "number") {
-      // For number inputs, check if the input is invalid
-      if (value === "" || e.target.validity.valid === false) {
+      // min_disk / min_ram are optional — an empty field is valid and means 0. Clear any error
+      // and reset to the default so the field (and the Create button) don't stay blocked.
+      if (value.trim() === "") {
+        setProperties((prev) => ({ ...prev, [name]: 0 }))
+        setErrors((prev) => {
+          const newErrors = { ...prev }
+          delete newErrors[name]
+          return newErrors
+        })
+        return
+      }
+      // Accept only plain non-negative integers. parseInt is too lenient — it truncates
+      // scientific notation (e.g. "1e5" -> 1), and type="number" treats "1e5" as valid — so
+      // validate the raw string ourselves instead of relying on parseInt / validity.valid.
+      const isNonNegativeInteger = /^\d+$/.test(value.trim())
+      if (!isNonNegativeInteger) {
         // Invalid number input - set error immediately
         if (name === "min_disk") {
           setErrors((prev) => ({ ...prev, min_disk: t`Please enter a valid positive number` }))

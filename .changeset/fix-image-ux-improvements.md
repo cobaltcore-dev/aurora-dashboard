@@ -12,3 +12,6 @@
 - Use default text color and size for restriction notices in bulk action modals
 - Show a "- -" placeholder for empty values in detail views
 - Explain why reserved/read-only metadata cannot be edited instead of showing a generic error
+- Keep Create Image disabled while any field (including optional) has a validation error
+- Reject scientific notation (e.g. `1e5`) in Min Disk / Min RAM; treat empty as 0
+- Clarify sharing error: a project may just not be found (sharing to projects you can't access is allowed)

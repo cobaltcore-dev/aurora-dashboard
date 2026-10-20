@@ -3064,8 +3064,8 @@ msgstr "Project Not Accessible"
 msgid "Project Not Found"
 msgstr "Project Not Found"
 
-msgid "Project not found or you don't have access to it."
-msgstr "Project not found or you don't have access to it."
+msgid "Project not found."
+msgstr "Project not found."
 
 msgid "Projects"
 msgstr "Projects"
