@@ -2758,6 +2758,9 @@ msgstr "Keine Richtlinien entsprechen Ihrer Suche"
 msgid "No Policy Found"
 msgstr ""
 
+msgid "No Project Access"
+msgstr ""
+
 msgid "No project access configured."
 msgstr "Kein Projektzugriff konfiguriert."
 

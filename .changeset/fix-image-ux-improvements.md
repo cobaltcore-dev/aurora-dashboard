@@ -13,10 +13,12 @@
 - Show a "- -" placeholder for empty values in detail views
 - Explain why reserved/read-only metadata cannot be edited instead of showing a generic error
 - Keep Create Image disabled while any field (including optional) has a validation error
-- Reject scientific notation (e.g. `1e5`) in Min Disk / Min RAM; treat empty as 0
+- Reject scientific notation (e.g. `1e5`) in Min Disk / Min RAM; allow only digits 0-9 and treat empty as 0
 - Clarify sharing error: a project may just not be found (sharing to projects you can't access is allowed)
 - Show the images list loading indicator as a full-width grid row
 - Fall empty names back to "- -" in image action modals (ID is shown separately)
 - Replace remaining "N/A" placeholders with "- -" across image rows, details, and modals
 - Use theme tokens instead of raw palette colors in the Create Image modal (dark-mode safe)
 - Reorder Create Image fields so Disk/Container Format sit with the file, grouping required fields
+- Use the Status component for the empty state in Manage Image Access
+- Fix image sharing validation - remove blocking Keystone check

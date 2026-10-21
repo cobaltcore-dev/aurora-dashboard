@@ -112,11 +112,20 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
     const { name, value, type, checked } = e.target
 
     if (type === "number") {
-      // min_disk / min_ram are optional — an empty field is valid and means 0. Clear any error
-      // and reset to the default so the field (and the Create button) don't stay blocked.
-      // Bad input (e.g. "1e", "-") also surfaces value="" but sets validity.badInput, so exclude
-      // it here and let it fall through to the validation branch below.
-      if (value.trim() === "" && !e.target.validity.badInput) {
+      // type="number" blanks e.target.value for input it can't parse (e.g. "1e", "e-25", "-")
+      // and sets validity.badInput instead. Check badInput FIRST so such input is always treated
+      // as an error — never mistaken for a deliberate clear or a valid number.
+      if (e.target.validity.badInput) {
+        if (name === "min_disk") {
+          setErrors((prev) => ({ ...prev, min_disk: t`Please enter a valid positive number` }))
+        } else if (name === "min_ram") {
+          setErrors((prev) => ({ ...prev, min_ram: t`Please enter a valid positive number` }))
+        }
+        return
+      }
+      // min_disk / min_ram are optional — a genuinely empty field is valid and means 0. Clear any
+      // error and reset to the default so the field (and the Create button) don't stay blocked.
+      if (value.trim() === "") {
         setProperties((prev) => ({ ...prev, [name]: 0 }))
         setErrors((prev) => {
           const newErrors = { ...prev }
@@ -169,6 +178,19 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
       } else if (value.length > 255) {
         setErrors((prev) => ({ ...prev, name: t`Image name must be at most 255 characters` }))
       }
+    }
+  }
+
+  const handleNumericKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // min_disk / min_ram accept only non-negative integers, so allow only the digits 0-9.
+    // Everything else type="number" would otherwise accept ("e", "E", "+", "-", ".") leaves the
+    // field in a badInput state the change handler can't reliably see, so block it at the
+    // keystroke. Editing/navigation keys and shortcuts (Backspace, arrows, Ctrl+V, …) are let
+    // through — they are not single printable characters.
+    const isSingleChar = e.key.length === 1
+    const isModifierCombo = e.ctrlKey || e.metaKey || e.altKey
+    if (isSingleChar && !isModifierCombo && !/^[0-9]$/.test(e.key)) {
+      e.preventDefault()
     }
   }
 
@@ -672,6 +694,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
                     min="0"
                     value={String(properties.min_disk)}
                     onChange={handleInputChange}
+                    onKeyDown={handleNumericKeyDown}
                     onBlur={() => handleNumericBlur("min_disk", properties.min_disk)}
                     helptext={t`Boot size`}
                     errortext={errors.min_disk}
@@ -687,6 +710,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
                     min="0"
                     value={String(properties.min_ram)}
                     onChange={handleInputChange}
+                    onKeyDown={handleNumericKeyDown}
                     onBlur={() => handleNumericBlur("min_ram", properties.min_ram)}
                     helptext={t`Boot RAM`}
                     errortext={errors.min_ram}
