@@ -48,6 +48,7 @@ export const RouterTableRow = ({ router }: RouterTableRowProps) => {
       <DataGridCell>
         <TwoLineCell primary={router.name || router.id} secondary={router.name ? router.id : undefined} />
       </DataGridCell>
+      <DataGridCell>{router.status}</DataGridCell>
       <DataGridCell>
         {gateway ? <span className="break-all">{gateway.network_name || gateway.network_id}</span> : "–"}
       </DataGridCell>
@@ -79,7 +80,6 @@ export const RouterTableRow = ({ router }: RouterTableRowProps) => {
           "–"
         )}
       </DataGridCell>
-      <DataGridCell>{router.status}</DataGridCell>
       <DataGridCell onClick={(e) => e.stopPropagation()}>
         <PopupMenu>
           <PopupMenuToggle as="div">
