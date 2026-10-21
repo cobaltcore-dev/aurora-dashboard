@@ -83,7 +83,12 @@ export const RouterTableRow = ({ router }: RouterTableRowProps) => {
       <DataGridCell onClick={(e) => e.stopPropagation()}>
         <PopupMenu>
           <PopupMenuToggle as="div">
-            <Button icon="moreVert" title={t`Router actions`} aria-label={t`Router actions`} className="!bg-transparent" />
+            <Button
+              icon="moreVert"
+              title={t`Router actions`}
+              aria-label={t`Router actions`}
+              className="!bg-transparent"
+            />
           </PopupMenuToggle>
           <PopupMenuOptions>
             <PopupMenuItem label={t`Show Details`} onClick={navigateToDetailsPage} />
