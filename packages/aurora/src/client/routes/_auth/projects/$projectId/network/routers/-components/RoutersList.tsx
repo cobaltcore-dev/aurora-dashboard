@@ -4,7 +4,7 @@ import { ErrorBoundary } from "react-error-boundary"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { TRPCClientError } from "@trpc/client"
 import { TrpcClient } from "@/client/trpcClient"
-import { Button, Stack, DataGridToolbar, SearchInput, Status } from "@cloudoperators/juno-ui-components"
+import { Button, Message, Stack, DataGridToolbar, SearchInput, Status } from "@cloudoperators/juno-ui-components"
 import type { RouterListItem, RouterQueryParameters } from "@/server/Network/types/router"
 import { SortInput } from "@/client/components/ListToolbar/SortInput"
 import { SortSettings } from "@/client/components/ListToolbar/types"
@@ -26,7 +26,7 @@ type RequiredSortSettings = {
   sortDirection: "asc" | "desc"
 }
 
-type RoutersResult = { routers: RouterListItem[]; listError?: string }
+type RoutersResult = { routers: RouterListItem[]; forbidden?: boolean }
 
 const createRoutersPromise = (
   client: TrpcClient,
@@ -37,10 +37,12 @@ const createRoutersPromise = (
 ): Promise<RoutersResult> => {
   return client.network.routers.list
     .query({ project_id: project, sort_key: sortBy, sort_dir: sortDirection, searchTerm: searchTerm || undefined })
-    .then((routers) => ({ routers, listError: undefined }))
+    .then((routers) => ({ routers, forbidden: false }))
     .catch((err: unknown) => {
+      // 403 is an expected "no access" state, not a failure: render it as a page-level info message
+      // (B.6) rather than letting it reach the error boundary.
       if (err instanceof TRPCClientError && err.data?.code === "FORBIDDEN") {
-        return { routers: [], listError: err.message }
+        return { routers: [], forbidden: true }
       }
       throw err
     })
@@ -67,7 +69,7 @@ function RoutersContent({
   isStale: boolean
 }) {
   const { t } = useLingui()
-  const { routers, listError } = use(routersPromise)
+  const { routers, forbidden } = use(routersPromise)
   const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm)
   const debounceTimer = useRef<number | undefined>(undefined)
   // Last term this input sent to the URL, so only external URL changes (back/forward, links) overwrite the input
@@ -98,8 +100,12 @@ function RoutersContent({
     if (!isStale && currentPage > totalPages) onPageChange(1)
   }, [isStale, totalPages, currentPage, onPageChange])
 
-  if (listError) {
-    return <Status status="error" title={t`Failed to Load Routers`} body={listError} />
+  if (forbidden) {
+    return (
+      <Message variant="info" title={t`Insufficient Permissions`}>
+        <Trans>You do not have the required permissions to view routers in this project.</Trans>
+      </Message>
+    )
   }
 
   return (
