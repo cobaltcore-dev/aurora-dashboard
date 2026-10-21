@@ -6,7 +6,12 @@ import type { RouteInfo } from "@/client/routes/routeInfo"
 import { useSetBreadcrumb } from "@/client/hooks/useSetBreadcrumb"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import { RouteIdLevelDefaultError } from "@/client/components/Errors/RouteIdLevelDefaultError"
-import { RouterDetailsView } from "./-components/RouterDetailsView"
+import {
+  RouterDetailsView,
+  DEFAULT_ROUTER_DETAILS_TAB,
+  isRouterDetailsTab,
+  type RouterDetailsTab,
+} from "./-components/RouterDetailsView"
 
 const ROUTE_ID = "/_auth/projects/$projectId/network/routers/$routerId"
 
@@ -114,7 +119,12 @@ function RouterErrorComponent({ error, reset }: ErrorComponentProps) {
   return <RouterLoadError error={error} onRetry={handleRetry} />
 }
 
-export const Route = createFileRoute(ROUTE_ID)({
+export type RouterDetailsSearchParams = {
+  /** Active details tab; omitted for the default tab */
+  tab?: RouterDetailsTab
+}
+
+export const Route = createFileRoute("/_auth/projects/$projectId/network/routers/$routerId")({
   staticData: {
     section: "network",
     service: "routers",
@@ -122,6 +132,10 @@ export const Route = createFileRoute(ROUTE_ID)({
       name: "network.routers.detail",
     },
   } satisfies RouteInfo,
+  // Unknown tab values are dropped, so the view falls back to the default tab
+  validateSearch: (search: Record<string, unknown>): RouterDetailsSearchParams => ({
+    tab: isRouterDetailsTab(search.tab) ? search.tab : undefined,
+  }),
   // Only resolves the page title. Failures are rendered by the component's query,
   // which knows the actual tRPC error code and supports retry.
   loader: async ({ context, params }) => {
@@ -144,7 +158,17 @@ export const Route = createFileRoute(ROUTE_ID)({
 
 function RouteComponent() {
   const { projectId, routerId } = useParams({ from: ROUTE_ID })
+  const { tab: activeTab = DEFAULT_ROUTER_DETAILS_TAB } = Route.useSearch()
+  const navigate = useNavigate({ from: Route.fullPath })
   const { t } = useLingui()
+
+  // Replace instead of push: switching tabs shouldn't add history entries, so Back returns to the list
+  const handleTabChange = (tab: RouterDetailsTab) => {
+    navigate({
+      search: (prev) => ({ ...prev, tab: tab === DEFAULT_ROUTER_DETAILS_TAB ? undefined : tab }),
+      replace: true,
+    })
+  }
 
   const {
     data: router,
@@ -169,7 +193,7 @@ function RouteComponent() {
   return (
     <>
       <ContentHeader title={router.name || router.id} projectId={projectId} />
-      <RouterDetailsView router={router} />
+      <RouterDetailsView router={router} activeTab={activeTab} onTabChange={handleTabChange} />
     </>
   )
 }

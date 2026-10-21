@@ -188,8 +188,10 @@ describe("Routers", () => {
       } as never)
       await renderList(vi.fn().mockRejectedValue(forbidden))
 
-      expect(await screen.findByText("You are not allowed to list routers")).toBeInTheDocument()
-      expect(screen.getByText("Failed to Load Routers")).toBeInTheDocument()
+      expect(
+        await screen.findByText("You do not have the required permissions to view routers in this project.")
+      ).toBeInTheDocument()
+      expect(screen.getByText("Insufficient Permissions")).toBeInTheDocument()
       expect(screen.queryByTestId("router-list-container")).not.toBeInTheDocument()
     })
 
@@ -254,7 +256,7 @@ describe("Routers", () => {
       } as never)
       await renderList(vi.fn().mockRejectedValue(forbidden))
 
-      await screen.findByText("You are not allowed to list routers")
+      await screen.findByText("You do not have the required permissions to view routers in this project.")
       expect(screen.queryByRole("button", { name: "Try Again" })).not.toBeInTheDocument()
     })
   })

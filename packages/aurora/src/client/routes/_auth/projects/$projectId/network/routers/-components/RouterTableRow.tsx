@@ -1,11 +1,13 @@
 import { useNavigate } from "@tanstack/react-router"
 import { useLingui } from "@lingui/react/macro"
 import {
+  Button,
   DataGridCell,
   DataGridRow,
   PopupMenu,
   PopupMenuItem,
   PopupMenuOptions,
+  PopupMenuToggle,
   Stack,
 } from "@cloudoperators/juno-ui-components"
 import type { RouterListItem } from "@/server/Network/types/router"
@@ -46,6 +48,7 @@ export const RouterTableRow = ({ router }: RouterTableRowProps) => {
       <DataGridCell>
         <TwoLineCell primary={router.name || router.id} secondary={router.name ? router.id : undefined} />
       </DataGridCell>
+      <DataGridCell>{router.status}</DataGridCell>
       <DataGridCell>
         {gateway ? <span className="break-all">{gateway.network_name || gateway.network_id}</span> : "–"}
       </DataGridCell>
@@ -77,9 +80,16 @@ export const RouterTableRow = ({ router }: RouterTableRowProps) => {
           "–"
         )}
       </DataGridCell>
-      <DataGridCell>{router.status}</DataGridCell>
       <DataGridCell onClick={(e) => e.stopPropagation()}>
         <PopupMenu>
+          <PopupMenuToggle as="div">
+            <Button
+              icon="moreVert"
+              title={t`Router actions`}
+              aria-label={t`Router actions`}
+              className="!bg-transparent"
+            />
+          </PopupMenuToggle>
           <PopupMenuOptions>
             <PopupMenuItem label={t`Show Details`} onClick={navigateToDetailsPage} />
           </PopupMenuOptions>

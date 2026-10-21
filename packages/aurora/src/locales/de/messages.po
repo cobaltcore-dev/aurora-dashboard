@@ -616,6 +616,9 @@ msgstr "Zurück zu Floating IPs"
 msgid "Back to Images"
 msgstr "Zurück zu Images"
 
+msgid "Back to Ports"
+msgstr ""
+
 msgid "Back to Routers"
 msgstr ""
 
@@ -1120,6 +1123,9 @@ msgstr "Security Group erstellen"
 msgid "Created"
 msgstr "Erstellt"
 
+msgid "Created at"
+msgstr ""
+
 msgid "Created At"
 msgstr "Erstellt am"
 
@@ -1350,6 +1356,9 @@ msgstr "Geräte-ID"
 
 msgid "Device Owner"
 msgstr "Geräteeigentümer"
+
+msgid "Device Owner / ID"
+msgstr ""
 
 msgid "Direction"
 msgstr "Richtung"
@@ -1630,6 +1639,9 @@ msgstr ""
 msgid "Error Loading Image"
 msgstr ""
 
+msgid "Error Loading Port"
+msgstr ""
+
 msgid "Error Loading Router"
 msgstr ""
 
@@ -1900,6 +1912,9 @@ msgstr ""
 msgid "Failed to Load Policy"
 msgstr ""
 
+msgid "Failed to Load Ports"
+msgstr ""
+
 msgid "Failed to Load Routers"
 msgstr ""
 
@@ -2006,6 +2021,9 @@ msgid "Fixed IP Address"
 msgstr "Feste IP-Adresse"
 
 msgid "Fixed IPs"
+msgstr ""
+
+msgid "Fixed IPs / Subnet"
 msgstr ""
 
 msgid "Flavor \"{name}\" was successfully created."
@@ -2326,6 +2344,9 @@ msgstr "IP-Version"
 msgid "IP:"
 msgstr ""
 
+msgid "IPs"
+msgstr ""
+
 msgid "IPv4 or IPv6 CIDR, e.g. 10.0.0.0/24 or ::/0. Leave empty to allow any IPv4 address."
 msgstr ""
 
@@ -2482,6 +2503,12 @@ msgstr ""
 msgid "Loading Policy..."
 msgstr ""
 
+msgid "Loading Port Details..."
+msgstr ""
+
+msgid "Loading Ports..."
+msgstr ""
+
 msgid "Loading preview..."
 msgstr "Vorschau wird geladen..."
 
@@ -2504,6 +2531,9 @@ msgid "Loading..."
 msgstr "Lädt..."
 
 msgid "Loading…"
+msgstr ""
+
+msgid "MAC"
 msgstr ""
 
 msgid "MAC Address"
@@ -2647,6 +2677,9 @@ msgstr "keine Angabe"
 msgid "Name"
 msgstr "Name"
 
+msgid "Name / ID"
+msgstr ""
+
 msgid "Name must be 2-50 characters long."
 msgstr "Der Name muss 2-50 Zeichen lang sein."
 
@@ -2756,6 +2789,12 @@ msgid "No policies match your search"
 msgstr "Keine Richtlinien entsprechen Ihrer Suche"
 
 msgid "No Policy Found"
+msgstr ""
+
+msgid "No Ports Found"
+msgstr ""
+
+msgid "No ports match your search. Clear the search to view all ports."
 msgstr ""
 
 msgid "No project access configured."
@@ -2998,6 +3037,9 @@ msgstr "Port (von)"
 msgid "Port (to)"
 msgstr "Port (bis)"
 
+msgid "Port actions"
+msgstr ""
+
 msgid "Port Forwarding"
 msgstr "Port Forwarding"
 
@@ -3007,8 +3049,14 @@ msgstr "Port-ID"
 msgid "Port Name"
 msgstr "Port-Name"
 
+msgid "Port Not Found"
+msgstr ""
+
 msgid "Port Range"
 msgstr "Port-Bereich"
+
+msgid "Ports"
+msgstr ""
 
 msgid "Pre-signed URL"
 msgstr "Vorsignierte URL"
@@ -3325,6 +3373,9 @@ msgstr ""
 msgid "Search objects..."
 msgstr "Objekte suchen..."
 
+msgid "Search ports..."
+msgstr ""
+
 msgid "Search RBAC policies..."
 msgstr ""
 
@@ -3491,6 +3542,9 @@ msgid "Services"
 msgstr "Services"
 
 msgid "Session Changed"
+msgstr ""
+
+msgid "Session Expired"
 msgstr ""
 
 msgid "Session expires in"
@@ -3814,6 +3868,12 @@ msgstr "Die gesuchte Seite existiert nicht."
 msgid "The page you're looking for doesn't exist or may have moved. Check the URL or return to the home page."
 msgstr ""
 
+msgid "The port could not be loaded."
+msgstr ""
+
+msgid "The port could not be loaded. Try again."
+msgstr ""
+
 msgid "The project you are looking for doesn't exist or you don't have access to it."
 msgstr ""
 
@@ -3902,6 +3962,12 @@ msgid "There Are No Lifecycle Rules for This Bucket"
 msgstr ""
 
 msgid "There are no pending shared images for this project with the current filters applied. Try adjusting your filter criteria or check the All Images tab."
+msgstr ""
+
+msgid "There are no ports in this project."
+msgstr ""
+
+msgid "There are no ports on this network."
 msgstr ""
 
 msgid "There are no RBAC policies for this security group"
@@ -4049,6 +4115,9 @@ msgid "This object and all its versions will be permanently deleted and cannot b
 msgstr ""
 
 msgid "This object storage service does not exist or is not available for this project."
+msgstr ""
+
+msgid "This port does not exist or has been deleted."
 msgstr ""
 
 msgid "This project already has access"
@@ -4200,6 +4269,9 @@ msgstr "Objekt aktualisieren"
 
 msgid "Update Security Group"
 msgstr "Security Group aktualisieren"
+
+msgid "Updated at"
+msgstr ""
 
 msgid "Updated At"
 msgstr "Aktualisiert am"
@@ -4402,6 +4474,12 @@ msgstr "Sie können das Objekt umbenennen, indem Sie den Namen hier ändern."
 msgid "You do not have permission to view security groups"
 msgstr ""
 
+msgid "You do not have the required permissions to access this port."
+msgstr ""
+
+msgid "You do not have the required permissions to view ports in this project."
+msgstr ""
+
 msgid "You don't have permission to access flavor access information for this flavor."
 msgstr "Sie haben keine Berechtigung, auf die Zugriffsinformationen für diesen Flavor zuzugreifen."
 
@@ -4455,6 +4533,9 @@ msgstr ""
 
 msgid "Your session has expired. Please log in again."
 msgstr "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an."
+
+msgid "Your session has expired. Sign in again to continue."
+msgstr ""
 
 msgid "Your session was changed or ended in another browser tab. This can happen if you logged out or switched to a different account or domain elsewhere. Log in again to continue."
 msgstr ""

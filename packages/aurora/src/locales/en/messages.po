@@ -616,6 +616,9 @@ msgstr "Back to Floating IPs"
 msgid "Back to Images"
 msgstr "Back to Images"
 
+msgid "Back to Ports"
+msgstr "Back to Ports"
+
 msgid "Back to Routers"
 msgstr "Back to Routers"
 
@@ -1120,6 +1123,9 @@ msgstr "Create Security Group"
 msgid "Created"
 msgstr "Created"
 
+msgid "Created at"
+msgstr "Created at"
+
 msgid "Created At"
 msgstr "Created At"
 
@@ -1350,6 +1356,9 @@ msgstr "Device ID"
 
 msgid "Device Owner"
 msgstr "Device Owner"
+
+msgid "Device Owner / ID"
+msgstr "Device Owner / ID"
 
 msgid "Direction"
 msgstr "Direction"
@@ -1630,6 +1639,9 @@ msgstr "Error Loading Floating IP"
 msgid "Error Loading Image"
 msgstr "Error Loading Image"
 
+msgid "Error Loading Port"
+msgstr "Error Loading Port"
+
 msgid "Error Loading Router"
 msgstr "Error Loading Router"
 
@@ -1900,6 +1912,9 @@ msgstr "Failed to Load Objects"
 msgid "Failed to Load Policy"
 msgstr "Failed to Load Policy"
 
+msgid "Failed to Load Ports"
+msgstr "Failed to Load Ports"
+
 msgid "Failed to Load Routers"
 msgstr "Failed to Load Routers"
 
@@ -2007,6 +2022,9 @@ msgstr "Fixed IP Address"
 
 msgid "Fixed IPs"
 msgstr "Fixed IPs"
+
+msgid "Fixed IPs / Subnet"
+msgstr "Fixed IPs / Subnet"
 
 msgid "Flavor \"{name}\" was successfully created."
 msgstr "Flavor \"{name}\" was successfully created."
@@ -2326,6 +2344,9 @@ msgstr "IP Version"
 msgid "IP:"
 msgstr "IP:"
 
+msgid "IPs"
+msgstr "IPs"
+
 msgid "IPv4 or IPv6 CIDR, e.g. 10.0.0.0/24 or ::/0. Leave empty to allow any IPv4 address."
 msgstr "IPv4 or IPv6 CIDR, e.g. 10.0.0.0/24 or ::/0. Leave empty to allow any IPv4 address."
 
@@ -2482,6 +2503,12 @@ msgstr "Loading Permissions..."
 msgid "Loading Policy..."
 msgstr "Loading Policy..."
 
+msgid "Loading Port Details..."
+msgstr "Loading Port Details..."
+
+msgid "Loading Ports..."
+msgstr "Loading Ports..."
+
 msgid "Loading preview..."
 msgstr "Loading preview..."
 
@@ -2505,6 +2532,9 @@ msgstr "Loading..."
 
 msgid "Loading…"
 msgstr "Loading…"
+
+msgid "MAC"
+msgstr "MAC"
 
 msgid "MAC Address"
 msgstr "MAC Address"
@@ -2647,6 +2677,9 @@ msgstr "N/A"
 msgid "Name"
 msgstr "Name"
 
+msgid "Name / ID"
+msgstr "Name / ID"
+
 msgid "Name must be 2-50 characters long."
 msgstr "Name must be 2-50 characters long."
 
@@ -2757,6 +2790,12 @@ msgstr "No policies match your search"
 
 msgid "No Policy Found"
 msgstr "No Policy Found"
+
+msgid "No Ports Found"
+msgstr "No Ports Found"
+
+msgid "No ports match your search. Clear the search to view all ports."
+msgstr "No ports match your search. Clear the search to view all ports."
 
 msgid "No project access configured."
 msgstr "No project access configured."
@@ -2998,6 +3037,9 @@ msgstr "Port (from)"
 msgid "Port (to)"
 msgstr "Port (to)"
 
+msgid "Port actions"
+msgstr "Port actions"
+
 msgid "Port Forwarding"
 msgstr "Port Forwarding"
 
@@ -3007,8 +3049,14 @@ msgstr "Port ID"
 msgid "Port Name"
 msgstr "Port Name"
 
+msgid "Port Not Found"
+msgstr "Port Not Found"
+
 msgid "Port Range"
 msgstr "Port Range"
+
+msgid "Ports"
+msgstr "Ports"
 
 msgid "Pre-signed URL"
 msgstr "Pre-signed URL"
@@ -3325,6 +3373,9 @@ msgstr "Search lifecycle rules..."
 msgid "Search objects..."
 msgstr "Search objects..."
 
+msgid "Search ports..."
+msgstr "Search ports..."
+
 msgid "Search RBAC policies..."
 msgstr "Search RBAC policies..."
 
@@ -3492,6 +3543,9 @@ msgstr "Services"
 
 msgid "Session Changed"
 msgstr "Session Changed"
+
+msgid "Session Expired"
+msgstr "Session Expired"
 
 msgid "Session expires in"
 msgstr "Session expires in"
@@ -3814,6 +3868,12 @@ msgstr "The page you are looking for does not exist."
 msgid "The page you're looking for doesn't exist or may have moved. Check the URL or return to the home page."
 msgstr "The page you're looking for doesn't exist or may have moved. Check the URL or return to the home page."
 
+msgid "The port could not be loaded."
+msgstr "The port could not be loaded."
+
+msgid "The port could not be loaded. Try again."
+msgstr "The port could not be loaded. Try again."
+
 msgid "The project you are looking for doesn't exist or you don't have access to it."
 msgstr "The project you are looking for doesn't exist or you don't have access to it."
 
@@ -3903,6 +3963,12 @@ msgstr "There Are No Lifecycle Rules for This Bucket"
 
 msgid "There are no pending shared images for this project with the current filters applied. Try adjusting your filter criteria or check the All Images tab."
 msgstr "There are no pending shared images for this project with the current filters applied. Try adjusting your filter criteria or check the All Images tab."
+
+msgid "There are no ports in this project."
+msgstr "There are no ports in this project."
+
+msgid "There are no ports on this network."
+msgstr "There are no ports on this network."
 
 msgid "There are no RBAC policies for this security group"
 msgstr "There are no RBAC policies for this security group"
@@ -4050,6 +4116,9 @@ msgstr "This object and all its versions will be permanently deleted and cannot 
 
 msgid "This object storage service does not exist or is not available for this project."
 msgstr "This object storage service does not exist or is not available for this project."
+
+msgid "This port does not exist or has been deleted."
+msgstr "This port does not exist or has been deleted."
 
 msgid "This project already has access"
 msgstr "This project already has access"
@@ -4200,6 +4269,9 @@ msgstr "Update object"
 
 msgid "Update Security Group"
 msgstr "Update Security Group"
+
+msgid "Updated at"
+msgstr "Updated at"
 
 msgid "Updated At"
 msgstr "Updated At"
@@ -4402,6 +4474,12 @@ msgstr "You can rename the object by changing the name here."
 msgid "You do not have permission to view security groups"
 msgstr "You do not have permission to view security groups"
 
+msgid "You do not have the required permissions to access this port."
+msgstr "You do not have the required permissions to access this port."
+
+msgid "You do not have the required permissions to view ports in this project."
+msgstr "You do not have the required permissions to view ports in this project."
+
 msgid "You don't have permission to access flavor access information for this flavor."
 msgstr "You don't have permission to access flavor access information for this flavor."
 
@@ -4455,6 +4533,9 @@ msgstr "Your credentials are valid but you don't have permission to perform this
 
 msgid "Your session has expired. Please log in again."
 msgstr "Your session has expired. Please log in again."
+
+msgid "Your session has expired. Sign in again to continue."
+msgstr "Your session has expired. Sign in again to continue."
 
 msgid "Your session was changed or ended in another browser tab. This can happen if you logged out or switched to a different account or domain elsewhere. Log in again to continue."
 msgstr "Your session was changed or ended in another browser tab. This can happen if you logged out or switched to a different account or domain elsewhere. Log in again to continue."
