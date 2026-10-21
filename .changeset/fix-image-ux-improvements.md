@@ -21,4 +21,3 @@
 - Use theme tokens instead of raw palette colors in the Create Image modal (dark-mode safe)
 - Reorder Create Image fields so Disk/Container Format sit with the file, grouping required fields
 - Use the Status component for the empty state in Manage Image Access
-- Fix image sharing validation - remove blocking Keystone check
