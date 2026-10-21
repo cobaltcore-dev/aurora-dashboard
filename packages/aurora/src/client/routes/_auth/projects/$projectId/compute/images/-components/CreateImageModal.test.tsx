@@ -291,7 +291,7 @@ describe("CreateImageModal", () => {
         expect(screen.getByText("test-image.qcow2")).toBeInTheDocument()
       })
 
-      const removeButton = screen.getByText("Remove")
+      const removeButton = screen.getByRole("button", { name: "Remove" })
       await user.click(removeButton)
 
       expect(screen.queryByText("test-image.qcow2")).not.toBeInTheDocument()

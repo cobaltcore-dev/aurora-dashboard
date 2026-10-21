@@ -21,3 +21,4 @@
 - Use theme tokens instead of raw palette colors in the Create Image modal (dark-mode safe)
 - Reorder Create Image fields so Disk/Container Format sit with the file, grouping required fields
 - Use the Status component for the empty state in Manage Image Access
+- Use a neutral Juno Box with a close (X) button for the selected image file (no success icon or colors)

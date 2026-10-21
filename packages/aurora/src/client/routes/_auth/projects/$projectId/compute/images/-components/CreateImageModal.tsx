@@ -14,6 +14,8 @@ import {
   Stack,
   Pill,
   Message,
+  Box,
+  Icon,
 } from "@cloudoperators/juno-ui-components"
 import { CreateImageInput } from "@/server/Compute/types/image"
 import {
@@ -520,19 +522,13 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
                   </label>
                 </div>
                 {selectedFile && (
-                  <div className="border-theme-success bg-theme-box-success mt-2 flex items-center justify-between rounded-lg border p-2 text-xs">
-                    <div className="flex items-center">
-                      <svg className="text-theme-success mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path
-                          fillRule="evenodd"
-                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                      <span className="text-theme-default">{selectedFile.name}</span>
-                    </div>
-                    <button
-                      type="button"
+                  <Box className="mt-2 flex items-center justify-between text-xs">
+                    <span className="text-theme-default">{selectedFile.name}</span>
+                    <Icon
+                      icon="close"
+                      size="18"
+                      title={t`Remove`}
+                      disabled={isLoading}
                       onClick={() => {
                         setSelectedFile(null)
                         // Clear file error when removing file
@@ -544,12 +540,8 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
                           })
                         }
                       }}
-                      className="text-theme-error font-medium"
-                      disabled={isLoading}
-                    >
-                      {t`Remove`}
-                    </button>
-                  </div>
+                    />
+                  </Box>
                 )}
                 {errors.file && <p className="text-theme-error mt-1 text-xs">{errors.file}</p>}
               </div>
