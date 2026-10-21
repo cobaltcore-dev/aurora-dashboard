@@ -80,7 +80,7 @@ export const PortTableRow = ({ port, showNetwork = true }: PortTableRowProps) =>
       <DataGridCell onClick={(e) => e.stopPropagation()}>
         <PopupMenu>
           <PopupMenuToggle as="div">
-            <Button icon="moreVert" title={t`Port actions`} aria-label={t`Port actions`} />
+            <Button icon="moreVert" title={t`Port actions`} aria-label={t`Port actions`} className="!bg-transparent" />
           </PopupMenuToggle>
           <PopupMenuOptions>
             <PopupMenuItem label={t`Show Details`} onClick={navigateToDetailsPage} />
