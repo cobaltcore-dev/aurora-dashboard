@@ -1,9 +1,9 @@
 import { render, screen, fireEvent } from "@testing-library/react"
-import { describe, it, expect, vi, beforeAll, beforeEach } from "vitest"
+import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from "vitest"
 import { ReactNode } from "react"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
-import { PortalProvider, NotificationManager } from "@cloudoperators/juno-ui-components"
+import { PortalProvider, NotificationManager, toast } from "@cloudoperators/juno-ui-components"
 import type { GlanceImage } from "@/server/Compute/types/image"
 import { ImageTableRow } from "./ImageTableRow"
 
@@ -117,6 +117,10 @@ describe("ImageTableRow", () => {
     vi.clearAllMocks()
     mockIsPending = false
     i18n.activate("en")
+  })
+
+  afterEach(() => {
+    toast.dismiss()
   })
 
   describe("rendering", () => {
