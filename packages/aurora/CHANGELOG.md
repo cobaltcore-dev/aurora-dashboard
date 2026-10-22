@@ -1,5 +1,24 @@
 # @cobaltcore-dev/aurora
 
+## 2.3.0
+
+### Minor Changes
+
+- c65b36d: Consume TanStack Intent skills published by `@cloudoperators/juno-ui-components` (bumped to 9.7.1). Set up Intent as a consumer at the monorepo root: `@tanstack/intent` dev dependency, an `intent.skills` allowlist, and skill-loading guidance in `AGENTS.md`.
+
+  Also fix `routeTree.gen.ts` not being generated on `pnpm run dev` by adding the TanStack Router plugin to the dashboard's Vite config and inlining the `network/routers/$routerId` route id as a string literal (the generator rejects a variable).
+
+### Patch Changes
+
+- a21ba3e: Fix image sharing validation - remove blocking Keystone check
+- a21ba3e: - Exclude pending/rejected shared images from All Images view
+  - Show permission-based restrictions in bulk action modals
+  - Validate project existence when sharing images
+  - Add 255-char limit to image names (create + update)
+  - Enable direct page navigation (e.g. `?page=6`)
+  - Disable bulk actions button when no items selected
+  - Add context-specific empty state messages
+
 ## 2.2.0
 
 ### Minor Changes
