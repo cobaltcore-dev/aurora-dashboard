@@ -114,7 +114,7 @@ function RouterErrorComponent({ error, reset }: ErrorComponentProps) {
   return <RouterLoadError error={error} onRetry={handleRetry} />
 }
 
-export const Route = createFileRoute(ROUTE_ID)({
+export const Route = createFileRoute("/_auth/projects/$projectId/network/routers/$routerId")({
   staticData: {
     section: "network",
     service: "routers",

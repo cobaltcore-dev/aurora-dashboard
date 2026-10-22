@@ -6,6 +6,7 @@ import tailwindcss from "@tailwindcss/vite"
 import svgr from "vite-plugin-svgr"
 import viteFastify from "@fastify/vite/plugin"
 import { viteStaticCopy } from "vite-plugin-static-copy"
+import { tanstackRouter } from "@tanstack/router-plugin/vite"
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -37,6 +38,21 @@ export default defineConfig(({ mode }) => ({
     // In production aurora's pre-built dist already has these baked in.
     mode !== "production" && tailwindcss(),
     mode !== "production" && svgr(),
+    // In dev the dashboard serves aurora's source (via the alias above), including
+    // its file-based routes, so the dashboard must run the TanStack Router plugin
+    // to generate routeTree.gen.ts. The paths point at the aurora package since
+    // that is where the routes and the generated tree live (router.ts imports it).
+    // In production the published aurora dist already ships a baked route tree.
+    mode !== "production" &&
+      tanstackRouter({
+        target: "react",
+        autoCodeSplitting: true,
+        routesDirectory: path.resolve(auroraRoot, "src/client/routes"),
+        generatedRouteTree: path.resolve(auroraRoot, "src/client/routeTree.gen.ts"),
+        quoteStyle: "double",
+        routeFileIgnorePrefix: "-",
+        routeFileIgnorePattern: "test",
+      }),
     react({
       plugins: mode !== "production" ? [["@lingui/swc-plugin", {}]] : [],
     }),
