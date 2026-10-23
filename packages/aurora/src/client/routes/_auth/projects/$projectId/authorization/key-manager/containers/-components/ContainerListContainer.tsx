@@ -4,7 +4,7 @@ import { CONTAINERS_COLUMNS, CONTAINERS_COLUMN_COUNT } from "./constants"
 import { ContainerTableRow } from "./ContainerTableRow"
 import type { Container } from "@/server/KeyManager/types/keyManager"
 
-interface ContainersListContainerProps {
+interface ContainerListContainerProps {
   containers: Container[]
   isLoading: boolean
   isError: boolean
@@ -14,7 +14,7 @@ interface ContainersListContainerProps {
   onDelete: (container: Container) => void
 }
 
-export function ContainersListContainer({
+export function ContainerListContainer({
   containers,
   isLoading,
   isError,
@@ -22,7 +22,7 @@ export function ContainersListContainer({
   canDelete,
   onShowDetails,
   onDelete,
-}: ContainersListContainerProps) {
+}: ContainerListContainerProps) {
   const { t } = useLingui()
 
   if (isLoading) {

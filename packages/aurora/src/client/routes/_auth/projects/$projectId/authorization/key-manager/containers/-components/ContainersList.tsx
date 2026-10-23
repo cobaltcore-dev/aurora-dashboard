@@ -2,7 +2,7 @@ import { useState } from "react"
 import { Button, DataGridToolbar, Message, Pagination, SearchInput, Stack } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { usePermissions } from "../../-components/usePermissions"
-import { ContainersListContainer } from "./ContainersListContainer"
+import { ContainerListContainer } from "./ContainerListContainer"
 import { CreateContainerModal, DeleteContainerModal } from "./ContainerModals"
 import type { Container } from "@/server/KeyManager/types/keyManager"
 
@@ -77,7 +77,7 @@ export function ContainersList({
           </DataGridToolbar>
         </Stack>
 
-        <ContainersListContainer
+        <ContainerListContainer
           containers={data?.containers ?? []}
           isLoading={isLoading}
           isError={isError}

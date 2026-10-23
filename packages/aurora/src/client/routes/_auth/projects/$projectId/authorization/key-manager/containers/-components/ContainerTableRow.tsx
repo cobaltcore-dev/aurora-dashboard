@@ -28,8 +28,8 @@ export function ContainerTableRow({ container, canDelete, onShowDetails, onDelet
           <ClipboardText text={id} />
         </div>
       </DataGridCell>
-      <DataGridCell>{container.type}</DataGridCell>
       <DataGridCell>{container.status}</DataGridCell>
+      <DataGridCell>{container.type}</DataGridCell>
       <DataGridCell onClick={(e: React.MouseEvent) => e.stopPropagation()} className="items-end pr-0">
         <PopupMenu>
           <PopupMenuOptions>

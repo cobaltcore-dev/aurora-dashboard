@@ -97,8 +97,6 @@ export type ServiceExtension = {
   serviceName: string
   /** Nav item and service card label. */
   label: string
-  /** Nav section to place this extension in. Defaults to `"services"`. Use `"authorization"` to group under Authorization. */
-  navSection?: string
   /**
    * The React component to render at `/projects/$projectId/services/$serviceType/**`.
    * Receives `basePath` (the URL prefix) and `context` (host data). Create your own RouterProvider

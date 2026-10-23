@@ -11,6 +11,8 @@ if (PORT < 1 || PORT > 65535) {
 }
 
 const isProduction = process.env.NODE_ENV === "production"
+// In production the build copies src/policies → dist/policies.
+// In development tsx runs from source so src/policies is used directly.
 const policyDir = isProduction ? path.resolve(__dirname, "../../dist/policies") : path.resolve(__dirname, "../policies")
 
 createServer({

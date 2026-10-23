@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { trpcReact } from "@/client/trpcClient"
 import { useSetBreadcrumb } from "@/client/hooks/useSetBreadcrumb"
-import { ContainerDetail } from "./-components/ContainerDetail"
+import { ContainerDetailsView } from "./-components/ContainerDetailsView"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/authorization/key-manager/containers/$containerId")({
@@ -20,7 +20,7 @@ function ContainerDetailPage() {
   useSetBreadcrumb(Route.id, container?.name ?? containerId)
 
   return (
-    <ContainerDetail
+    <ContainerDetailsView
       projectId={projectId}
       containerId={containerId}
       onBack={() => {

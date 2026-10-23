@@ -637,10 +637,11 @@ msgstr "Back to Floating IPs"
 msgid "Back to Images"
 msgstr "Back to Images"
 
-msgid "Back to Routers"
-msgstr "Back to Routers"
 msgid "Back to Key Manager"
 msgstr "Back to Key Manager"
+
+msgid "Back to Routers"
+msgstr "Back to Routers"
 
 msgid "Back to Security Groups"
 msgstr "Back to Security Groups"
@@ -1149,12 +1150,8 @@ msgstr "Create new folder here"
 msgid "Create New Image"
 msgstr "Create New Image"
 
-
 msgid "Create Order"
 msgstr "Create Order"
-
-msgid "Create S3 Credentials"
-msgstr "Create S3 Credentials"
 
 msgid "Create Secret"
 msgstr "Create Secret"
@@ -1971,6 +1968,7 @@ msgstr "Failed to Load Policy"
 
 msgid "Failed to Load Routers"
 msgstr "Failed to Load Routers"
+
 msgid "Failed to Load Secret"
 msgstr "Failed to Load Secret"
 
@@ -2591,6 +2589,7 @@ msgstr "Loading Router Details..."
 
 msgid "Loading Routers..."
 msgstr "Loading Routers..."
+
 msgid "Loading Secret..."
 msgstr "Loading Secret..."
 
@@ -2782,6 +2781,7 @@ msgstr "Network ID"
 
 msgid "Network Name"
 msgstr "Network Name"
+
 msgid "Never"
 msgstr "Never"
 
@@ -3304,10 +3304,11 @@ msgstr "Read ACLs"
 msgid "Read ACLs — Preview"
 msgstr "Read ACLs — Preview"
 
-msgid "Region"
-msgstr "Region"
 msgid "Reference"
 msgstr "Reference"
+
+msgid "Region"
+msgstr "Region"
 
 msgid "Reject"
 msgstr "Reject"
@@ -3365,6 +3366,7 @@ msgstr "Restore Version"
 
 msgid "Reveal"
 msgstr "Reveal"
+
 msgid "Reveal Payload"
 msgstr "Reveal Payload"
 
@@ -3494,16 +3496,14 @@ msgstr "Search security groups..."
 msgid "Search..."
 msgstr "Search..."
 
+msgid "Secret"
+msgstr "Secret"
+
 msgid "Secret access key"
 msgstr "Secret access key"
 
 msgid "Secret Access Key"
 msgstr "Secret Access Key"
-
-msgid "Secret Detail"
-msgstr "Secret Detail"
-msgid "Secret"
-msgstr "Secret"
 
 msgid "Secret Details"
 msgstr "Secret Details"
@@ -4087,10 +4087,11 @@ msgstr "There are no items to display."
 msgid "There Are No Lifecycle Rules for This Bucket"
 msgstr "There Are No Lifecycle Rules for This Bucket"
 
-msgid "There are no pending shared images for this project with the current filters applied. Try adjusting your filter criteria or check the All Images tab."
-msgstr "There are no pending shared images for this project with the current filters applied. Try adjusting your filter criteria or check the All Images tab."
 msgid "There are no orders in this project. Create one to request secret generation."
 msgstr "There are no orders in this project. Create one to request secret generation."
+
+msgid "There are no pending shared images for this project with the current filters applied. Try adjusting your filter criteria or check the All Images tab."
+msgstr "There are no pending shared images for this project with the current filters applied. Try adjusting your filter criteria or check the All Images tab."
 
 msgid "There are no RBAC policies for this security group"
 msgstr "There are no RBAC policies for this security group"
@@ -4389,13 +4390,14 @@ msgstr "unnamed"
 msgid "Unnamed"
 msgstr "Unnamed"
 
-msgid "UP"
-msgstr "UP"
 msgid "Unnamed Container"
 msgstr "Unnamed Container"
 
 msgid "Unnamed Secret"
 msgstr "Unnamed Secret"
+
+msgid "UP"
+msgstr "UP"
 
 msgid "Update object"
 msgstr "Update object"

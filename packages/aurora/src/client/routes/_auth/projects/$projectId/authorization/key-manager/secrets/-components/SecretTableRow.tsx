@@ -28,9 +28,9 @@ export function SecretTableRow({ secret, canDelete, onShowDetails, onDelete }: S
           <ClipboardText text={id} />
         </div>
       </DataGridCell>
-      <DataGridCell>{secret.secret_type}</DataGridCell>
-      <DataGridCell>{secret.content_types ? Object.values(secret.content_types).join(", ") : "—"}</DataGridCell>
       <DataGridCell>{secret.status}</DataGridCell>
+      <DataGridCell>{secret.secret_type}</DataGridCell>
+      <DataGridCell>{secret.content_types ? Object.values(secret.content_types).join(", ") : "- -"}</DataGridCell>
       <DataGridCell onClick={(e: React.MouseEvent) => e.stopPropagation()} className="items-end pr-0">
         <PopupMenu>
           <PopupMenuOptions>
