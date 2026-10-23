@@ -1,8 +1,9 @@
 import { useState } from "react"
-import { Button, Status, Message } from "@cloudoperators/juno-ui-components"
+import { Button, Status, Message, Stack, ContentHeading } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
+import { TwoColumnDescriptionList, type DetailListItem } from "@/client/components/TwoColumnDescriptionList"
 import ClipboardText from "@/client/components/ClipboardText"
 
 interface SecretDetailsViewProps {
@@ -41,103 +42,75 @@ export function SecretDetailsView({ projectId, secretId, onBack }: SecretDetails
     setShowPayload(true)
   }
 
+  const contentTypes = secret.content_types
+    ? Object.entries(secret.content_types)
+        .map(([k, v]) => `${k}: ${v}`)
+        .join(", ")
+    : "- -"
+
+  const detailItems: DetailListItem[] = [
+    { label: t`ID`, value: <ClipboardText text={secretId} /> },
+    { label: t`Reference`, value: <ClipboardText text={secret.secret_ref} /> },
+    { label: t`Name`, value: secret.name ?? "- -" },
+    { label: t`Status`, value: secret.status },
+    { label: t`Secret Type`, value: secret.secret_type },
+    { label: t`Algorithm`, value: secret.algorithm ?? "- -" },
+    { label: t`Bit Length`, value: secret.bit_length ?? "- -" },
+    { label: t`Mode`, value: secret.mode ?? "- -" },
+    { label: t`Content Types`, value: contentTypes },
+    { label: t`Expiration`, value: secret.expiration ? new Date(secret.expiration).toLocaleString() : t`Never` },
+    { label: t`Created`, value: new Date(secret.created).toLocaleString() },
+    { label: t`Updated`, value: new Date(secret.updated).toLocaleString() },
+    { label: t`Creator ID`, value: secret.creator_id ?? "- -" },
+  ]
+
   return (
-    <div className="max-w-3xl">
+    <>
       <ContentHeader
-        title={secret.name ?? t`Unnamed Secret`}
+        title={secret.name ?? secretId}
         projectId={projectId}
         actions={
           <Button variant="subdued" onClick={onBack}>
-            {t`← Back to Secrets`}
+            {t`Back to Secrets`}
           </Button>
         }
       />
 
-      <dl className="juno-dl">
-        <dt>{t`ID`}</dt>
-        <dd>
-          <ClipboardText text={secretId} />
-        </dd>
+      <Stack direction="vertical" gap="6" className="my-6">
+        <Stack direction="vertical" gap="2">
+          <ContentHeading>{t`Secret Details`}</ContentHeading>
+          <TwoColumnDescriptionList items={detailItems} />
+        </Stack>
 
-        <dt>{t`Reference`}</dt>
-        <dd>
-          <ClipboardText text={secret.secret_ref} />
-        </dd>
-
-        <dt>{t`Name`}</dt>
-        <dd>{secret.name ?? <em>—</em>}</dd>
-
-        <dt>{t`Status`}</dt>
-        <dd>{secret.status}</dd>
-
-        <dt>{t`Secret Type`}</dt>
-        <dd>{secret.secret_type}</dd>
-
-        <dt>{t`Algorithm`}</dt>
-        <dd>{secret.algorithm ?? "—"}</dd>
-
-        <dt>{t`Bit Length`}</dt>
-        <dd>{secret.bit_length ?? "—"}</dd>
-
-        <dt>{t`Mode`}</dt>
-        <dd>{secret.mode ?? "—"}</dd>
-
-        {secret.content_types && (
-          <>
-            <dt>{t`Content Types`}</dt>
-            <dd>
-              {Object.entries(secret.content_types)
-                .map(([k, v]) => `${k}: ${v}`)
-                .join(", ")}
-            </dd>
-          </>
-        )}
-
-        <dt>{t`Expiration`}</dt>
-        <dd>{secret.expiration ? new Date(secret.expiration).toLocaleString() : t`Never`}</dd>
-
-        <dt>{t`Created`}</dt>
-        <dd>{new Date(secret.created).toLocaleString()}</dd>
-
-        <dt>{t`Updated`}</dt>
-        <dd>{new Date(secret.updated).toLocaleString()}</dd>
-
-        {secret.creator_id && (
-          <>
-            <dt>{t`Creator ID`}</dt>
-            <dd>{secret.creator_id}</dd>
-          </>
-        )}
-      </dl>
-
-      <div className="mt-4">
-        {!showPayload ? (
-          <Button variant="subdued" onClick={handleRevealPayload} disabled={payloadFetching}>
-            {payloadFetching ? t`Loading payload...` : t`Reveal Payload`}
-          </Button>
-        ) : payloadError ? (
-          <Message variant="error">{t`Failed to load payload.`}</Message>
-        ) : payloadData ? (
-          <div className="mt-2">
-            <p className="mb-1 text-sm font-medium">
-              {t`Payload`}
-              <span className="ml-2 text-xs opacity-60">({payloadData.contentType})</span>
-            </p>
-            <pre className="bg-theme-background-lvl-2 max-h-48 overflow-auto rounded p-3 text-xs">
-              {payloadData.payload}
-            </pre>
-            <div className="mt-1 flex gap-2">
-              <Button
-                size="small"
-                variant="subdued"
-                onClick={() => void navigator.clipboard.writeText(payloadData.payload)}
-                label={t`Copy`}
-              />
-              <Button size="small" variant="subdued" onClick={() => setShowPayload(false)} label={t`Hide`} />
+        <Stack direction="vertical" gap="2">
+          <ContentHeading>{t`Payload`}</ContentHeading>
+          {!showPayload ? (
+            <div>
+              <Button variant="subdued" onClick={handleRevealPayload} disabled={payloadFetching}>
+                {payloadFetching ? t`Loading Payload...` : t`Reveal Payload`}
+              </Button>
             </div>
-          </div>
-        ) : null}
-      </div>
-    </div>
+          ) : payloadError ? (
+            <Message variant="error" text={t`Failed to load payload.`} />
+          ) : payloadData ? (
+            <Stack direction="vertical" gap="2">
+              <p className="text-sm opacity-60">{payloadData.contentType}</p>
+              <pre className="bg-theme-background-lvl-2 max-h-48 overflow-auto rounded p-3 text-xs">
+                {payloadData.payload}
+              </pre>
+              <Stack gap="2">
+                <Button
+                  size="small"
+                  variant="subdued"
+                  onClick={() => void navigator.clipboard.writeText(payloadData.payload)}
+                  label={t`Copy`}
+                />
+                <Button size="small" variant="subdued" onClick={() => setShowPayload(false)} label={t`Hide`} />
+              </Stack>
+            </Stack>
+          ) : null}
+        </Stack>
+      </Stack>
+    </>
   )
 }

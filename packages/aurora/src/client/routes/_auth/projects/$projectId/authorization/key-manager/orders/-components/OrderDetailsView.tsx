@@ -1,7 +1,8 @@
-import { Button, Status } from "@cloudoperators/juno-ui-components"
+import { Button, Status, Stack, ContentHeading } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
+import { TwoColumnDescriptionList, type DetailListItem } from "@/client/components/TwoColumnDescriptionList"
 import ClipboardText from "@/client/components/ClipboardText"
 import { uuidFromRef } from "../../-components/utils"
 
@@ -27,81 +28,55 @@ export function OrderDetailsView({ projectId, orderId, onBack }: OrderDetailsVie
   if (isError) return <Status status="error" title={error?.message ?? t`Failed to Load Order`} />
   if (!order) return <Status status="empty" title={t`Order Not Found`} />
 
+  const subStatus = order.sub_status
+    ? order.sub_status_message
+      ? `${order.sub_status}: ${order.sub_status_message}`
+      : order.sub_status
+    : "- -"
+
+  const detailItems: DetailListItem[] = [
+    { label: t`ID`, value: <ClipboardText text={orderId} /> },
+    { label: t`Reference`, value: <ClipboardText text={order.order_ref} /> },
+    { label: t`Type`, value: order.type },
+    { label: t`Status`, value: order.status },
+    { label: t`Sub Status`, value: subStatus },
+    { label: t`Secret`, value: order.secret_ref ? <ClipboardText text={uuidFromRef(order.secret_ref)} /> : "- -" },
+    { label: t`Created`, value: new Date(order.created).toLocaleString() },
+    { label: t`Updated`, value: new Date(order.updated).toLocaleString() },
+    { label: t`Creator ID`, value: order.creator_id ?? "- -" },
+  ]
+
+  const metaItems: DetailListItem[] = Object.entries(order.meta ?? {}).map(([key, value]) => ({
+    id: key,
+    label: key,
+    value: value == null || value === "" ? "- -" : String(value),
+  }))
+
   return (
-    <div className="max-w-3xl">
+    <>
       <ContentHeader
         title={`${t`Order`}: ${order.type}`}
         projectId={projectId}
         actions={
           <Button variant="subdued" onClick={onBack}>
-            {t`← Back to Orders`}
+            {t`Back to Orders`}
           </Button>
         }
       />
 
-      <dl className="juno-dl">
-        <dt>{t`ID`}</dt>
-        <dd>
-          <ClipboardText text={orderId} />
-        </dd>
+      <Stack direction="vertical" gap="6" className="my-6">
+        <Stack direction="vertical" gap="2">
+          <ContentHeading>{t`Order Details`}</ContentHeading>
+          <TwoColumnDescriptionList items={detailItems} />
+        </Stack>
 
-        <dt>{t`Reference`}</dt>
-        <dd>
-          <ClipboardText text={order.order_ref} />
-        </dd>
-
-        <dt>{t`Type`}</dt>
-        <dd>{order.type}</dd>
-
-        <dt>{t`Status`}</dt>
-        <dd>{order.status}</dd>
-
-        {order.sub_status && (
-          <>
-            <dt>{t`Sub Status`}</dt>
-            <dd>
-              {order.sub_status}
-              {order.sub_status_message && ` — ${order.sub_status_message}`}
-            </dd>
-          </>
+        {metaItems.length > 0 && (
+          <Stack direction="vertical" gap="2">
+            <ContentHeading>{t`Metadata`}</ContentHeading>
+            <TwoColumnDescriptionList items={metaItems} />
+          </Stack>
         )}
-
-        {order.secret_ref && (
-          <>
-            <dt>{t`Secret`}</dt>
-            <dd>
-              <ClipboardText text={uuidFromRef(order.secret_ref)} />
-            </dd>
-          </>
-        )}
-
-        <dt>{t`Created`}</dt>
-        <dd>{new Date(order.created).toLocaleString()}</dd>
-
-        <dt>{t`Updated`}</dt>
-        <dd>{new Date(order.updated).toLocaleString()}</dd>
-
-        {order.creator_id && (
-          <>
-            <dt>{t`Creator ID`}</dt>
-            <dd>{order.creator_id}</dd>
-          </>
-        )}
-      </dl>
-
-      {order.meta && Object.keys(order.meta).length > 0 && (
-        <div className="mt-4">
-          <h3 className="mb-2 text-sm font-semibold">{t`Order Meta`}</h3>
-          <dl className="juno-dl">
-            {Object.entries(order.meta).map(([key, value]) => (
-              <span key={key}>
-                <dt>{key}</dt>
-                <dd>{String(value)}</dd>
-              </span>
-            ))}
-          </dl>
-        </div>
-      )}
-    </div>
+      </Stack>
+    </>
   )
 }

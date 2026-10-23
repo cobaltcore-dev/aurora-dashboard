@@ -4,6 +4,7 @@ import { getServiceIndex } from "@/server/Authentication/helpers"
 import { msg } from "@lingui/core/macro"
 import { useLingui } from "@lingui/react/macro"
 import { RouteIdLevelDefaultError } from "@/client/components/Errors/RouteIdLevelDefaultError"
+import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 
 const KeyManagerErrorComponent = () => {
@@ -88,6 +89,7 @@ function KeyManagerLayout() {
 
   return (
     <div>
+      <ContentHeader title={t`Key Manager`} projectId={projectId} />
       <TabNavigation
         activeItem={activeTab}
         onActiveItemChange={(value: unknown) => {

@@ -1,61 +1,22 @@
 import { useState } from "react"
-import { Modal, ModalFooter, Button, Message } from "@cloudoperators/juno-ui-components"
+import {
+  Modal,
+  Form,
+  FormSection,
+  FormRow,
+  TextInput,
+  Select,
+  SelectOption,
+  Message,
+  Stack,
+} from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { uuidFromRef } from "../../-components/utils"
-import ClipboardText from "@/client/components/ClipboardText"
 import type { Order } from "@/server/KeyManager/types/keyManager"
 
-export function OrderDetailModal({ order, onClose }: { order: Order; onClose: () => void }) {
-  const { t } = useLingui()
-  const orderId = uuidFromRef(order.order_ref)
-  return (
-    <Modal open size="large" title={`${t`Order`}: ${order.type}`} onCancel={onClose}>
-      <dl className="juno-dl">
-        <dt>{t`ID`}</dt>
-        <dd>
-          <ClipboardText text={orderId} />
-        </dd>
-        <dt>{t`Reference`}</dt>
-        <dd>
-          <ClipboardText text={order.order_ref} />
-        </dd>
-        <dt>{t`Type`}</dt>
-        <dd>{order.type}</dd>
-        <dt>{t`Status`}</dt>
-        <dd>{order.status}</dd>
-        {order.sub_status && (
-          <>
-            <dt>{t`Sub Status`}</dt>
-            <dd>
-              {order.sub_status}
-              {order.sub_status_message && ` — ${order.sub_status_message}`}
-            </dd>
-          </>
-        )}
-        {order.secret_ref && (
-          <>
-            <dt>{t`Secret Ref`}</dt>
-            <dd>
-              <ClipboardText text={order.secret_ref} />
-            </dd>
-          </>
-        )}
-        <dt>{t`Meta`}</dt>
-        <dd>
-          <pre className="text-xs whitespace-pre-wrap">{JSON.stringify(order.meta, null, 2)}</pre>
-        </dd>
-        <dt>{t`Created`}</dt>
-        <dd>{new Date(order.created).toLocaleString()}</dd>
-        <dt>{t`Updated`}</dt>
-        <dd>{new Date(order.updated).toLocaleString()}</dd>
-      </dl>
-      <ModalFooter>
-        <Button onClick={onClose} label={t`Close`} />
-      </ModalFooter>
-    </Modal>
-  )
-}
+type OrderType = "key" | "asymmetric" | "certificate"
+const ORDER_TYPES: OrderType[] = ["key", "asymmetric", "certificate"]
 
 export function CreateOrderModal({
   projectId,
@@ -67,7 +28,7 @@ export function CreateOrderModal({
   onSuccess: () => void
 }) {
   const { t } = useLingui()
-  const [orderType, setOrderType] = useState<"key" | "asymmetric" | "certificate">("key")
+  const [orderType, setOrderType] = useState<OrderType>("key")
   const [algorithm, setAlgorithm] = useState("aes")
   const [bitLength, setBitLength] = useState("256")
 
@@ -81,6 +42,7 @@ export function CreateOrderModal({
   return (
     <Modal
       open
+      size="large"
       title={t`Create Order`}
       onCancel={onClose}
       onConfirm={() =>
@@ -90,48 +52,48 @@ export function CreateOrderModal({
           meta: { algorithm, bit_length: parseInt(bitLength, 10) },
         })
       }
-      confirmButtonLabel={createMutation.isPending ? t`Creating...` : t`Create`}
+      confirmButtonLabel={t`Create`}
       cancelButtonLabel={t`Cancel`}
       disableConfirmButton={createMutation.isPending}
+      disableCancelButton={createMutation.isPending}
     >
-      {createMutation.error && (
-        <Message variant="error" className="mb-4">
-          {createMutation.error.message}
-        </Message>
-      )}
-      <div className="flex flex-col gap-2">
-        <label>
-          {t`Type`}
-          <select
-            className="juno-select"
-            value={orderType}
-            onChange={(e) => setOrderType(e.target.value as "key" | "asymmetric" | "certificate")}
-          >
-            <option value="key">key</option>
-            <option value="asymmetric">asymmetric</option>
-            <option value="certificate">certificate</option>
-          </select>
-        </label>
-        <label>
-          {t`Algorithm`}
-          <input
-            className="juno-input"
-            value={algorithm}
-            onChange={(e) => setAlgorithm(e.target.value)}
-            placeholder="aes"
-          />
-        </label>
-        <label>
-          {t`Bit Length`}
-          <input
-            className="juno-input"
-            type="number"
-            value={bitLength}
-            onChange={(e) => setBitLength(e.target.value)}
-            placeholder="256"
-          />
-        </label>
-      </div>
+      <Form
+        onSubmit={(e) => {
+          e.preventDefault()
+        }}
+      >
+        {createMutation.error && (
+          <FormRow>
+            <Message variant="error" text={createMutation.error.message} />
+          </FormRow>
+        )}
+        <FormSection>
+          <FormRow>
+            <Select id="order-type" label={t`Type`} value={orderType} onChange={(v) => setOrderType(v as OrderType)}>
+              {ORDER_TYPES.map((type) => (
+                <SelectOption key={type} value={type} label={type} />
+              ))}
+            </Select>
+          </FormRow>
+          <FormRow>
+            <TextInput
+              id="algorithm"
+              label={t`Algorithm`}
+              value={algorithm}
+              onChange={(e) => setAlgorithm(e.target.value)}
+            />
+          </FormRow>
+          <FormRow>
+            <TextInput
+              id="bit-length"
+              type="number"
+              label={t`Bit Length`}
+              value={bitLength}
+              onChange={(e) => setBitLength(e.target.value)}
+            />
+          </FormRow>
+        </FormSection>
+      </Form>
     </Modal>
   )
 }
@@ -147,6 +109,7 @@ export function DeleteOrderModal({
 }) {
   const { t } = useLingui()
   const orderId = uuidFromRef(order.order_ref)
+  const orderTypeLabel = order.type
   const utils = trpcReact.useUtils()
   const deleteMutation = trpcReact.keyManager.deleteOrder.useMutation({
     onSuccess: () => {
@@ -158,23 +121,22 @@ export function DeleteOrderModal({
   return (
     <Modal
       open
-      title={t`Delete Order`}
+      size="small"
+      title={t`Delete Order "${orderId}"`}
       onCancel={onClose}
       onConfirm={() => deleteMutation.mutate({ project_id: projectId, orderId })}
       confirmButtonLabel={deleteMutation.isPending ? t`Deleting...` : t`Delete`}
       confirmButtonVariant="primary-danger"
       cancelButtonLabel={t`Cancel`}
       disableConfirmButton={deleteMutation.isPending}
+      disableCancelButton={deleteMutation.isPending}
     >
-      {deleteMutation.error && (
-        <Message variant="error" className="mb-4">
-          {deleteMutation.error.message}
-        </Message>
-      )}
-      <p>
-        {t`Are you sure you want to delete the`} <strong>{order.type}</strong> {t`order`} <strong>{orderId}</strong>?{" "}
-        {t`This cannot be undone.`}
-      </p>
+      <Stack direction="vertical" gap="4">
+        {deleteMutation.error && <Message variant="error" text={deleteMutation.error.message} />}
+        <p className="text-theme-default">
+          {t`This action cannot be undone. The ${orderTypeLabel} order will be permanently deleted.`}
+        </p>
+      </Stack>
     </Modal>
   )
 }
