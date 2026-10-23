@@ -1,0 +1,62 @@
+import { createFileRoute, useNavigate } from "@tanstack/react-router"
+import { z } from "zod"
+import { t, msg } from "@lingui/core/macro"
+import { OrdersList } from "./-components/OrdersList"
+import { uuidFromRef } from "../-components/utils"
+import type { Order } from "@/server/KeyManager/types/keyManager"
+import type { RouteInfo } from "@/client/routes/routeInfo"
+
+const ordersSearchSchema = z.object({
+  sort: z.string().optional(),
+  page: z.number().optional(),
+})
+
+export const Route = createFileRoute("/_auth/projects/$projectId/authorization/key-manager/orders/")({
+  staticData: {
+    section: "authorization",
+    service: "key-manager",
+    crumb: { text: msg`Orders` },
+    analytics: { name: "authorization.key-manager.orders.list" },
+  } satisfies RouteInfo,
+  validateSearch: (s) => ordersSearchSchema.catch({}).parse(s),
+  head: () => ({ meta: [{ title: t`Key Manager Orders` }] }),
+  component: OrdersListPage,
+})
+
+function OrdersListPage() {
+  const { projectId } = Route.useParams() as { projectId: string }
+  const { sort = "created:desc", page = 1 } = Route.useSearch()
+  const navigate = useNavigate()
+
+  const handleSort = (value: string) => {
+    void navigate({
+      to: "/projects/$projectId/authorization/key-manager/orders",
+      params: { projectId },
+      search: { sort: value, page: undefined },
+    })
+  }
+  const handlePageChange = (newPage: number) => {
+    void navigate({
+      to: "/projects/$projectId/authorization/key-manager/orders",
+      params: { projectId },
+      search: { sort: sort || undefined, page: newPage === 1 ? undefined : newPage },
+    })
+  }
+  const handleShowDetail = (order: Order) => {
+    void navigate({
+      to: "/projects/$projectId/authorization/key-manager/orders/$orderId",
+      params: { projectId, orderId: uuidFromRef(order.order_ref) },
+    })
+  }
+
+  return (
+    <OrdersList
+      projectId={projectId}
+      sort={sort}
+      page={page}
+      onSortChange={handleSort}
+      onPageChange={handlePageChange}
+      onShowDetail={handleShowDetail}
+    />
+  )
+}

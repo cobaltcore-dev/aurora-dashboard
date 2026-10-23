@@ -472,6 +472,9 @@ msgstr ""
 msgid "After restoring, this version's content will become the new latest version."
 msgstr ""
 
+msgid "Algorithm"
+msgstr ""
+
 msgid "All"
 msgstr ""
 
@@ -589,6 +592,9 @@ msgstr ""
 msgid "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 msgstr "Das Aurora-Dashboard ist mehr als nur ein Werkzeug – es ist Ihr Partner bei der Navigation in der Cloud. Egal, ob Sie ein kleines Startup oder ein globales Unternehmen sind, Aurora bietet Ihnen die Flexibilität, Leistung und Einfachheit, die Sie benötigen, um Ihre Ziele zu erreichen."
 
+msgid "Authorization"
+msgstr ""
+
 msgid "Auto-generated if not provided. Only alphanumeric, hyphens, underscores, and dots allowed."
 msgstr ""
 
@@ -616,7 +622,16 @@ msgstr "Zurück zu Floating IPs"
 msgid "Back to Images"
 msgstr "Zurück zu Images"
 
+msgid "Back to Key Manager"
+msgstr ""
+
+msgid "Back to Orders"
+msgstr ""
+
 msgid "Back to Routers"
+msgstr ""
+
+msgid "Back to Secrets"
 msgstr ""
 
 msgid "Back to Security Groups"
@@ -624,6 +639,9 @@ msgstr "Zurück zu Security Groups"
 
 msgid "Basic Info"
 msgstr "Grundlegende Informationen"
+
+msgid "Bit Length"
+msgstr ""
 
 msgid "Boot RAM"
 msgstr "Boot-RAM"
@@ -835,6 +853,9 @@ msgstr ""
 msgid "Container Deleted"
 msgstr "Container gelöscht"
 
+msgid "Container Details"
+msgstr ""
+
 msgid "Container Emptied"
 msgstr "Container geleert"
 
@@ -877,6 +898,9 @@ msgstr "Container aktualisiert"
 msgid "Container:"
 msgstr "Container:"
 
+msgid "Containers"
+msgstr ""
+
 msgid "Containers Emptied"
 msgstr "Container geleert"
 
@@ -888,6 +912,9 @@ msgstr ""
 
 msgid "Content type"
 msgstr "Content type"
+
+msgid "Content Types"
+msgstr ""
 
 msgid "Copied to clipboard!"
 msgstr "In die Zwischenablage kopiert!"
@@ -1114,6 +1141,12 @@ msgstr "Neuen Ordner hier erstellen"
 msgid "Create New Image"
 msgstr "Neues Image erstellen"
 
+msgid "Create Order"
+msgstr ""
+
+msgid "Create Secret"
+msgstr ""
+
 msgid "Create Security Group"
 msgstr "Security Group erstellen"
 
@@ -1136,6 +1169,9 @@ msgid "Creating Security Group..."
 msgstr ""
 
 msgid "Creating..."
+msgstr ""
+
+msgid "Creator ID"
 msgstr ""
 
 msgid "Current location:"
@@ -1216,6 +1252,9 @@ msgstr ""
 msgid "Delete Container"
 msgstr ""
 
+msgid "Delete Container \"{containerName}\""
+msgstr ""
+
 msgid "Delete container:"
 msgstr "Container löschen:"
 
@@ -1270,6 +1309,9 @@ msgstr "Objekt löschen:"
 msgid "Delete Objects"
 msgstr ""
 
+msgid "Delete Order \"{orderId}\""
+msgstr ""
+
 msgid "Delete Policy"
 msgstr ""
 
@@ -1281,6 +1323,9 @@ msgstr ""
 
 msgid "Delete Rule"
 msgstr "Regel löschen"
+
+msgid "Delete Secret \"{secretName}\""
+msgstr ""
 
 msgid "Delete Security Group \"{securityGroupName}\""
 msgstr "Security Group \"{securityGroupName}\" löschen"
@@ -1843,6 +1888,9 @@ msgstr ""
 msgid "Failed to Load Buckets"
 msgstr ""
 
+msgid "Failed to Load Container"
+msgstr ""
+
 msgid "Failed to Load Container ACLs"
 msgstr ""
 
@@ -1856,6 +1904,9 @@ msgid "Failed to Load Container Properties"
 msgstr ""
 
 msgid "Failed to Load Container Properties: {errorMessage}"
+msgstr ""
+
+msgid "Failed to Load Containers"
 msgstr ""
 
 msgid "Failed to Load CORS Configuration"
@@ -1897,10 +1948,25 @@ msgstr ""
 msgid "Failed to Load Objects"
 msgstr ""
 
+msgid "Failed to Load Order"
+msgstr ""
+
+msgid "Failed to Load Orders"
+msgstr ""
+
+msgid "Failed to load payload."
+msgstr ""
+
 msgid "Failed to Load Policy"
 msgstr ""
 
 msgid "Failed to Load Routers"
+msgstr ""
+
+msgid "Failed to Load Secret"
+msgstr ""
+
+msgid "Failed to Load Secrets"
 msgstr ""
 
 msgid "Failed to Load Security Groups"
@@ -2356,6 +2422,18 @@ msgstr "Hauptmerkmale"
 msgid "Key is required"
 msgstr "Schlüssel ist erforderlich"
 
+msgid "Key Manager"
+msgstr ""
+
+msgid "Key Manager Containers"
+msgstr ""
+
+msgid "Key Manager Orders"
+msgstr ""
+
+msgid "Key Manager Secrets"
+msgstr ""
+
 msgid "Key must contain at least one alphanumeric character"
 msgstr "Schlüssel muss mindestens ein alphanumerisches Zeichen enthalten"
 
@@ -2425,6 +2503,9 @@ msgstr ""
 msgid "Loading Container Properties..."
 msgstr ""
 
+msgid "Loading Container..."
+msgstr ""
+
 msgid "Loading Containers..."
 msgstr "Container werden geladen..."
 
@@ -2476,6 +2557,15 @@ msgstr ""
 msgid "Loading Objects..."
 msgstr "Objekte werden geladen..."
 
+msgid "Loading Order..."
+msgstr ""
+
+msgid "Loading Orders..."
+msgstr ""
+
+msgid "Loading Payload..."
+msgstr ""
+
 msgid "Loading Permissions..."
 msgstr ""
 
@@ -2492,6 +2582,12 @@ msgid "Loading Router Details..."
 msgstr ""
 
 msgid "Loading Routers..."
+msgstr ""
+
+msgid "Loading Secret..."
+msgstr ""
+
+msgid "Loading Secrets..."
 msgstr ""
 
 msgid "Loading Security Group Details..."
@@ -2611,6 +2707,9 @@ msgstr "Minimaler RAM muss 0 oder größer sein"
 msgid "Minimum RAM required to boot this image"
 msgstr "Minimaler RAM, der zum Booten dieses Images erforderlich ist"
 
+msgid "Mode"
+msgstr ""
+
 msgid "More Actions"
 msgstr "Weitere Aktionen"
 
@@ -2665,6 +2764,9 @@ msgstr "Netzwerk-ID"
 msgid "Network Name"
 msgstr ""
 
+msgid "Never"
+msgstr ""
+
 msgid "New Folder"
 msgstr "Neuer Ordner"
 
@@ -2691,6 +2793,9 @@ msgstr ""
 
 msgid "No containers found"
 msgstr "Keine Container gefunden"
+
+msgid "No Containers Found"
+msgstr ""
 
 msgid "No CORS rules found"
 msgstr ""
@@ -2752,6 +2857,9 @@ msgstr "Keine Objekte entsprechen Ihrer Suche. Versuchen Sie, Ihren Suchbegriff 
 msgid "No objects were deleted: {errorMessage}"
 msgstr ""
 
+msgid "No Orders Found"
+msgstr ""
+
 msgid "No policies match your search"
 msgstr "Keine Richtlinien entsprechen Ihrer Suche"
 
@@ -2780,6 +2888,12 @@ msgid "No routers match your search. Clear the search to view all routers."
 msgstr ""
 
 msgid "No Rules Found"
+msgstr ""
+
+msgid "No Secrets Found"
+msgstr ""
+
+msgid "No Secrets in This Container"
 msgstr ""
 
 msgid "No security groups found"
@@ -2929,11 +3043,32 @@ msgstr ""
 msgid "Optional unique identifier for the rule (max 255 characters)"
 msgstr ""
 
+msgid "Optional. A friendly name for the container."
+msgstr ""
+
+msgid "Optional. A friendly name for the secret."
+msgstr ""
+
+msgid "Optional. The secret material to store."
+msgstr ""
+
 msgid "Optional. Up to 255 characters."
 msgstr ""
 
 msgid "or drag and drop"
 msgstr "oder per Drag & Drop"
+
+msgid "Order"
+msgstr ""
+
+msgid "Order Details"
+msgstr ""
+
+msgid "Order Not Found"
+msgstr ""
+
+msgid "Orders"
+msgstr ""
 
 msgid "Other Actions"
 msgstr ""
@@ -2964,6 +3099,9 @@ msgstr "Teilweise erfolgreich deaktiviert"
 
 msgid "Partial Delete Success"
 msgstr "Teilweise erfolgreich gelöscht"
+
+msgid "Payload"
+msgstr ""
 
 msgid "Pending"
 msgstr "Ausstehend"
@@ -3154,6 +3292,9 @@ msgstr "Lese-ACLs"
 msgid "Read ACLs — Preview"
 msgstr "Lese-ACLs — Vorschau"
 
+msgid "Reference"
+msgstr ""
+
 msgid "Region"
 msgstr ""
 
@@ -3212,6 +3353,9 @@ msgid "Restore Version"
 msgstr ""
 
 msgid "Reveal"
+msgstr ""
+
+msgid "Reveal Payload"
 msgstr ""
 
 msgid "Root"
@@ -3340,10 +3484,28 @@ msgstr ""
 msgid "Search..."
 msgstr "Suchen..."
 
+msgid "Secret"
+msgstr ""
+
 msgid "Secret access key"
 msgstr ""
 
 msgid "Secret Access Key"
+msgstr ""
+
+msgid "Secret Details"
+msgstr ""
+
+msgid "Secret ID"
+msgstr ""
+
+msgid "Secret Not Found"
+msgstr ""
+
+msgid "Secret Type"
+msgstr ""
+
+msgid "Secrets"
 msgstr ""
 
 msgid "Security"
@@ -3634,6 +3796,9 @@ msgstr ""
 msgid "Stored as X-Object-Meta-* headers. Keys are case-insensitive."
 msgstr "Gespeichert als X-Object-Meta-*-Header. Schlüssel sind nicht zwischen Groß- und Kleinschreibung unterscheidend."
 
+msgid "Sub Status"
+msgstr ""
+
 msgid "Subnet"
 msgstr "Subnet"
 
@@ -3883,6 +4048,9 @@ msgstr ""
 msgid "There are no containers available with the current search criteria. Try adjusting your search term."
 msgstr "Mit den aktuellen Suchkriterien sind keine Container verfügbar. Versuchen Sie, Ihren Suchbegriff anzupassen."
 
+msgid "There are no containers in this project. Create one to group your secrets."
+msgstr ""
+
 msgid "There Are No CORS Rules for This Bucket"
 msgstr ""
 
@@ -3901,6 +4069,9 @@ msgstr "Es gibt keine Elemente zum Anzeigen."
 msgid "There Are No Lifecycle Rules for This Bucket"
 msgstr ""
 
+msgid "There are no orders in this project. Create one to request secret generation."
+msgstr ""
+
 msgid "There are no pending shared images for this project with the current filters applied. Try adjusting your filter criteria or check the All Images tab."
 msgstr ""
 
@@ -3912,6 +4083,9 @@ msgstr ""
 
 msgid "There are no rules for this security group"
 msgstr "Es gibt keine Regeln für diese Sicherheitsgruppe"
+
+msgid "There are no secrets in this project. Create one to get started."
+msgstr ""
 
 msgid "There are no security groups available for this project with the current filters applied. Try adjusting your filter criteria or create a new security group to get started."
 msgstr "Für dieses Projekt sind mit den aktuellen Filtern keine Sicherheitsgruppen verfügbar. Passen Sie Ihre Filterkriterien an oder erstellen Sie eine neue Sicherheitsgruppe."
@@ -3931,6 +4105,12 @@ msgstr ""
 msgid "This action cannot be undone."
 msgstr ""
 
+msgid "This action cannot be undone. The {orderTypeLabel} order will be permanently deleted."
+msgstr ""
+
+msgid "This action cannot be undone. The container will be permanently deleted."
+msgstr ""
+
 msgid "This action cannot be undone. The flavor will be permanently deleted."
 msgstr "Diese Aktion kann nicht rückgängig gemacht werden. Der Flavor wird dauerhaft gelöscht."
 
@@ -3939,6 +4119,9 @@ msgstr "Diese Aktion kann nicht rückgängig gemacht werden. Das Image wird daue
 
 msgid "This action cannot be undone. The rule will be permanently deleted."
 msgstr "Diese Aktion kann nicht rückgängig gemacht werden. Die Regel wird dauerhaft gelöscht."
+
+msgid "This action cannot be undone. The secret will be permanently deleted."
+msgstr ""
 
 msgid "This action cannot be undone. The security group will be permanently deleted."
 msgstr "Diese Aktion kann nicht rückgängig gemacht werden. Die Security Group wird dauerhaft gelöscht."
@@ -4189,6 +4372,9 @@ msgstr ""
 msgid "Unknown Error"
 msgstr ""
 
+msgid "unnamed"
+msgstr ""
+
 msgid "Unnamed"
 msgstr "Unbenannt"
 
@@ -4200,6 +4386,9 @@ msgstr "Objekt aktualisieren"
 
 msgid "Update Security Group"
 msgstr "Security Group aktualisieren"
+
+msgid "Updated"
+msgstr ""
 
 msgid "Updated At"
 msgstr "Aktualisiert am"
