@@ -99,15 +99,6 @@ describe("buildNavSections", () => {
       expect(servicesSection?.services.map((s) => s.service)).toEqual(["custom-service"])
     })
 
-    it("adds a service nav item in the authorization section when navSection is authorization", () => {
-      const services = [...ALL_SERVICES, { type: "custom-service", name: "custom-provider" }]
-      const authExtension = { ...CUSTOM_SERVICE, navSection: "authorization" }
-      const sections = buildNavSections("proj-1", services, undefined, [authExtension])
-      const authSection = sections.find((s) => s.section === "authorization")
-      expect(authSection?.services.map((s) => s.service)).toEqual(["custom-service"])
-      expect(sections.map((s) => s.section)).not.toContain("services")
-    })
-
     it("omits a service nav item when its service is absent from the catalog", () => {
       const sections = buildNavSections("proj-1", ALL_SERVICES, undefined, [CUSTOM_SERVICE])
       expect(sections.map((s) => s.section)).not.toContain("services")

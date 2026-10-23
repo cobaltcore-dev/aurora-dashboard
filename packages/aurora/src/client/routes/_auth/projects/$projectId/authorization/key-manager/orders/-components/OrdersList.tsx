@@ -10,7 +10,7 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { usePermissions } from "../../-components/usePermissions"
-import { OrdersListContainer } from "./OrdersListContainer"
+import { OrderListContainer } from "./OrderListContainer"
 import { CreateOrderModal, DeleteOrderModal } from "./OrderModals"
 import type { Order } from "@/server/KeyManager/types/keyManager"
 
@@ -83,7 +83,7 @@ export function OrdersList({ projectId, sort, page, onSortChange, onPageChange, 
           </Stack>
         </Stack>
 
-        <OrdersListContainer
+        <OrderListContainer
           orders={data?.orders ?? []}
           isLoading={isLoading}
           isError={isError}

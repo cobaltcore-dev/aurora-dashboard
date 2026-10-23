@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { trpcReact } from "@/client/trpcClient"
 import { useSetBreadcrumb } from "@/client/hooks/useSetBreadcrumb"
-import { SecretDetail } from "./-components/SecretDetail"
+import { SecretDetailsView } from "./-components/SecretDetailsView"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/authorization/key-manager/secrets/$secretId")({
@@ -20,7 +20,7 @@ function SecretDetailPage() {
   useSetBreadcrumb(Route.id, secret?.name ?? secretId)
 
   return (
-    <SecretDetail
+    <SecretDetailsView
       projectId={projectId}
       secretId={secretId}
       onBack={() => {

@@ -12,7 +12,7 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { usePermissions } from "../../-components/usePermissions"
-import { SecretsListContainer } from "./SecretsListContainer"
+import { SecretListContainer } from "./SecretListContainer"
 import { CreateSecretModal, DeleteSecretModal } from "./SecretModals"
 import type { Secret } from "@/server/KeyManager/types/keyManager"
 
@@ -112,7 +112,7 @@ export function SecretsList({
           </DataGridToolbar>
         </Stack>
 
-        <SecretsListContainer
+        <SecretListContainer
           secrets={data?.secrets ?? []}
           isLoading={isLoading}
           isError={isError}

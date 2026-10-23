@@ -5,13 +5,13 @@ import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import ClipboardText from "@/client/components/ClipboardText"
 import { uuidFromRef } from "../../-components/utils"
 
-interface OrderDetailProps {
+interface OrderDetailsViewProps {
   projectId: string
   orderId: string
   onBack: () => void
 }
 
-export function OrderDetail({ projectId, orderId, onBack }: OrderDetailProps) {
+export function OrderDetailsView({ projectId, orderId, onBack }: OrderDetailsViewProps) {
   const { t } = useLingui()
   const {
     data: order,

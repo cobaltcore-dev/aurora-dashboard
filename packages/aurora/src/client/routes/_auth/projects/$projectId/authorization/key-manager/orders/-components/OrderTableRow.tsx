@@ -27,8 +27,8 @@ export function OrderTableRow({ order, canDelete, onShowDetails, onDelete }: Ord
           <ClipboardText text={id} />
         </div>
       </DataGridCell>
-      <DataGridCell>{order.type}</DataGridCell>
       <DataGridCell>{order.status}</DataGridCell>
+      <DataGridCell>{order.type}</DataGridCell>
       <DataGridCell onClick={(e: React.MouseEvent) => e.stopPropagation()} className="items-end pr-0">
         <PopupMenu>
           <PopupMenuOptions>

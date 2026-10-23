@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { trpcReact } from "@/client/trpcClient"
 import { useSetBreadcrumb } from "@/client/hooks/useSetBreadcrumb"
-import { OrderDetail } from "./-components/OrderDetail"
+import { OrderDetailsView } from "./-components/OrderDetailsView"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/authorization/key-manager/orders/$orderId")({
@@ -20,7 +20,7 @@ function OrderDetailPage() {
   useSetBreadcrumb(Route.id, order?.order_ref ?? orderId)
 
   return (
-    <OrderDetail
+    <OrderDetailsView
       projectId={projectId}
       orderId={orderId}
       onBack={() => {

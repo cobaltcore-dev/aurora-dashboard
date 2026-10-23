@@ -4,7 +4,7 @@ import { SECRETS_COLUMNS, SECRETS_COLUMN_COUNT } from "./constants"
 import { SecretTableRow } from "./SecretTableRow"
 import type { Secret } from "@/server/KeyManager/types/keyManager"
 
-interface SecretsListContainerProps {
+interface SecretListContainerProps {
   secrets: Secret[]
   isLoading: boolean
   isError: boolean
@@ -14,7 +14,7 @@ interface SecretsListContainerProps {
   onDelete: (secret: Secret) => void
 }
 
-export function SecretsListContainer({
+export function SecretListContainer({
   secrets,
   isLoading,
   isError,
@@ -22,7 +22,7 @@ export function SecretsListContainer({
   canDelete,
   onShowDetails,
   onDelete,
-}: SecretsListContainerProps) {
+}: SecretListContainerProps) {
   const { t } = useLingui()
 
   if (isLoading) {

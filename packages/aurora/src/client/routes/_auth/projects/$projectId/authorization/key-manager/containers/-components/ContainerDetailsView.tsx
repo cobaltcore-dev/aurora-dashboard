@@ -6,13 +6,13 @@ import ClipboardText from "@/client/components/ClipboardText"
 import { uuidFromRef } from "../../-components/utils"
 import type { Container } from "@/server/KeyManager/types/keyManager"
 
-interface ContainerDetailProps {
+interface ContainerDetailsViewProps {
   projectId: string
   containerId: string
   onBack: () => void
 }
 
-export function ContainerDetail({ projectId, containerId, onBack }: ContainerDetailProps) {
+export function ContainerDetailsView({ projectId, containerId, onBack }: ContainerDetailsViewProps) {
   const { t } = useLingui()
   const {
     data: container,

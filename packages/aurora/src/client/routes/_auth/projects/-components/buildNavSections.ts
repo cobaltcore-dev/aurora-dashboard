@@ -177,11 +177,7 @@ export function buildNavSections(
     if (enabledServices && !enabledServices.includes(extension.serviceType)) continue
     if (deniedServices?.includes(extension.serviceType)) continue
 
-    const targetSection = extension.navSection ?? "services"
-    if (!sectionMap.has(targetSection)) {
-      sectionMap.set(targetSection, { section: targetSection, label: targetSection, services: [] })
-    }
-    sectionMap.get(targetSection)?.services.push({
+    sectionMap.get("services")?.services.push({
       service: extension.serviceType,
       label: extension.label,
       navigate: (nav: NavigateFn) =>

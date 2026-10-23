@@ -5,13 +5,13 @@ import { trpcReact } from "@/client/trpcClient"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import ClipboardText from "@/client/components/ClipboardText"
 
-interface SecretDetailProps {
+interface SecretDetailsViewProps {
   projectId: string
   secretId: string
   onBack: () => void
 }
 
-export function SecretDetail({ projectId, secretId, onBack }: SecretDetailProps) {
+export function SecretDetailsView({ projectId, secretId, onBack }: SecretDetailsViewProps) {
   const { t } = useLingui()
   const [showPayload, setShowPayload] = useState(false)
 

@@ -4,7 +4,7 @@ import { ORDERS_COLUMNS, ORDERS_COLUMN_COUNT } from "./constants"
 import { OrderTableRow } from "./OrderTableRow"
 import type { Order } from "@/server/KeyManager/types/keyManager"
 
-interface OrdersListContainerProps {
+interface OrderListContainerProps {
   orders: Order[]
   isLoading: boolean
   isError: boolean
@@ -14,7 +14,7 @@ interface OrdersListContainerProps {
   onDelete: (order: Order) => void
 }
 
-export function OrdersListContainer({
+export function OrderListContainer({
   orders,
   isLoading,
   isError,
@@ -22,7 +22,7 @@ export function OrdersListContainer({
   canDelete,
   onShowDetails,
   onDelete,
-}: OrdersListContainerProps) {
+}: OrderListContainerProps) {
   const { t } = useLingui()
 
   if (isLoading) {
