@@ -1,10 +1,19 @@
-import { Button, Status } from "@cloudoperators/juno-ui-components"
+import {
+  Button,
+  Status,
+  Stack,
+  ContentHeading,
+  DataGrid,
+  DataGridRow,
+  DataGridHeadCell,
+  DataGridCell,
+} from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
+import { TwoColumnDescriptionList, type DetailListItem } from "@/client/components/TwoColumnDescriptionList"
 import ClipboardText from "@/client/components/ClipboardText"
 import { uuidFromRef } from "../../-components/utils"
-import type { Container } from "@/server/KeyManager/types/keyManager"
 
 interface ContainerDetailsViewProps {
   projectId: string
@@ -28,73 +37,60 @@ export function ContainerDetailsView({ projectId, containerId, onBack }: Contain
   if (isError) return <Status status="error" title={error?.message ?? t`Failed to Load Container`} />
   if (!container) return <Status status="empty" title={t`Container Not Found`} />
 
+  const detailItems: DetailListItem[] = [
+    { label: t`ID`, value: <ClipboardText text={containerId} /> },
+    { label: t`Reference`, value: <ClipboardText text={container.container_ref} /> },
+    { label: t`Name`, value: container.name ?? "- -" },
+    { label: t`Type`, value: container.type },
+    { label: t`Status`, value: container.status },
+    { label: t`Created`, value: new Date(container.created).toLocaleString() },
+    { label: t`Updated`, value: new Date(container.updated).toLocaleString() },
+  ]
+
   return (
-    <div className="max-w-3xl">
+    <>
       <ContentHeader
-        title={container.name ?? t`Unnamed Container`}
+        title={container.name ?? containerId}
         projectId={projectId}
         actions={
           <Button variant="subdued" onClick={onBack}>
-            {t`← Back to Containers`}
+            {t`Back to Containers`}
           </Button>
         }
       />
 
-      <dl className="juno-dl">
-        <dt>{t`ID`}</dt>
-        <dd>
-          <ClipboardText text={containerId} />
-        </dd>
+      <Stack direction="vertical" gap="6" className="my-6">
+        <Stack direction="vertical" gap="2">
+          <ContentHeading>{t`Container Details`}</ContentHeading>
+          <TwoColumnDescriptionList items={detailItems} />
+        </Stack>
 
-        <dt>{t`Reference`}</dt>
-        <dd>
-          <ClipboardText text={container.container_ref} />
-        </dd>
-
-        <dt>{t`Name`}</dt>
-        <dd>{container.name ?? <em>—</em>}</dd>
-
-        <dt>{t`Type`}</dt>
-        <dd>{container.type}</dd>
-
-        <dt>{t`Status`}</dt>
-        <dd>{container.status}</dd>
-
-        <dt>{t`Created`}</dt>
-        <dd>{new Date(container.created).toLocaleString()}</dd>
-
-        <dt>{t`Updated`}</dt>
-        <dd>{new Date(container.updated).toLocaleString()}</dd>
-      </dl>
-
-      {container.secret_refs.length > 0 && (
-        <div className="mt-4">
-          <h3 className="mb-2 text-sm font-semibold">
-            {t`Secrets`} ({container.secret_refs.length})
-          </h3>
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left opacity-60">
-                <th className="pr-4 pb-1">{t`Name`}</th>
-                <th className="pb-1">{t`Secret ID`}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {container.secret_refs.map((ref: Container["secret_refs"][number]) => {
-                const id = uuidFromRef(ref.secret_ref)
-                return (
-                  <tr key={ref.secret_ref} className="border-theme-background-lvl-2 border-t">
-                    <td className="py-1 pr-4">{ref.name}</td>
-                    <td className="py-1">
-                      <ClipboardText text={id} />
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </div>
+        <Stack direction="vertical" gap="2">
+          <ContentHeading>{t`Secrets`}</ContentHeading>
+          <DataGrid columns={2}>
+            <DataGridRow>
+              <DataGridHeadCell>{t`Name`}</DataGridHeadCell>
+              <DataGridHeadCell>{t`Secret ID`}</DataGridHeadCell>
+            </DataGridRow>
+            {container.secret_refs.length > 0 ? (
+              container.secret_refs.map((ref) => (
+                <DataGridRow key={ref.secret_ref}>
+                  <DataGridCell>{ref.name || "- -"}</DataGridCell>
+                  <DataGridCell>
+                    <ClipboardText text={uuidFromRef(ref.secret_ref)} />
+                  </DataGridCell>
+                </DataGridRow>
+              ))
+            ) : (
+              <DataGridRow>
+                <DataGridCell colSpan={2}>
+                  <Status status="empty" title={t`No Secrets in This Container`} />
+                </DataGridCell>
+              </DataGridRow>
+            )}
+          </DataGrid>
+        </Stack>
+      </Stack>
+    </>
   )
 }

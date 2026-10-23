@@ -232,15 +232,6 @@ msgstr "{totalItemCount, plural, one {{totalItemCount} Element} other {{totalIte
 msgid "{unlisted} further {unlisted, plural, one {failure is} other {failures are}} not listed here."
 msgstr ""
 
-msgid "← Back to Containers"
-msgstr ""
-
-msgid "← Back to Orders"
-msgstr ""
-
-msgid "← Back to Secrets"
-msgstr ""
-
 msgid "<0>Edit metadata:</0> <1>{displayName}</1>"
 msgstr "<0>Metadaten bearbeiten:</0> <1>{displayName}</1>"
 
@@ -565,9 +556,6 @@ msgstr ""
 msgid "Apply this rule only to objects with this prefix (leave empty for all objects)"
 msgstr ""
 
-msgid "Are you sure you want to delete"
-msgstr ""
-
 msgid "Are you sure you want to delete {ruleCount, plural, one {# CORS rule} other {# CORS rules}} from bucket <0>{bucketName}</0>?"
 msgstr ""
 
@@ -578,9 +566,6 @@ msgid "Are you sure you want to delete <0>{ruleDisplayName}</0> from bucket <1>{
 msgstr ""
 
 msgid "Are you sure you want to delete lifecycle rule <0>{displayName}</0> from bucket <1>{bucketName}</1>?"
-msgstr ""
-
-msgid "Are you sure you want to delete the"
 msgstr ""
 
 msgid "Are you sure you want to delete the policy for bucket <0>{bucketName}</0>?"
@@ -640,7 +625,13 @@ msgstr "Zurück zu Images"
 msgid "Back to Key Manager"
 msgstr ""
 
+msgid "Back to Orders"
+msgstr ""
+
 msgid "Back to Routers"
+msgstr ""
+
+msgid "Back to Secrets"
 msgstr ""
 
 msgid "Back to Security Groups"
@@ -1261,6 +1252,9 @@ msgstr ""
 msgid "Delete Container"
 msgstr ""
 
+msgid "Delete Container \"{containerName}\""
+msgstr ""
+
 msgid "Delete container:"
 msgstr "Container löschen:"
 
@@ -1315,7 +1309,7 @@ msgstr "Objekt löschen:"
 msgid "Delete Objects"
 msgstr ""
 
-msgid "Delete Order"
+msgid "Delete Order \"{orderId}\""
 msgstr ""
 
 msgid "Delete Policy"
@@ -1330,7 +1324,7 @@ msgstr ""
 msgid "Delete Rule"
 msgstr "Regel löschen"
 
-msgid "Delete Secret"
+msgid "Delete Secret \"{secretName}\""
 msgstr ""
 
 msgid "Delete Security Group \"{securityGroupName}\""
@@ -2569,7 +2563,7 @@ msgstr ""
 msgid "Loading Orders..."
 msgstr ""
 
-msgid "Loading payload..."
+msgid "Loading Payload..."
 msgstr ""
 
 msgid "Loading Permissions..."
@@ -2674,9 +2668,6 @@ msgstr "Mitglied \"{memberIdToRemove}\" wurde erfolgreich entfernt."
 msgid "Member \"{trimmedMemberId}\" has been added successfully."
 msgstr "Mitglied \"{trimmedMemberId}\" wurde erfolgreich hinzugefügt."
 
-msgid "Meta"
-msgstr ""
-
 msgid "Metadata"
 msgstr "Metadata"
 
@@ -2746,12 +2737,6 @@ msgstr "Muss eine gültige PQDN oder FQDN sein (nur alphanumerische Zeichen und 
 msgid "Must be a whole number, 0 or greater"
 msgstr "Muss eine ganze Zahl sein, 0 oder größer"
 
-msgid "My container"
-msgstr ""
-
-msgid "My secret"
-msgstr ""
-
 msgid "my-bucket-name"
 msgstr ""
 
@@ -2760,9 +2745,6 @@ msgstr "keine Angabe"
 
 msgid "Name"
 msgstr "Name"
-
-msgid "Name (optional)"
-msgstr ""
 
 msgid "Name must be 2-50 characters long."
 msgstr "Der Name muss 2-50 Zeichen lang sein."
@@ -2909,6 +2891,9 @@ msgid "No Rules Found"
 msgstr ""
 
 msgid "No Secrets Found"
+msgstr ""
+
+msgid "No Secrets in This Container"
 msgstr ""
 
 msgid "No security groups found"
@@ -3058,19 +3043,25 @@ msgstr ""
 msgid "Optional unique identifier for the rule (max 255 characters)"
 msgstr ""
 
+msgid "Optional. A friendly name for the container."
+msgstr ""
+
+msgid "Optional. A friendly name for the secret."
+msgstr ""
+
+msgid "Optional. The secret material to store."
+msgstr ""
+
 msgid "Optional. Up to 255 characters."
 msgstr ""
 
 msgid "or drag and drop"
 msgstr "oder per Drag & Drop"
 
-msgid "order"
-msgstr ""
-
 msgid "Order"
 msgstr ""
 
-msgid "Order Meta"
+msgid "Order Details"
 msgstr ""
 
 msgid "Order Not Found"
@@ -3110,9 +3101,6 @@ msgid "Partial Delete Success"
 msgstr "Teilweise erfolgreich gelöscht"
 
 msgid "Payload"
-msgstr ""
-
-msgid "Payload (optional)"
 msgstr ""
 
 msgid "Pending"
@@ -3514,13 +3502,7 @@ msgstr ""
 msgid "Secret Not Found"
 msgstr ""
 
-msgid "Secret Ref"
-msgstr ""
-
 msgid "Secret Type"
-msgstr ""
-
-msgid "Secret value..."
 msgstr ""
 
 msgid "Secrets"
@@ -4123,6 +4105,12 @@ msgstr ""
 msgid "This action cannot be undone."
 msgstr ""
 
+msgid "This action cannot be undone. The {orderTypeLabel} order will be permanently deleted."
+msgstr ""
+
+msgid "This action cannot be undone. The container will be permanently deleted."
+msgstr ""
+
 msgid "This action cannot be undone. The flavor will be permanently deleted."
 msgstr "Diese Aktion kann nicht rückgängig gemacht werden. Der Flavor wird dauerhaft gelöscht."
 
@@ -4131,6 +4119,9 @@ msgstr "Diese Aktion kann nicht rückgängig gemacht werden. Das Image wird daue
 
 msgid "This action cannot be undone. The rule will be permanently deleted."
 msgstr "Diese Aktion kann nicht rückgängig gemacht werden. Die Regel wird dauerhaft gelöscht."
+
+msgid "This action cannot be undone. The secret will be permanently deleted."
+msgstr ""
 
 msgid "This action cannot be undone. The security group will be permanently deleted."
 msgstr "Diese Aktion kann nicht rückgängig gemacht werden. Die Security Group wird dauerhaft gelöscht."
@@ -4175,9 +4166,6 @@ msgid "This bucket does not have any CORS rules."
 msgstr ""
 
 msgid "This bucket is already empty."
-msgstr ""
-
-msgid "This cannot be undone."
 msgstr ""
 
 msgid "This container appears empty — the object count may not have synced yet due to a recent operation."
@@ -4389,12 +4377,6 @@ msgstr ""
 
 msgid "Unnamed"
 msgstr "Unbenannt"
-
-msgid "Unnamed Container"
-msgstr ""
-
-msgid "Unnamed Secret"
-msgstr ""
 
 msgid "UP"
 msgstr ""
