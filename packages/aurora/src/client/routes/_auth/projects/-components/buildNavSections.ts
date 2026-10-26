@@ -151,7 +151,7 @@ export function buildNavSections(
         section: "authorization",
         label: t`Authorization`,
         services: [
-          ...(serviceIndex["key-manager"]?.["barbican"]
+          ...(serviceIndex["key-manager"]?.["barbican"] && isEnabled("key-manager")
             ? [
                 {
                   service: "key-manager",

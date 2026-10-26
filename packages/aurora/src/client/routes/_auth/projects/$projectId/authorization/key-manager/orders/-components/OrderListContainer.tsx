@@ -9,7 +9,7 @@ interface OrderListContainerProps {
   isLoading: boolean
   isError: boolean
   error: { message?: string } | null
-  canDelete: boolean
+  canDeleteOrder: boolean
   onShowDetails: (order: Order) => void
   onDelete: (order: Order) => void
 }
@@ -19,7 +19,7 @@ export function OrderListContainer({
   isLoading,
   isError,
   error,
-  canDelete,
+  canDeleteOrder,
   onShowDetails,
   onDelete,
 }: OrderListContainerProps) {
@@ -45,7 +45,7 @@ export function OrderListContainer({
           <OrderTableRow
             key={order.order_ref}
             order={order}
-            canDelete={canDelete}
+            canDeleteOrder={canDeleteOrder}
             onShowDetails={onShowDetails}
             onDelete={onDelete}
           />

@@ -25,7 +25,7 @@ const renderRow = (container: Container = mockContainer, canDelete = true) => {
       <PortalProvider>
         <ContainerTableRow
           container={container}
-          canDelete={canDelete}
+          canDeleteContainer={canDelete}
           onShowDetails={onShowDetails}
           onDelete={onDelete}
         />
@@ -72,7 +72,7 @@ describe("ContainerTableRow", () => {
       const user = userEvent.setup()
       const { onShowDetails } = renderRow()
 
-      await user.click(screen.getByRole("button", { name: "More" }))
+      await user.click(screen.getByRole("button", { name: "Container actions" }))
       await user.click(await screen.findByText("Show Details"))
 
       expect(onShowDetails).toHaveBeenCalledWith(mockContainer)
@@ -82,7 +82,7 @@ describe("ContainerTableRow", () => {
       const user = userEvent.setup()
       const { onDelete } = renderRow(mockContainer, true)
 
-      await user.click(screen.getByRole("button", { name: "More" }))
+      await user.click(screen.getByRole("button", { name: "Container actions" }))
       await user.click(await screen.findByText("Delete"))
 
       expect(onDelete).toHaveBeenCalledWith(mockContainer)
@@ -92,7 +92,7 @@ describe("ContainerTableRow", () => {
       const user = userEvent.setup()
       renderRow(mockContainer, false)
 
-      await user.click(screen.getByRole("button", { name: "More" }))
+      await user.click(screen.getByRole("button", { name: "Container actions" }))
 
       expect(await screen.findByText("Show Details")).toBeInTheDocument()
       expect(screen.queryByText("Delete")).not.toBeInTheDocument()

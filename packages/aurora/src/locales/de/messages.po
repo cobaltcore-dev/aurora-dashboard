@@ -475,6 +475,9 @@ msgstr ""
 msgid "Algorithm"
 msgstr ""
 
+msgid "Algorithm is required."
+msgstr ""
+
 msgid "All"
 msgstr ""
 
@@ -641,6 +644,9 @@ msgid "Basic Info"
 msgstr "Grundlegende Informationen"
 
 msgid "Bit Length"
+msgstr ""
+
+msgid "Bit length must be a positive integer."
 msgstr ""
 
 msgid "Boot RAM"
@@ -3064,6 +3070,9 @@ msgstr "oder per Drag & Drop"
 msgid "Order"
 msgstr ""
 
+msgid "Order actions"
+msgstr ""
+
 msgid "Order Details"
 msgstr ""
 
@@ -3494,6 +3503,9 @@ msgid "Secret access key"
 msgstr ""
 
 msgid "Secret Access Key"
+msgstr ""
+
+msgid "Secret actions"
 msgstr ""
 
 msgid "Secret Details"

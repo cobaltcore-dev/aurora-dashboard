@@ -288,13 +288,16 @@ describe("keyManagerRouter secrets", () => {
       expect(result).toEqual({ payload: "my-key", contentType: "application/octet-stream" })
     })
 
-    it("requests the payload endpoint", async () => {
+    it("requests the payload endpoint with an octet-stream Accept header and debugging disabled", async () => {
       const ctx = createMockContext()
       const caller = createCaller(ctx)
 
       await caller.keyManager.getSecretPayload({ project_id: TEST_PROJECT_ID, secretId: "secret-1" })
 
-      expect(ctx.__getMock).toHaveBeenCalledWith("v1/secrets/secret-1/payload")
+      expect(ctx.__getMock).toHaveBeenCalledWith("v1/secrets/secret-1/payload", {
+        headers: { Accept: "application/octet-stream" },
+        debug: false,
+      })
     })
   })
 
@@ -437,38 +440,6 @@ describe("keyManagerRouter containers", () => {
         caller.keyManager.createContainer({ project_id: TEST_PROJECT_ID, type: "bogus" })
       ).rejects.toMatchObject({ code: "BAD_REQUEST" })
       expect(ctx.__postMock).not.toHaveBeenCalled()
-    })
-  })
-
-  describe("addContainerSecret / deleteContainerSecret", () => {
-    it("posts a secret reference into the container", async () => {
-      const ctx = createMockContext()
-      const caller = createCaller(ctx)
-
-      await caller.keyManager.addContainerSecret({
-        project_id: TEST_PROJECT_ID,
-        containerId: "container-1",
-        name: "extra",
-        secret_ref: "https://barbican.example.com/v1/secrets/secret-2",
-      })
-
-      expect(ctx.__postMock).toHaveBeenCalledWith("v1/containers/container-1/secrets", {
-        name: "extra",
-        secret_ref: "https://barbican.example.com/v1/secrets/secret-2",
-      })
-    })
-
-    it("deletes a named secret from the container", async () => {
-      const ctx = createMockContext({ httpStatus: 204 })
-      const caller = createCaller(ctx)
-
-      await caller.keyManager.deleteContainerSecret({
-        project_id: TEST_PROJECT_ID,
-        containerId: "container-1",
-        secretName: "extra",
-      })
-
-      expect(ctx.__delMock).toHaveBeenCalledWith("v1/containers/container-1/secrets/extra")
     })
   })
 

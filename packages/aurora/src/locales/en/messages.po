@@ -475,6 +475,9 @@ msgstr "After restoring, this version's content will become the new latest versi
 msgid "Algorithm"
 msgstr "Algorithm"
 
+msgid "Algorithm is required."
+msgstr "Algorithm is required."
+
 msgid "All"
 msgstr "All"
 
@@ -642,6 +645,9 @@ msgstr "Basic Info"
 
 msgid "Bit Length"
 msgstr "Bit Length"
+
+msgid "Bit length must be a positive integer."
+msgstr "Bit length must be a positive integer."
 
 msgid "Boot RAM"
 msgstr "Boot RAM"
@@ -3064,6 +3070,9 @@ msgstr "or drag and drop"
 msgid "Order"
 msgstr "Order"
 
+msgid "Order actions"
+msgstr "Order actions"
+
 msgid "Order Details"
 msgstr "Order Details"
 
@@ -3495,6 +3504,9 @@ msgstr "Secret access key"
 
 msgid "Secret Access Key"
 msgstr "Secret Access Key"
+
+msgid "Secret actions"
+msgstr "Secret actions"
 
 msgid "Secret Details"
 msgstr "Secret Details"

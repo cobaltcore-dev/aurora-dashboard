@@ -39,22 +39,31 @@ export function CreateOrderModal({
     },
   })
 
+  const parsedBitLength = Number(bitLength)
+  const algorithmError = algorithm.trim() === "" ? t`Algorithm is required.` : undefined
+  const bitLengthError =
+    !Number.isInteger(parsedBitLength) || parsedBitLength <= 0 ? t`Bit length must be a positive integer.` : undefined
+  const isValid = !algorithmError && !bitLengthError
+
+  const handleConfirm = () => {
+    if (!isValid) return
+    createMutation.mutate({
+      project_id: projectId,
+      type: orderType,
+      meta: { algorithm: algorithm.trim(), bit_length: parsedBitLength },
+    })
+  }
+
   return (
     <Modal
       open
       size="large"
       title={t`Create Order`}
       onCancel={onClose}
-      onConfirm={() =>
-        createMutation.mutate({
-          project_id: projectId,
-          type: orderType,
-          meta: { algorithm, bit_length: parseInt(bitLength, 10) },
-        })
-      }
+      onConfirm={handleConfirm}
       confirmButtonLabel={t`Create`}
       cancelButtonLabel={t`Cancel`}
-      disableConfirmButton={createMutation.isPending}
+      disableConfirmButton={createMutation.isPending || !isValid}
       disableCancelButton={createMutation.isPending}
     >
       <Form
@@ -79,8 +88,11 @@ export function CreateOrderModal({
             <TextInput
               id="algorithm"
               label={t`Algorithm`}
+              required
               value={algorithm}
               onChange={(e) => setAlgorithm(e.target.value)}
+              invalid={Boolean(algorithmError)}
+              errortext={algorithmError}
             />
           </FormRow>
           <FormRow>
@@ -88,8 +100,11 @@ export function CreateOrderModal({
               id="bit-length"
               type="number"
               label={t`Bit Length`}
+              required
               value={bitLength}
               onChange={(e) => setBitLength(e.target.value)}
+              invalid={Boolean(bitLengthError)}
+              errortext={bitLengthError}
             />
           </FormRow>
         </FormSection>

@@ -18,7 +18,7 @@ type KeyManagerPermission =
   | "key-manager:orders:delete"
   | "key-manager:orders:update"
 
-export function usePermissions(
+export function useKeyManagerPermissions(
   projectId: string,
   permissions: KeyManagerPermission[]
 ): { permissions: Record<KeyManagerPermission, boolean>; isLoading: boolean } {

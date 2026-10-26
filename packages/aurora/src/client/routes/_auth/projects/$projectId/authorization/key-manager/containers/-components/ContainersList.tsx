@@ -1,7 +1,7 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button, DataGridToolbar, Message, Pagination, SearchInput, Stack } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
-import { usePermissions } from "../../-components/usePermissions"
+import { useKeyManagerPermissions } from "../../-components/useKeyManagerPermissions"
 import { ContainerListContainer } from "./ContainerListContainer"
 import { CreateContainerModal, DeleteContainerModal } from "./ContainerModals"
 import type { Container } from "@/server/KeyManager/types/keyManager"
@@ -28,7 +28,7 @@ export function ContainersList({
   const [showCreate, setShowCreate] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<Container | null>(null)
 
-  const { permissions, isLoading: permissionsLoading } = usePermissions(projectId, [
+  const { permissions, isLoading: permissionsLoading } = useKeyManagerPermissions(projectId, [
     "key-manager:containers:list",
     "key-manager:containers:create",
     "key-manager:containers:delete",
@@ -44,6 +44,13 @@ export function ContainersList({
     },
     { enabled: permissions["key-manager:containers:list"] }
   )
+
+  // After deleting the last item on a page, step back so the user never lands on an empty page.
+  useEffect(() => {
+    if (!isLoading && !isError && page > 1 && (data?.containers.length ?? 0) === 0) {
+      onPageChange(page - 1)
+    }
+  }, [isLoading, isError, page, data, onPageChange])
 
   if (permissionsLoading) return null
   if (!permissions["key-manager:containers:list"]) {
@@ -82,7 +89,7 @@ export function ContainersList({
           isLoading={isLoading}
           isError={isError}
           error={error}
-          canDelete={permissions["key-manager:containers:delete"]}
+          canDeleteContainer={permissions["key-manager:containers:delete"]}
           onShowDetails={onShowDetail}
           onDelete={setDeleteTarget}
         />

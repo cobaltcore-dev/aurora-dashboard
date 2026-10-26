@@ -9,7 +9,7 @@ interface ContainerListContainerProps {
   isLoading: boolean
   isError: boolean
   error: { message?: string } | null
-  canDelete: boolean
+  canDeleteContainer: boolean
   onShowDetails: (container: Container) => void
   onDelete: (container: Container) => void
 }
@@ -19,7 +19,7 @@ export function ContainerListContainer({
   isLoading,
   isError,
   error,
-  canDelete,
+  canDeleteContainer,
   onShowDetails,
   onDelete,
 }: ContainerListContainerProps) {
@@ -45,7 +45,7 @@ export function ContainerListContainer({
           <ContainerTableRow
             key={container.container_ref}
             container={container}
-            canDelete={canDelete}
+            canDeleteContainer={canDeleteContainer}
             onShowDetails={onShowDetails}
             onDelete={onDelete}
           />

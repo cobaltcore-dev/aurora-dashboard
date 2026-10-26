@@ -41,7 +41,7 @@ const defaultProps = {
   isLoading: false,
   isError: false,
   error: null,
-  canDelete: true,
+  canDeleteSecret: true,
   onShowDetails: vi.fn(),
   onDelete: vi.fn(),
 }

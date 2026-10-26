@@ -95,9 +95,16 @@ export const keyManagerRouter = {
     .query(async ({ input, ctx }) => {
       const km = ctx.openstack?.service("key-manager")
       validateOpenstackService(km, "key-manager")
-      const res = await km.get(`v1/secrets/${encodeURIComponent(input.secretId)}/payload`).catch((e: unknown) => {
-        throw mapKmError(e, "get secret payload")
-      })
+      // Barbican's /payload endpoint rejects the client's default Accept: application/json with 406;
+      // request the raw stored material instead. debug:false keeps secret material out of transport logs.
+      const res = await km
+        .get(`v1/secrets/${encodeURIComponent(input.secretId)}/payload`, {
+          headers: { Accept: "application/octet-stream" },
+          debug: false,
+        })
+        .catch((e: unknown) => {
+          throw mapKmError(e, "get secret payload")
+        })
       if (!res.ok) throw mapKmError({ statusCode: res.status }, "get secret payload")
       const contentType = res.headers?.get?.("content-type") ?? "text/plain"
       const text = await res.text()
@@ -214,46 +221,6 @@ export const keyManagerRouter = {
         throw mapKmError(e, "delete container")
       })
       if (res && !res.ok) throw mapKmError({ statusCode: res.status }, "delete container")
-    }),
-
-  addContainerSecret: projectScopedProcedure
-    .input(
-      projectScopedInputSchema.extend({
-        containerId: z.string(),
-        name: z.string(),
-        secret_ref: z.string(),
-      })
-    )
-    .mutation(async ({ input, ctx }) => {
-      const km = ctx.openstack?.service("key-manager")
-      validateOpenstackService(km, "key-manager")
-      const res = await km
-        .post(`v1/containers/${encodeURIComponent(input.containerId)}/secrets`, {
-          name: input.name,
-          secret_ref: input.secret_ref,
-        })
-        .catch((e: unknown) => {
-          throw mapKmError(e, "add container secret")
-        })
-      if (!res.ok) throw mapKmError({ statusCode: res.status }, "add container secret")
-    }),
-
-  deleteContainerSecret: projectScopedProcedure
-    .input(
-      projectScopedInputSchema.extend({
-        containerId: z.string(),
-        secretName: z.string(),
-      })
-    )
-    .mutation(async ({ input, ctx }) => {
-      const km = ctx.openstack?.service("key-manager")
-      validateOpenstackService(km, "key-manager")
-      const res = await km
-        .del(`v1/containers/${encodeURIComponent(input.containerId)}/secrets/${encodeURIComponent(input.secretName)}`)
-        .catch((e: unknown) => {
-          throw mapKmError(e, "delete container secret")
-        })
-      if (res && !res.ok) throw mapKmError({ statusCode: res.status }, "delete container secret")
     }),
 
   // ─── Orders ───────────────────────────────────────────────────────────────

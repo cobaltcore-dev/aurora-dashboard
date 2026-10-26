@@ -1,9 +1,12 @@
 import {
   DataGridRow,
   DataGridCell,
+  Button,
   PopupMenu,
+  PopupMenuToggle,
   PopupMenuItem,
   PopupMenuOptions,
+  PopupMenuSectionSeparator,
 } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
 import { uuidFromRef } from "../../-components/utils"
@@ -12,12 +15,12 @@ import type { Order } from "@/server/KeyManager/types/keyManager"
 
 interface OrderTableRowProps {
   order: Order
-  canDelete: boolean
+  canDeleteOrder: boolean
   onShowDetails: (order: Order) => void
   onDelete: (order: Order) => void
 }
 
-export function OrderTableRow({ order, canDelete, onShowDetails, onDelete }: OrderTableRowProps) {
+export function OrderTableRow({ order, canDeleteOrder, onShowDetails, onDelete }: OrderTableRowProps) {
   const { t } = useLingui()
   const id = uuidFromRef(order.order_ref)
   return (
@@ -31,9 +34,17 @@ export function OrderTableRow({ order, canDelete, onShowDetails, onDelete }: Ord
       <DataGridCell>{order.type}</DataGridCell>
       <DataGridCell onClick={(e: React.MouseEvent) => e.stopPropagation()} className="items-end pr-0">
         <PopupMenu>
+          <PopupMenuToggle as="div">
+            <Button icon="moreVert" title={t`Order actions`} />
+          </PopupMenuToggle>
           <PopupMenuOptions>
             <PopupMenuItem label={t`Show Details`} onClick={() => onShowDetails(order)} />
-            {canDelete && <PopupMenuItem label={t`Delete`} onClick={() => onDelete(order)} />}
+            {canDeleteOrder && (
+              <>
+                <PopupMenuSectionSeparator />
+                <PopupMenuItem label={t`Delete`} onClick={() => onDelete(order)} />
+              </>
+            )}
           </PopupMenuOptions>
         </PopupMenu>
       </DataGridCell>

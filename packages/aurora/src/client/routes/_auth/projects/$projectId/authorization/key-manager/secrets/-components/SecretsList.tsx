@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import {
   Button,
   DataGridToolbar,
@@ -11,7 +11,7 @@ import {
   Stack,
 } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
-import { usePermissions } from "../../-components/usePermissions"
+import { useKeyManagerPermissions } from "../../-components/useKeyManagerPermissions"
 import { SecretListContainer } from "./SecretListContainer"
 import { CreateSecretModal, DeleteSecretModal } from "./SecretModals"
 import type { Secret } from "@/server/KeyManager/types/keyManager"
@@ -47,7 +47,7 @@ export function SecretsList({
   const [showCreate, setShowCreate] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<Secret | null>(null)
 
-  const { permissions, isLoading: permissionsLoading } = usePermissions(projectId, [
+  const { permissions, isLoading: permissionsLoading } = useKeyManagerPermissions(projectId, [
     "key-manager:secrets:list",
     "key-manager:secrets:create",
     "key-manager:secrets:delete",
@@ -66,6 +66,13 @@ export function SecretsList({
     },
     { enabled: permissions["key-manager:secrets:list"] }
   )
+
+  // After deleting the last item on a page, step back so the user never lands on an empty page.
+  useEffect(() => {
+    if (!isLoading && !isError && page > 1 && (data?.secrets.length ?? 0) === 0) {
+      onPageChange(page - 1)
+    }
+  }, [isLoading, isError, page, data, onPageChange])
 
   if (permissionsLoading) return null
   if (!permissions["key-manager:secrets:list"]) {
@@ -117,7 +124,7 @@ export function SecretsList({
           isLoading={isLoading}
           isError={isError}
           error={error}
-          canDelete={permissions["key-manager:secrets:delete"]}
+          canDeleteSecret={permissions["key-manager:secrets:delete"]}
           onShowDetails={onShowDetail}
           onDelete={setDeleteTarget}
         />

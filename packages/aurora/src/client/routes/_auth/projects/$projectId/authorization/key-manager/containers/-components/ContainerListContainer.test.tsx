@@ -37,7 +37,7 @@ const defaultProps = {
   isLoading: false,
   isError: false,
   error: null,
-  canDelete: true,
+  canDeleteContainer: true,
   onShowDetails: vi.fn(),
   onDelete: vi.fn(),
 }

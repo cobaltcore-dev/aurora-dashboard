@@ -22,7 +22,7 @@ export const ContainerSchema = z.object({
   status: z.string(),
   created: z.string(),
   updated: z.string(),
-  secret_refs: z.array(z.object({ name: z.string(), secret_ref: z.string() })),
+  secret_refs: z.array(z.object({ name: z.string().nullable(), secret_ref: z.string() })),
   consumers: z.array(z.unknown()).optional(),
 })
 
