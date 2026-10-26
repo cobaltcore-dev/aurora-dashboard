@@ -195,7 +195,7 @@ describe("SecurityGroupDetailsView", () => {
 
     expect(screen.queryByText("RBAC policies panel")).not.toBeInTheDocument()
     expect(screen.getByText("HTTP traffic")).toBeInTheDocument()
-    expect(screen.getByRole("button", { name: "Rules" })).toHaveAttribute("aria-selected", "true")
+    expect(screen.getByRole("button", { name: "Rules" })).toHaveAttribute("aria-current", "true")
   })
 
   it("displays em dash for missing description", () => {
