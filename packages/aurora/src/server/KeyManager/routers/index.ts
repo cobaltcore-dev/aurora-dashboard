@@ -1,10 +1,10 @@
-import { keyManagerRouter } from "./keyManagerRouter"
+import { buildKeyManagerResourceRouter } from "./keyManagerRouter"
 import { buildKeyManagerPermissionRouter } from "./permissionRouter"
 import { auroraRouter } from "../../trpc"
 
 export const buildKeyManagerRouters = (policyDir: string) => ({
   keyManager: auroraRouter({
-    ...keyManagerRouter,
+    ...buildKeyManagerResourceRouter(policyDir),
     ...buildKeyManagerPermissionRouter(policyDir),
   }),
 })
