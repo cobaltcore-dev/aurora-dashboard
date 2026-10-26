@@ -61,14 +61,14 @@ export const DeactivateImagesModal: React.FC<DeactivateImagesModalProps> = ({
 
               {/* Images to be deactivated */}
               <div className="mb-6">
-                <p className="text-sm font-semibold">
+                <p className="font-semibold">
                   <Plural value={activeCount} one="Image to deactivate (#)" other="Images to deactivate (#)" />
                 </p>
                 <div className="jn:bg-theme-background-lvl-1 mt-2 max-h-24 overflow-y-auto rounded p-4">
                   <div className="space-y-1">
                     {activeImages.map((image) => (
                       <div key={image.id} className="text-theme-default text-sm">
-                        <span className="font-medium">{image.name || t`Unnamed`}</span>
+                        <span className="font-medium">{image.name || "- -"}</span>
                         <span className="text-theme-light ml-2 text-xs">({image.id})</span>
                       </div>
                     ))}
@@ -78,14 +78,14 @@ export const DeactivateImagesModal: React.FC<DeactivateImagesModalProps> = ({
 
               {(deactivatedCount > 0 || unownedCount > 0) && (
                 <div className="mb-6">
-                  <p className="text-sm font-semibold">
+                  <p className="font-semibold">
                     <Plural
                       value={deactivatedCount + unownedCount}
                       one="Image cannot be deactivated (#)"
                       other="Images cannot be deactivated (#)"
                     />
                   </p>
-                  <p className="text-theme-light mt-1 text-xs">
+                  <p className="text-theme-default mt-1">
                     <Trans>
                       These images are already deactivated or you do not have permission to deactivate them.
                     </Trans>
@@ -94,7 +94,7 @@ export const DeactivateImagesModal: React.FC<DeactivateImagesModalProps> = ({
                     <div className="space-y-1">
                       {[...deactivatedImages, ...unownedImages].map((image) => (
                         <div key={image.id} className="text-theme-default text-sm">
-                          <span className="font-medium">{image.name || t`Unnamed`}</span>
+                          <span className="font-medium">{image.name || "- -"}</span>
                           <span className="text-theme-light ml-2 text-xs">({image.id})</span>
                         </div>
                       ))}

@@ -587,7 +587,7 @@ export const imageRouter = {
             }
           )
           .catch((error) => {
-            throw mapErrorResponseToTRPCError(error, { operation: "update image", imageId })
+            throw ImageErrorHandlers.update(error, imageId)
           })
 
         const parsedData = imageSchema.safeParse(await response.json())

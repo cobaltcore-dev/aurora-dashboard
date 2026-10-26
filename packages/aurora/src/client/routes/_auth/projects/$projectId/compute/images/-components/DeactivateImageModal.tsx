@@ -57,7 +57,7 @@ export const DeactivateImageModal: React.FC<DeactivateImageModalProps> = ({
 
           <DescriptionList>
             <DescriptionTerm>{t`Name`}</DescriptionTerm>
-            <DescriptionDefinition>{image.name || t`Unnamed`}</DescriptionDefinition>
+            <DescriptionDefinition>{image.name || "- -"}</DescriptionDefinition>
 
             <DescriptionTerm>{t`Id`}</DescriptionTerm>
             <DescriptionDefinition>{image.id}</DescriptionDefinition>
@@ -70,12 +70,12 @@ export const DeactivateImageModal: React.FC<DeactivateImageModalProps> = ({
               <SizeDisplay size={image.size} />
             </DescriptionDefinition>
             <DescriptionTerm>{t`Disk Format`}</DescriptionTerm>
-            <DescriptionDefinition>{image.disk_format || t`N/A`}</DescriptionDefinition>
+            <DescriptionDefinition>{image.disk_format || "- -"}</DescriptionDefinition>
             <DescriptionTerm>{t`Created`}</DescriptionTerm>
             <DescriptionDefinition>
               {(() => {
                 const dt = new Date(image.created_at ?? "")
-                return !isNaN(dt.getTime()) ? dt.toLocaleDateString() : t`N/A`
+                return !isNaN(dt.getTime()) ? dt.toLocaleDateString() : "- -"
               })()}
             </DescriptionDefinition>
           </DescriptionList>

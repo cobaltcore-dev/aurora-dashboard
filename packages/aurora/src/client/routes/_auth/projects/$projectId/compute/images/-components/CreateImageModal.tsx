@@ -14,6 +14,8 @@ import {
   Stack,
   Pill,
   Message,
+  Box,
+  Icon,
 } from "@cloudoperators/juno-ui-components"
 import { CreateImageInput } from "@/server/Compute/types/image"
 import {
@@ -83,7 +85,9 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
     properties.container_format !== undefined &&
     properties.container_format.trim() !== "" &&
     properties.min_disk >= 0 &&
-    properties.min_ram >= 0
+    properties.min_ram >= 0 &&
+    // Also block submission while any field (including optional ones) has a validation error
+    Object.keys(errors).length === 0
 
   // Get compatible container formats for current disk_format
   const compatibleContainerFormats = useMemo(() => {
@@ -110,8 +114,33 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
     const { name, value, type, checked } = e.target
 
     if (type === "number") {
-      // For number inputs, check if the input is invalid
-      if (value === "" || e.target.validity.valid === false) {
+      // type="number" blanks e.target.value for input it can't parse (e.g. "1e", "e-25", "-")
+      // and sets validity.badInput instead. Check badInput FIRST so such input is always treated
+      // as an error — never mistaken for a deliberate clear or a valid number.
+      if (e.target.validity.badInput) {
+        if (name === "min_disk") {
+          setErrors((prev) => ({ ...prev, min_disk: t`Please enter a valid positive number` }))
+        } else if (name === "min_ram") {
+          setErrors((prev) => ({ ...prev, min_ram: t`Please enter a valid positive number` }))
+        }
+        return
+      }
+      // min_disk / min_ram are optional — a genuinely empty field is valid and means 0. Clear any
+      // error and reset to the default so the field (and the Create button) don't stay blocked.
+      if (value.trim() === "") {
+        setProperties((prev) => ({ ...prev, [name]: 0 }))
+        setErrors((prev) => {
+          const newErrors = { ...prev }
+          delete newErrors[name]
+          return newErrors
+        })
+        return
+      }
+      // Accept only plain non-negative integers. parseInt is too lenient — it truncates
+      // scientific notation (e.g. "1e5" -> 1), and type="number" treats "1e5" as valid — so
+      // validate the raw string ourselves instead of relying on parseInt / validity.valid.
+      const isNonNegativeInteger = /^\d+$/.test(value.trim())
+      if (!isNonNegativeInteger) {
         // Invalid number input - set error immediately
         if (name === "min_disk") {
           setErrors((prev) => ({ ...prev, min_disk: t`Please enter a valid positive number` }))
@@ -151,6 +180,19 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
       } else if (value.length > 255) {
         setErrors((prev) => ({ ...prev, name: t`Image name must be at most 255 characters` }))
       }
+    }
+  }
+
+  const handleNumericKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // min_disk / min_ram accept only non-negative integers, so allow only the digits 0-9.
+    // Everything else type="number" would otherwise accept ("e", "E", "+", "-", ".") leaves the
+    // field in a badInput state the change handler can't reliably see, so block it at the
+    // keystroke. Editing/navigation keys and shortcuts (Backspace, arrows, Ctrl+V, …) are let
+    // through — they are not single printable characters.
+    const isSingleChar = e.key.length === 1
+    const isModifierCombo = e.ctrlKey || e.metaKey || e.altKey
+    if (isSingleChar && !isModifierCombo && !/^[0-9]$/.test(e.key)) {
+      e.preventDefault()
     }
   }
 
@@ -387,9 +429,9 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
       {isLoading && (
         <div className="mt-4">
           {uploadProgressPercent ? (
-            <div className="bg-neutral-quaternary w-full rounded-full">
+            <div className="bg-theme-background-lvl-2 w-full rounded-full">
               <div
-                className="bg-theme-info flex h-4 items-center justify-center rounded-full p-0.5 text-center text-xs leading-none font-medium text-white"
+                className="bg-theme-info text-theme-on-default flex h-4 items-center justify-center rounded-full p-0.5 text-center text-xs leading-none font-medium"
                 style={{ width: `${uploadProgressPercent}%` }}
               >
                 {uploadProgressPercent}%
@@ -417,9 +459,9 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
           <FormSection className="mb-6">
             <FormRow>
               <div className="w-full">
-                <label htmlFor="image-file" className="mb-2 block text-sm font-medium text-gray-900">
+                <label htmlFor="image-file" className="text-theme-default mb-2 block text-sm font-medium">
                   {t`Image File`}
-                  <span className="ml-1 text-red-500">*</span>
+                  <span className="text-theme-accent ml-1">*</span>
                 </label>
                 <div className="flex w-full items-center justify-center">
                   <label
@@ -429,12 +471,17 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
                     onDrop={handleDrop}
                     className={cn(
                       "flex h-24 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed transition-all",
-                      isDragging ? "border-blue-500 bg-blue-50" : "border-gray-300 bg-gray-50 hover:bg-gray-100"
+                      isDragging
+                        ? "border-theme-info bg-theme-background-lvl-2"
+                        : "border-theme-background-lvl-4 bg-theme-background-lvl-1 hover:bg-theme-background-lvl-2"
                     )}
                   >
                     <div className="flex flex-col items-center justify-center pt-3 pb-3">
                       <svg
-                        className={cn("mb-1 h-6 w-6 transition-colors", isDragging ? "text-blue-500" : "text-gray-500")}
+                        className={cn(
+                          "mb-1 h-6 w-6 transition-colors",
+                          isDragging ? "text-theme-info" : "text-theme-light"
+                        )}
                         aria-hidden="true"
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
@@ -451,7 +498,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
                       <p
                         className={cn(
                           "text-xs transition-colors",
-                          isDragging ? "font-semibold text-blue-600" : "text-gray-500"
+                          isDragging ? "text-theme-info font-semibold" : "text-theme-light"
                         )}
                       >
                         {isDragging ? (
@@ -462,7 +509,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
                           </>
                         )}
                       </p>
-                      <p className="text-xs text-gray-400">{t`QCOW2, Raw, VMDK, VHD, VHDX, VDI, AMI, ARI, AKI, ISO, PLOOP`}</p>
+                      <p className="text-theme-light text-xs">{t`QCOW2, Raw, VMDK, VHD, VHDX, VDI, AMI, ARI, AKI, ISO, PLOOP`}</p>
                     </div>
                     <input
                       id="image-file"
@@ -475,19 +522,13 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
                   </label>
                 </div>
                 {selectedFile && (
-                  <div className="mt-2 flex items-center justify-between rounded-lg border border-green-200 bg-green-50 p-2 text-xs">
-                    <div className="flex items-center">
-                      <svg className="mr-2 h-4 w-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                        <path
-                          fillRule="evenodd"
-                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                      <span className="text-gray-700">{selectedFile.name}</span>
-                    </div>
-                    <button
-                      type="button"
+                  <Box className="mt-2 flex items-center justify-between text-xs">
+                    <span className="text-theme-default">{selectedFile.name}</span>
+                    <Icon
+                      icon="close"
+                      size="18"
+                      title={t`Remove`}
+                      disabled={isLoading}
                       onClick={() => {
                         setSelectedFile(null)
                         // Clear file error when removing file
@@ -499,14 +540,10 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
                           })
                         }
                       }}
-                      className="font-medium text-red-600 hover:text-red-800"
-                      disabled={isLoading}
-                    >
-                      {t`Remove`}
-                    </button>
-                  </div>
+                    />
+                  </Box>
                 )}
-                {errors.file && <p className="text-theme-error mt-1 text-xs text-red-600">{errors.file}</p>}
+                {errors.file && <p className="text-theme-error mt-1 text-xs">{errors.file}</p>}
               </div>
             </FormRow>
           </FormSection>
@@ -526,54 +563,6 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
                 errortext={errors.name}
                 disabled={isLoading}
               />
-            </FormRow>
-
-            <FormRow className="mb-6">
-              <div className="w-full">
-                <Stack gap="1" direction="horizontal" alignment="start">
-                  <div className="flex-1">
-                    <TextInput
-                      id="tags"
-                      name="tags"
-                      label={t`Tags`}
-                      value={tagsInput}
-                      onChange={handleTagsInputChange}
-                      onKeyDown={handleTagKeyPress}
-                      helptext={t`Press Enter or click Add to add a tag`}
-                      disabled={isLoading}
-                    />
-                  </div>
-
-                  <Button onClick={handleAddTag} disabled={isLoading || tagsInput.trim() === ""}>
-                    <Trans>Add</Trans>
-                  </Button>
-                </Stack>
-
-                {properties.tags.length > 0 && (
-                  <Stack gap="1" wrap={true} alignment="center" className="mt-1">
-                    {properties.tags.map((tag) => (
-                      <Pill key={tag} closeable pillKey="" pillValue={tag} onClose={() => handleRemoveTag(tag)} />
-                    ))}
-                  </Stack>
-                )}
-              </div>
-            </FormRow>
-
-            <FormRow className="mb-6">
-              <Select
-                id="visibility"
-                name="visibility"
-                label={t`Visibility`}
-                value={properties.visibility}
-                onChange={(value) => handleSelectChange("visibility", value)}
-                disabled={isLoading}
-                loading={isLoading}
-              >
-                <SelectOption value={IMAGE_VISIBILITY.PUBLIC} label={t`Public`} />
-                <SelectOption value={IMAGE_VISIBILITY.PRIVATE} label={t`Private`} />
-                <SelectOption value={IMAGE_VISIBILITY.SHARED} label={t`Shared`} />
-                <SelectOption value={IMAGE_VISIBILITY.COMMUNITY} label={t`Community`} />
-              </Select>
             </FormRow>
 
             <FormRow className="mb-6">
@@ -623,6 +612,54 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
               </Stack>
             </FormRow>
 
+            <FormRow className="mb-6">
+              <Select
+                id="visibility"
+                name="visibility"
+                label={t`Visibility`}
+                value={properties.visibility}
+                onChange={(value) => handleSelectChange("visibility", value)}
+                disabled={isLoading}
+                loading={isLoading}
+              >
+                <SelectOption value={IMAGE_VISIBILITY.PUBLIC} label={t`Public`} />
+                <SelectOption value={IMAGE_VISIBILITY.PRIVATE} label={t`Private`} />
+                <SelectOption value={IMAGE_VISIBILITY.SHARED} label={t`Shared`} />
+                <SelectOption value={IMAGE_VISIBILITY.COMMUNITY} label={t`Community`} />
+              </Select>
+            </FormRow>
+
+            <FormRow className="mb-6">
+              <div className="w-full">
+                <Stack gap="1" direction="horizontal" alignment="start">
+                  <div className="flex-1">
+                    <TextInput
+                      id="tags"
+                      name="tags"
+                      label={t`Tags`}
+                      value={tagsInput}
+                      onChange={handleTagsInputChange}
+                      onKeyDown={handleTagKeyPress}
+                      helptext={t`Press Enter or click Add to add a tag`}
+                      disabled={isLoading}
+                    />
+                  </div>
+
+                  <Button onClick={handleAddTag} disabled={isLoading || tagsInput.trim() === ""}>
+                    <Trans>Add</Trans>
+                  </Button>
+                </Stack>
+
+                {properties.tags.length > 0 && (
+                  <Stack gap="1" wrap={true} alignment="center" className="mt-1">
+                    {properties.tags.map((tag) => (
+                      <Pill key={tag} closeable pillKey="" pillValue={tag} onClose={() => handleRemoveTag(tag)} />
+                    ))}
+                  </Stack>
+                )}
+              </div>
+            </FormRow>
+
             <FormRow className="mb-0">
               <Checkbox
                 id="protected"
@@ -649,6 +686,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
                     min="0"
                     value={String(properties.min_disk)}
                     onChange={handleInputChange}
+                    onKeyDown={handleNumericKeyDown}
                     onBlur={() => handleNumericBlur("min_disk", properties.min_disk)}
                     helptext={t`Boot size`}
                     errortext={errors.min_disk}
@@ -664,6 +702,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
                     min="0"
                     value={String(properties.min_ram)}
                     onChange={handleInputChange}
+                    onKeyDown={handleNumericKeyDown}
                     onBlur={() => handleNumericBlur("min_ram", properties.min_ram)}
                     helptext={t`Boot RAM`}
                     errortext={errors.min_ram}
