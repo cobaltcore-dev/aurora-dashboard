@@ -4,7 +4,7 @@ import { render, screen, waitFor, cleanup } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
-import { PortalProvider, NotificationManager } from "@cloudoperators/juno-ui-components"
+import { PortalProvider, NotificationManager, toast } from "@cloudoperators/juno-ui-components"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
 import { FloatingIpActionModals } from "./FloatingIpActionModals"
 import { EditFloatingIpModalProps } from "./EditFloatingIpModal"
@@ -191,6 +191,7 @@ describe("FloatingIpActionModals", () => {
   }
 
   afterEach(() => {
+    toast.dismiss()
     cleanup()
     vi.clearAllMocks()
   })

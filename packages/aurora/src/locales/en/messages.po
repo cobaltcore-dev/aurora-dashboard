@@ -2797,6 +2797,9 @@ msgstr "No Ports Found"
 msgid "No ports match your search. Clear the search to view all ports."
 msgstr "No ports match your search. Clear the search to view all ports."
 
+msgid "No Project Access"
+msgstr "No Project Access"
+
 msgid "No project access configured."
 msgstr "No project access configured."
 
@@ -3112,8 +3115,8 @@ msgstr "Project Not Accessible"
 msgid "Project Not Found"
 msgstr "Project Not Found"
 
-msgid "Project not found or you don't have access to it."
-msgstr "Project not found or you don't have access to it."
+msgid "Project not found."
+msgstr "Project not found."
 
 msgid "Projects"
 msgstr "Projects"
@@ -3273,6 +3276,9 @@ msgstr "Root Disk (GiB)"
 
 msgid "Root Disk must be an integer ≥ 0."
 msgstr "Root Disk must be an integer ≥ 0."
+
+msgid "Router actions"
+msgstr "Router actions"
 
 msgid "Router ID"
 msgstr "Router ID"
@@ -3844,6 +3850,12 @@ msgstr "The image \"{imageName}\" could not be created: {errorMessage}"
 msgid "The image \"{imageName}\" could not be updated: {errorMessage}"
 msgstr "The image \"{imageName}\" could not be updated: {errorMessage}"
 
+msgid "The image service rejected this change: {reason}"
+msgstr "The image service rejected this change: {reason}"
+
+msgid "The image service rejected this change."
+msgstr "The image service rejected this change."
+
 msgid "The image upload was cancelled."
 msgstr "The image upload was cancelled."
 
@@ -4132,6 +4144,9 @@ msgstr "This project doesn't exist or is not accessible from your current domain
 msgid "This property is reserved and cannot be modified"
 msgstr "This property is reserved and cannot be modified"
 
+msgid "This property is reserved and cannot be modified."
+msgstr "This property is reserved and cannot be modified."
+
 msgid "This router does not exist or has been deleted."
 msgstr "This router does not exist or has been deleted."
 
@@ -4257,9 +4272,6 @@ msgstr "Unknown domain"
 
 msgid "Unknown Error"
 msgstr "Unknown Error"
-
-msgid "Unnamed"
-msgstr "Unnamed"
 
 msgid "UP"
 msgstr "UP"
@@ -4479,6 +4491,9 @@ msgstr "You do not have the required permissions to access this port."
 
 msgid "You do not have the required permissions to view ports in this project."
 msgstr "You do not have the required permissions to view ports in this project."
+
+msgid "You do not have the required permissions to view routers in this project."
+msgstr "You do not have the required permissions to view routers in this project."
 
 msgid "You don't have permission to access flavor access information for this flavor."
 msgstr "You don't have permission to access flavor access information for this flavor."

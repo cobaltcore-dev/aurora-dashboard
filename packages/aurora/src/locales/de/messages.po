@@ -2797,6 +2797,9 @@ msgstr ""
 msgid "No ports match your search. Clear the search to view all ports."
 msgstr ""
 
+msgid "No Project Access"
+msgstr ""
+
 msgid "No project access configured."
 msgstr "Kein Projektzugriff konfiguriert."
 
@@ -3112,7 +3115,7 @@ msgstr ""
 msgid "Project Not Found"
 msgstr ""
 
-msgid "Project not found or you don't have access to it."
+msgid "Project not found."
 msgstr ""
 
 msgid "Projects"
@@ -3273,6 +3276,9 @@ msgstr "Root Disk (GiB)"
 
 msgid "Root Disk must be an integer ≥ 0."
 msgstr "Root Disk muss eine ganze Zahl ≥ 0 sein."
+
+msgid "Router actions"
+msgstr ""
 
 msgid "Router ID"
 msgstr "Router-ID"
@@ -3844,6 +3850,12 @@ msgstr ""
 msgid "The image \"{imageName}\" could not be updated: {errorMessage}"
 msgstr ""
 
+msgid "The image service rejected this change: {reason}"
+msgstr ""
+
+msgid "The image service rejected this change."
+msgstr ""
+
 msgid "The image upload was cancelled."
 msgstr ""
 
@@ -4132,6 +4144,9 @@ msgstr ""
 msgid "This property is reserved and cannot be modified"
 msgstr "Diese Eigenschaft ist reserviert und kann nicht geändert werden"
 
+msgid "This property is reserved and cannot be modified."
+msgstr ""
+
 msgid "This router does not exist or has been deleted."
 msgstr ""
 
@@ -4257,9 +4272,6 @@ msgstr ""
 
 msgid "Unknown Error"
 msgstr ""
-
-msgid "Unnamed"
-msgstr "Unbenannt"
 
 msgid "UP"
 msgstr ""
@@ -4478,6 +4490,9 @@ msgid "You do not have the required permissions to access this port."
 msgstr ""
 
 msgid "You do not have the required permissions to view ports in this project."
+msgstr ""
+
+msgid "You do not have the required permissions to view routers in this project."
 msgstr ""
 
 msgid "You don't have permission to access flavor access information for this flavor."

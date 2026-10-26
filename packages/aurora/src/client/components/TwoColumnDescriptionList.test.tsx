@@ -47,4 +47,18 @@ describe("TwoColumnDescriptionList", () => {
     const { container } = render(<TwoColumnDescriptionList items={[]} />)
     expect(container).toBeTruthy()
   })
+
+  it("renders a muted placeholder for empty values", () => {
+    render(
+      <TwoColumnDescriptionList
+        items={[
+          { label: "Null", value: null },
+          { label: "Undefined", value: undefined },
+          { label: "Empty string", value: "" },
+          { label: "Empty array", value: [] },
+        ]}
+      />
+    )
+    expect(screen.getAllByText("- -")).toHaveLength(4)
+  })
 })
