@@ -98,7 +98,7 @@ export const DeleteImageModal: React.FC<DeleteImageModalProps> = ({
         {image && (
           <DescriptionList>
             <DescriptionTerm>{t`Name`}</DescriptionTerm>
-            <DescriptionDefinition>{image.name || t`Unnamed`}</DescriptionDefinition>
+            <DescriptionDefinition>{image.name || "- -"}</DescriptionDefinition>
 
             <DescriptionTerm>{t`Id`}</DescriptionTerm>
             <DescriptionDefinition>{image.id}</DescriptionDefinition>
@@ -111,10 +111,10 @@ export const DeleteImageModal: React.FC<DeleteImageModalProps> = ({
               <SizeDisplay size={image.size} />
             </DescriptionDefinition>
             <DescriptionTerm>{t`Disk Format`}</DescriptionTerm>
-            <DescriptionDefinition>{image.disk_format || t`N/A`}</DescriptionDefinition>
+            <DescriptionDefinition>{image.disk_format || "- -"}</DescriptionDefinition>
             <DescriptionTerm>{t`Created`}</DescriptionTerm>
             <DescriptionDefinition>
-              {image.created_at ? new Date(image.created_at).toLocaleDateString() : t`N/A`}
+              {image.created_at ? new Date(image.created_at).toLocaleDateString() : "- -"}
             </DescriptionDefinition>
           </DescriptionList>
         )}

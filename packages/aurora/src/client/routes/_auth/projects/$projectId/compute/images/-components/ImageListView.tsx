@@ -592,11 +592,13 @@ export function ImageListView({
   if (isLoading) {
     return (
       <div data-testid="loading">
-        <DataGridRow>
-          <DataGridCell colSpan={3}>
-            <Status status="progress" title={t`Loading...`} />
-          </DataGridCell>
-        </DataGridRow>
+        <DataGrid columns={hasAnyBulkAction ? 9 : 8} className="images">
+          <DataGridRow>
+            <DataGridCell colSpan={hasAnyBulkAction ? 9 : 8}>
+              <Status status="progress" title={t`Loading...`} />
+            </DataGridCell>
+          </DataGridRow>
+        </DataGrid>
       </div>
     )
   }

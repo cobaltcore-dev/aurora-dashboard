@@ -2866,6 +2866,9 @@ msgstr "No policies match your search"
 msgid "No Policy Found"
 msgstr "No Policy Found"
 
+msgid "No Project Access"
+msgstr "No Project Access"
+
 msgid "No project access configured."
 msgstr "No project access configured."
 
@@ -3202,8 +3205,8 @@ msgstr "Project Not Accessible"
 msgid "Project Not Found"
 msgstr "Project Not Found"
 
-msgid "Project not found or you don't have access to it."
-msgstr "Project not found or you don't have access to it."
+msgid "Project not found."
+msgstr "Project not found."
 
 msgid "Projects"
 msgstr "Projects"
@@ -3955,6 +3958,12 @@ msgstr "The image \"{imageName}\" could not be created: {errorMessage}"
 msgid "The image \"{imageName}\" could not be updated: {errorMessage}"
 msgstr "The image \"{imageName}\" could not be updated: {errorMessage}"
 
+msgid "The image service rejected this change: {reason}"
+msgstr "The image service rejected this change: {reason}"
+
+msgid "The image service rejected this change."
+msgstr "The image service rejected this change."
+
 msgid "The image upload was cancelled."
 msgstr "The image upload was cancelled."
 
@@ -4246,6 +4255,9 @@ msgstr "This project doesn't exist or is not accessible from your current domain
 msgid "This property is reserved and cannot be modified"
 msgstr "This property is reserved and cannot be modified"
 
+msgid "This property is reserved and cannot be modified."
+msgstr "This property is reserved and cannot be modified."
+
 msgid "This router does not exist or has been deleted."
 msgstr "This router does not exist or has been deleted."
 
@@ -4374,9 +4386,6 @@ msgstr "Unknown Error"
 
 msgid "unnamed"
 msgstr "unnamed"
-
-msgid "Unnamed"
-msgstr "Unnamed"
 
 msgid "UP"
 msgstr "UP"
