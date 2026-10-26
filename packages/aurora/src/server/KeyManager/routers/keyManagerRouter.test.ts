@@ -2,8 +2,15 @@ import { describe, it, expect, vi, beforeEach } from "vitest"
 import { TRPCError } from "@trpc/server"
 import { SignalOpenstackApiError } from "@cobaltcore-dev/signal-openstack"
 import { createCallerFactory, auroraRouter } from "../../trpc"
-import { keyManagerRouter } from "./keyManagerRouter"
+import { buildKeyManagerResourceRouter } from "./keyManagerRouter"
 import { AuroraPortalContext } from "@/server/context"
+
+// The server-side policy guard loads an engine via loadPolicyEngine; mock it so handler tests
+// stay decoupled from real policy files. `policyState.allow` lets individual tests flip the decision.
+const { policyState } = vi.hoisted(() => ({ policyState: { allow: true } }))
+vi.mock("@/server/policies", () => ({
+  loadPolicyEngine: () => ({ policy: () => ({ check: () => policyState.allow }) }),
+}))
 
 const TEST_PROJECT_ID = "proj-1"
 
@@ -169,12 +176,44 @@ const createMockContext = (opts?: {
   }
 }
 
-const createCaller = createCallerFactory(auroraRouter({ keyManager: keyManagerRouter }))
+const createCaller = createCallerFactory(auroraRouter({ keyManager: buildKeyManagerResourceRouter("/test/policies") }))
 
 const splitUrl = (url: string) => {
   const [path, query] = url.split("?")
   return { path, params: new URLSearchParams(query) }
 }
+
+// Every operation is guarded by the policy engine; default to "allow" so the behavioural tests
+// exercise the handlers. The dedicated enforcement block flips this to false.
+beforeEach(() => {
+  policyState.allow = true
+})
+
+describe("keyManagerRouter policy enforcement", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("throws FORBIDDEN when the policy denies the operation", async () => {
+    policyState.allow = false
+    const caller = createCaller(createMockContext())
+
+    await expect(caller.keyManager.listSecrets({ project_id: TEST_PROJECT_ID })).rejects.toMatchObject({
+      code: "FORBIDDEN",
+    })
+  })
+
+  it("does not reach the service when the policy denies the operation", async () => {
+    policyState.allow = false
+    const ctx = createMockContext({ httpStatus: 204 })
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.keyManager.deleteSecret({ project_id: TEST_PROJECT_ID, secretId: "secret-1" })
+    ).rejects.toMatchObject({ code: "FORBIDDEN" })
+    expect(ctx.__delMock).not.toHaveBeenCalled()
+  })
+})
 
 describe("keyManagerRouter secrets", () => {
   beforeEach(() => {
