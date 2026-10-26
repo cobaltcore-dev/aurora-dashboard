@@ -25,7 +25,7 @@ const renderRow = (order: Order = mockOrder, canDelete = true) => {
   render(
     <I18nProvider i18n={i18n}>
       <PortalProvider>
-        <OrderTableRow order={order} canDelete={canDelete} onShowDetails={onShowDetails} onDelete={onDelete} />
+        <OrderTableRow order={order} canDeleteOrder={canDelete} onShowDetails={onShowDetails} onDelete={onDelete} />
       </PortalProvider>
     </I18nProvider>
   )
@@ -62,7 +62,7 @@ describe("OrderTableRow", () => {
       const user = userEvent.setup()
       const { onShowDetails } = renderRow()
 
-      await user.click(screen.getByRole("button", { name: "More" }))
+      await user.click(screen.getByRole("button", { name: "Order actions" }))
       await user.click(await screen.findByText("Show Details"))
 
       expect(onShowDetails).toHaveBeenCalledWith(mockOrder)
@@ -72,7 +72,7 @@ describe("OrderTableRow", () => {
       const user = userEvent.setup()
       const { onDelete } = renderRow(mockOrder, true)
 
-      await user.click(screen.getByRole("button", { name: "More" }))
+      await user.click(screen.getByRole("button", { name: "Order actions" }))
       await user.click(await screen.findByText("Delete"))
 
       expect(onDelete).toHaveBeenCalledWith(mockOrder)
@@ -82,7 +82,7 @@ describe("OrderTableRow", () => {
       const user = userEvent.setup()
       renderRow(mockOrder, false)
 
-      await user.click(screen.getByRole("button", { name: "More" }))
+      await user.click(screen.getByRole("button", { name: "Order actions" }))
 
       expect(await screen.findByText("Show Details")).toBeInTheDocument()
       expect(screen.queryByText("Delete")).not.toBeInTheDocument()

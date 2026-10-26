@@ -91,6 +91,14 @@ describe("ContainerSchema", () => {
   it("requires secret_refs entries to have a name and secret_ref", () => {
     expect(ContainerSchema.safeParse({ ...validContainer, secret_refs: [{ name: "x" }] }).success).toBe(false)
   })
+
+  it("accepts a null name on a secret reference (Barbican allows unnamed references)", () => {
+    const result = ContainerSchema.safeParse({
+      ...validContainer,
+      secret_refs: [{ name: null, secret_ref: "https://barbican.example.com/v1/secrets/secret-9" }],
+    })
+    expect(result.success).toBe(true)
+  })
 })
 
 describe("OrderSchema", () => {

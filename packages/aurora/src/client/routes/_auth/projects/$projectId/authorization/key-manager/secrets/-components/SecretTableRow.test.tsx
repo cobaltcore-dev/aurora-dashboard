@@ -27,7 +27,7 @@ const renderRow = (secret: Secret = mockSecret, canDelete = true) => {
   render(
     <I18nProvider i18n={i18n}>
       <PortalProvider>
-        <SecretTableRow secret={secret} canDelete={canDelete} onShowDetails={onShowDetails} onDelete={onDelete} />
+        <SecretTableRow secret={secret} canDeleteSecret={canDelete} onShowDetails={onShowDetails} onDelete={onDelete} />
       </PortalProvider>
     </I18nProvider>
   )
@@ -83,7 +83,7 @@ describe("SecretTableRow", () => {
       const user = userEvent.setup()
       const { onShowDetails } = renderRow()
 
-      await user.click(screen.getByRole("button", { name: "More" }))
+      await user.click(screen.getByRole("button", { name: "Secret actions" }))
       await user.click(await screen.findByText("Show Details"))
 
       expect(onShowDetails).toHaveBeenCalledWith(mockSecret)
@@ -93,7 +93,7 @@ describe("SecretTableRow", () => {
       const user = userEvent.setup()
       const { onDelete } = renderRow(mockSecret, true)
 
-      await user.click(screen.getByRole("button", { name: "More" }))
+      await user.click(screen.getByRole("button", { name: "Secret actions" }))
       await user.click(await screen.findByText("Delete"))
 
       expect(onDelete).toHaveBeenCalledWith(mockSecret)
@@ -103,7 +103,7 @@ describe("SecretTableRow", () => {
       const user = userEvent.setup()
       renderRow(mockSecret, false)
 
-      await user.click(screen.getByRole("button", { name: "More" }))
+      await user.click(screen.getByRole("button", { name: "Secret actions" }))
 
       expect(await screen.findByText("Show Details")).toBeInTheDocument()
       expect(screen.queryByText("Delete")).not.toBeInTheDocument()

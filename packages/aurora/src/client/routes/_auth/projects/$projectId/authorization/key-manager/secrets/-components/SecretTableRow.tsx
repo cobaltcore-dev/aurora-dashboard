@@ -1,9 +1,12 @@
 import {
   DataGridRow,
   DataGridCell,
+  Button,
   PopupMenu,
+  PopupMenuToggle,
   PopupMenuItem,
   PopupMenuOptions,
+  PopupMenuSectionSeparator,
 } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
 import { uuidFromRef } from "../../-components/utils"
@@ -12,12 +15,12 @@ import type { Secret } from "@/server/KeyManager/types/keyManager"
 
 interface SecretTableRowProps {
   secret: Secret
-  canDelete: boolean
+  canDeleteSecret: boolean
   onShowDetails: (secret: Secret) => void
   onDelete: (secret: Secret) => void
 }
 
-export function SecretTableRow({ secret, canDelete, onShowDetails, onDelete }: SecretTableRowProps) {
+export function SecretTableRow({ secret, canDeleteSecret, onShowDetails, onDelete }: SecretTableRowProps) {
   const { t } = useLingui()
   const id = uuidFromRef(secret.secret_ref)
   return (
@@ -33,9 +36,17 @@ export function SecretTableRow({ secret, canDelete, onShowDetails, onDelete }: S
       <DataGridCell>{secret.content_types ? Object.values(secret.content_types).join(", ") : "- -"}</DataGridCell>
       <DataGridCell onClick={(e: React.MouseEvent) => e.stopPropagation()} className="items-end pr-0">
         <PopupMenu>
+          <PopupMenuToggle as="div">
+            <Button icon="moreVert" title={t`Secret actions`} />
+          </PopupMenuToggle>
           <PopupMenuOptions>
             <PopupMenuItem label={t`Show Details`} onClick={() => onShowDetails(secret)} />
-            {canDelete && <PopupMenuItem label={t`Delete`} onClick={() => onDelete(secret)} />}
+            {canDeleteSecret && (
+              <>
+                <PopupMenuSectionSeparator />
+                <PopupMenuItem label={t`Delete`} onClick={() => onDelete(secret)} />
+              </>
+            )}
           </PopupMenuOptions>
         </PopupMenu>
       </DataGridCell>

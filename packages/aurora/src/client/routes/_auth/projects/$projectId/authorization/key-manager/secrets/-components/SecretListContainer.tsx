@@ -9,7 +9,7 @@ interface SecretListContainerProps {
   isLoading: boolean
   isError: boolean
   error: { message?: string } | null
-  canDelete: boolean
+  canDeleteSecret: boolean
   onShowDetails: (secret: Secret) => void
   onDelete: (secret: Secret) => void
 }
@@ -19,7 +19,7 @@ export function SecretListContainer({
   isLoading,
   isError,
   error,
-  canDelete,
+  canDeleteSecret,
   onShowDetails,
   onDelete,
 }: SecretListContainerProps) {
@@ -45,7 +45,7 @@ export function SecretListContainer({
           <SecretTableRow
             key={secret.secret_ref}
             secret={secret}
-            canDelete={canDelete}
+            canDeleteSecret={canDeleteSecret}
             onShowDetails={onShowDetails}
             onDelete={onDelete}
           />

@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import {
   Button,
   Message,
@@ -9,7 +9,7 @@ import {
   Stack,
 } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
-import { usePermissions } from "../../-components/usePermissions"
+import { useKeyManagerPermissions } from "../../-components/useKeyManagerPermissions"
 import { OrderListContainer } from "./OrderListContainer"
 import { CreateOrderModal, DeleteOrderModal } from "./OrderModals"
 import type { Order } from "@/server/KeyManager/types/keyManager"
@@ -31,7 +31,7 @@ export function OrdersList({ projectId, sort, page, onSortChange, onPageChange, 
   const [showCreate, setShowCreate] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<Order | null>(null)
 
-  const { permissions, isLoading: permissionsLoading } = usePermissions(projectId, [
+  const { permissions, isLoading: permissionsLoading } = useKeyManagerPermissions(projectId, [
     "key-manager:orders:list",
     "key-manager:orders:create",
     "key-manager:orders:delete",
@@ -49,6 +49,13 @@ export function OrdersList({ projectId, sort, page, onSortChange, onPageChange, 
     },
     { enabled: permissions["key-manager:orders:list"] }
   )
+
+  // After deleting the last item on a page, step back so the user never lands on an empty page.
+  useEffect(() => {
+    if (!isLoading && !isError && page > 1 && (data?.orders.length ?? 0) === 0) {
+      onPageChange(page - 1)
+    }
+  }, [isLoading, isError, page, data, onPageChange])
 
   if (permissionsLoading) return null
   if (!permissions["key-manager:orders:list"]) {
@@ -88,7 +95,7 @@ export function OrdersList({ projectId, sort, page, onSortChange, onPageChange, 
           isLoading={isLoading}
           isError={isError}
           error={error}
-          canDelete={permissions["key-manager:orders:delete"]}
+          canDeleteOrder={permissions["key-manager:orders:delete"]}
           onShowDetails={onShowDetail}
           onDelete={setDeleteTarget}
         />

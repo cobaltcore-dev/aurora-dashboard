@@ -5,6 +5,7 @@ import { trpcReact } from "@/client/trpcClient"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import { TwoColumnDescriptionList, type DetailListItem } from "@/client/components/TwoColumnDescriptionList"
 import ClipboardText from "@/client/components/ClipboardText"
+import { useKeyManagerPermissions } from "../../-components/useKeyManagerPermissions"
 
 interface SecretDetailsViewProps {
   projectId: string
@@ -15,6 +16,10 @@ interface SecretDetailsViewProps {
 export function SecretDetailsView({ projectId, secretId, onBack }: SecretDetailsViewProps) {
   const { t } = useLingui()
   const [showPayload, setShowPayload] = useState(false)
+
+  // Payload exposes the raw secret material; fail-closed until the dedicated permission resolves.
+  const { permissions } = useKeyManagerPermissions(projectId, ["key-manager:secrets:payload"])
+  const canRevealPayload = permissions["key-manager:secrets:payload"]
 
   const {
     data: secret,
@@ -38,6 +43,7 @@ export function SecretDetailsView({ projectId, secretId, onBack }: SecretDetails
   if (!secret) return <Status status="empty" title={t`Secret Not Found`} />
 
   const handleRevealPayload = async () => {
+    if (!canRevealPayload) return
     await fetchPayload()
     setShowPayload(true)
   }
@@ -82,34 +88,36 @@ export function SecretDetailsView({ projectId, secretId, onBack }: SecretDetails
           <TwoColumnDescriptionList items={detailItems} />
         </Stack>
 
-        <Stack direction="vertical" gap="2">
-          <ContentHeading>{t`Payload`}</ContentHeading>
-          {!showPayload ? (
-            <div>
-              <Button variant="subdued" onClick={handleRevealPayload} disabled={payloadFetching}>
-                {payloadFetching ? t`Loading Payload...` : t`Reveal Payload`}
-              </Button>
-            </div>
-          ) : payloadError ? (
-            <Message variant="error" text={t`Failed to load payload.`} />
-          ) : payloadData ? (
-            <Stack direction="vertical" gap="2">
-              <p className="text-sm opacity-60">{payloadData.contentType}</p>
-              <pre className="bg-theme-background-lvl-2 max-h-48 overflow-auto rounded p-3 text-xs">
-                {payloadData.payload}
-              </pre>
-              <Stack gap="2">
-                <Button
-                  size="small"
-                  variant="subdued"
-                  onClick={() => void navigator.clipboard.writeText(payloadData.payload)}
-                  label={t`Copy`}
-                />
-                <Button size="small" variant="subdued" onClick={() => setShowPayload(false)} label={t`Hide`} />
+        {canRevealPayload && (
+          <Stack direction="vertical" gap="2">
+            <ContentHeading>{t`Payload`}</ContentHeading>
+            {!showPayload ? (
+              <div>
+                <Button variant="subdued" onClick={handleRevealPayload} disabled={payloadFetching}>
+                  {payloadFetching ? t`Loading Payload...` : t`Reveal Payload`}
+                </Button>
+              </div>
+            ) : payloadError ? (
+              <Message variant="error" text={t`Failed to load payload.`} />
+            ) : payloadData ? (
+              <Stack direction="vertical" gap="2">
+                <p className="text-sm opacity-60">{payloadData.contentType}</p>
+                <pre className="bg-theme-background-lvl-2 max-h-48 overflow-auto rounded p-3 text-xs">
+                  {payloadData.payload}
+                </pre>
+                <Stack gap="2">
+                  <Button
+                    size="small"
+                    variant="subdued"
+                    onClick={() => void navigator.clipboard.writeText(payloadData.payload)}
+                    label={t`Copy`}
+                  />
+                  <Button size="small" variant="subdued" onClick={() => setShowPayload(false)} label={t`Hide`} />
+                </Stack>
               </Stack>
-            </Stack>
-          ) : null}
-        </Stack>
+            ) : null}
+          </Stack>
+        )}
       </Stack>
     </>
   )

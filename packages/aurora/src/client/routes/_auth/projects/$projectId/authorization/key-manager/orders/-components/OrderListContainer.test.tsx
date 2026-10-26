@@ -39,7 +39,7 @@ const defaultProps = {
   isLoading: false,
   isError: false,
   error: null,
-  canDelete: true,
+  canDeleteOrder: true,
   onShowDetails: vi.fn(),
   onDelete: vi.fn(),
 }
