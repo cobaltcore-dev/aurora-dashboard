@@ -4,6 +4,17 @@ export const useErrorTranslation = () => {
   const { t } = useLingui()
 
   const translateError = (errorCode: string): string => {
+    // Image metadata update rejections. The server emits a sentinel code; `IMAGE_METADATA_INVALID`
+    // may be followed by ": <cleaned reason>" from Glance.
+    if (errorCode === "IMAGE_METADATA_RESERVED") {
+      return t`This property is reserved and cannot be modified.`
+    }
+    const INVALID_PREFIX = "IMAGE_METADATA_INVALID"
+    if (errorCode === INVALID_PREFIX || errorCode.startsWith(`${INVALID_PREFIX}: `)) {
+      const reason = errorCode.slice(INVALID_PREFIX.length).replace(/^:\s*/, "").trim()
+      return reason ? t`The image service rejected this change: ${reason}` : t`The image service rejected this change.`
+    }
+
     switch (errorCode) {
       // List Flavor
       case "FLAVORS_UNAUTHORIZED":

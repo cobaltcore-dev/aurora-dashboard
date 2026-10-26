@@ -16,6 +16,7 @@ vi.mock("../helpers/imageHelpers", async (importOriginal) => {
     ImageErrorHandlers: {
       upload: vi.fn(),
       visibility: vi.fn(),
+      update: vi.fn(),
       delete: vi.fn(),
       member: {
         list: vi.fn(),
@@ -974,6 +975,29 @@ describe("imageRouter", () => {
         }
       )
       expect(result).toEqual(mockGlanceImage)
+    })
+
+    it("should route a 403 rejection through ImageErrorHandlers.update with the sentinel code", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      const glanceError = { statusCode: 403, message: "Property 'os_glance_x' is protected" }
+      mockCtx.mockGlance.patch.mockRejectedValue(glanceError)
+      ;(imageHelpers.ImageErrorHandlers.update as Mock).mockReturnValue(
+        new TRPCError({ code: "FORBIDDEN", message: "IMAGE_METADATA_RESERVED" })
+      )
+
+      const input = {
+        project_id: "test-project-id",
+        imageId: "123e4567-e89b-12d3-a456-426614174000",
+        operations: [{ op: "replace" as const, path: "/os_glance_x", value: "v" }],
+      }
+
+      await expect(caller.image.updateImage(input)).rejects.toThrow("IMAGE_METADATA_RESERVED")
+      expect(imageHelpers.ImageErrorHandlers.update).toHaveBeenCalledWith(
+        glanceError,
+        "123e4567-e89b-12d3-a456-426614174000"
+      )
     })
   })
 

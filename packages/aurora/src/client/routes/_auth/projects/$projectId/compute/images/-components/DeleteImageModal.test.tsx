@@ -141,10 +141,10 @@ describe("DeleteImageModal", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
   })
 
-  it("should display N/A when disk_format is missing", () => {
+  it("should display a placeholder when disk_format is missing", () => {
     const imageWithoutDiskFormat = { ...mockImage, disk_format: undefined }
     setup(true, false, false, imageWithoutDiskFormat)
-    expect(screen.getByText("N/A")).toBeInTheDocument()
+    expect(screen.getAllByText("- -").length).toBeGreaterThan(0)
   })
 
   it("should format the created date correctly", () => {
@@ -154,16 +154,16 @@ describe("DeleteImageModal", () => {
     expect(dateText).toBeInTheDocument()
   })
 
-  it("should display 'Unnamed' when image name is missing", () => {
+  it("should display a placeholder when image name is missing", () => {
     const imageWithoutName = { ...mockImage, name: undefined }
     setup(true, false, false, imageWithoutName)
-    expect(screen.getByText("Unnamed")).toBeInTheDocument()
+    expect(screen.getAllByText("- -").length).toBeGreaterThan(0)
   })
 
-  it("should display N/A when created_at is missing", () => {
+  it("should display a placeholder when created_at is missing", () => {
     const imageWithoutCreatedAt = { ...mockImage, created_at: undefined }
     setup(true, false, false, imageWithoutCreatedAt)
-    const rows = screen.getAllByText("N/A")
+    const rows = screen.getAllByText("- -")
     expect(rows.length).toBeGreaterThan(0)
   })
 

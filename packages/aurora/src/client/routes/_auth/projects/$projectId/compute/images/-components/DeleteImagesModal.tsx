@@ -111,7 +111,7 @@ export const DeleteImagesModal: React.FC<DeleteImagesModalProps> = ({
 
           {result.errors.length > 0 && (
             <div>
-              <p className="text-theme-light mb-2 text-sm">
+              <p className="text-theme-light mb-2">
                 <Trans>Failed deletions:</Trans>
               </p>
               <div className="bg-theme-background-lvl-2 max-h-96 overflow-y-auto rounded p-4">
@@ -124,11 +124,11 @@ export const DeleteImagesModal: React.FC<DeleteImagesModalProps> = ({
                       <div className="overflow-x-hidden font-medium [overflow-wrap:anywhere]" title={e.imageId}>
                         {e.imageId}
                       </div>
-                      {e.message && <div className="text-juno-red mt-1 text-sm">{e.message}</div>}
+                      {e.message && <div className="text-juno-red mt-1">{e.message}</div>}
                     </div>
                   ))}
                   {hiddenErrorCount > 0 && (
-                    <div className="text-theme-light pt-2 text-sm">
+                    <div className="text-theme-light pt-2">
                       <Trans>… and {hiddenErrorCount} more failures</Trans>
                     </div>
                   )}
@@ -175,19 +175,19 @@ export const DeleteImagesModal: React.FC<DeleteImagesModalProps> = ({
         <div className="space-y-3">
           {deletableCount > 0 && (
             <div>
-              <p className="text-sm font-semibold">
+              <p className="font-semibold">
                 <Plural value={deletableCount} one="Image to delete (#)" other="Images to delete (#)" />
               </p>
               <div className="bg-theme-background-lvl-2 mt-2 max-h-48 overflow-y-auto rounded p-3">
                 <Stack direction="vertical" gap="1">
                   {visibleDeletable.map((image) => (
                     <div key={image.id} className="text-theme-default text-sm">
-                      <span className="font-medium">{image.name || t`Unnamed`}</span>
+                      <span className="font-medium">{image.name || "- -"}</span>
                       <span className="text-theme-light ml-2 text-xs">({image.id})</span>
                     </div>
                   ))}
                   {hiddenDeletableCount > 0 && (
-                    <div className="text-theme-light pt-2 text-sm">
+                    <div className="text-theme-light pt-2">
                       <Trans>… and {hiddenDeletableCount} more</Trans>
                     </div>
                   )}
@@ -198,26 +198,26 @@ export const DeleteImagesModal: React.FC<DeleteImagesModalProps> = ({
 
           {(unownedCount > 0 || protectedCount > 0) && (
             <div>
-              <p className="text-sm font-semibold">
+              <p className="font-semibold">
                 <Plural
                   value={unownedCount + protectedCount}
                   one="Image cannot be deleted (#)"
                   other="Images cannot be deleted (#)"
                 />
               </p>
-              <p className="text-theme-light mt-1 text-xs">
+              <p className="text-theme-default mt-1">
                 <Trans>These images are protected or you do not have permission to delete them.</Trans>
               </p>
               <div className="bg-theme-background-lvl-2 mt-2 max-h-48 overflow-y-auto rounded p-3">
                 <Stack direction="vertical" gap="1">
                   {[...visibleUnowned, ...visibleProtected].map((image) => (
                     <div key={image.id} className="text-theme-default text-sm">
-                      <span className="font-medium">{image.name || t`Unnamed`}</span>
+                      <span className="font-medium">{image.name || "- -"}</span>
                       <span className="text-theme-light ml-2 text-xs">({image.id})</span>
                     </div>
                   ))}
                   {hiddenUnownedCount + hiddenProtectedCount > 0 && (
-                    <div className="text-theme-light pt-2 text-sm">
+                    <div className="text-theme-light pt-2">
                       <Trans>… and {hiddenUnownedCount + hiddenProtectedCount} more</Trans>
                     </div>
                   )}
