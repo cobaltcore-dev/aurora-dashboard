@@ -1,5 +1,37 @@
 # @cobaltcore-dev/aurora
 
+## 2.3.0
+
+### Minor Changes
+
+- c65b36d: Consume TanStack Intent skills published by `@cloudoperators/juno-ui-components` (bumped to 9.7.1). Set up Intent as a consumer at the monorepo root: `@tanstack/intent` dev dependency, an `intent.skills` allowlist, and skill-loading guidance in `AGENTS.md`.
+
+  Also fix `routeTree.gen.ts` not being generated on `pnpm run dev` by adding the TanStack Router plugin to the dashboard's Vite config and inlining the `network/routers/$routerId` route id as a string literal (the generator rejects a variable).
+
+### Patch Changes
+
+- a21ba3e: Fix image sharing validation - remove blocking Keystone check
+- a21ba3e: - Exclude pending/rejected shared images from All Images view
+  - Show permission-based restrictions in bulk action modals
+  - Validate project existence when sharing images
+  - Add 255-char limit to image names (create + update)
+  - Enable direct page navigation (e.g. `?page=6`)
+  - Disable bulk actions button when no items selected
+  - Add context-specific empty state messages
+  - Use default text color and size for restriction notices in bulk action modals
+  - Show a "- -" placeholder for empty values in detail views
+  - Explain why reserved/read-only metadata cannot be edited instead of showing a generic error
+  - Keep Create Image disabled while any field (including optional) has a validation error
+  - Reject scientific notation (e.g. `1e5`) in Min Disk / Min RAM; allow only digits 0-9 and treat empty as 0
+  - Clarify sharing error: a project may just not be found (sharing to projects you can't access is allowed)
+  - Show the images list loading indicator as a full-width grid row
+  - Fall empty names back to "- -" in image action modals (ID is shown separately)
+  - Replace remaining "N/A" placeholders with "- -" across image rows, details, and modals
+  - Use theme tokens instead of raw palette colors in the Create Image modal (dark-mode safe)
+  - Reorder Create Image fields so Disk/Container Format sit with the file, grouping required fields
+  - Use the Status component for the empty state in Manage Image Access
+  - Use a neutral Juno Box with a close (X) button for the selected image file (no success icon or colors)
+
 ## 2.2.0
 
 ### Minor Changes
