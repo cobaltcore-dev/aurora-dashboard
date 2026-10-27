@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { projectScopedInputSchema } from "../../trpc"
+import { projectScopedInputSchema } from "@/server/trpc"
 import { ISO8601TimestampSchema, SortDirSchema } from "./index"
 import { isValidCidr, isValidIpAddress } from "./router"
 
