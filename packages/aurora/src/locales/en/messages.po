@@ -3916,9 +3916,6 @@ msgstr "The selected objects will be permanently deleted. This cannot be undone.
 msgid "The service you're looking for doesn't exist or may have moved. Check the URL or return to the project home."
 msgstr "The service you're looking for doesn't exist or may have moved. Check the URL or return to the project home."
 
-msgid "The session has expired. Log in again to continue."
-msgstr "The session has expired. Log in again to continue."
-
 msgid "The specified project does not exist or you don't have permission to share with it."
 msgstr "The specified project does not exist or you don't have permission to share with it."
 

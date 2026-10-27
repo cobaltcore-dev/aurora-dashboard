@@ -1,6 +1,7 @@
 import { useNavigate } from "@tanstack/react-router"
 import { useLingui } from "@lingui/react/macro"
 import {
+  Badge,
   Button,
   DataGridCell,
   DataGridRow,
@@ -25,6 +26,14 @@ const TwoLineCell = ({ primary, secondary }: { primary: string; secondary?: stri
   </Stack>
 )
 
+/** Maps Neutron router status to a Badge variant. Documented values: ACTIVE, DOWN, BUILD, ERROR. */
+const routerStatusVariant = (status: string): "success" | "warning" | "error" | undefined => {
+  if (status === "ACTIVE") return "success"
+  if (status === "DOWN" || status === "ERROR") return "error"
+  if (status === "BUILD") return "warning"
+  return undefined
+}
+
 /**
  * Only the router's own ID is shown in the list; IDs of related entities (networks, subnets) are shown
  * on the details page. A related entity's ID is only used as a fallback when its name can't be resolved.
@@ -48,7 +57,7 @@ export const RouterTableRow = ({ router }: RouterTableRowProps) => {
       <DataGridCell>
         <TwoLineCell primary={router.name || router.id} secondary={router.name ? router.id : undefined} />
       </DataGridCell>
-      <DataGridCell>{router.status}</DataGridCell>
+      <DataGridCell><Badge variant={routerStatusVariant(router.status)}>{router.status}</Badge></DataGridCell>
       <DataGridCell>
         {gateway ? <span className="break-all">{gateway.network_name || gateway.network_id}</span> : "–"}
       </DataGridCell>

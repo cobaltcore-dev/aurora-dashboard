@@ -1,3 +1,4 @@
+import { useEffect } from "react"
 import { createFileRoute, useNavigate, useParams, useRouter, type ErrorComponentProps } from "@tanstack/react-router"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
@@ -66,14 +67,26 @@ function RouterLoadError({ error, onRetry }: RouterLoadErrorProps) {
   const statusCode: number | undefined = HTTP_STATUS_BY_TRPC_CODE[errorCode]
   const canRetry = RETRYABLE_TRPC_CODES.has(errorCode)
 
+  // 401: the session is gone. Redirect to sign-in with the current location so the user returns here after auth (B.6).
+  const router = useRouter()
+  useEffect(() => {
+    if (errorCode === "UNAUTHORIZED") {
+      const location = router.state.location
+      const redirectPath = `${location.pathname}${location.searchStr || ""}${location.hash || ""}`
+      navigate({ to: "/", search: { redirect: redirectPath } })
+    }
+  }, [errorCode, navigate, router])
+
+  if (errorCode === "UNAUTHORIZED") {
+    return null
+  }
+
   const getErrorDescription = (): string => {
     switch (errorCode) {
       case "NOT_FOUND":
         return t`This router does not exist or has been deleted.`
       case "FORBIDDEN":
         return t`Access to this router is not permitted.`
-      case "UNAUTHORIZED":
-        return t`The session has expired. Log in again to continue.`
       default:
         return canRetry ? t`The router could not be loaded. Try again.` : t`The router could not be loaded.`
     }

@@ -1,5 +1,5 @@
 import { use, Suspense, useState, useRef, useEffect, useCallback, useMemo, useDeferredValue } from "react"
-import { useSearch, useNavigate } from "@tanstack/react-router"
+import { useSearch, useNavigate, useRouter } from "@tanstack/react-router"
 import { ErrorBoundary } from "react-error-boundary"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { TRPCClientError } from "@trpc/client"
@@ -26,7 +26,7 @@ type RequiredSortSettings = {
   sortDirection: "asc" | "desc"
 }
 
-type RoutersResult = { routers: RouterListItem[]; forbidden?: boolean }
+type RoutersResult = { routers: RouterListItem[]; forbidden?: boolean; unauthorized?: boolean }
 
 const createRoutersPromise = (
   client: TrpcClient,
@@ -44,8 +44,24 @@ const createRoutersPromise = (
       if (err instanceof TRPCClientError && err.data?.code === "FORBIDDEN") {
         return { routers: [], forbidden: true }
       }
+      // 401: session is gone. Signal unauthorized so the component can redirect to sign-in (B.6).
+      if (err instanceof TRPCClientError && err.data?.code === "UNAUTHORIZED") {
+        return { routers: [], unauthorized: true }
+      }
       throw err
     })
+}
+
+/** Redirects to sign-in with the current URL as the return target (B.6). */
+function UnauthorizedRedirect() {
+  const navigate = useNavigate()
+  const router = useRouter()
+  useEffect(() => {
+    const location = router.state.location
+    const redirectPath = `${location.pathname}${location.searchStr || ""}${location.hash || ""}`
+    navigate({ to: "/", search: { redirect: redirectPath } })
+  }, [navigate, router])
+  return null
 }
 
 function RoutersContent({
@@ -69,7 +85,7 @@ function RoutersContent({
   isStale: boolean
 }) {
   const { t } = useLingui()
-  const { routers, forbidden } = use(routersPromise)
+  const { routers, forbidden, unauthorized } = use(routersPromise)
   const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm)
   const debounceTimer = useRef<number | undefined>(undefined)
   // Last term this input sent to the URL, so only external URL changes (back/forward, links) overwrite the input
@@ -99,6 +115,8 @@ function RoutersContent({
   useEffect(() => {
     if (!isStale && currentPage > totalPages) onPageChange(1)
   }, [isStale, totalPages, currentPage, onPageChange])
+
+  if (unauthorized) return <UnauthorizedRedirect />
 
   if (forbidden) {
     return (
@@ -232,11 +250,11 @@ export const Routers = ({ client, project }: RoutersProps) => {
         // (project, search, sort) changes. Keyed on the deferred promise, so the reset happens
         // together with the render that uses the new query instead of re-throwing the failed one.
         resetKeys={[deferredRoutersPromise]}
-        fallbackRender={({ error }) => (
+        fallbackRender={() => (
           <Status
             status="error"
             title={t`Failed to Load Routers`}
-            body={error instanceof Error ? error.message : t`An unexpected error occurred.`}
+            body={t`An unexpected error occurred. Please try again.`}
             action={
               <Button onClick={() => setRetryCount((count) => count + 1)}>
                 <Trans>Try Again</Trans>
