@@ -57,7 +57,9 @@ export const RouterTableRow = ({ router }: RouterTableRowProps) => {
       <DataGridCell>
         <TwoLineCell primary={router.name || router.id} secondary={router.name ? router.id : undefined} />
       </DataGridCell>
-      <DataGridCell><Badge variant={routerStatusVariant(router.status)}>{router.status}</Badge></DataGridCell>
+      <DataGridCell>
+        <Badge variant={routerStatusVariant(router.status)}>{router.status}</Badge>
+      </DataGridCell>
       <DataGridCell>
         {gateway ? <span className="break-all">{gateway.network_name || gateway.network_id}</span> : "–"}
       </DataGridCell>
