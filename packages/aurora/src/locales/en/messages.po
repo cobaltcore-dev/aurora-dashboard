@@ -529,6 +529,9 @@ msgstr "An Unexpected Error Occurred."
 msgid "An unexpected error occurred. Please try again."
 msgstr "An unexpected error occurred. Please try again."
 
+msgid "An unexpected error occurred. Try again."
+msgstr "An unexpected error occurred. Try again."
+
 msgid "Any"
 msgstr "Any"
 
@@ -1122,9 +1125,6 @@ msgstr "Create Security Group"
 
 msgid "Created"
 msgstr "Created"
-
-msgid "Created at"
-msgstr "Created at"
 
 msgid "Created At"
 msgstr "Created At"
@@ -4281,9 +4281,6 @@ msgstr "Update object"
 
 msgid "Update Security Group"
 msgstr "Update Security Group"
-
-msgid "Updated at"
-msgstr "Updated at"
 
 msgid "Updated At"
 msgstr "Updated At"

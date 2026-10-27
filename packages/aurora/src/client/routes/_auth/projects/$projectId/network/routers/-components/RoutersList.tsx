@@ -302,7 +302,7 @@ export const Routers = ({ client, project }: RoutersProps) => {
           <Status
             status="error"
             title={t`Failed to Load Routers`}
-            body={t`An unexpected error occurred. Please try again.`}
+            body={t`An unexpected error occurred. Try again.`}
             action={
               <Button onClick={() => setRetryCount((count) => count + 1)}>
                 <Trans>Try Again</Trans>

@@ -355,7 +355,7 @@ export const Ports = ({ client, project, networkId }: PortsProps) => {
           <Status
             status="error"
             title={t`Failed to Load Ports`}
-            body={t`An unexpected error occurred. Please try again.`}
+            body={t`An unexpected error occurred. Try again.`}
             action={
               <Button onClick={() => setRetryCount((count) => count + 1)}>
                 <Trans>Try Again</Trans>

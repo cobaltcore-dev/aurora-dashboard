@@ -204,7 +204,7 @@ describe("Routers", () => {
       await renderList(vi.fn().mockRejectedValue(new Error("Neutron is unavailable")))
 
       expect(await screen.findByText("Failed to Load Routers")).toBeInTheDocument()
-      expect(screen.getByText("An unexpected error occurred. Please try again.")).toBeInTheDocument()
+      expect(screen.getByText("An unexpected error occurred. Try again.")).toBeInTheDocument()
       expect(screen.queryByText("Neutron is unavailable")).not.toBeInTheDocument()
 
       consoleError.mockRestore()

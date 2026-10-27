@@ -64,8 +64,8 @@ export function PortDetailsView({ port }: PortDetailsViewProps) {
     { label: t`Name`, value: port.name || "—" },
     { label: t`Device Owner`, value: port.device_owner || "—" },
     { label: t`Device ID`, value: port.device_id ? <ClipboardText text={port.device_id} /> : "—" },
-    { label: t`Created at`, value: port.created_at || "—" },
-    { label: t`Updated at`, value: port.updated_at || "—" },
+    { label: t`Created At`, value: port.created_at || "—" },
+    { label: t`Updated At`, value: port.updated_at || "—" },
     { label: t`Project ID`, value: <ClipboardText text={port.project_id} /> },
     { label: t`Status`, value: port.status },
     {
