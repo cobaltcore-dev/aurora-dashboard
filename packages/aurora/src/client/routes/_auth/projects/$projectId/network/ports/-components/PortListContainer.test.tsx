@@ -146,6 +146,15 @@ describe("PortListContainer", () => {
       expect(screen.queryByText("There are no ports in this project.")).not.toBeInTheDocument()
     })
 
+    it("suggests clearing the status filter when only a status filter is applied", () => {
+      render(<PortListContainer ports={[]} hasStatusFilter />, { wrapper: TestWrapper })
+
+      expect(
+        screen.getByText("No ports match the selected status. Clear the status filter to view all ports.")
+      ).toBeInTheDocument()
+      expect(screen.queryByText("There are no ports in this project.")).not.toBeInTheDocument()
+    })
+
     it("renders the empty state when ports are undefined", () => {
       render(<PortListContainer ports={undefined} />, { wrapper: TestWrapper })
 

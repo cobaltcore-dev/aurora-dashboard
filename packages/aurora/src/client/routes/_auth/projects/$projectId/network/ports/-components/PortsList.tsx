@@ -258,6 +258,7 @@ function PortsContent({
       <PortListContainer
         ports={paginatedPorts}
         hasSearch={Boolean(localSearchTerm.trim())}
+        hasStatusFilter={Boolean(statusFilter)}
         isNetworkScoped={isNetworkScoped}
         currentPage={safePage}
         totalPages={totalPages}

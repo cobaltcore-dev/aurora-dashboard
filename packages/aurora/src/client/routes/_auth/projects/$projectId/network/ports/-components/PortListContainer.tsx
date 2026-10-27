@@ -16,6 +16,8 @@ interface PortListContainerProps {
   ports?: PortListItem[]
   /** Whether a search term is applied, to tell "no matches" apart from "no ports in this project" */
   hasSearch?: boolean
+  /** Whether a status filter is applied, so the empty state offers to clear it instead of claiming the project is empty */
+  hasStatusFilter?: boolean
   /** List scoped to one network: hides the Network column, which would repeat the same network in every row */
   isNetworkScoped?: boolean
   currentPage?: number
@@ -26,6 +28,7 @@ interface PortListContainerProps {
 export const PortListContainer = ({
   ports,
   hasSearch = false,
+  hasStatusFilter = false,
   isNetworkScoped = false,
   currentPage = 1,
   totalPages = 1,
@@ -37,6 +40,7 @@ export const PortListContainer = ({
 
   const getEmptyStateBody = () => {
     if (hasSearch) return t`No ports match your search. Clear the search to view all ports.`
+    if (hasStatusFilter) return t`No ports match the selected status. Clear the status filter to view all ports.`
     return isNetworkScoped ? t`There are no ports on this network.` : t`There are no ports in this project.`
   }
 

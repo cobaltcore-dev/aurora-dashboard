@@ -120,6 +120,15 @@ describe("RouterListContainer", () => {
       expect(screen.queryByText("There are no routers in this project.")).not.toBeInTheDocument()
     })
 
+    it("suggests clearing the status filter when only a status filter is applied", () => {
+      render(<RouterListContainer routers={[]} hasStatusFilter />, { wrapper: TestWrapper })
+
+      expect(
+        screen.getByText("No routers match the selected status. Clear the status filter to view all routers.")
+      ).toBeInTheDocument()
+      expect(screen.queryByText("There are no routers in this project.")).not.toBeInTheDocument()
+    })
+
     it("renders the empty state when routers are undefined", () => {
       render(<RouterListContainer routers={undefined} />, { wrapper: TestWrapper })
 

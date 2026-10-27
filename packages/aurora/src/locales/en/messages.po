@@ -2794,6 +2794,9 @@ msgstr "No Policy Found"
 msgid "No Ports Found"
 msgstr "No Ports Found"
 
+msgid "No ports match the selected status. Clear the status filter to view all ports."
+msgstr "No ports match the selected status. Clear the status filter to view all ports."
+
 msgid "No ports match your search. Clear the search to view all ports."
 msgstr "No ports match your search. Clear the search to view all ports."
 
@@ -2817,6 +2820,9 @@ msgstr "No projects have access to this image yet. Click \"Add Project Access\" 
 
 msgid "No Routers Found"
 msgstr "No Routers Found"
+
+msgid "No routers match the selected status. Clear the status filter to view all routers."
+msgstr "No routers match the selected status. Clear the status filter to view all routers."
 
 msgid "No routers match your search. Clear the search to view all routers."
 msgstr "No routers match your search. Clear the search to view all routers."

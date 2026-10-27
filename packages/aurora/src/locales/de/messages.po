@@ -2794,6 +2794,9 @@ msgstr ""
 msgid "No Ports Found"
 msgstr ""
 
+msgid "No ports match the selected status. Clear the status filter to view all ports."
+msgstr ""
+
 msgid "No ports match your search. Clear the search to view all ports."
 msgstr ""
 
@@ -2816,6 +2819,9 @@ msgid "No projects have access to this image yet. Click \"Add Project Access\" t
 msgstr "Noch kein Projekt hat Zugriff auf dieses Image. Klicken Sie auf \"Projektzugriff hinzufügen\", um Zugriff zu gewähren."
 
 msgid "No Routers Found"
+msgstr ""
+
+msgid "No routers match the selected status. Clear the status filter to view all routers."
 msgstr ""
 
 msgid "No routers match your search. Clear the search to view all routers."
