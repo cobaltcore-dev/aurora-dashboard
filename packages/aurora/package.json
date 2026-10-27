@@ -80,7 +80,7 @@
     "fastify-plugin": "^5.1.0",
     "node-fetch": "^3.3.2",
     "tailwind-merge": "^3.6.0",
-    "zod": "^4.4.3"
+    "zod": "^4.6.6"
   },
   "devDependencies": {
     "@cloudoperators/juno-ui-components": "9.7.1",
