@@ -1,5 +1,5 @@
 import { use, Suspense, useState, useRef, useEffect, useCallback, useMemo, useDeferredValue } from "react"
-import { useSearch, useNavigate, useRouter } from "@tanstack/react-router"
+import { useSearch, useNavigate } from "@tanstack/react-router"
 import { ErrorBoundary } from "react-error-boundary"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { TRPCClientError } from "@trpc/client"
@@ -64,15 +64,13 @@ const createRoutersPromise = (
     })
 }
 
-/** Redirects to sign-in with the current URL as the return target (B.6). */
+/** Full-document redirect to sign-in (not a client navigate) so AuthProvider re-checks the session on
+ *  reload; a client navigate keeps its stale cached user and bounces straight back to this list (B.6). */
 function UnauthorizedRedirect() {
-  const navigate = useNavigate()
-  const router = useRouter()
   useEffect(() => {
-    const location = router.state.location
-    const redirectPath = `${location.pathname}${location.searchStr || ""}${location.hash || ""}`
-    navigate({ to: "/", search: { redirect: redirectPath } })
-  }, [navigate, router])
+    const { pathname, search, hash } = window.location
+    window.location.replace(`/?redirect=${encodeURIComponent(pathname + search + hash)}`)
+  }, [])
   return null
 }
 

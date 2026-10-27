@@ -65,15 +65,15 @@ function PortLoadError({ error, onRetry }: PortLoadErrorProps) {
   const backToPorts = () => navigate({ to: "/projects/$projectId/network/ports", params: { projectId } })
   const goHome = () => navigate({ to: "/projects/$projectId", params: { projectId } })
 
-  // 401: the session is gone. Redirect to sign-in with the current location so the user returns here after auth (B.6).
-  const router = useRouter()
+  // 401: the session is gone. Full-document redirect to sign-in (not a client navigate) so AuthProvider
+  // re-checks the session on reload; a client navigate keeps its stale cached user and bounces straight
+  // back to this page (B.6). Mirrors AuthProvider.redirectToLogin.
   useEffect(() => {
     if (errorCode === "UNAUTHORIZED") {
-      const location = router.state.location
-      const redirectPath = `${location.pathname}${location.searchStr || ""}${location.hash || ""}`
-      navigate({ to: "/", search: { redirect: redirectPath } })
+      const { pathname, search, hash } = window.location
+      window.location.replace(`/?redirect=${encodeURIComponent(pathname + search + hash)}`)
     }
-  }, [errorCode, navigate, router])
+  }, [errorCode])
 
   if (errorCode === "UNAUTHORIZED") {
     return null
