@@ -8,6 +8,7 @@ import { Ports } from "./-components/PortsList"
 
 const portsSearchFields = {
   search: z.string().optional(),
+  status: z.string().optional(),
   sortBy: z.enum(["name", "status", "device_owner"]).optional(),
   sortDirection: z.enum(["asc", "desc"]).optional(),
   page: z.number().int().positive().optional(),
@@ -31,6 +32,7 @@ export const Route = createFileRoute("/_auth/projects/$projectId/network/ports/"
     return {
       ...search,
       search: portsSearchFields.search.safeParse(search.search).success ? search.search : undefined,
+      status: portsSearchFields.status.safeParse(search.status).success ? search.status : undefined,
       sortBy: portsSearchFields.sortBy.safeParse(search.sortBy).success ? search.sortBy : undefined,
       sortDirection: portsSearchFields.sortDirection.safeParse(search.sortDirection).success
         ? search.sortDirection

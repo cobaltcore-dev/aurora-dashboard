@@ -317,6 +317,34 @@ describe("Ports", () => {
     })
   })
 
+  describe("Status filter", () => {
+    it("filters by the status from the URL, client-side without refetching", async () => {
+      searchStore.params = { status: "ACTIVE" }
+      const ports = [
+        { ...makePort("port-1", "active-port"), status: "ACTIVE" },
+        { ...makePort("port-2", "down-port"), status: "DOWN" },
+      ]
+      const { query } = await renderList(vi.fn().mockResolvedValue(ports))
+
+      await screen.findByTestId("port-list-container")
+
+      expect(screen.getByTestId("port-port-1")).toBeInTheDocument()
+      expect(screen.queryByTestId("port-port-2")).not.toBeInTheDocument()
+      // Status filtering is in memory: the list is fetched once regardless of the filter
+      expect(query).toHaveBeenCalledTimes(1)
+      expect(query).toHaveBeenCalledWith({ project_id: "proj-1", network_id: undefined })
+    })
+
+    it("shows the active status as a removable pill", async () => {
+      searchStore.params = { status: "ACTIVE" }
+      await renderList()
+
+      await screen.findByTestId("port-list-container")
+      // The active status renders as a pill value
+      expect(screen.getByText("ACTIVE")).toBeInTheDocument()
+    })
+  })
+
   describe("Empty state", () => {
     it("tells the container whether a search is applied", async () => {
       searchStore.params = { search: "nomatch" }

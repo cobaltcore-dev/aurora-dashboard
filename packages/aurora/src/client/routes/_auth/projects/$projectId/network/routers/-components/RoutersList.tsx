@@ -7,11 +7,16 @@ import { TrpcClient } from "@/client/trpcClient"
 import { Button, Message, Stack, DataGridToolbar, SearchInput, Status } from "@cloudoperators/juno-ui-components"
 import type { RouterListItem, RouterQueryParameters } from "@/server/Network/types/router"
 import { SortInput } from "@/client/components/ListToolbar/SortInput"
-import { SortSettings } from "@/client/components/ListToolbar/types"
+import { FiltersInput } from "@/client/components/ListToolbar/FiltersInput"
+import { SelectedFilters } from "@/client/components/ListToolbar/SelectedFilters"
+import { Filter, SortSettings } from "@/client/components/ListToolbar/types"
 import type { RoutersSearchParams } from "@/client/routes/_auth/projects/$projectId/network/routers/index"
 import { RouterListContainer } from "./RouterListContainer"
 
 const PAGE_SIZE = 50
+
+/** Neutron router statuses offered in the status filter. */
+const ROUTER_STATUS_VALUES = ["ACTIVE", "DOWN", "ERROR"]
 
 type RouterSortKey = NonNullable<RouterQueryParameters["sort_key"]>
 
@@ -33,10 +38,17 @@ const createRoutersPromise = (
   project: string,
   sortBy: RouterSortKey,
   sortDirection: "asc" | "desc",
-  searchTerm: string
+  searchTerm: string,
+  statusFilter: string
 ): Promise<RoutersResult> => {
   return client.network.routers.list
-    .query({ project_id: project, sort_key: sortBy, sort_dir: sortDirection, searchTerm: searchTerm || undefined })
+    .query({
+      project_id: project,
+      sort_key: sortBy,
+      sort_dir: sortDirection,
+      searchTerm: searchTerm || undefined,
+      ...(statusFilter ? { status: statusFilter } : {}),
+    })
     .then((routers) => ({ routers, forbidden: false }))
     .catch((err: unknown) => {
       // 403 is an expected "no access" state, not a failure: render it as a page-level info message
@@ -68,6 +80,8 @@ function RoutersContent({
   routersPromise,
   searchTerm,
   setSearchTerm,
+  statusFilter,
+  onStatusChange,
   sortSettings,
   handleSortChange,
   currentPage,
@@ -77,6 +91,8 @@ function RoutersContent({
   routersPromise: Promise<RoutersResult>
   searchTerm: string
   setSearchTerm: (term: string) => void
+  statusFilter: string
+  onStatusChange: (status: string | undefined) => void
   sortSettings: RequiredSortSettings
   handleSortChange: (settings: SortSettings) => void
   currentPage: number
@@ -126,6 +142,11 @@ function RoutersContent({
     )
   }
 
+  const statusFilters: Filter[] = [
+    { displayName: t`Status`, filterName: "status", values: ROUTER_STATUS_VALUES, supportsMultiValue: false },
+  ]
+  const selectedFilters = statusFilter ? [{ name: "status", value: statusFilter }] : []
+
   return (
     <>
       {/* Zone 1 — sort, no background */}
@@ -141,25 +162,41 @@ function RoutersContent({
         />
       </Stack>
 
-      {/* Zone 2 — search bar */}
+      {/* Zone 2 — status filter + search + active filter pills */}
       <DataGridToolbar>
-        <Stack distribution="end" alignment="center">
-          <SearchInput
-            placeholder={t`Search routers...`}
-            data-testid="searchbar"
-            value={localSearchTerm}
-            onInput={(e: React.FormEvent<HTMLInputElement>) => {
-              const v = e.currentTarget.value
-              setLocalSearchTerm(v)
-              clearTimeout(debounceTimer.current)
-              debounceTimer.current = window.setTimeout(() => submitSearchTerm(v), 500)
-            }}
-            onSearch={(v) => submitSearchTerm(typeof v === "string" ? v : "")}
-            onClear={() => {
-              setLocalSearchTerm("")
-              submitSearchTerm("")
-            }}
-          />
+        <Stack direction="vertical" gap="2">
+          <Stack distribution="between" alignment="center">
+            <FiltersInput
+              filters={statusFilters}
+              selectClassName="sm:min-w-40"
+              comboboxClassName="sm:min-w-40"
+              onChange={(selected) => onStatusChange(selected.value || undefined)}
+            />
+            <SearchInput
+              placeholder={t`Search routers...`}
+              data-testid="searchbar"
+              value={localSearchTerm}
+              onInput={(e: React.FormEvent<HTMLInputElement>) => {
+                const v = e.currentTarget.value
+                setLocalSearchTerm(v)
+                clearTimeout(debounceTimer.current)
+                debounceTimer.current = window.setTimeout(() => submitSearchTerm(v), 500)
+              }}
+              onSearch={(v) => submitSearchTerm(typeof v === "string" ? v : "")}
+              onClear={() => {
+                setLocalSearchTerm("")
+                submitSearchTerm("")
+              }}
+            />
+          </Stack>
+          {selectedFilters.length > 0 && (
+            <SelectedFilters
+              selectedFilters={selectedFilters}
+              filters={statusFilters}
+              onDelete={() => onStatusChange(undefined)}
+              onClear={() => onStatusChange(undefined)}
+            />
+          )}
         </Stack>
       </DataGridToolbar>
 
@@ -182,6 +219,7 @@ export const Routers = ({ client, project }: RoutersProps) => {
   // The URL is the single source of truth for search, sort and page, so back/forward navigation
   // and links with different search params update the controls and the query.
   const searchTerm = searchParams.search ?? ""
+  const statusFilter = searchParams.status ?? ""
   const sortBy: RouterSortKey = searchParams.sortBy || "name"
   const sortDirection = searchParams.sortDirection || "asc"
   const currentPage = searchParams.page ?? 1
@@ -199,9 +237,9 @@ export const Routers = ({ client, project }: RoutersProps) => {
   const [retryCount, setRetryCount] = useState(0)
 
   const routersPromise = useMemo(
-    () => createRoutersPromise(client, project, sortBy, sortDirection, searchTerm),
+    () => createRoutersPromise(client, project, sortBy, sortDirection, searchTerm, statusFilter),
     // retryCount is not used in the factory, it only forces a new promise on "Try Again"
-    [client, project, sortBy, sortDirection, searchTerm, retryCount]
+    [client, project, sortBy, sortDirection, searchTerm, statusFilter, retryCount]
   )
   // Keeps the current list (and the search input) on screen while the next query loads,
   // instead of falling back to the Suspense loading state on every search or sort change
@@ -225,6 +263,17 @@ export const Routers = ({ client, project }: RoutersProps) => {
       search: ((prev: RoutersSearchParams) => ({
         ...prev,
         search: term || undefined,
+        page: undefined,
+      })) as unknown as true,
+      replace: true,
+    })
+  }
+
+  const handleStatusChange = (status: string | undefined) => {
+    navigate({
+      search: ((prev: RoutersSearchParams) => ({
+        ...prev,
+        status: status || undefined,
         page: undefined,
       })) as unknown as true,
       replace: true,
@@ -268,6 +317,8 @@ export const Routers = ({ client, project }: RoutersProps) => {
             routersPromise={deferredRoutersPromise}
             searchTerm={searchTerm}
             setSearchTerm={handleSearchChange}
+            statusFilter={statusFilter}
+            onStatusChange={handleStatusChange}
             sortSettings={sortSettings}
             handleSortChange={handleSortChange}
             currentPage={currentPage}

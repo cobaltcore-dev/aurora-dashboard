@@ -266,6 +266,38 @@ describe("Routers", () => {
     })
   })
 
+  describe("Status filter", () => {
+    it("passes the status filter from the URL to the query", async () => {
+      searchStore.params = { status: "ACTIVE" }
+      const { query } = await renderList()
+
+      await screen.findByTestId("router-list-container")
+
+      expect(query).toHaveBeenCalledWith(expect.objectContaining({ project_id: "proj-1", status: "ACTIVE" }))
+    })
+
+    it("omits the status param when no status is selected", async () => {
+      const { query } = await renderList()
+
+      await screen.findByTestId("router-list-container")
+
+      expect(query).toHaveBeenCalledWith({
+        project_id: "proj-1",
+        sort_key: "name",
+        sort_dir: "asc",
+        searchTerm: undefined,
+      })
+    })
+
+    it("shows the active status as a pill", async () => {
+      searchStore.params = { status: "ACTIVE" }
+      await renderList()
+
+      await screen.findByTestId("router-list-container")
+      expect(screen.getByText("ACTIVE")).toBeInTheDocument()
+    })
+  })
+
   describe("Search", () => {
     it("refetches with the search term and updates the URL on submit", async () => {
       const user = userEvent.setup()

@@ -7,11 +7,16 @@ import { TrpcClient } from "@/client/trpcClient"
 import { Button, Stack, DataGridToolbar, SearchInput, Message, Status } from "@cloudoperators/juno-ui-components"
 import type { PortListItem } from "@/server/Network/types/port"
 import { SortInput } from "@/client/components/ListToolbar/SortInput"
-import { SortSettings } from "@/client/components/ListToolbar/types"
+import { FiltersInput } from "@/client/components/ListToolbar/FiltersInput"
+import { SelectedFilters } from "@/client/components/ListToolbar/SelectedFilters"
+import { Filter, SortSettings } from "@/client/components/ListToolbar/types"
 import type { PortsSearchParams } from "@/client/routes/_auth/projects/$projectId/network/ports/index"
 import { PortListContainer } from "./PortListContainer"
 
 const PAGE_SIZE = 50
+
+/** Neutron port statuses offered in the status filter. */
+const PORT_STATUS_VALUES = ["ACTIVE", "DOWN", "BUILD", "ERROR"]
 
 /** The sort keys the list offers; all map to string fields on PortListItem. */
 type PortSortKey = "name" | "status" | "device_owner"
@@ -80,6 +85,10 @@ const filterPorts = (ports: PortListItem[], searchTerm: string): PortListItem[] 
   return ports.filter((port) => searchableValues(port).some((value) => value?.toLowerCase().includes(term)))
 }
 
+/** Exact status match; no filter when status is empty. */
+const filterByStatus = (ports: PortListItem[], status: string): PortListItem[] =>
+  status ? ports.filter((port) => port.status === status) : ports
+
 const sortValue = (port: PortListItem, key: PortSortKey): string => {
   switch (key) {
     case "status":
@@ -117,6 +126,8 @@ function PortsContent({
   portsPromise,
   searchTerm,
   onSearchChange,
+  statusFilter,
+  onStatusChange,
   sortSettings,
   onSortChange,
   currentPage,
@@ -126,6 +137,8 @@ function PortsContent({
   portsPromise: Promise<PortsResult>
   searchTerm: string
   onSearchChange: (term: string) => void
+  statusFilter: string
+  onStatusChange: (status: string | undefined) => void
   sortSettings: RequiredSortSettings
   onSortChange: (settings: SortSettings) => void
   currentPage: number
@@ -158,8 +171,13 @@ function PortsContent({
   }
 
   const visiblePorts = useMemo(
-    () => sortPorts(filterPorts(ports, localSearchTerm), sortSettings.sortBy, sortSettings.sortDirection),
-    [ports, localSearchTerm, sortSettings.sortBy, sortSettings.sortDirection]
+    () =>
+      sortPorts(
+        filterByStatus(filterPorts(ports, localSearchTerm), statusFilter),
+        sortSettings.sortBy,
+        sortSettings.sortDirection
+      ),
+    [ports, localSearchTerm, statusFilter, sortSettings.sortBy, sortSettings.sortDirection]
   )
 
   const totalPages = Math.max(1, Math.ceil(visiblePorts.length / PAGE_SIZE))
@@ -181,6 +199,11 @@ function PortsContent({
     )
   }
 
+  const statusFilters: Filter[] = [
+    { displayName: t`Status`, filterName: "status", values: PORT_STATUS_VALUES, supportsMultiValue: false },
+  ]
+  const selectedFilters = statusFilter ? [{ name: "status", value: statusFilter }] : []
+
   return (
     <>
       {/* Zone 1 — sort, no background */}
@@ -196,25 +219,41 @@ function PortsContent({
         />
       </Stack>
 
-      {/* Zone 2 — search bar */}
+      {/* Zone 2 — status filter + search + active filter pills */}
       <DataGridToolbar>
-        <Stack distribution="end" alignment="center">
-          <SearchInput
-            placeholder={t`Search ports...`}
-            data-testid="searchbar"
-            value={localSearchTerm}
-            onInput={(e: React.FormEvent<HTMLInputElement>) => {
-              const v = e.currentTarget.value
-              setLocalSearchTerm(v)
-              clearTimeout(debounceTimer.current)
-              debounceTimer.current = window.setTimeout(() => submitSearchTerm(v), 500)
-            }}
-            onSearch={(v) => submitSearchTerm(typeof v === "string" ? v : "")}
-            onClear={() => {
-              setLocalSearchTerm("")
-              submitSearchTerm("")
-            }}
-          />
+        <Stack direction="vertical" gap="2">
+          <Stack distribution="between" alignment="center">
+            <FiltersInput
+              filters={statusFilters}
+              selectClassName="sm:min-w-40"
+              comboboxClassName="sm:min-w-40"
+              onChange={(selected) => onStatusChange(selected.value || undefined)}
+            />
+            <SearchInput
+              placeholder={t`Search ports...`}
+              data-testid="searchbar"
+              value={localSearchTerm}
+              onInput={(e: React.FormEvent<HTMLInputElement>) => {
+                const v = e.currentTarget.value
+                setLocalSearchTerm(v)
+                clearTimeout(debounceTimer.current)
+                debounceTimer.current = window.setTimeout(() => submitSearchTerm(v), 500)
+              }}
+              onSearch={(v) => submitSearchTerm(typeof v === "string" ? v : "")}
+              onClear={() => {
+                setLocalSearchTerm("")
+                submitSearchTerm("")
+              }}
+            />
+          </Stack>
+          {selectedFilters.length > 0 && (
+            <SelectedFilters
+              selectedFilters={selectedFilters}
+              filters={statusFilters}
+              onDelete={() => onStatusChange(undefined)}
+              onClear={() => onStatusChange(undefined)}
+            />
+          )}
         </Stack>
       </DataGridToolbar>
 
@@ -238,6 +277,7 @@ export const Ports = ({ client, project, networkId }: PortsProps) => {
   // The URL is the single source of truth for search, sort and page. They drive client-side transforms
   // of the already-fetched list, so back/forward navigation and shared links stay in sync without refetching.
   const searchTerm = searchParams.search ?? ""
+  const statusFilter = searchParams.status ?? ""
   const sortBy: PortSortKey = searchParams.sortBy || "name"
   const sortDirection = searchParams.sortDirection || "asc"
   const currentPage = searchParams.page ?? 1
@@ -284,6 +324,17 @@ export const Ports = ({ client, project, networkId }: PortsProps) => {
     })
   }
 
+  const handleStatusChange = (status: string | undefined) => {
+    navigate({
+      search: ((prev: PortsSearchParams) => ({
+        ...prev,
+        status: status || undefined,
+        page: undefined,
+      })) as unknown as true,
+      replace: true,
+    })
+  }
+
   const handlePageChange = useCallback(
     (page: number) => {
       navigate({
@@ -319,6 +370,8 @@ export const Ports = ({ client, project, networkId }: PortsProps) => {
             portsPromise={portsPromise}
             searchTerm={searchTerm}
             onSearchChange={handleSearchChange}
+            statusFilter={statusFilter}
+            onStatusChange={handleStatusChange}
             sortSettings={sortSettings}
             onSortChange={handleSortChange}
             currentPage={currentPage}
