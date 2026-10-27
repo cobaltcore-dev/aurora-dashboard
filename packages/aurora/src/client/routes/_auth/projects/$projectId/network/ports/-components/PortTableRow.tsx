@@ -1,6 +1,7 @@
 import { useNavigate } from "@tanstack/react-router"
 import { useLingui } from "@lingui/react/macro"
 import {
+  Badge,
   Button,
   DataGridCell,
   DataGridRow,
@@ -27,6 +28,14 @@ const TwoLineCell = ({ primary, secondary }: { primary: string; secondary?: stri
   </Stack>
 )
 
+/** Maps Neutron port status to a Badge variant. Documented values: ACTIVE, DOWN, BUILD, ERROR. */
+const portStatusVariant = (status: string): "success" | "warning" | "error" | undefined => {
+  if (status === "ACTIVE") return "success"
+  if (status === "DOWN" || status === "ERROR") return "error"
+  if (status === "BUILD") return "warning"
+  return undefined
+}
+
 /**
  * Network and subnets show their names and fall back to the ID only when the name can't be resolved.
  * The device ID is shown below the device owner as specified for the ports list (devices have no name lookup).
@@ -48,7 +57,9 @@ export const PortTableRow = ({ port, showNetwork = true }: PortTableRowProps) =>
       <DataGridCell>
         <TwoLineCell primary={port.name || port.id} secondary={port.name ? port.id : undefined} />
       </DataGridCell>
-      <DataGridCell>{port.status}</DataGridCell>
+      <DataGridCell>
+        <Badge variant={portStatusVariant(port.status)}>{port.status}</Badge>
+      </DataGridCell>
       <DataGridCell>{port.description ? <span className="break-all">{port.description}</span> : "–"}</DataGridCell>
       {showNetwork && (
         <DataGridCell>

@@ -1,5 +1,5 @@
 import { use, Suspense, useState, useRef, useEffect, useCallback, useMemo } from "react"
-import { useSearch, useNavigate } from "@tanstack/react-router"
+import { useSearch, useNavigate, useRouter } from "@tanstack/react-router"
 import { ErrorBoundary } from "react-error-boundary"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { TRPCClientError } from "@trpc/client"
@@ -32,7 +32,7 @@ type RequiredSortSettings = {
   sortDirection: "asc" | "desc"
 }
 
-type PortsResult = { ports: PortListItem[]; forbidden?: boolean }
+type PortsResult = { ports: PortListItem[]; forbidden?: boolean; unauthorized?: boolean }
 
 /**
  * Fetches the full port list once per (project, network). Sorting, search and pagination are done
@@ -51,6 +51,10 @@ const createPortsPromise = (
       // (B.6) rather than letting it reach the error boundary.
       if (err instanceof TRPCClientError && err.data?.code === "FORBIDDEN") {
         return { ports: [], forbidden: true }
+      }
+      // 401: session is gone. Signal unauthorized so the component can redirect to sign-in (B.6).
+      if (err instanceof TRPCClientError && err.data?.code === "UNAUTHORIZED") {
+        return { ports: [], unauthorized: true }
       }
       throw err
     })
@@ -97,6 +101,18 @@ const sortPorts = (ports: PortListItem[], sortBy: PortSortKey, sortDirection: "a
   )
 }
 
+/** Redirects to sign-in with the current URL as the return target (B.6). */
+function UnauthorizedRedirect() {
+  const navigate = useNavigate()
+  const router = useRouter()
+  useEffect(() => {
+    const location = router.state.location
+    const redirectPath = `${location.pathname}${location.searchStr || ""}${location.hash || ""}`
+    navigate({ to: "/", search: { redirect: redirectPath } })
+  }, [navigate, router])
+  return null
+}
+
 function PortsContent({
   portsPromise,
   searchTerm,
@@ -117,7 +133,7 @@ function PortsContent({
   isNetworkScoped: boolean
 }) {
   const { t } = useLingui()
-  const { ports, forbidden } = use(portsPromise)
+  const { ports, forbidden, unauthorized } = use(portsPromise)
 
   // Local input value for instant typing. The URL (searchTerm) stays the source of truth and is updated
   // debounced for shareable links; filtering uses the local value so results update on every keystroke.
@@ -154,6 +170,8 @@ function PortsContent({
   useEffect(() => {
     if (currentPage > totalPages) onPageChange(1)
   }, [currentPage, totalPages, onPageChange])
+
+  if (unauthorized) return <UnauthorizedRedirect />
 
   if (forbidden) {
     return (
@@ -283,11 +301,11 @@ export const Ports = ({ client, project, networkId }: PortsProps) => {
       <ErrorBoundary
         // Resets the boundary when the fetch changes: on "Try Again" and on a project/network change.
         resetKeys={[portsPromise]}
-        fallbackRender={({ error }) => (
+        fallbackRender={() => (
           <Status
             status="error"
             title={t`Failed to Load Ports`}
-            body={error instanceof Error ? error.message : t`An unexpected error occurred.`}
+            body={t`An unexpected error occurred. Please try again.`}
             action={
               <Button onClick={() => setRetryCount((count) => count + 1)}>
                 <Trans>Try Again</Trans>

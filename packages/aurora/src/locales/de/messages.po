@@ -3550,9 +3550,6 @@ msgstr "Services"
 msgid "Session Changed"
 msgstr ""
 
-msgid "Session Expired"
-msgstr ""
-
 msgid "Session expires in"
 msgstr "Sitzung läuft ab in"
 
@@ -4548,9 +4545,6 @@ msgstr ""
 
 msgid "Your session has expired. Please log in again."
 msgstr "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an."
-
-msgid "Your session has expired. Sign in again to continue."
-msgstr ""
 
 msgid "Your session was changed or ended in another browser tab. This can happen if you logged out or switched to a different account or domain elsewhere. Log in again to continue."
 msgstr ""

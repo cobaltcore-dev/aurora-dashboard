@@ -10,7 +10,7 @@ import type { PortListItem } from "@/server/Network/types/port"
 import { Ports } from "./PortsList"
 
 // Mocked URL search params as a small external store, so navigate() re-renders like the real route
-const { searchStore } = vi.hoisted(() => {
+const { searchStore, mockRouter } = vi.hoisted(() => {
   const listeners = new Set<() => void>()
   return {
     searchStore: {
@@ -23,6 +23,9 @@ const { searchStore } = vi.hoisted(() => {
         this.params = params
         listeners.forEach((listener) => listener())
       },
+    },
+    mockRouter: {
+      state: { location: { pathname: "/projects/proj-1/network/ports", searchStr: "", hash: "" } },
     },
   }
 })
@@ -42,6 +45,7 @@ vi.mock("@tanstack/react-router", async () => {
   return {
     useSearch: () => useSyncExternalStore(searchStore.subscribe, () => searchStore.params),
     useNavigate: () => mockNavigate,
+    useRouter: () => mockRouter,
   }
 })
 
@@ -251,7 +255,8 @@ describe("Ports", () => {
       await renderList(vi.fn().mockRejectedValue(new Error("Neutron is unavailable")))
 
       expect(await screen.findByText("Failed to Load Ports")).toBeInTheDocument()
-      expect(screen.getByText("Neutron is unavailable")).toBeInTheDocument()
+      expect(screen.getByText("An unexpected error occurred. Please try again.")).toBeInTheDocument()
+      expect(screen.queryByText("Neutron is unavailable")).not.toBeInTheDocument()
 
       consoleError.mockRestore()
     })

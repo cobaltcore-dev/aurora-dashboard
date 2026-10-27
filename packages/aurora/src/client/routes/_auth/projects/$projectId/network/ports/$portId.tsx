@@ -1,3 +1,4 @@
+import { useEffect } from "react"
 import { createFileRoute, useNavigate, useParams, useRouter, type ErrorComponentProps } from "@tanstack/react-router"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
@@ -64,20 +65,18 @@ function PortLoadError({ error, onRetry }: PortLoadErrorProps) {
   const backToPorts = () => navigate({ to: "/projects/$projectId/network/ports", params: { projectId } })
   const goHome = () => navigate({ to: "/projects/$projectId", params: { projectId } })
 
-  // 401: the session is gone. Send the user to sign in again (B.6) instead of showing the error inline.
+  // 401: the session is gone. Redirect to sign-in with the current location so the user returns here after auth (B.6).
+  const router = useRouter()
+  useEffect(() => {
+    if (errorCode === "UNAUTHORIZED") {
+      const location = router.state.location
+      const redirectPath = `${location.pathname}${location.searchStr || ""}${location.hash || ""}`
+      navigate({ to: "/", search: { redirect: redirectPath } })
+    }
+  }, [errorCode, navigate, router])
+
   if (errorCode === "UNAUTHORIZED") {
-    return (
-      <RouteIdLevelDefaultError
-        code={401}
-        errorTitle={t`Session Expired`}
-        errorDescription={t`Your session has expired. Sign in again to continue.`}
-        action={
-          <Button variant="primary" onClick={() => navigate({ to: "/" })}>
-            <Trans>Sign in</Trans>
-          </Button>
-        }
-      />
-    )
+    return null
   }
 
   // 403: authenticated but not allowed. Explain it with a page-level info Message (B.6), not a red error.

@@ -3550,9 +3550,6 @@ msgstr "Services"
 msgid "Session Changed"
 msgstr "Session Changed"
 
-msgid "Session Expired"
-msgstr "Session Expired"
-
 msgid "Session expires in"
 msgstr "Session expires in"
 
@@ -4548,9 +4545,6 @@ msgstr "Your credentials are valid but you don't have permission to perform this
 
 msgid "Your session has expired. Please log in again."
 msgstr "Your session has expired. Please log in again."
-
-msgid "Your session has expired. Sign in again to continue."
-msgstr "Your session has expired. Sign in again to continue."
 
 msgid "Your session was changed or ended in another browser tab. This can happen if you logged out or switched to a different account or domain elsewhere. Log in again to continue."
 msgstr "Your session was changed or ended in another browser tab. This can happen if you logged out or switched to a different account or domain elsewhere. Log in again to continue."
