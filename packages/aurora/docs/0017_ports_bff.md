@@ -389,11 +389,11 @@ The UI is read-only: list and details only, no create, edit or delete actions.
 
 ### Routes
 
-| Route                                              | Description                                              |
-| -------------------------------------------------- | -------------------------------------------------------- |
-| `/_auth/projects/$projectId/network/ports`         | Layout route: breadcrumb and route-level error component |
-| `/_auth/projects/$projectId/network/ports/`        | Ports list (search, sort, page in the URL)               |
-| `/_auth/projects/$projectId/network/ports/$portId` | Port details                                             |
+| Route                                              | Description                                               |
+| -------------------------------------------------- | --------------------------------------------------------- |
+| `/_auth/projects/$projectId/network/ports`         | Layout route: breadcrumb and route-level error component  |
+| `/_auth/projects/$projectId/network/ports/`        | Ports list (search, status filter, sort, page in the URL) |
+| `/_auth/projects/$projectId/network/ports/$portId` | Port details                                              |
 
 ### Reusable Ports List
 
@@ -402,7 +402,15 @@ The UI is read-only: list and details only, no create, edit or delete actions.
 - **Without `networkId`** (global view): all ports of the project, including a Network column.
 - **With `networkId`** (e.g. a "Ports" tab in the network details view): passes `network_id` to `network.ports.list`, hides the Network column and uses a network-specific empty state.
 
-List columns: Name / ID, Description, Network, Fixed IPs / Subnet, Device Owner / ID, Status, actions ("Show Details" only). Network and subnets show names and fall back to the ID when the name can't be resolved.
+List columns: Name / ID, Status, Description, Network, Fixed IPs / Subnet, Device Owner / ID, actions ("Show Details" only). Status is rendered as a colored `Badge` (success for `ACTIVE`, danger for `DOWN`/`ERROR`, warning for `BUILD`). Network and subnets show names and fall back to the ID when the name can't be resolved.
+
+A **Status filter** (single value, kept in the URL as `?status=`) narrows the list and is shown as a removable pill. Because the full list is already in the browser, filtering, search, sort and pagination all run client-side with no refetch.
+
+### Error & empty states
+
+- **401 (`UNAUTHORIZED`):** the session is gone, so both the list and the details view redirect to the sign-in route with the current location as the return target, instead of rendering an error inline.
+- **403 (`FORBIDDEN`):** an expected "no access" state, shown as a page-level info message rather than a red error.
+- **Other errors:** caught by an error boundary that shows a generic translated message (never the raw BFF message) and a "Try Again" action.
 
 ### Details View
 
@@ -440,7 +448,7 @@ Note: the epic names the keys `network:port:*` (singular); the implementation us
 
 ### Frontend Tests
 
-- `ports/-components/PortsList.test.tsx` - queries (default, URL params, network scope), inline `FORBIDDEN` vs error boundary, retry, search, URL changes, pagination, no create action
+- `ports/-components/PortsList.test.tsx` - queries (default, URL params, network scope), inline `FORBIDDEN` vs error boundary with a generic message, retry, search, status filter (client-side), URL changes, pagination, no create action
 - `ports/-components/PortListContainer.test.tsx` - columns, Network column in global vs network-scoped view, empty states, pagination, top alignment
 - `ports/-components/PortTableRow.test.tsx` - cells, name/ID fallbacks, dashes, navigation, read-only menu
 - `ports/-components/PortDetailsView.test.tsx` - labels in order, values and fallbacks, copyable values, dashes
@@ -463,14 +471,15 @@ Note: the epic names the keys `network:port:*` (singular); the implementation us
 - Network, subnet and security group names via batched, best-effort lookups (shared with Routers)
 - Backend unit and procedure tests
 - Routing setup, side navigation entry and project overview card
-- Read-only ports list (Name / ID, Description, Network, Fixed IPs / Subnet, Device Owner / ID, Status) with search, sorting and pagination
+- Read-only ports list (Name / ID, Status, Description, Network, Fixed IPs / Subnet, Device Owner / ID) with search, status filter, sorting and pagination; status shown as a colored Badge
 - Reusable ports list with optional `networkId` scope
 - Read-only port details view with copy-to-clipboard for IDs, IPs and MAC
+- 401 redirect to sign-in and 403 info message on both the list and details views
 - Frontend component tests
 
 ### 🚧 Planned
 
 - "Ports" tab in the network details view, reusing the ports list with `networkId` (Epic #1019)
-- List filters (status, device owner)
+- Further list filters (e.g. device owner)
 - Write operations in the UI (create, edit, delete, bulk delete)
 - Port security toggle, tag editor and allowed address pairs management

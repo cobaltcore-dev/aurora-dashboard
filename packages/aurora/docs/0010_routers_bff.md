@@ -601,6 +601,18 @@ type RouterInterface = {
 | `/_auth/projects/$projectId/network/routers/`          | Routers list                                                           |
 | `/_auth/projects/$projectId/network/routers/$routerId` | Router details: overview, External Networks and Internal Networks tabs |
 
+### List view & states
+
+List columns: Name / ID, Status, External Network, External Subnet, Private Network, actions ("Show Details" only). Status is rendered as a colored `Badge` (success for `ACTIVE`, danger for `DOWN`/`ERROR`). Only the router's own ID is shown in the list; related IDs are on the details page.
+
+A **Status filter** (single value, kept in the URL as `?status=`) narrows the list and is shown as a removable pill. Unlike Ports, the filter is applied server-side via the BFF's `status` parameter, consistent with the list's server-side search and sort.
+
+Error & empty states mirror Ports:
+
+- **401 (`UNAUTHORIZED`):** the list and the details view redirect to the sign-in route with the current location as the return target, instead of rendering an error inline.
+- **403 (`FORBIDDEN`):** shown as a page-level info message rather than a red error.
+- **Other errors:** caught by an error boundary that shows a generic translated message (never the raw BFF message) and a "Try Again" action.
+
 ### Navigation
 
 - **Side Navigation:** "Routers" entry in the _Network_ section (`buildNavSections`), shown when the network service is in the catalog and `routers` is enabled.
@@ -650,13 +662,14 @@ UI actions are gated via `network.canUser` using the existing keys in `permissio
 - Zod validation for all request/response types
 - Router-specific error handling on top of the shared network error handler
 - Routing setup, side navigation entry and project overview card
-- Routers list view (Name, External Network, External Subnet, Private Network, Status) with search, sorting and pagination; only the router's own ID is shown in the list, related IDs are on the details page
+- Routers list view (Name / ID, Status, External Network, External Subnet, Private Network) with search, status filter, sorting and pagination; status shown as a colored Badge; only the router's own ID is shown in the list, related IDs are on the details page
 - External network/subnet names and private networks in `list` via batched lookups
 - Router details view (overview, External Networks and Internal Networks tabs)
+- 401 redirect to sign-in and 403 info message on both the list and details views
 - Backend unit and procedure tests
 
 ### 🚧 Planned
 
-- Routers list view filters (status, has gateway) and "Showing X of Y" summary
+- Further routers list filters (has gateway) and "Showing X of Y" summary
 - Router detail view: Extra Routes and Advanced attributes sections
 - Write operations in the UI (create, edit, gateway, interfaces, delete)
