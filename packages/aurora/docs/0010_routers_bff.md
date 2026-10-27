@@ -607,10 +607,10 @@ List columns: Name / ID, Status, External Network, External Subnet, Private Netw
 
 A **Status filter** (single value, kept in the URL as `?status=`) narrows the list and is shown as a removable pill. Unlike Ports, the filter is applied server-side via the BFF's `status` parameter, consistent with the list's server-side search and sort.
 
-Error & empty states mirror Ports:
+Error & empty states:
 
-- **401 (`UNAUTHORIZED`):** the list and the details view redirect to the sign-in route with the current location as the return target, instead of rendering an error inline.
-- **403 (`FORBIDDEN`):** shown as a page-level info message rather than a red error.
+- **401 (`UNAUTHORIZED`):** both the list and the details view redirect (full page reload) to the sign-in route with the current location as the return target, instead of rendering an error inline.
+- **403 (`FORBIDDEN`):** the **list** shows a page-level info message ("Insufficient Permissions"); the **details** view shows an error page ("Access to this router is not permitted.") via `RouteIdLevelDefaultError`, not an info message. (Ports shows an info message on both — the two differ here.)
 - **Other errors:** caught by an error boundary that shows a generic translated message (never the raw BFF message) and a "Try Again" action.
 
 ### Navigation

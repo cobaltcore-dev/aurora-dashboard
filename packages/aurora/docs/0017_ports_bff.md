@@ -408,7 +408,7 @@ A **Status filter** (single value, kept in the URL as `?status=`) narrows the li
 
 ### Error & empty states
 
-- **401 (`UNAUTHORIZED`):** the session is gone, so both the list and the details view redirect to the sign-in route with the current location as the return target, instead of rendering an error inline.
+- **401 (`UNAUTHORIZED`):** the session is gone, so both the list and the details view redirect (full page reload) to the sign-in route with the current location as the return target, instead of rendering an error inline.
 - **403 (`FORBIDDEN`):** an expected "no access" state, shown as a page-level info message rather than a red error.
 - **Other errors:** caught by an error boundary that shows a generic translated message (never the raw BFF message) and a "Try Again" action.
 
