@@ -58,8 +58,8 @@ describe("PortListContainer", () => {
       expect(screen.getByText("Name / ID")).toBeInTheDocument()
       expect(screen.getByText("Description")).toBeInTheDocument()
       expect(screen.getByText("Network")).toBeInTheDocument()
-      expect(screen.getByText("Fixed IPs / Subnet")).toBeInTheDocument()
-      expect(screen.getByText("Device Owner / ID")).toBeInTheDocument()
+      expect(screen.getByText("Fixed IPs")).toBeInTheDocument()
+      expect(screen.getByText("Device Owner")).toBeInTheDocument()
       expect(screen.getByText("Status")).toBeInTheDocument()
     })
 
@@ -87,7 +87,7 @@ describe("PortListContainer", () => {
     it("renders column headers in the empty state as well", () => {
       render(<PortListContainer ports={[]} />, { wrapper: TestWrapper })
 
-      expect(screen.getByText("Fixed IPs / Subnet")).toBeInTheDocument()
+      expect(screen.getByText("Fixed IPs")).toBeInTheDocument()
     })
   })
 

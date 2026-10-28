@@ -53,7 +53,7 @@ describe("RouterListContainer", () => {
 
       expect(screen.getByText("Name")).toBeInTheDocument()
       expect(screen.getByText("External Network")).toBeInTheDocument()
-      expect(screen.getByText("External Subnet")).toBeInTheDocument()
+      expect(screen.getByText("External IPs")).toBeInTheDocument()
       expect(screen.getByText("Private Network")).toBeInTheDocument()
       expect(screen.getByText("Status")).toBeInTheDocument()
     })
