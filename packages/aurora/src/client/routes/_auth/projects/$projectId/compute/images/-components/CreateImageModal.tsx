@@ -5,6 +5,7 @@ import {
   Form,
   FormRow,
   FormSection,
+  Label,
   TextInput,
   Select,
   SelectOption,
@@ -459,10 +460,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
           <FormSection className="mb-6">
             <FormRow>
               <div className="w-full">
-                <label htmlFor="image-file" className="text-theme-default mb-2 block text-sm font-medium">
-                  {t`Image File`}
-                  <span className="text-theme-accent ml-1">*</span>
-                </label>
+                <Label htmlFor="image-file" text={t`Image File`} required className="mb-2 block" />
                 <div className="flex w-full items-center justify-center">
                   <label
                     htmlFor="image-file"

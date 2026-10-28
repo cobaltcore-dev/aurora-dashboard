@@ -120,7 +120,9 @@ export function ImageTableRow({
       )}
 
       <DataGridCell>{status}</DataGridCell>
-      <DataGridCell>{name || id}</DataGridCell>
+      <DataGridCell textContain="truncate-end" title={name || id}>
+        {name || id}
+      </DataGridCell>
       <DataGridCell>{visibility}</DataGridCell>
       <DataGridCell>{image.protected ? t`Yes` : t`No`}</DataGridCell>
       <DataGridCell>

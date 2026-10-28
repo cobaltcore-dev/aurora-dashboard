@@ -258,12 +258,12 @@ describe("ImageMemberFormRow", () => {
     const longImageId = "very-long-image-id-" + "x".repeat(100)
     setup("member-123", longImageId)
     const imageIdCell = screen.getByText(longImageId).closest("div")
-    expect(imageIdCell).toHaveClass("break-all")
+    expect(imageIdCell).toHaveClass("jn:break-all")
   })
 
   it("should apply correct className to imageId cell", () => {
     setup()
     const imageIdCell = screen.getByText("image-456").closest("div")
-    expect(imageIdCell).toHaveClass("break-all")
+    expect(imageIdCell).toHaveClass("jn:break-all")
   })
 })

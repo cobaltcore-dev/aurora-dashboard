@@ -55,9 +55,9 @@ export const ImageMemberRow: React.FC<ImageMemberRowProps> = ({ member, isDeleti
 
   return (
     <DataGridRow>
-      <DataGridCell className="break-all">{getStatusLabel(member.status)}</DataGridCell>
-      <DataGridCell className="break-all">{member.member_id}</DataGridCell>
-      <DataGridCell className="break-all">{member.image_id}</DataGridCell>
+      <DataGridCell textContain="break-all">{getStatusLabel(member.status)}</DataGridCell>
+      <DataGridCell textContain="break-all">{member.member_id}</DataGridCell>
+      <DataGridCell textContain="break-all">{member.image_id}</DataGridCell>
       <DataGridCell>
         {isDeleting ? (
           <Stack distribution="center" alignment="center">
