@@ -1,13 +1,5 @@
 import { useEffect, useState } from "react"
-import {
-  Button,
-  Message,
-  Pagination,
-  Select,
-  SelectOption,
-  SortButton,
-  Stack,
-} from "@cloudoperators/juno-ui-components"
+import { Button, Message, Pagination, Stack } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useKeyManagerPermissions } from "../../-components/useKeyManagerPermissions"
 import { OrderListContainer } from "./OrderListContainer"
@@ -16,18 +8,14 @@ import type { Order } from "@/server/KeyManager/types/keyManager"
 
 const PAGE_SIZE = 50
 
-const SORT_FIELDS = [{ value: "created", label: "Created At" }]
-
 interface OrdersListProps {
   projectId: string
-  sort: string
   page: number
-  onSortChange: (value: string) => void
   onPageChange: (page: number) => void
   onShowDetail: (order: Order) => void
 }
 
-export function OrdersList({ projectId, sort, page, onSortChange, onPageChange, onShowDetail }: OrdersListProps) {
+export function OrdersList({ projectId, page, onPageChange, onShowDetail }: OrdersListProps) {
   const [showCreate, setShowCreate] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<Order | null>(null)
 
@@ -37,15 +25,12 @@ export function OrdersList({ projectId, sort, page, onSortChange, onPageChange, 
     "key-manager:orders:delete",
   ])
 
-  const [sortField, sortDir] = (sort || "created:desc").split(":") as [string, "asc" | "desc"]
-
   const utils = trpcReact.useUtils()
   const { data, isLoading, isError, error } = trpcReact.keyManager.listOrders.useQuery(
     {
       project_id: projectId,
       offset: (page - 1) * PAGE_SIZE,
       limit: PAGE_SIZE,
-      sort: sort || undefined,
     },
     { enabled: permissions["key-manager:orders:list"] }
   )
@@ -69,19 +54,6 @@ export function OrdersList({ projectId, sort, page, onSortChange, onPageChange, 
       <Stack direction="vertical" className="juno-pattern-datagrid-outer">
         <Stack direction="vertical" className="juno-pattern-datagrid-header">
           <Stack distribution="end" alignment="center" gap="2" className="jn:pb-2">
-            <Stack gap="0.5">
-              <Select
-                label="Sort by"
-                value={sortField}
-                onChange={(v) => onSortChange(`${typeof v === "string" ? v : "created"}:${sortDir}`)}
-                className="jn:min-w-40"
-              >
-                {SORT_FIELDS.map((f) => (
-                  <SelectOption key={f.value} value={f.value} label={f.label} />
-                ))}
-              </Select>
-              <SortButton order={sortDir} onChange={(dir) => onSortChange(`${sortField}:${dir}`)} />
-            </Stack>
             {permissions["key-manager:orders:create"] && (
               <Button variant="primary" onClick={() => setShowCreate(true)}>
                 Create Order

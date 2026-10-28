@@ -509,17 +509,19 @@ describe("keyManagerRouter orders", () => {
       expect(result.orders[0].type).toBe("key")
     })
 
-    it("splits a combined sort into sort_key and sort_dir", async () => {
+    it("sends only offset/limit (Barbican orders has no sort support)", async () => {
       const ctx = createMockContext()
       const caller = createCaller(ctx)
 
-      await caller.keyManager.listOrders({ project_id: TEST_PROJECT_ID, sort: "created:desc" })
+      await caller.keyManager.listOrders({ project_id: TEST_PROJECT_ID, offset: 10, limit: 25 })
 
       const { path, params } = splitUrl(ctx.__getMock.mock.calls[0][0] as string)
       expect(path).toBe("v1/orders")
-      expect(params.get("sort_key")).toBe("created")
-      expect(params.get("sort_dir")).toBe("desc")
+      expect(params.get("offset")).toBe("10")
+      expect(params.get("limit")).toBe("25")
       expect(params.has("sort")).toBe(false)
+      expect(params.has("sort_key")).toBe(false)
+      expect(params.has("sort_dir")).toBe(false)
     })
   })
 
