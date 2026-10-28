@@ -2,6 +2,7 @@ import { Fragment, ReactNode } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import {
+  ContentHeading,
   DescriptionDefinition,
   DescriptionList,
   DescriptionTerm,
@@ -112,7 +113,12 @@ export function RouterDetailsView({ router, activeTab, onTabChange }: RouterDeta
 
   return (
     <Stack direction="vertical" gap="6" className="mt-6">
-      <TwoColumnDescriptionList items={basicInfoItems} />
+      <Stack direction="vertical" gap="2">
+        <ContentHeading>
+          <Trans>Basic Info</Trans>
+        </ContentHeading>
+        <TwoColumnDescriptionList items={basicInfoItems} />
+      </Stack>
 
       <Stack direction="vertical" gap="4">
         {/* TabNavigation keeps its own active item once a tab is clicked, so activeItem keeps it in sync with

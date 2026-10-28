@@ -1,5 +1,5 @@
-import { useLingui } from "@lingui/react/macro"
-import { Stack } from "@cloudoperators/juno-ui-components"
+import { Trans, useLingui } from "@lingui/react/macro"
+import { ContentHeading, Stack } from "@cloudoperators/juno-ui-components"
 import type { PortDetails } from "@/server/Network/types/port"
 import ClipboardText from "@/client/components/ClipboardText"
 import { TwoColumnDescriptionList, type DetailListItem } from "@/client/components/TwoColumnDescriptionList"
@@ -19,7 +19,7 @@ const NamedResource = ({ name, id }: { name?: string; id: string }) => (
 export function PortDetailsView({ port }: PortDetailsViewProps) {
   const { t } = useLingui()
 
-  const items: DetailListItem[] = [
+  const generalItems: DetailListItem[] = [
     { label: t`Port ID`, value: <ClipboardText text={port.id} /> },
     { label: t`MAC`, value: <ClipboardText text={port.mac_address} /> },
     { label: t`Network`, value: <NamedResource name={port.network_name} id={port.network_id} /> },
@@ -45,6 +45,9 @@ export function PortDetailsView({ port }: PortDetailsViewProps) {
     { label: t`Name`, value: port.name || undefined },
     { label: t`Device Owner`, value: port.device_owner || undefined },
     { label: t`Device ID`, value: port.device_id ? <ClipboardText text={port.device_id} /> : undefined },
+  ]
+
+  const statusSecurityItems: DetailListItem[] = [
     { label: t`Created At`, value: port.created_at },
     { label: t`Updated At`, value: port.updated_at },
     { label: t`Project ID`, value: <ClipboardText text={port.project_id} /> },
@@ -64,7 +67,19 @@ export function PortDetailsView({ port }: PortDetailsViewProps) {
 
   return (
     <Stack direction="vertical" gap="6" className="mt-6">
-      <TwoColumnDescriptionList items={items} />
+      <Stack direction="vertical" gap="2">
+        <ContentHeading>
+          <Trans>General</Trans>
+        </ContentHeading>
+        <TwoColumnDescriptionList items={generalItems} />
+      </Stack>
+
+      <Stack direction="vertical" gap="2">
+        <ContentHeading>
+          <Trans>Status & Security</Trans>
+        </ContentHeading>
+        <TwoColumnDescriptionList items={statusSecurityItems} />
+      </Stack>
     </Stack>
   )
 }

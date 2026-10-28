@@ -2161,6 +2161,9 @@ msgstr "Full Path"
 msgid "Full path:"
 msgstr "Full path:"
 
+msgid "General"
+msgstr "General"
+
 msgid "General Image Data"
 msgstr "General Image Data"
 
@@ -3669,6 +3672,9 @@ msgstr "Static website serving"
 
 msgid "Status"
 msgstr "Status"
+
+msgid "Status & Security"
+msgstr "Status & Security"
 
 msgid "Storage"
 msgstr "Storage"
