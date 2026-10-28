@@ -109,7 +109,7 @@ export function SecretsList({
           <DataGridToolbar>
             <Stack distribution="end" alignment="center">
               <SearchInput
-                placeholder="Search by name..."
+                placeholder="Search by name or ID"
                 value={search}
                 onSearch={(v) => onSearchChange(typeof v === "string" ? v : "")}
                 onClear={() => onSearchChange("")}

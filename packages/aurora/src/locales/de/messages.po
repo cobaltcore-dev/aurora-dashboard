@@ -13,6 +13,9 @@ msgstr ""
 "Language: \n"
 "Language-Team: \n"
 
+msgid "-- None --"
+msgstr ""
+
 msgid "—"
 msgstr "—"
 
@@ -283,6 +286,9 @@ msgstr "7 Tage"
 msgid "A bucket with this name already exists"
 msgstr ""
 
+msgid "A certificate container is used for storing the following secrets that are relevant to certificates: certificate, private_key (optional), private_key_passphrase (optional), intermediates (optional)"
+msgstr ""
+
 msgid "A container with this name already exists"
 msgstr ""
 
@@ -291,6 +297,9 @@ msgstr "Ein Flavor mit dieser ID oder diesem Namen existiert bereits. Bitte verw
 
 msgid "A folder with this name already exists"
 msgstr "Ein Ordner mit diesem Namen existiert bereits"
+
+msgid "A generic container is used for any type of container that a user may wish to create. There are no restrictions on the type or amount of secrets that can be held within a container"
+msgstr ""
 
 msgid "A pre-signed URL can be valid for at most 7 days ({MAX_EXPIRY_MINUTES} minutes)"
 msgstr "Eine vorsignierte URL kann höchstens 7 Tage ({MAX_EXPIRY_MINUTES} Minuten) gültig sein"
@@ -524,6 +533,9 @@ msgid "An access key stops working the moment it is deleted. Any S3 client still
 msgstr ""
 
 msgid "An object with this name already exists at the destination and will be overwritten."
+msgstr ""
+
+msgid "An RSA container is used for storing RSA public keys, private keys, and private key pass phrases"
 msgstr ""
 
 msgid "An unexpected error occurred."
@@ -762,6 +774,12 @@ msgstr "Cannot move to the same location. Please select a different bucket, fold
 
 msgid "Capabilities"
 msgstr "Capabilities"
+
+msgid "Certificate"
+msgstr ""
+
+msgid "Certificate is required for certificate containers"
+msgstr ""
 
 msgid "Change the name, destination container, or folder to move this object."
 msgstr "Ändern Sie den Namen, den Ziel-Container oder den Ordner, um dieses Objekt zu verschieben."
@@ -2368,6 +2386,9 @@ msgstr "Innerhalb eines Projekts werden Objekte in Containern gespeichert. Conta
 msgid "Insufficient Permissions"
 msgstr ""
 
+msgid "Intermediates"
+msgstr ""
+
 msgid "Internal Networks"
 msgstr ""
 
@@ -3040,6 +3061,9 @@ msgstr "{displayName} öffnen"
 msgid "Open in new tab"
 msgstr "In neuem Tab öffnen"
 
+msgid "optional"
+msgstr ""
+
 msgid "Optional identifier for this rule (max 255 characters)."
 msgstr ""
 
@@ -3187,6 +3211,15 @@ msgstr "Privat"
 msgid "Private flavors could not be loaded. You may be seeing an incomplete list."
 msgstr "Private Flavors konnten nicht geladen werden. Die angezeigte Liste ist möglicherweise unvollständig."
 
+msgid "Private Key"
+msgstr ""
+
+msgid "Private Key is required for RSA containers"
+msgstr ""
+
+msgid "Private Key Passphrase"
+msgstr ""
+
 msgid "Private Network"
 msgstr ""
 
@@ -3265,6 +3298,12 @@ msgstr "Öffentlich"
 msgid "Public Flavor"
 msgstr "Öffentlicher Flavor"
 
+msgid "Public Key"
+msgstr ""
+
+msgid "Public Key is required for RSA containers"
+msgstr ""
+
 msgid "Public Read"
 msgstr ""
 
@@ -3336,6 +3375,9 @@ msgstr "Entfernte Sicherheitsgruppe"
 
 msgid "Remove"
 msgstr "Entfernen"
+
+msgid "Remove {refName}"
+msgstr ""
 
 msgid "Remove access for {memberIdDisplay}"
 msgstr "Zugriff für {memberIdDisplay} entfernen"
@@ -3577,6 +3619,9 @@ msgstr ""
 msgid "Select a rule type..."
 msgstr "Regeltyp auswählen..."
 
+msgid "Select a secret..."
+msgstr ""
+
 msgid "Select a security group..."
 msgstr "Security Group auswählen..."
 
@@ -3611,6 +3656,9 @@ msgid "Select port to associate"
 msgstr "Port zur Zuordnung auswählen"
 
 msgid "Select rule {ruleLabel}"
+msgstr ""
+
+msgid "Select..."
 msgstr ""
 
 msgid "Serve objects as index when file name is:"
