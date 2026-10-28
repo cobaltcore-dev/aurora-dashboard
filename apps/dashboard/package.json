@@ -26,7 +26,7 @@
     "@tanstack/react-router": "1.168.22",
     "@tanstack/react-virtual": "3.13.24",
     "@trpc/react-query": "11.16.0",
-    "fastify": "5.12.5",
+    "fastify": "5.12.6",
     "focus-trap-react": "12.0.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
@@ -49,7 +49,7 @@
     "eslint": "^10.8.0",
     "tailwindcss": "^4.3.3",
     "typescript": "^6.0.3",
-    "vite": "^8.2.0",
+    "vite": "^8.2.4",
     "vite-plugin-static-copy": "4.1.0",
     "vite-plugin-svgr": "^5.2.0"
   }
