@@ -111,6 +111,12 @@ describe("OrderSchema", () => {
     expect(result.success).toBe(true)
   })
 
+  it("accepts an order with no secret_ref (not yet generated)", () => {
+    const withoutSecretRef: Record<string, unknown> = { ...validOrder }
+    delete withoutSecretRef.secret_ref
+    expect(OrderSchema.safeParse(withoutSecretRef).success).toBe(true)
+  })
+
   it("requires a meta record", () => {
     const withoutMeta: Record<string, unknown> = { ...validOrder }
     delete withoutMeta.meta

@@ -29,6 +29,7 @@ export function CreateOrderModal({
 }) {
   const { t } = useLingui()
   const [orderType, setOrderType] = useState<OrderType>("key")
+  const [name, setName] = useState("")
   const [algorithm, setAlgorithm] = useState("aes")
   const [bitLength, setBitLength] = useState("256")
 
@@ -47,10 +48,16 @@ export function CreateOrderModal({
 
   const handleConfirm = () => {
     if (!isValid) return
+    const trimmedName = name.trim()
     createMutation.mutate({
       project_id: projectId,
       type: orderType,
-      meta: { algorithm: algorithm.trim(), bit_length: parsedBitLength },
+      // Barbican uses meta.name to name the secret this order generates; omit it when blank.
+      meta: {
+        ...(trimmedName ? { name: trimmedName } : {}),
+        algorithm: algorithm.trim(),
+        bit_length: parsedBitLength,
+      },
     })
   }
 
@@ -77,6 +84,15 @@ export function CreateOrderModal({
           </FormRow>
         )}
         <FormSection>
+          <FormRow>
+            <TextInput
+              id="name"
+              label={t`Name`}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              helptext={t`Optional. Names the secret this order generates.`}
+            />
+          </FormRow>
           <FormRow>
             <Select id="order-type" label={t`Type`} value={orderType} onChange={(v) => setOrderType(v as OrderType)}>
               {ORDER_TYPES.map((type) => (

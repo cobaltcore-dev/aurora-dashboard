@@ -34,7 +34,7 @@ export const OrderSchema = z.object({
   sub_status_message: z.string().nullable().optional(),
   created: z.string(),
   updated: z.string(),
-  secret_ref: z.string().nullable(),
+  secret_ref: z.string().nullable().optional(),
   meta: z.record(z.string(), z.unknown()),
   creator_id: z.string().nullable().optional(),
 })

@@ -3058,6 +3058,9 @@ msgstr "Optional. A friendly name for the container."
 msgid "Optional. A friendly name for the secret."
 msgstr "Optional. A friendly name for the secret."
 
+msgid "Optional. Names the secret this order generates."
+msgstr "Optional. Names the secret this order generates."
+
 msgid "Optional. The secret material to store."
 msgstr "Optional. The secret material to store."
 
