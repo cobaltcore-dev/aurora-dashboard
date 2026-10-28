@@ -35,10 +35,6 @@ const containersSearchInput = z.object({
   name: z.string().optional(),
 })
 
-const ordersSearchInput = z.object({
-  sort: z.string().optional(),
-})
-
 const resourceIdInput = z.object({ secretId: z.string() })
 const containerIdInput = z.object({ containerId: z.string() })
 const orderIdInput = z.object({ orderId: z.string() })
@@ -282,7 +278,7 @@ export const buildKeyManagerResourceRouter = (policyDir: string) => {
     // ─── Orders ───────────────────────────────────────────────────────────────
 
     listOrders: projectScopedProcedure
-      .input(projectScopedInputSchema.extend({ ...paginationInput.shape, ...ordersSearchInput.shape }))
+      .input(projectScopedInputSchema.extend({ ...paginationInput.shape }))
       .query(async ({ input, ctx }) => {
         enforce(ctx, "key-manager:orders:list")
         const km = ctx.openstack?.service("key-manager")
@@ -290,11 +286,7 @@ export const buildKeyManagerResourceRouter = (policyDir: string) => {
         const params = new URLSearchParams()
         params.set("offset", String(input.offset))
         params.set("limit", String(input.limit))
-        if (input.sort) {
-          const [sortKey, sortDir] = input.sort.split(":")
-          if (sortKey) params.set("sort_key", sortKey)
-          if (sortDir) params.set("sort_dir", sortDir)
-        }
+        // Barbican's GET /v1/orders supports only offset/limit — no sort params.
         const res = await km.get(`v1/orders?${params}`).catch((e: unknown) => {
           throw mapKmError(e, "list orders")
         })
