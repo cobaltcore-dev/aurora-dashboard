@@ -628,13 +628,7 @@ msgstr "Zurück zu Images"
 msgid "Back to Key Manager"
 msgstr ""
 
-msgid "Back to Orders"
-msgstr ""
-
 msgid "Back to Routers"
-msgstr ""
-
-msgid "Back to Secrets"
 msgstr ""
 
 msgid "Back to Security Groups"

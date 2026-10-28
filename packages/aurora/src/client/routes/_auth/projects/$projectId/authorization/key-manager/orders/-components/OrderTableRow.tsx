@@ -35,7 +35,12 @@ export function OrderTableRow({ order, canDeleteOrder, onShowDetails, onDelete }
       <DataGridCell onClick={(e: React.MouseEvent) => e.stopPropagation()} className="items-end pr-0">
         <PopupMenu>
           <PopupMenuToggle as="div">
-            <Button icon="moreVert" title={t`Order actions`} />
+            <Button
+              icon="moreVert"
+              title={t`Order actions`}
+              aria-label={t`Order actions`}
+              className="!bg-transparent"
+            />
           </PopupMenuToggle>
           <PopupMenuOptions>
             <PopupMenuItem label={t`Show Details`} onClick={() => onShowDetails(order)} />
