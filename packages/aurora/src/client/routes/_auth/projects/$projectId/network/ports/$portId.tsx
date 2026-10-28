@@ -72,9 +72,12 @@ function PortLoadError({ error, onRetry }: PortLoadErrorProps) {
     if (errorCode === "UNAUTHORIZED") {
       const { pathname, search, hash } = window.location
       const redirect = encodeURIComponent(pathname + search + hash)
-      trpcClient.auth.terminateUserSession.mutate().finally(() => {
-        window.location.replace(`/?redirect=${redirect}`)
-      })
+      trpcClient.auth.terminateUserSession
+        .mutate()
+        .catch(() => {})
+        .finally(() => {
+          window.location.replace(`/?redirect=${redirect}`)
+        })
     }
   }, [errorCode])
 
