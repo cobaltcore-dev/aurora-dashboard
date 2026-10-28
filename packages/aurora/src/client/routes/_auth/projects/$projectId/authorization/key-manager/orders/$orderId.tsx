@@ -16,7 +16,8 @@ function OrderDetailPage() {
   const { projectId, orderId } = Route.useParams() as { projectId: string; orderId: string }
 
   const { data: order } = trpcReact.keyManager.getOrder.useQuery({ project_id: projectId, orderId })
-  useSetBreadcrumb(Route.id, order?.type ? `${order.type} (${orderId})` : orderId)
+  const orderName = typeof order?.meta?.name === "string" ? order.meta.name : null
+  useSetBreadcrumb(Route.id, orderName ?? orderId)
 
   return <OrderDetailsView projectId={projectId} orderId={orderId} />
 }
