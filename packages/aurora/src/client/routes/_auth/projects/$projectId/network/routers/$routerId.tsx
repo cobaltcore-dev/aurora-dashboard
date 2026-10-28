@@ -1,7 +1,7 @@
 import { useEffect } from "react"
 import { createFileRoute, useNavigate, useParams, useRouter, type ErrorComponentProps } from "@tanstack/react-router"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { trpcReact } from "@/client/trpcClient"
+import { trpcClient, trpcReact } from "@/client/trpcClient"
 import { Button, ButtonRow, Status } from "@cloudoperators/juno-ui-components"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { useSetBreadcrumb } from "@/client/hooks/useSetBreadcrumb"
@@ -67,13 +67,16 @@ function RouterLoadError({ error, onRetry }: RouterLoadErrorProps) {
   const statusCode: number | undefined = HTTP_STATUS_BY_TRPC_CODE[errorCode]
   const canRetry = RETRYABLE_TRPC_CODES.has(errorCode)
 
-  // 401: the session is gone. Full-document redirect to sign-in (not a client navigate) so AuthProvider
-  // re-checks the session on reload; a client navigate keeps its stale cached user and bounces straight
-  // back to this page (B.6). Mirrors AuthProvider.redirectToLogin.
+  // 401: the session is gone. Terminate the server session first (matching AuthProvider's expiry handler)
+  // so the landing route does not immediately send the user back on a still-valid BFF token, then do a
+  // full-document redirect to sign-in (not a client navigate) so AuthProvider re-checks the session.
   useEffect(() => {
     if (errorCode === "UNAUTHORIZED") {
       const { pathname, search, hash } = window.location
-      window.location.replace(`/?redirect=${encodeURIComponent(pathname + search + hash)}`)
+      const redirect = encodeURIComponent(pathname + search + hash)
+      trpcClient.auth.terminateUserSession.mutate().finally(() => {
+        window.location.replace(`/?redirect=${redirect}`)
+      })
     }
   }, [errorCode])
 

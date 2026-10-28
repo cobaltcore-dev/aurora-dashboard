@@ -3,7 +3,7 @@ import { useSearch, useNavigate } from "@tanstack/react-router"
 import { ErrorBoundary } from "react-error-boundary"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { TRPCClientError } from "@trpc/client"
-import { TrpcClient } from "@/client/trpcClient"
+import { trpcClient, TrpcClient } from "@/client/trpcClient"
 import { Button, Stack, DataGridToolbar, SearchInput, Message, Status } from "@cloudoperators/juno-ui-components"
 import type { PortListItem } from "@/server/Network/types/port"
 import { SortInput } from "@/client/components/ListToolbar/SortInput"
@@ -111,11 +111,16 @@ const sortPorts = (ports: PortListItem[], sortBy: PortSortKey, sortDirection: "a
 }
 
 /** Full-document redirect to sign-in (not a client navigate) so AuthProvider re-checks the session on
- *  reload; a client navigate keeps its stale cached user and bounces straight back to this list (B.6). */
+ *  reload; a client navigate keeps its stale cached user and bounces straight back to this list (B.6).
+ *  Terminates the server session first (matching AuthProvider's expiry handler) so the landing route
+ *  does not immediately send the user back on a still-valid BFF token. */
 function UnauthorizedRedirect() {
   useEffect(() => {
     const { pathname, search, hash } = window.location
-    window.location.replace(`/?redirect=${encodeURIComponent(pathname + search + hash)}`)
+    const redirect = encodeURIComponent(pathname + search + hash)
+    trpcClient.auth.terminateUserSession.mutate().finally(() => {
+      window.location.replace(`/?redirect=${redirect}`)
+    })
   }, [])
   return null
 }
