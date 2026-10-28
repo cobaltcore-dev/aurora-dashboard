@@ -1357,9 +1357,6 @@ msgstr "Geräte-ID"
 msgid "Device Owner"
 msgstr "Geräteeigentümer"
 
-msgid "Device Owner / ID"
-msgstr ""
-
 msgid "Direction"
 msgstr "Richtung"
 
@@ -1687,13 +1684,13 @@ msgstr ""
 msgid "External Fixed IPs"
 msgstr ""
 
+msgid "External IPs"
+msgstr ""
+
 msgid "External Network"
 msgstr "Externes Netzwerk"
 
 msgid "External Networks"
-msgstr ""
-
-msgid "External Subnet"
 msgstr ""
 
 msgid "Extra spec key is required and cannot be empty."
@@ -2021,9 +2018,6 @@ msgid "Fixed IP Address"
 msgstr "Feste IP-Adresse"
 
 msgid "Fixed IPs"
-msgstr ""
-
-msgid "Fixed IPs / Subnet"
 msgstr ""
 
 msgid "Flavor \"{name}\" was successfully created."

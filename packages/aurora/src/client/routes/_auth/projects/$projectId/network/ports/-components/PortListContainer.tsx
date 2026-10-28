@@ -36,6 +36,7 @@ export const PortListContainer = ({
 }: PortListContainerProps) => {
   const { t } = useLingui()
 
+  // Status | Name/ID | Desc | [Network] | IPs | Device | Actions
   const columns = isNetworkScoped ? 6 : 7
 
   const getEmptyStateBody = () => {
@@ -56,10 +57,10 @@ export const PortListContainer = ({
       >
         <DataGridRow>
           <DataGridHeadCell>
-            <Trans>Name / ID</Trans>
+            <Trans>Status</Trans>
           </DataGridHeadCell>
           <DataGridHeadCell>
-            <Trans>Status</Trans>
+            <Trans>Name / ID</Trans>
           </DataGridHeadCell>
           <DataGridHeadCell>
             <Trans>Description</Trans>
@@ -70,10 +71,10 @@ export const PortListContainer = ({
             </DataGridHeadCell>
           )}
           <DataGridHeadCell>
-            <Trans>Fixed IPs / Subnet</Trans>
+            <Trans>Fixed IPs</Trans>
           </DataGridHeadCell>
           <DataGridHeadCell>
-            <Trans>Device Owner / ID</Trans>
+            <Trans>Device Owner</Trans>
           </DataGridHeadCell>
           <DataGridHeadCell></DataGridHeadCell>
         </DataGridRow>

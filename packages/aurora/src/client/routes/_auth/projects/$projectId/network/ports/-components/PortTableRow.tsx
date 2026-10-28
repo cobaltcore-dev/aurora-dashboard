@@ -1,7 +1,6 @@
 import { useNavigate } from "@tanstack/react-router"
 import { useLingui } from "@lingui/react/macro"
 import {
-  Badge,
   Button,
   DataGridCell,
   DataGridRow,
@@ -20,25 +19,9 @@ interface PortTableRowProps {
   showNetwork?: boolean
 }
 
-/** Primary value on top, optional secondary value below in a lighter color. */
-const TwoLineCell = ({ primary, secondary }: { primary: string; secondary?: string }) => (
-  <Stack direction="vertical" gap="0.5" className="min-w-0">
-    <span className="break-all">{primary}</span>
-    {secondary && <span className="text-theme-light text-sm break-all">{secondary}</span>}
-  </Stack>
-)
-
-/** Maps Neutron port status to a Badge variant. Documented values: ACTIVE, DOWN, BUILD, ERROR. */
-const portStatusVariant = (status: string): "success" | "warning" | "error" | undefined => {
-  if (status === "ACTIVE") return "success"
-  if (status === "DOWN" || status === "ERROR") return "error"
-  if (status === "BUILD") return "warning"
-  return undefined
-}
-
 /**
- * Network and subnets show their names and fall back to the ID only when the name can't be resolved.
- * The device ID is shown below the device owner as specified for the ports list (devices have no name lookup).
+ * Col 1: status as plain text. Col 2: name (or ID as fallback).
+ * Network shows its name and falls back to the ID only when the name can't be resolved.
  */
 export const PortTableRow = ({ port, showNetwork = true }: PortTableRowProps) => {
   const { t } = useLingui()
@@ -54,13 +37,11 @@ export const PortTableRow = ({ port, showNetwork = true }: PortTableRowProps) =>
 
   return (
     <DataGridRow key={port.id} data-testid={`port-row-${port.id}`} onClick={navigateToDetailsPage}>
+      <DataGridCell>{port.status}</DataGridCell>
       <DataGridCell>
-        <TwoLineCell primary={port.name || port.id} secondary={port.name ? port.id : undefined} />
+        <span className="break-all">{port.name || port.id}</span>
       </DataGridCell>
-      <DataGridCell>
-        <Badge variant={portStatusVariant(port.status)}>{port.status}</Badge>
-      </DataGridCell>
-      <DataGridCell>{port.description ? <span className="break-all">{port.description}</span> : "–"}</DataGridCell>
+      <DataGridCell>{port.description ? <span className="break-all">{port.description}</span> : "- -"}</DataGridCell>
       {showNetwork && (
         <DataGridCell>
           <span className="break-all">{port.network_name || port.network_id}</span>
@@ -70,24 +51,16 @@ export const PortTableRow = ({ port, showNetwork = true }: PortTableRowProps) =>
         {port.fixed_ips.length > 0 ? (
           <Stack direction="vertical" gap="2">
             {port.fixed_ips.map((fixedIp) => (
-              <TwoLineCell
-                key={`${fixedIp.subnet_id}-${fixedIp.ip_address}`}
-                primary={fixedIp.ip_address}
-                secondary={fixedIp.subnet_name || fixedIp.subnet_id}
-              />
+              <span key={`${fixedIp.subnet_id}-${fixedIp.ip_address}`} className="break-all">
+                {fixedIp.ip_address}
+              </span>
             ))}
           </Stack>
         ) : (
-          "–"
+          "- -"
         )}
       </DataGridCell>
-      <DataGridCell>
-        {port.device_owner || port.device_id ? (
-          <TwoLineCell primary={port.device_owner || "–"} secondary={port.device_id || undefined} />
-        ) : (
-          "–"
-        )}
-      </DataGridCell>
+      <DataGridCell>{port.device_owner ? <span className="break-all">{port.device_owner}</span> : "- -"}</DataGridCell>
       <DataGridCell onClick={(e) => e.stopPropagation()}>
         <PopupMenu>
           <PopupMenuToggle as="div">

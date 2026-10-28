@@ -74,19 +74,21 @@ describe("PortTableRow", () => {
       })
     })
 
-    it("renders the port name with its ID below", async () => {
+    it("renders the status and the port name", async () => {
       renderComponent()
 
       await waitFor(() => {
         expect(screen.getByText("db-port")).toBeInTheDocument()
       })
-      expect(screen.getByText("port-123")).toBeInTheDocument()
+      expect(screen.getByText("DOWN")).toBeInTheDocument()
+      expect(screen.queryByText("port-123")).not.toBeInTheDocument()
     })
 
     it("renders only the ID when the port has no name", async () => {
       renderComponent({ ...mockPort, name: "" })
 
       await waitFor(() => {
+        // ID appears once in col 2 as name fallback
         expect(screen.getAllByText("port-123")).toHaveLength(1)
       })
     })
@@ -96,14 +98,6 @@ describe("PortTableRow", () => {
 
       await waitFor(() => {
         expect(screen.getByText("Reserved for the DB VM")).toBeInTheDocument()
-      })
-    })
-
-    it("renders the status", async () => {
-      renderComponent()
-
-      await waitFor(() => {
-        expect(screen.getByText("DOWN")).toBeInTheDocument()
       })
     })
 
@@ -156,56 +150,45 @@ describe("PortTableRow", () => {
   })
 
   describe("Fixed IPs column", () => {
-    it("renders every fixed IP with its subnet name and without the subnet ID", async () => {
+    it("renders every fixed IP without the subnet name or ID", async () => {
       renderComponent()
 
       await waitFor(() => {
         expect(screen.getByText("10.180.242.42")).toBeInTheDocument()
       })
-      expect(screen.getByText("dualstack-v4")).toBeInTheDocument()
       expect(screen.getByText("fd00:1234:feed:cafe::328")).toBeInTheDocument()
-      expect(screen.getByText("dualstack-v6")).toBeInTheDocument()
+      expect(screen.queryByText("dualstack-v4")).not.toBeInTheDocument()
+      expect(screen.queryByText("dualstack-v6")).not.toBeInTheDocument()
       expect(screen.queryByText("subnet-v4")).not.toBeInTheDocument()
-    })
-
-    it("falls back to the subnet ID when the subnet name is unknown", async () => {
-      renderComponent({
-        ...mockPort,
-        fixed_ips: [{ subnet_id: "subnet-v4", ip_address: "10.180.242.42", ip_version: 4 }],
-      })
-
-      await waitFor(() => {
-        expect(screen.getByText("subnet-v4")).toBeInTheDocument()
-      })
     })
   })
 
   describe("Device column", () => {
-    it("renders the device owner with the device ID below", async () => {
+    it("renders the device owner", async () => {
       renderComponent()
 
       await waitFor(() => {
         expect(screen.getByText("compute:qa-de-1b")).toBeInTheDocument()
       })
-      expect(screen.getByText("server-1")).toBeInTheDocument()
+      expect(screen.queryByText("server-1")).not.toBeInTheDocument()
     })
 
-    it("renders a dash for the owner when only the device ID is set", async () => {
+    it("renders a dash when the device owner is not set", async () => {
       renderComponent({ ...mockPort, device_owner: "" })
 
       await waitFor(() => {
-        expect(screen.getByText("server-1")).toBeInTheDocument()
+        expect(screen.queryByText("server-1")).not.toBeInTheDocument()
       })
-      expect(screen.getAllByText("–")).toHaveLength(1)
+      expect(screen.getAllByText("- -")).toHaveLength(1)
     })
   })
 
   describe("Empty values", () => {
-    it("renders a dash for description, fixed IPs and device when not set", async () => {
+    it("renders '- -' for description, fixed IPs and device when not set", async () => {
       renderComponent(unattachedPort)
 
       await waitFor(() => {
-        expect(screen.getAllByText("–")).toHaveLength(3)
+        expect(screen.getAllByText("- -")).toHaveLength(3)
       })
     })
   })
@@ -233,11 +216,12 @@ describe("PortTableRow", () => {
       const user = userEvent.setup()
       renderComponent()
 
-      const row = await screen.findByTestId("port-row-port-123")
-      const menuButton = row.querySelector("button")
-      expect(menuButton).toBeInTheDocument()
+      await waitFor(() => {
+        expect(screen.getByText("db-port")).toBeInTheDocument()
+      })
 
-      await user.click(menuButton!)
+      const menuButton = screen.getByRole("button", { name: "Port actions" })
+      await user.click(menuButton)
       await user.click(await screen.findByText("Show Details"))
 
       await waitFor(() => {
@@ -249,8 +233,11 @@ describe("PortTableRow", () => {
       const user = userEvent.setup()
       renderComponent()
 
-      const row = await screen.findByTestId("port-row-port-123")
-      await user.click(row.querySelector("button")!)
+      await waitFor(() => {
+        expect(screen.getByText("db-port")).toBeInTheDocument()
+      })
+
+      await user.click(screen.getByRole("button", { name: "Port actions" }))
 
       expect(mockNavigate).not.toHaveBeenCalled()
     })
@@ -259,8 +246,11 @@ describe("PortTableRow", () => {
       const user = userEvent.setup()
       renderComponent()
 
-      const row = await screen.findByTestId("port-row-port-123")
-      await user.click(row.querySelector("button")!)
+      await waitFor(() => {
+        expect(screen.getByText("db-port")).toBeInTheDocument()
+      })
+
+      await user.click(screen.getByRole("button", { name: "Port actions" }))
 
       expect(await screen.findByText("Show Details")).toBeInTheDocument()
       expect(screen.getAllByRole("menuitem")).toHaveLength(1)

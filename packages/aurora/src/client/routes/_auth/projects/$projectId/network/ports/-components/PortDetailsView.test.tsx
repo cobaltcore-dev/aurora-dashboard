@@ -106,18 +106,18 @@ describe("PortDetailsView", () => {
       expect(screen.queryByText("dualstack-test")).not.toBeInTheDocument()
     })
 
-    it("renders every fixed IP with its version and subnet name and ID", () => {
+    it("renders every fixed IP with its subnet name (not subnet ID)", () => {
       renderView()
 
       const fixedIps = within(screen.getByTestId("port-fixed-ips"))
       expect(fixedIps.getByText("10.180.242.42")).toBeInTheDocument()
-      expect(fixedIps.getByText("IPv4")).toBeInTheDocument()
+      expect(fixedIps.queryByText("IPv4")).not.toBeInTheDocument()
       expect(fixedIps.getByText("dualstack-v4")).toBeInTheDocument()
-      expect(fixedIps.getByText("subnet-v4")).toBeInTheDocument()
+      expect(fixedIps.queryByText("subnet-v4")).not.toBeInTheDocument()
       expect(fixedIps.getByText("fd00:1234:feed:cafe::328")).toBeInTheDocument()
-      expect(fixedIps.getByText("IPv6")).toBeInTheDocument()
+      expect(fixedIps.queryByText("IPv6")).not.toBeInTheDocument()
       expect(fixedIps.getByText("dualstack-v6")).toBeInTheDocument()
-      expect(fixedIps.getByText("subnet-v6")).toBeInTheDocument()
+      expect(fixedIps.queryByText("subnet-v6")).not.toBeInTheDocument()
     })
 
     it("renders only the subnet ID when the subnet name is unknown", () => {
@@ -161,7 +161,7 @@ describe("PortDetailsView", () => {
   })
 
   describe("Copy to clipboard", () => {
-    it.each(["port-1", "fa:16:3e:50:a2:79", "net-1", "10.180.242.42", "subnet-v4", "server-1", "proj-1", "sg-default"])(
+    it.each(["port-1", "fa:16:3e:50:a2:79", "net-1", "10.180.242.42", "server-1", "proj-1", "sg-default"])(
       "makes %s copyable",
       (value) => {
         renderView()
@@ -172,17 +172,17 @@ describe("PortDetailsView", () => {
   })
 
   describe("Empty values", () => {
-    it("renders a dash for every empty field", () => {
+    it("renders '- -' for every empty field", () => {
       renderView(unattachedPort)
 
       // IPs, Description, Name, Device Owner, Device ID, Created at, Updated at, Security Groups
-      expect(screen.getAllByText("—")).toHaveLength(8)
+      expect(screen.getAllByText("- -")).toHaveLength(8)
       expect(screen.queryByTestId("port-fixed-ips")).not.toBeInTheDocument()
       expect(screen.queryByTestId("port-security-groups")).not.toBeInTheDocument()
     })
 
-    it("does not render an IP version when it is unknown", () => {
-      renderView({ ...mockPort, fixed_ips: [{ subnet_id: "subnet-x", ip_address: "not-an-ip" }] })
+    it("does not render IPv version labels", () => {
+      renderView()
 
       expect(screen.queryByText(/^IPv/)).not.toBeInTheDocument()
     })

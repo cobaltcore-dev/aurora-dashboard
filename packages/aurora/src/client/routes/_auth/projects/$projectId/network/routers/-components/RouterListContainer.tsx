@@ -57,16 +57,16 @@ export const RouterListContainer = ({
       >
         <DataGridRow>
           <DataGridHeadCell>
-            <Trans>Name</Trans>
+            <Trans>Status</Trans>
           </DataGridHeadCell>
           <DataGridHeadCell>
-            <Trans>Status</Trans>
+            <Trans>Name</Trans>
           </DataGridHeadCell>
           <DataGridHeadCell>
             <Trans>External Network</Trans>
           </DataGridHeadCell>
           <DataGridHeadCell>
-            <Trans>External Subnet</Trans>
+            <Trans>External IPs</Trans>
           </DataGridHeadCell>
           <DataGridHeadCell>
             <Trans>Private Network</Trans>

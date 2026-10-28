@@ -133,7 +133,7 @@ describe("RouterDetailsView", () => {
       mockInterfacesResult()
       renderView({ ...mockRouter, name: "", description: "" })
 
-      expect(screen.getAllByText("—")).toHaveLength(2)
+      expect(screen.getAllByText("- -")).toHaveLength(2)
     })
   })
 
@@ -192,7 +192,7 @@ describe("RouterDetailsView", () => {
         external_gateway_info: { ...mockRouter.external_gateway_info!, network_name: undefined },
       })
 
-      expect(screen.getAllByText("—")).toHaveLength(1)
+      expect(screen.getAllByText("- -")).toHaveLength(1)
       expect(screen.getByText("ext-net-1")).toBeInTheDocument()
     })
 
@@ -204,7 +204,7 @@ describe("RouterDetailsView", () => {
       })
 
       expect(screen.queryByTestId("external-fixed-ips")).not.toBeInTheDocument()
-      expect(screen.getAllByText("—")).toHaveLength(1)
+      expect(screen.getAllByText("- -")).toHaveLength(1)
     })
 
     it("hides the SNAT row when enable_snat is not returned", () => {
