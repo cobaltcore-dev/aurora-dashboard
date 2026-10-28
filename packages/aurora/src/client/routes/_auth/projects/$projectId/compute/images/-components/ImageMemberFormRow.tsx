@@ -35,7 +35,7 @@ export const ImageMemberFormRow: React.FC<ImageMemberFormRowProps> = ({
           required
         />
       </DataGridCell>
-      <DataGridCell className="break-all">{imageId}</DataGridCell>
+      <DataGridCell textContain="break-all">{imageId}</DataGridCell>
       <DataGridCell>
         <ButtonRow>
           <Button icon="check" onClick={onSave} variant="primary" title={t`Add Member`} disabled={isLoading} />
