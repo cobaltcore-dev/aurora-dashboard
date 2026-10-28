@@ -10,10 +10,9 @@ import { useKeyManagerPermissions } from "../../-components/useKeyManagerPermiss
 interface SecretDetailsViewProps {
   projectId: string
   secretId: string
-  onBack: () => void
 }
 
-export function SecretDetailsView({ projectId, secretId, onBack }: SecretDetailsViewProps) {
+export function SecretDetailsView({ projectId, secretId }: SecretDetailsViewProps) {
   const { t } = useLingui()
   const [showPayload, setShowPayload] = useState(false)
 
@@ -72,15 +71,7 @@ export function SecretDetailsView({ projectId, secretId, onBack }: SecretDetails
 
   return (
     <>
-      <ContentHeader
-        title={secret.name ?? secretId}
-        projectId={projectId}
-        actions={
-          <Button variant="subdued" onClick={onBack}>
-            {t`Back to Secrets`}
-          </Button>
-        }
-      />
+      <ContentHeader title={secret.name ?? secretId} projectId={projectId} />
 
       <Stack direction="vertical" gap="6" className="my-6">
         <Stack direction="vertical" gap="2">

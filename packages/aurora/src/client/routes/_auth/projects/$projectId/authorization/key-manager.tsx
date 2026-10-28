@@ -61,6 +61,10 @@ function KeyManagerLayout() {
   const { projectId } = Route.useParams() as { projectId: string }
   const navigate = useNavigate()
 
+  const secretsDetailMatch = useMatch({
+    from: "/_auth/projects/$projectId/authorization/key-manager/secrets/$secretId",
+    shouldThrow: false,
+  })
   const containersIndexMatch = useMatch({
     from: "/_auth/projects/$projectId/authorization/key-manager/containers/",
     shouldThrow: false,
@@ -81,6 +85,10 @@ function KeyManagerLayout() {
   const isOrdersRoute = Boolean(ordersIndexMatch ?? ordersDetailMatch)
   const activeTab = isContainersRoute ? "containers" : isOrdersRoute ? "orders" : "secrets"
 
+  // A detail page identifies itself through the breadcrumb (Key Manager › Secrets › name), so the
+  // plugin title and resource tabs are suppressed there — they belong to the list pages only.
+  const isDetailRoute = Boolean(secretsDetailMatch ?? containersDetailMatch ?? ordersDetailMatch)
+
   const tabPaths = {
     secrets: "/projects/$projectId/authorization/key-manager/secrets",
     containers: "/projects/$projectId/authorization/key-manager/containers",
@@ -89,18 +97,22 @@ function KeyManagerLayout() {
 
   return (
     <div>
-      <ContentHeader title={t`Key Manager`} projectId={projectId} />
-      <TabNavigation
-        activeItem={activeTab}
-        onActiveItemChange={(value: unknown) => {
-          const tab = String(value) as "secrets" | "containers" | "orders"
-          void navigate({ to: tabPaths[tab], params: { projectId } })
-        }}
-      >
-        <TabNavigationItem label={t`Secrets`} value="secrets" />
-        <TabNavigationItem label={t`Containers`} value="containers" />
-        <TabNavigationItem label={t`Orders`} value="orders" />
-      </TabNavigation>
+      {!isDetailRoute && (
+        <>
+          <ContentHeader title={t`Key Manager`} projectId={projectId} />
+          <TabNavigation
+            activeItem={activeTab}
+            onActiveItemChange={(value: unknown) => {
+              const tab = String(value) as "secrets" | "containers" | "orders"
+              void navigate({ to: tabPaths[tab], params: { projectId } })
+            }}
+          >
+            <TabNavigationItem label={t`Secrets`} value="secrets" />
+            <TabNavigationItem label={t`Containers`} value="containers" />
+            <TabNavigationItem label={t`Orders`} value="orders" />
+          </TabNavigation>
+        </>
+      )}
       <div className="mt-4">
         <Outlet />
       </div>

@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router"
+import { createFileRoute } from "@tanstack/react-router"
 import { trpcReact } from "@/client/trpcClient"
 import { useSetBreadcrumb } from "@/client/hooks/useSetBreadcrumb"
 import { OrderDetailsView } from "./-components/OrderDetailsView"
@@ -14,21 +14,9 @@ export const Route = createFileRoute("/_auth/projects/$projectId/authorization/k
 
 function OrderDetailPage() {
   const { projectId, orderId } = Route.useParams() as { projectId: string; orderId: string }
-  const navigate = useNavigate()
 
   const { data: order } = trpcReact.keyManager.getOrder.useQuery({ project_id: projectId, orderId })
-  useSetBreadcrumb(Route.id, order?.order_ref ?? orderId)
+  useSetBreadcrumb(Route.id, order?.type ? `${order.type} (${orderId})` : orderId)
 
-  return (
-    <OrderDetailsView
-      projectId={projectId}
-      orderId={orderId}
-      onBack={() => {
-        void navigate({
-          to: "/projects/$projectId/authorization/key-manager/orders",
-          params: { projectId },
-        })
-      }}
-    />
-  )
+  return <OrderDetailsView projectId={projectId} orderId={orderId} />
 }

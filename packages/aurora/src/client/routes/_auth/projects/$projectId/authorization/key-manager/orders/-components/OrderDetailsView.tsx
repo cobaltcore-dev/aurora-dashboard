@@ -1,4 +1,4 @@
-import { Button, Status, Stack, ContentHeading } from "@cloudoperators/juno-ui-components"
+import { Status, Stack, ContentHeading } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
@@ -9,10 +9,9 @@ import { uuidFromRef } from "../../-components/utils"
 interface OrderDetailsViewProps {
   projectId: string
   orderId: string
-  onBack: () => void
 }
 
-export function OrderDetailsView({ projectId, orderId, onBack }: OrderDetailsViewProps) {
+export function OrderDetailsView({ projectId, orderId }: OrderDetailsViewProps) {
   const { t } = useLingui()
   const {
     data: order,
@@ -54,15 +53,7 @@ export function OrderDetailsView({ projectId, orderId, onBack }: OrderDetailsVie
 
   return (
     <>
-      <ContentHeader
-        title={`${t`Order`}: ${order.type}`}
-        projectId={projectId}
-        actions={
-          <Button variant="subdued" onClick={onBack}>
-            {t`Back to Orders`}
-          </Button>
-        }
-      />
+      <ContentHeader title={`${t`Order`}: ${order.type}`} projectId={projectId} />
 
       <Stack direction="vertical" gap="6" className="my-6">
         <Stack direction="vertical" gap="2">

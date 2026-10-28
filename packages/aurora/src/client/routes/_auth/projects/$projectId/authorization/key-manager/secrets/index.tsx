@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { z } from "zod"
-import { t, msg } from "@lingui/core/macro"
+import { t } from "@lingui/core/macro"
 import { SecretsList } from "./-components/SecretsList"
 import { uuidFromRef } from "../-components/utils"
 import type { Secret } from "@/server/KeyManager/types/keyManager"
@@ -16,7 +16,6 @@ export const Route = createFileRoute("/_auth/projects/$projectId/authorization/k
   staticData: {
     section: "authorization",
     service: "key-manager",
-    crumb: { text: msg`Secrets` },
     analytics: { name: "authorization.key-manager.secrets.list" },
   } satisfies RouteInfo,
   validateSearch: (s) => secretsSearchSchema.catch({}).parse(s),

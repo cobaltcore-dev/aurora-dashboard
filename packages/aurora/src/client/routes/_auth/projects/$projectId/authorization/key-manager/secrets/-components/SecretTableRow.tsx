@@ -37,7 +37,12 @@ export function SecretTableRow({ secret, canDeleteSecret, onShowDetails, onDelet
       <DataGridCell onClick={(e: React.MouseEvent) => e.stopPropagation()} className="items-end pr-0">
         <PopupMenu>
           <PopupMenuToggle as="div">
-            <Button icon="moreVert" title={t`Secret actions`} />
+            <Button
+              icon="moreVert"
+              title={t`Secret actions`}
+              aria-label={t`Secret actions`}
+              className="!bg-transparent"
+            />
           </PopupMenuToggle>
           <PopupMenuOptions>
             <PopupMenuItem label={t`Show Details`} onClick={() => onShowDetails(secret)} />

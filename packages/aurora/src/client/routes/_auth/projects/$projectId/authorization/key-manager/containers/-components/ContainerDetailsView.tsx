@@ -1,5 +1,4 @@
 import {
-  Button,
   Status,
   Stack,
   ContentHeading,
@@ -18,10 +17,9 @@ import { uuidFromRef } from "../../-components/utils"
 interface ContainerDetailsViewProps {
   projectId: string
   containerId: string
-  onBack: () => void
 }
 
-export function ContainerDetailsView({ projectId, containerId, onBack }: ContainerDetailsViewProps) {
+export function ContainerDetailsView({ projectId, containerId }: ContainerDetailsViewProps) {
   const { t } = useLingui()
   const {
     data: container,
@@ -49,15 +47,7 @@ export function ContainerDetailsView({ projectId, containerId, onBack }: Contain
 
   return (
     <>
-      <ContentHeader
-        title={container.name ?? containerId}
-        projectId={projectId}
-        actions={
-          <Button variant="subdued" onClick={onBack}>
-            {t`Back to Containers`}
-          </Button>
-        }
-      />
+      <ContentHeader title={container.name ?? containerId} projectId={projectId} />
 
       <Stack direction="vertical" gap="6" className="my-6">
         <Stack direction="vertical" gap="2">

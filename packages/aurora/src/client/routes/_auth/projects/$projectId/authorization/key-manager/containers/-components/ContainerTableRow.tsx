@@ -36,7 +36,12 @@ export function ContainerTableRow({ container, canDeleteContainer, onShowDetails
       <DataGridCell onClick={(e: React.MouseEvent) => e.stopPropagation()} className="items-end pr-0">
         <PopupMenu>
           <PopupMenuToggle as="div">
-            <Button icon="moreVert" title={t`Container actions`} />
+            <Button
+              icon="moreVert"
+              title={t`Container actions`}
+              aria-label={t`Container actions`}
+              className="!bg-transparent"
+            />
           </PopupMenuToggle>
           <PopupMenuOptions>
             <PopupMenuItem label={t`Show Details`} onClick={() => onShowDetails(container)} />
