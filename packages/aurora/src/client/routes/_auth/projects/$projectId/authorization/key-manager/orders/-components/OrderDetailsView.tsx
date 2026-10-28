@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router"
 import { Status, Stack, ContentHeading } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
@@ -33,13 +34,29 @@ export function OrderDetailsView({ projectId, orderId }: OrderDetailsViewProps) 
       : order.sub_status
     : "- -"
 
+  const generatedSecretId = order.secret_ref ? uuidFromRef(order.secret_ref) : null
+  const generatedSecretName = typeof order.meta?.name === "string" ? order.meta.name : null
+
   const detailItems: DetailListItem[] = [
     { label: t`ID`, value: <ClipboardText text={orderId} /> },
     { label: t`Reference`, value: <ClipboardText text={order.order_ref} /> },
     { label: t`Type`, value: order.type },
     { label: t`Status`, value: order.status },
     { label: t`Sub Status`, value: subStatus },
-    { label: t`Secret`, value: order.secret_ref ? <ClipboardText text={uuidFromRef(order.secret_ref)} /> : "- -" },
+    {
+      label: t`Secret`,
+      value: generatedSecretId ? (
+        <Link
+          to="/projects/$projectId/authorization/key-manager/secrets/$secretId"
+          params={{ projectId, secretId: generatedSecretId }}
+          className="text-theme-link hover:text-theme-default"
+        >
+          {generatedSecretName ?? generatedSecretId}
+        </Link>
+      ) : (
+        "- -"
+      ),
+    },
     { label: t`Created`, value: new Date(order.created).toLocaleString() },
     { label: t`Updated`, value: new Date(order.updated).toLocaleString() },
     { label: t`Creator ID`, value: order.creator_id ?? "- -" },

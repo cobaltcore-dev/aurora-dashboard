@@ -61,9 +61,9 @@ describe("OrderListContainer", () => {
       render(<OrderListContainer orders={mockOrders} {...defaultProps} />, { wrapper: TestWrapper })
 
       const headers = screen.getAllByRole("columnheader")
-      // ID, Status, Type, actions
+      // Name / ID, Status, Type, actions
       expect(headers).toHaveLength(4)
-      expect(headers[0]).toHaveTextContent("ID")
+      expect(headers[0]).toHaveTextContent("Name / ID")
       expect(headers[1]).toHaveTextContent("Status")
       expect(headers[2]).toHaveTextContent("Type")
     })
