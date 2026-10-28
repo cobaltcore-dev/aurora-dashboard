@@ -603,7 +603,7 @@ type RouterInterface = {
 
 ### List view & states
 
-List columns: Name / ID, Status, External Network, External Subnet, Private Network, actions ("Show Details" only). Status is rendered as a colored `Badge` (success for `ACTIVE`, danger for `DOWN`/`ERROR`). Only the router's own ID is shown in the list; related IDs are on the details page.
+List columns: Status, Name, External Network, External IPs, Private Network, actions ("Show Details" only). Status is plain text, names fall back to IDs, and empty values show `- -`.
 
 A **Status filter** (single value, kept in the URL as `?status=`) narrows the list and is shown as a removable pill. Unlike Ports, the filter is applied server-side via the BFF's `status` parameter, consistent with the list's server-side search and sort.
 
@@ -662,10 +662,10 @@ UI actions are gated via `network.canUser` using the existing keys in `permissio
 - Zod validation for all request/response types
 - Router-specific error handling on top of the shared network error handler
 - Routing setup, side navigation entry and project overview card
-- Routers list view (Name / ID, Status, External Network, External Subnet, Private Network) with search, status filter, sorting and pagination; status shown as a colored Badge; only the router's own ID is shown in the list, related IDs are on the details page
+- Routers list view (Status, Name, External Network, External IPs, Private Network) with search, status filter, sorting and pagination; status shown as plain text
 - External network/subnet names and private networks in `list` via batched lookups
 - Router details view (overview, External Networks and Internal Networks tabs)
-- 401 redirect to sign-in and 403 info message on both the list and details views
+- 401 redirect to sign-in; 403 shows a page-level info message on the list and an error page on the details view (see [List view & states](#list-view--states))
 - Backend unit and procedure tests
 
 ### 🚧 Planned

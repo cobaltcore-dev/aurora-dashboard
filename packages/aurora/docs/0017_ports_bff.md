@@ -402,7 +402,7 @@ The UI is read-only: list and details only, no create, edit or delete actions.
 - **Without `networkId`** (global view): all ports of the project, including a Network column.
 - **With `networkId`** (e.g. a "Ports" tab in the network details view): passes `network_id` to `network.ports.list`, hides the Network column and uses a network-specific empty state.
 
-List columns: Name / ID, Status, Description, Network, Fixed IPs / Subnet, Device Owner / ID, actions ("Show Details" only). Status is rendered as a colored `Badge` (success for `ACTIVE`, danger for `DOWN`/`ERROR`, warning for `BUILD`). Network and subnets show names and fall back to the ID when the name can't be resolved.
+List columns: Status, Name / ID, Description, Network, Fixed IPs, Device Owner, actions ("Show Details" only). Status is plain text, names fall back to IDs, and empty values show `- -`.
 
 A **Status filter** (single value, kept in the URL as `?status=`) narrows the list and is shown as a removable pill. Because the full list is already in the browser, filtering, search, sort and pagination all run client-side with no refetch.
 
@@ -414,7 +414,7 @@ A **Status filter** (single value, kept in the URL as `?status=`) narrows the li
 
 ### Details View
 
-Fields in this order: Port ID, MAC, Network (name + ID), IPs (address, IP version, subnet name + ID), Description, Name, Device Owner, Device ID, Created at, Updated at, Project ID, Status, Security Groups (name + ID). All IDs, IP addresses and the MAC address can be copied to the clipboard.
+Fields in this order: Port ID, MAC, Network (name + ID), IPs (address and subnet name, or the subnet ID when the name is unknown), Description, Name, Device Owner, Device ID, Created at, Updated at, Project ID, Status, Security Groups (name + ID). Rendered as a two-column description list; empty values show `- -`. All IDs, IP addresses and the MAC address can be copied to the clipboard.
 
 ### Navigation
 
@@ -471,7 +471,7 @@ Note: the epic names the keys `network:port:*` (singular); the implementation us
 - Network, subnet and security group names via batched, best-effort lookups (shared with Routers)
 - Backend unit and procedure tests
 - Routing setup, side navigation entry and project overview card
-- Read-only ports list (Name / ID, Status, Description, Network, Fixed IPs / Subnet, Device Owner / ID) with search, status filter, sorting and pagination; status shown as a colored Badge
+- Read-only ports list (Status, Name / ID, Description, Network, Fixed IPs, Device Owner) with search, status filter, sorting and pagination; status shown as plain text
 - Reusable ports list with optional `networkId` scope
 - Read-only port details view with copy-to-clipboard for IDs, IPs and MAC
 - 401 redirect to sign-in and 403 info message on both the list and details views
