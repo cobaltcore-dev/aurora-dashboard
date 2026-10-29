@@ -225,13 +225,13 @@ means next increment within the same phase, not a lower-priority backlog item.
 
 ### Details
 
-|                           |                                    | Notes                                                                 |
-| ------------------------- | ---------------------------------- | --------------------------------------------------------------------- |
-| **Service Documentation** | OpenStack Neutron (Networking)     | Mature, widely-documented service                                     |
-| **API Docs**              | OpenStack Networking API reference | <!-- fill in: exact link -->                                          |
-| **API Spec**              | OpenStack Networking v2.0          | <!-- fill in: exact link -->                                          |
-| **API stable?**           | [x] Yes [ ] No                     | Neutron v2.0 is mature, versioned, no breaking changes expected       |
-| **API available in QA?**  | [x] Yes [ ] No                     | Available in `qa-de-1` / `monsoon3` / `cc-demo` (see Dev Environment) |
+|                           |                                    | Notes                                                           |
+| ------------------------- | ---------------------------------- | --------------------------------------------------------------- |
+| **Service Documentation** | OpenStack Neutron (Networking)     | Mature, widely-documented service                               |
+| **API Docs**              | OpenStack Networking API reference | <!-- fill in: exact link -->                                    |
+| **API Spec**              | OpenStack Networking v2.0          | <!-- fill in: exact link -->                                    |
+| **API stable?**           | [x] Yes [ ] No                     | Neutron v2.0 is mature, versioned, no breaking changes expected |
+| **API available in QA?**  | [x] Yes [ ] No                     |                                                                 |
 
 > ⚠️ **Still needed**: exact links to the Neutron API docs and spec (nice-to-have — the API itself is well-known and stable).
 
@@ -259,17 +259,6 @@ unauthorized states — no new patterns are invented:
 - **Backend / network error (5xx, timeout):** a generic error state with a retry affordance — never a blank page or stack trace.
 - **Empty sub-tables:** inline empty rows ("No subnets" / "No ports").
 - **Partial failure:** if the network detail loads but a sub-table call fails (e.g. ports returns 500 while the network loaded), the error is scoped to that sub-table and the rest of the detail stays usable.
-
-### Dev Environment
-
-| Property                             | Value                                                                                                                                                                                                                                                                                                                                                                         |
-| ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Dev/QA endpoint URL**              | Neutron endpoint discovered via the Keystone service catalog (no hardcoded URL)                                                                                                                                                                                                                                                                                               |
-| **Region**                           | `qa-de-1`                                                                                                                                                                                                                                                                                                                                                                     |
-| **Domain**                           | `monsoon3`                                                                                                                                                                                                                                                                                                                                                                    |
-| **Test tenant / project ID**         | `cc-demo`                                                                                                                                                                                                                                                                                                                                                                     |
-| **Seed data or mock data available** | `cc-demo` is the designated test project. To confirm: that it contains a variety of shapes the views must render — a shared network, an external network, a subnet with host routes, and a port attached to an instance. If any are missing, seed a few or fall back to realistic mock data (Neutron response shapes are well-known, so implementation can start regardless). |
-| **Access credentials**               | Standard project membership in `cc-demo` via Keystone                                                                                                                                                                                                                                                                                                                         |
 
 ### OpenStack Service Catalog Registration
 

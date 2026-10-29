@@ -68,8 +68,8 @@ Give Aurora project members a read-only view of their project's Neutron networks
 
 **Checklist**
 
-- [ ] Confirm OpenStack **Neutron v2.0** is reachable via the Keystone service catalog in region `qa-de-1`, domain `monsoon3`, project `cc-demo`.
-- [ ] Confirm `cc-demo` contains the data shapes every view must render, or seed / fall back to realistic mock data for any missing shape:
+- [ ] Confirm OpenStack **Neutron v2.0** is reachable via the Keystone service catalog.
+- [ ] Confirm test project contains the data shapes every view must render, or seed / fall back to realistic mock data for any missing shape:
   - [ ] a **shared** network (so the "owning project" rendering can be exercised)
   - [ ] an **external** network
   - [ ] a subnet **with host routes** (non-empty `host_routes`)
@@ -154,7 +154,7 @@ Give Aurora project members a read-only view of their project's Neutron networks
 - [ ] **Top metadata section** (description list) shows all list fields plus the fields the list omits: Name, ID (copy affordance), Status, Admin State, Shared (+ owning `project_id` when shared — E2), External, MTU, Created / Updated timestamps, Description, tags. (Network type moves into the Segmentation tab — it is a provider attribute.)
 - [ ] The top section also shows **counts for every countable collection the network fetch itself returns** (e.g. subnet count from the embedded `subnets` array, segment count) — at-a-glance totals sit with the metadata; per-item detail lives in the tabs
 - [ ] Description and tags are shown when present; when absent, the field renders an explicit `- -` empty state (not omitted)
-- [ ] **Tab bar** below the metadata section hosts the sub-tables as peer tabs in order **Segmentation · Subnets · Ports · Routers**, defaulting to Segmentation (mirrors the `TabNavigation` on the Routers detail page). This sub-issue builds the tab shell + the Segmentation tab; the Subnets (sub-issue 5), Ports (sub-issue 6) and Routers / attached-routers (sub-issues 6 → 7) tabs are mount points filled later. All tab lists follow the project's datagrid pattern
+- [ ] **Tab bar** below the metadata section hosts the sub-tables as peer tabs in order **Segmentation · Subnets · Ports · Routers**, defaulting to Segmentation. This sub-issue builds the tab shell + the Segmentation tab; the Subnets (sub-issue 5), Ports (sub-issue 6) and Routers / attached-routers (sub-issues 6 → 7) tabs are mount points filled later. All tab lists follow the project's datagrid pattern
 - [ ] **Segmentation tab** (built here — data rides the `getById` fetch, no extra call): a datagrid of the network's segments showing Network type (`vlan`/`vxlan`/`gre`/`geneve`/`flat`/`local`), Physical network, Segmentation ID (e.g. VLAN ID). Count space shows **total segments + count per network type**. Shown **only when the API returns provider/segment data** — under project scope typically admin-only and often null/absent; a present-but-null value renders `- -`, and when no segmentation data is returned at all the tab is empty/omitted
 - [ ] Floating IPs and Security Groups are **not** shown here
 - [ ] **States:** page-scoped loading (Spinner) while the network loads; a scoped error state with retry on failure; standard unauthorized state on 403
@@ -164,7 +164,7 @@ Give Aurora project members a read-only view of their project's Neutron networks
 **Aurora / Juno implementation notes**
 
 - Fetched via `network.networks.getById` (`projectScopedProcedure`).
-- Tab bar: use the existing `TabNavigation` / `TabNavigationItem` pattern (prior art: `routers` `RouterDetailsView`). Tab-bar + Segmentation-tab shape validated via UI prototype (`.scratch/networks-readonly/segments-ui-prototype.html`, variant D).
+- Tab bar: use the existing `TabNavigation` / `TabNavigationItem` pattern but with `TabBar` component instead (prior art: `routers` `RouterDetailsView`).
 - **Refresh:** none (E1) — same policy as the list.
 
 **BRD Reference** — Story §5.1 Story 2 · API §7 · Auth §8.
@@ -256,6 +256,6 @@ Give Aurora project members a read-only view of their project's Neutron networks
 
 **Residual (resolve before/at build):**
 
-- **O1 — Dev data shapes (sub-issue 1):** confirm `cc-demo` holds a shared network, an external network, a subnet with host routes, and a router-interface port — else seed or mock.
+- **O1 — Dev data shapes (sub-issue 1):** confirm test project holds a shared network, an external network, a subnet with host routes, and a router-interface port — else seed or mock.
 - **O3 — Permission policy key (sub-issue 2):** confirm the exact Neutron policy key for "list networks" (e.g. `get_network`) that gates the nav entry and the unauthorized state, against the `network.canUser` permission router.
 - **Non-blocking BRD deferrals (not required for build):** rollout strategy & go-live comms (Q-N1), Aurora core-team sign-off for a new built-in scope (Q-N2), Document Control submitter/target quarter (Q-N4). Carried from the BRD; none block engineering.
