@@ -1,11 +1,13 @@
 import { useNavigate } from "@tanstack/react-router"
 import { useLingui } from "@lingui/react/macro"
 import {
+  Button,
   DataGridCell,
   DataGridRow,
   PopupMenu,
   PopupMenuItem,
   PopupMenuOptions,
+  PopupMenuToggle,
   Stack,
 } from "@cloudoperators/juno-ui-components"
 import type { RouterListItem } from "@/server/Network/types/router"
@@ -15,17 +17,9 @@ interface RouterTableRowProps {
   router: RouterListItem
 }
 
-/** Primary value on top, optional secondary value below in a lighter color. */
-const TwoLineCell = ({ primary, secondary }: { primary: string; secondary?: string }) => (
-  <Stack direction="vertical" gap="0.5" className="min-w-0">
-    <span className="break-all">{primary}</span>
-    {secondary && <span className="text-theme-light text-sm break-all">{secondary}</span>}
-  </Stack>
-)
-
 /**
- * Only the router's own ID is shown in the list; IDs of related entities (networks, subnets) are shown
- * on the details page. A related entity's ID is only used as a fallback when its name can't be resolved.
+ * Col 1: status as plain text. Col 2: name (or ID as fallback).
+ * Related entity IDs (networks, subnets) are only shown as a fallback when the name can't be resolved.
  */
 export const RouterTableRow = ({ router }: RouterTableRowProps) => {
   const { t } = useLingui()
@@ -43,25 +37,24 @@ export const RouterTableRow = ({ router }: RouterTableRowProps) => {
 
   return (
     <DataGridRow key={router.id} data-testid={`router-row-${router.id}`} onClick={navigateToDetailsPage}>
+      <DataGridCell>{router.status}</DataGridCell>
       <DataGridCell>
-        <TwoLineCell primary={router.name || router.id} secondary={router.name ? router.id : undefined} />
+        <span className="break-all">{router.name || router.id}</span>
       </DataGridCell>
       <DataGridCell>
-        {gateway ? <span className="break-all">{gateway.network_name || gateway.network_id}</span> : "–"}
+        {gateway ? <span className="break-all">{gateway.network_name || gateway.network_id}</span> : "- -"}
       </DataGridCell>
       <DataGridCell>
         {gateway?.external_fixed_ips && gateway.external_fixed_ips.length > 0 ? (
           <Stack direction="vertical" gap="1">
             {gateway.external_fixed_ips.map((fixedIp) => (
-              <TwoLineCell
-                key={`${fixedIp.subnet_id}-${fixedIp.ip_address}`}
-                primary={fixedIp.ip_address}
-                secondary={fixedIp.subnet_name || fixedIp.subnet_id}
-              />
+              <span key={`${fixedIp.subnet_id}-${fixedIp.ip_address}`} className="break-all">
+                {fixedIp.ip_address}
+              </span>
             ))}
           </Stack>
         ) : (
-          "–"
+          "- -"
         )}
       </DataGridCell>
       <DataGridCell>
@@ -74,12 +67,19 @@ export const RouterTableRow = ({ router }: RouterTableRowProps) => {
             ))}
           </Stack>
         ) : (
-          "–"
+          "- -"
         )}
       </DataGridCell>
-      <DataGridCell>{router.status}</DataGridCell>
       <DataGridCell onClick={(e) => e.stopPropagation()}>
         <PopupMenu>
+          <PopupMenuToggle as="div">
+            <Button
+              icon="moreVert"
+              title={t`Router actions`}
+              aria-label={t`Router actions`}
+              className="!bg-transparent"
+            />
+          </PopupMenuToggle>
           <PopupMenuOptions>
             <PopupMenuItem label={t`Show Details`} onClick={navigateToDetailsPage} />
           </PopupMenuOptions>

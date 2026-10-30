@@ -68,6 +68,8 @@ Applied BFF-side (not sent to Neutron):
 
 Returns `RouterListItem[]`: routers from the Neutron envelope `{ routers: [...] }` with the external gateway enriched with names.
 
+The BFF follows Neutron's pagination: it requests pages via the `next` link in `routers_links` until there is none, so the returned list is complete even on deployments with a `pagination_max_limit`. The BFF-side search and filters therefore see every router, not just the first page.
+
 #### Private Networks and Name Enrichment
 
 The router object only references the external network and subnets by ID, and contains no information about the internal (private) networks it is attached to. After BFF-side filtering, the BFF enriches the remaining routers with **batched requests for the whole list** (not per router):
@@ -77,7 +79,7 @@ The router object only references the external network and subnets by ID, and co
    - `device_owner` is restricted to interface ports (`network:router_interface`, `network:router_interface_distributed`, `network:ha_router_replicated_interface`), so gateway and SNAT ports are not returned.
    - Network IDs are grouped per router and deduplicated into `private_networks`.
 2. **Names** - in parallel:
-   - `GET /v2.0/networks?id=...&fields=id&fields=name` - one request for external **and** private networks; sets `external_gateway_info.network_name` and `private_networks[].network_name`
+   - `GET /v2.0/networks?id=...&fields=id&fields=name` - external **and** private networks in one lookup (chunked into requests of at most 50 IDs); sets `external_gateway_info.network_name` and `private_networks[].network_name`
    - `GET /v2.0/subnets?id=...&fields=id&fields=name` - sets `external_gateway_info.external_fixed_ips[].subnet_name`
 
 No request is made when there is nothing to look up. All lookups are best-effort, so the list is always returned:
@@ -116,7 +118,7 @@ Retrieves a single router.
 
 #### Response
 
-Returns `RouterDetails`: the `Router` with the external gateway enriched with `network_name` and `external_fixed_ips[].subnet_name`, using the same best-effort networks/subnets lookup as `list` (two requests; none when the router has no gateway).
+Returns `RouterDetails`: the `Router` with the external gateway enriched with `network_name` and `external_fixed_ips[].subnet_name`, using the same best-effort networks/subnets lookup as `list` (two lookups, each chunked into requests of at most 50 IDs; none when the router has no gateway).
 
 #### Error Handling
 
@@ -568,7 +570,7 @@ type RouterInterface = {
 - Router-specific overrides provide clearer messages for 404/409 (and 400 on `addInterface`).
 - **Quota detection:** Neutron returns `OverQuota` as `409 Conflict` (not 413). Every 409 override checks the error message for "quota" and returns a quota message instead of the operation-specific one.
 
-`requestOrThrow(request, handler, resourceLabel?)` wraps every Neutron call of the main (non best-effort) requests:
+`requestOrThrow(request, handler, resourceLabel?)` (shared, in `requestHelpers.ts`) wraps every Neutron call of the main (non best-effort) requests:
 
 - signal-openstack does not resolve non-2xx responses. It rejects with `SignalOpenstackApiError(message, statusCode)`, where `message` is Neutron's message parsed from the JSON body (`NeutronError.message`). `requestOrThrow` catches it and passes `{ status: statusCode, statusText: message }` to the operation's handler, so the status code and router-specific messages reach the UI instead of a generic `INTERNAL_SERVER_ERROR`.
 - Network failures are wrapped by the client as `SignalOpenstackApiError` with status 500 and map to the default error.
@@ -581,13 +583,13 @@ type RouterInterface = {
 - `collectSubnetIds(ports)` - unique subnet IDs for the batched subnets request
 - `collectGatewayIds(routers)` / `applyGatewayNames(routers, networks, subnets)` - external network/subnet name enrichment for `list`
 - `groupPrivateNetworkIdsByRouter(ports)` / `applyPrivateNetworks(routers, idsByRouter, networks)` - private networks for `list`
-- `chunk(items, size)` - splits router IDs for the batched ports requests
+- `chunk(items, size)` (shared, in `requestHelpers.ts`) - splits router IDs for the batched ports requests
 - `getRouterExtensionFlags(aliases)` - maps extension aliases to `RouterExtensionFlags`
 
 ### Request Builders
 
 - `buildExternalGatewayInfoBody(info)` - builds `external_gateway_info`, omitting undefined fields
-- `pickDefined(obj)` - drops `undefined` keys, keeps `false`, `0`, `""` and `null`
+- `pickDefined(obj)` (shared, in `requestHelpers.ts`) - drops `undefined` keys, keeps `false`, `0`, `""` and `null`
 
 ## Frontend Integration
 
@@ -598,6 +600,18 @@ type RouterInterface = {
 | `/_auth/projects/$projectId/network/routers`           | Layout route: breadcrumb and route-level error component               |
 | `/_auth/projects/$projectId/network/routers/`          | Routers list                                                           |
 | `/_auth/projects/$projectId/network/routers/$routerId` | Router details: overview, External Networks and Internal Networks tabs |
+
+### List view & states
+
+List columns: Status, Name, External Network, External IPs, Private Network, actions ("Show Details" only). Status is plain text, names fall back to IDs, and empty values show `- -`.
+
+A **Status filter** (single value, kept in the URL as `?status=`) narrows the list and is shown as a removable pill. Unlike Ports, the filter is applied server-side via the BFF's `status` parameter, consistent with the list's server-side search and sort.
+
+Error & empty states:
+
+- **401 (`UNAUTHORIZED`):** both the list and the details view redirect (full page reload) to the sign-in route with the current location as the return target, instead of rendering an error inline.
+- **403 (`FORBIDDEN`):** the **list** shows a page-level info message ("Insufficient Permissions"); the **details** view shows an error page ("Access to this router is not permitted.") via `RouteIdLevelDefaultError`, not an info message. (Ports shows an info message on both — the two differ here.)
+- **Other errors:** caught by an error boundary that shows a generic translated message (never the raw BFF message) and a "Try Again" action.
 
 ### Navigation
 
@@ -625,8 +639,9 @@ UI actions are gated via `network.canUser` using the existing keys in `permissio
 
 - `routers/routersRouter.test.ts` - procedure tests for all endpoints: success paths, request URLs and bodies, input validation, session/service errors, parse errors and Neutron error mapping. The network service mock rejects non-2xx responses with `SignalOpenstackApiError`, like the real client (`errorMode: "response"` resolves with `ok: false` instead)
 - `types/router.test.ts` - response and input schema validation, IP/CIDR validators, interface and gateway refinements
-- `helpers/routerHelpers.test.ts` - error handler overrides (404/409, OverQuota detection, 400 detail), `requestOrThrow` error dispatch, BFF filters, interface building, extension flags
+- `helpers/routerHelpers.test.ts` - error handler overrides (404/409, OverQuota detection, 400 detail), BFF filters, interface building, extension flags
 - `helpers/errorHandling.test.ts` - `Router` resource name in the shared error handler
+- `helpers/requestHelpers.test.ts` / `helpers/lookupHelpers.test.ts` - shared `requestOrThrow`, `pickDefined`, `chunk` and the batched network/subnet name lookups
 
 ### Frontend Tests
 
@@ -647,13 +662,14 @@ UI actions are gated via `network.canUser` using the existing keys in `permissio
 - Zod validation for all request/response types
 - Router-specific error handling on top of the shared network error handler
 - Routing setup, side navigation entry and project overview card
-- Routers list view (Name, External Network, External Subnet, Private Network, Status) with search, sorting and pagination; only the router's own ID is shown in the list, related IDs are on the details page
+- Routers list view (Status, Name, External Network, External IPs, Private Network) with search, status filter, sorting and pagination; status shown as plain text
 - External network/subnet names and private networks in `list` via batched lookups
 - Router details view (overview, External Networks and Internal Networks tabs)
+- 401 redirect to sign-in; 403 shows a page-level info message on the list and an error page on the details view (see [List view & states](#list-view--states))
 - Backend unit and procedure tests
 
 ### 🚧 Planned
 
-- Routers list view filters (status, has gateway) and "Showing X of Y" summary
+- Further routers list filters (has gateway) and "Showing X of Y" summary
 - Router detail view: Extra Routes and Advanced attributes sections
 - Write operations in the UI (create, edit, gateway, interfaces, delete)
