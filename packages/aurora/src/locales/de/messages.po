@@ -3883,7 +3883,7 @@ msgstr ""
 msgid "There are {bucketsCount} buckets, start typing to search"
 msgstr ""
 
-msgid "There are no accepted shared images for this project with the current filters applied. Try adjusting your filter criteria or check the Suggested Images tab."
+msgid "There are no accepted shared images for this project with the current filters applied."
 msgstr ""
 
 msgid "There are no buckets available with the current search criteria. Try adjusting your search term."
@@ -3901,7 +3901,7 @@ msgstr "Für dieses Projekt sind mit den aktuellen Filtern keine Flavors verfüg
 msgid "There are no Floating IPs available for this project. Floating IPs allow you to map public IP addresses to instances."
 msgstr "Für dieses Projekt sind keine Floating IPs verfügbar. Floating IPs ermöglichen es, öffentliche IP-Adressen Instanzen zuzuordnen."
 
-msgid "There are no images available for this project with the current filters applied. Try adjusting your filter criteria or create a new image."
+msgid "There are no images available for this project with the current filters applied."
 msgstr ""
 
 msgid "There are no items to display."
@@ -3910,7 +3910,7 @@ msgstr "Es gibt keine Elemente zum Anzeigen."
 msgid "There Are No Lifecycle Rules for This Bucket"
 msgstr ""
 
-msgid "There are no pending shared images for this project with the current filters applied. Try adjusting your filter criteria or check the All Images tab."
+msgid "There are no pending shared images for this project with the current filters applied."
 msgstr ""
 
 msgid "There are no RBAC policies for this security group"
@@ -4128,6 +4128,15 @@ msgstr "Gesamtspeicher-Quota"
 
 msgid "True"
 msgstr "True"
+
+msgid "Try adjusting your filter criteria or check the All Images tab."
+msgstr ""
+
+msgid "Try adjusting your filter criteria or check the Suggested Images tab."
+msgstr ""
+
+msgid "Try adjusting your filter criteria or create a new image."
+msgstr ""
 
 msgid "Try Again"
 msgstr "Erneut versuchen"
