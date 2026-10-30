@@ -1,8 +1,7 @@
-import { Trans, useLingui } from "@lingui/react/macro"
+import { useLingui } from "@lingui/react/macro"
 import {
   Stack,
   Button,
-  ContentHeading,
   PopupMenu,
   PopupMenuToggle,
   PopupMenuItem,
@@ -82,23 +81,17 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
 
       <Stack direction="vertical" gap="6" className="my-6">
         <Stack direction="vertical" gap="2">
-          <ContentHeading>
-            <Trans>Basic Info</Trans>
-          </ContentHeading>
+          <h2>{t`Basic Info`}</h2>
           <TwoColumnDescriptionList items={basicInfoItems} />
         </Stack>
 
         <Stack direction="vertical" gap="2">
-          <ContentHeading>
-            <Trans>Network & Routing</Trans>
-          </ContentHeading>
+          <h2>{t`Network & Routing`}</h2>
           <TwoColumnDescriptionList items={networkRoutingItems} />
         </Stack>
 
         <Stack direction="vertical" gap="2">
-          <ContentHeading>
-            <Trans>DNS</Trans>
-          </ContentHeading>
+          <h2>{t`DNS`}</h2>
           <TwoColumnDescriptionList items={dnsItems} />
         </Stack>
       </Stack>

@@ -104,7 +104,7 @@ describe("FloatingIpDetailsView", () => {
     it("displays basic info heading", () => {
       render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
 
-      expect(screen.getByText("Basic Info")).toBeInTheDocument()
+      expect(screen.getByRole("heading", { level: 2, name: "Basic Info" })).toBeInTheDocument()
     })
 
     it("displays floating IP ID", () => {
@@ -183,7 +183,7 @@ describe("FloatingIpDetailsView", () => {
     it("displays network & routing heading", () => {
       render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
 
-      expect(screen.getByText("Network & Routing")).toBeInTheDocument()
+      expect(screen.getByRole("heading", { level: 2, name: "Network & Routing" })).toBeInTheDocument()
     })
 
     it("displays floating IP address and network", () => {
@@ -238,7 +238,7 @@ describe("FloatingIpDetailsView", () => {
     it("displays DNS heading", () => {
       render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
 
-      expect(screen.getByText("DNS")).toBeInTheDocument()
+      expect(screen.getByRole("heading", { level: 2, name: "DNS" })).toBeInTheDocument()
     })
 
     it("displays DNS domain and name when present", () => {
