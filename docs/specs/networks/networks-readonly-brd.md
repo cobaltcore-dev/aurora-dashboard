@@ -122,7 +122,7 @@ on a network. Everything is read-only.
 - [ ] The list is **searchable** by name and ID
 - [ ] The list is **sortable** by name, status, and subnet count
 - [ ] The list is **filterable** by status and by the shared / external flags
-- [ ] The list is **paginated**: once the network count exceeds the page size (default 20 rows per page), pagination controls appear; at or below the page size no controls are shown. The page size is fixed in phase 1 (not user-configurable)
+- ~~[ ] The list is **paginated**: once the network count exceeds the page size (default 20 rows per page), pagination controls appear; at or below the page size no controls are shown. The page size is fixed in phase 1 (not user-configurable)~~ _(superseded by engineering decision E5 in the spec: no pagination in phase 1 — all rows render, search/sort/filter are client-side)_
 - [ ] MTU and provider/segmentation details are **not** shown in the list — they live in the detail view
 
 **Notes:**

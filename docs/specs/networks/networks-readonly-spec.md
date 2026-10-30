@@ -22,11 +22,11 @@ These were confirmed with the stakeholder against the Juno UX guidelines and mus
 
 Grounded in the current Aurora codebase (`floatingips` / `routers` / `securitygroups` as reference implementations):
 
-- **E1 — No refresh mechanism in phase 1.** No `refetchInterval` auto-poll, no SSE subscription, and no manual refresh button. Rationale: `refetchInterval` is unused anywhere in Aurora today; the only real-time pattern (tRPC-over-SSE subscriptions) is purpose-built for in-process upload/download progress and does not watch OpenStack resource state; and a manual refresh button is likewise not an established pattern in the sibling list/detail views. Data loads on route navigation / component mount (and via TanStack Query's default refetch-on-window-focus). The Zone-3 **last-updated timestamp is retained**, fed from the query's `dataUpdatedAt` and rendered relative. Refresh is deferred to a later phase. _(Resolves BRD Q-F7. See ADR 0001.)_
+- **E1 — No refresh mechanism in phase 1.** No `refetchInterval` auto-poll, no SSE subscription, and no manual refresh button. Rationale: `refetchInterval` is unused anywhere in Aurora today; the only real-time pattern (tRPC-over-SSE subscriptions) is purpose-built for in-process upload/download progress and does not watch OpenStack resource state; and a manual refresh button is likewise not an established pattern in the sibling list/detail views. Data loads on route navigation / component mount (and via TanStack Query's default refetch-on-window-focus). The Zone-3 **last-updated timestamp is retained**, fed from the query's `dataUpdatedAt` and rendered relative. Refresh is deferred to a later phase. _(Resolves BRD Q-F7.)_
 - **E2 — "Owning project" = `project_id` (UUID) + copy affordance.** For a shared network, the Shared column shows the owning project's `project_id` with a copy-to-clipboard affordance — **no Keystone name lookup** (consistent with the no-name-resolution / no-N+1 principle applied to `device_id`).
 - **E3 — Status sort order:** `ERROR` → `BUILD` → `DOWN` → `ACTIVE` (attention-first); the sort-direction toggle flips it. Sorting by status is treated as "surface what needs attention first".
 - **E4 — tRPC namespace `network.networks.*`**, procedures `list`, `getById`, `listSubnets`, `listPorts`. Subnets and ports are **procedures on the networks router** (no separate `subnets` router), because phase 1 has no standalone project-wide subnet or port list — they are only ever viewed nested inside a network. Procedure naming follows the sibling convention (`getById`, not `get`).
-- **E5 — No pagination in phase 1.** The list renders all rows; search / sort / filter are entirely client-side over the single `network.networks.list` response. None of the sibling list views (`floatingips`, `routers`, `securitygroups`) implement pagination, and project-scoped network counts are typically small. Revisit only if real projects show large network counts. _(Divergence from the original BRD Story-1 pagination AC; see ADR 0001.)_
+- **E5 — No pagination in phase 1.** The list renders all rows; search / sort / filter are entirely client-side over the single `network.networks.list` response. None of the sibling list views (`floatingips`, `routers`, `securitygroups`) implement pagination, and project-scoped network counts are typically small. Revisit only if real projects show large network counts. _(Divergence from the original BRD Story-1 pagination AC, which has been marked superseded in the BRD.)_
 - **E6 — Shared / External filters are boolean.** `shared` and `router:external` are booleans on the Neutron network object, so each filter `Select` offers **true / false** only; leaving a filter unselected means "any" (no pill, no filtering).
 
 ## Epic index
@@ -250,7 +250,7 @@ Give Aurora project members a read-only view of their project's Neutron networks
 
 **Resolved during the grilling session (2026-10-27):**
 
-- ~~**Refresh mechanism**~~ → **resolved E1:** no refresh in phase 1 (no `refetchInterval`, no SSE, no manual button). See ADR 0001.
+- ~~**Refresh mechanism**~~ → **resolved E1:** no refresh in phase 1 (no `refetchInterval`, no SSE, no manual button).
 - ~~**Routers-scope route shape (O2)**~~ → **resolved:** `/projects/$projectId/network/routers/$routerId` (file `…/network/routers/$routerId.tsx`).
 - ~~**tRPC namespace**~~ → **resolved E4:** `network.networks.*` with `list` / `getById` / `listSubnets` / `listPorts`; no separate subnets router.
 
