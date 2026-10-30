@@ -290,6 +290,7 @@ function ImagesContent({
           {activeFilterSettings.selectedFilters && activeFilterSettings.selectedFilters.length > 0 && (
             <SelectedFilters
               selectedFilters={activeFilterSettings.selectedFilters}
+              filters={activeFilterSettings.filters}
               onDelete={(filterToRemove) =>
                 handleFilterChange({
                   ...filterSettings,
@@ -443,6 +444,7 @@ export const Images = ({ client, project }: ImagesProps) => {
         displayName: t`Protected`,
         filterName: "protected",
         values: ["true", "false"],
+        valueLabels: { true: t`Yes`, false: t`No` },
         supportsMultiValue: false,
       },
     ],

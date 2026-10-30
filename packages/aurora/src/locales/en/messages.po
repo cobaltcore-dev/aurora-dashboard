@@ -2170,9 +2170,6 @@ msgstr "Generating..."
 msgid "Get Involved"
 msgstr "Get Involved"
 
-msgid "Go to Home"
-msgstr "Go to Home"
-
 msgid "Go to Project"
 msgstr "Go to Project"
 
@@ -3820,8 +3817,8 @@ msgstr "The other end of the traffic: where it comes from (ingress) or where it 
 msgid "The page you are looking for does not exist."
 msgstr "The page you are looking for does not exist."
 
-msgid "The page you're looking for doesn't exist or may have moved. Check the URL or return to the home page."
-msgstr "The page you're looking for doesn't exist or may have moved. Check the URL or return to the home page."
+msgid "The page you're looking for doesn't exist or may have moved. Check the URL."
+msgstr "The page you're looking for doesn't exist or may have moved. Check the URL."
 
 msgid "The project you are looking for doesn't exist or you don't have access to it."
 msgstr "The project you are looking for doesn't exist or you don't have access to it."
