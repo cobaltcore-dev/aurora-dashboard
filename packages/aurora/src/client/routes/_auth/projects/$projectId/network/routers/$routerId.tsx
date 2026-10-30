@@ -1,12 +1,18 @@
+import { useEffect } from "react"
 import { createFileRoute, useNavigate, useParams, useRouter, type ErrorComponentProps } from "@tanstack/react-router"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { trpcReact } from "@/client/trpcClient"
+import { trpcClient, trpcReact } from "@/client/trpcClient"
 import { Button, ButtonRow, Status } from "@cloudoperators/juno-ui-components"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { useSetBreadcrumb } from "@/client/hooks/useSetBreadcrumb"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import { RouteIdLevelDefaultError } from "@/client/components/Errors/RouteIdLevelDefaultError"
-import { RouterDetailsView } from "./-components/RouterDetailsView"
+import {
+  RouterDetailsView,
+  DEFAULT_ROUTER_DETAILS_TAB,
+  isRouterDetailsTab,
+  type RouterDetailsTab,
+} from "./-components/RouterDetailsView"
 
 const ROUTE_ID = "/_auth/projects/$projectId/network/routers/$routerId"
 
@@ -61,14 +67,32 @@ function RouterLoadError({ error, onRetry }: RouterLoadErrorProps) {
   const statusCode: number | undefined = HTTP_STATUS_BY_TRPC_CODE[errorCode]
   const canRetry = RETRYABLE_TRPC_CODES.has(errorCode)
 
+  // 401: the session is gone. Terminate the server session first (matching AuthProvider's expiry handler)
+  // so the landing route does not immediately send the user back on a still-valid BFF token, then do a
+  // full-document redirect to sign-in (not a client navigate) so AuthProvider re-checks the session.
+  useEffect(() => {
+    if (errorCode === "UNAUTHORIZED") {
+      const { pathname, search, hash } = window.location
+      const redirect = encodeURIComponent(pathname + search + hash)
+      trpcClient.auth.terminateUserSession
+        .mutate()
+        .catch(() => {})
+        .finally(() => {
+          window.location.replace(`/?redirect=${redirect}`)
+        })
+    }
+  }, [errorCode])
+
+  if (errorCode === "UNAUTHORIZED") {
+    return null
+  }
+
   const getErrorDescription = (): string => {
     switch (errorCode) {
       case "NOT_FOUND":
         return t`This router does not exist or has been deleted.`
       case "FORBIDDEN":
         return t`Access to this router is not permitted.`
-      case "UNAUTHORIZED":
-        return t`The session has expired. Log in again to continue.`
       default:
         return canRetry ? t`The router could not be loaded. Try again.` : t`The router could not be loaded.`
     }
@@ -114,6 +138,11 @@ function RouterErrorComponent({ error, reset }: ErrorComponentProps) {
   return <RouterLoadError error={error} onRetry={handleRetry} />
 }
 
+export type RouterDetailsSearchParams = {
+  /** Active details tab; omitted for the default tab */
+  tab?: RouterDetailsTab
+}
+
 export const Route = createFileRoute("/_auth/projects/$projectId/network/routers/$routerId")({
   staticData: {
     section: "network",
@@ -122,6 +151,10 @@ export const Route = createFileRoute("/_auth/projects/$projectId/network/routers
       name: "network.routers.detail",
     },
   } satisfies RouteInfo,
+  // Unknown tab values are dropped, so the view falls back to the default tab
+  validateSearch: (search: Record<string, unknown>): RouterDetailsSearchParams => ({
+    tab: isRouterDetailsTab(search.tab) ? search.tab : undefined,
+  }),
   // Only resolves the page title. Failures are rendered by the component's query,
   // which knows the actual tRPC error code and supports retry.
   loader: async ({ context, params }) => {
@@ -144,7 +177,17 @@ export const Route = createFileRoute("/_auth/projects/$projectId/network/routers
 
 function RouteComponent() {
   const { projectId, routerId } = useParams({ from: ROUTE_ID })
+  const { tab: activeTab = DEFAULT_ROUTER_DETAILS_TAB } = Route.useSearch()
+  const navigate = useNavigate({ from: Route.fullPath })
   const { t } = useLingui()
+
+  // Replace instead of push: switching tabs shouldn't add history entries, so Back returns to the list
+  const handleTabChange = (tab: RouterDetailsTab) => {
+    navigate({
+      search: (prev) => ({ ...prev, tab: tab === DEFAULT_ROUTER_DETAILS_TAB ? undefined : tab }),
+      replace: true,
+    })
+  }
 
   const {
     data: router,
@@ -169,7 +212,7 @@ function RouteComponent() {
   return (
     <>
       <ContentHeader title={router.name || router.id} projectId={projectId} />
-      <RouterDetailsView router={router} />
+      <RouterDetailsView router={router} activeTab={activeTab} onTabChange={handleTabChange} />
     </>
   )
 }

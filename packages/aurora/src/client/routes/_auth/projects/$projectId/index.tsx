@@ -91,6 +91,13 @@ function RouteComponent() {
         to: `${base}/network/routers`,
         service: "routers",
       })
+    if (isEnabled("ports"))
+      cards.push({
+        group: t`Network`,
+        label: t`Ports`,
+        to: `${base}/network/ports`,
+        service: "ports",
+      })
   }
   if (hasServiceByName(serviceIndex, STORAGE_PROVIDER.SWIFT) && isEnabled("containers"))
     cards.push({

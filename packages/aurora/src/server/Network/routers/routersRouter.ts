@@ -9,8 +9,6 @@ import {
   Router,
   RouterListItem,
   RouterDetails,
-  NetworkSummary,
-  NetworkSummaryListResponseSchema,
   RouterInterfacePortSummary,
   RouterInterfacePortSummaryListResponseSchema,
   RouterInterface,
@@ -26,13 +24,10 @@ import {
   RouterResponseSchema,
   RouterInterfaceInfoSchema,
   RouterPortListResponseSchema,
-  SubnetSummaryListResponseSchema,
   ExtensionListResponseSchema,
-  SubnetSummary,
 } from "../types/router"
 import {
   RouterErrorHandlers,
-  pickDefined,
   buildExternalGatewayInfoBody,
   filterRoutersByBffParams,
   buildRouterInterfaces,
@@ -41,18 +36,16 @@ import {
   applyGatewayNames,
   applyPrivateNetworks,
   groupPrivateNetworkIdsByRouter,
-  chunk,
   ROUTER_INTERFACE_DEVICE_OWNERS,
   isRouterInterfacePort,
   getRouterExtensionFlags,
-  requestOrThrow,
 } from "../helpers/routerHelpers"
 import { getNetworkService, parseOrThrow } from "../helpers/index"
+import { chunk, pickDefined, requestOrThrow, withQuery, nextPageUrl } from "../helpers/requestHelpers"
+import { fetchNetworkSummaries, fetchSubnetSummaries } from "../helpers/lookupHelpers"
 
 const ROUTERS_BASE_URL = "v2.0/routers"
 const PORTS_BASE_URL = "v2.0/ports"
-const SUBNETS_BASE_URL = "v2.0/subnets"
-const NETWORKS_BASE_URL = "v2.0/networks"
 
 /** Max router IDs per ports request (~2.5 KB of device_id params), keeps URLs well below proxy limits */
 const ROUTER_INTERFACE_PORTS_CHUNK_SIZE = 50
@@ -64,55 +57,12 @@ const LIST_ROUTERS_QUERY_KEY_MAP: Record<string, string> = {
   not_tags_any: "not-tags-any",
 }
 
-const withQuery = (baseUrl: string, params: URLSearchParams): string => {
-  const queryString = params.toString()
-  return queryString ? `${baseUrl}?${queryString}` : baseUrl
-}
-
 const routerUrl = (routerId: string, action?: "add_router_interface" | "remove_router_interface"): string => {
   const encodedId = validateAndEncodeResourceId(routerId, "Router")
   return action ? `${ROUTERS_BASE_URL}/${encodedId}/${action}` : `${ROUTERS_BASE_URL}/${encodedId}`
 }
 
 type NetworkService = ReturnType<typeof getNetworkService>
-
-/**
- * Best-effort lookup of network names by ID in a single request.
- * Returns [] on any failure (e.g. not visible to the user) so callers fall back to IDs.
- */
-const fetchNetworkSummaries = async (network: NetworkService, ids: string[]): Promise<NetworkSummary[]> => {
-  if (ids.length === 0) return []
-  try {
-    const params = appendQueryParamsFromObject({ id: ids, fields: ["id", "name"] })
-    const response = await network.get(withQuery(NETWORKS_BASE_URL, params))
-    if (!response.ok) return []
-    const data = await response.json()
-    return parseOrThrow(NetworkSummaryListResponseSchema, data, "routersRouter.networks").networks
-  } catch {
-    return []
-  }
-}
-
-/**
- * Best-effort lookup of subnet names by ID in a single request.
- * Returns [] on any failure (e.g. external subnets not visible to the user) so callers fall back to IDs.
- */
-const fetchSubnetSummaries = async (
-  network: NetworkService,
-  ids: string[],
-  fields: Array<"id" | "name" | "cidr"> = ["id", "name"]
-): Promise<SubnetSummary[]> => {
-  if (ids.length === 0) return []
-  try {
-    const params = appendQueryParamsFromObject({ id: ids, fields })
-    const response = await network.get(withQuery(SUBNETS_BASE_URL, params))
-    if (!response.ok) return []
-    const data = await response.json()
-    return parseOrThrow(SubnetSummaryListResponseSchema, data, "routersRouter.subnets").subnets
-  } catch {
-    return []
-  }
-}
 
 /**
  * Best-effort lookup of the interface ports of many routers: one request per chunk of router IDs,
@@ -176,13 +126,26 @@ export const routersRouter = {
         const network = getNetworkService(ctx)
 
         const queryParams = appendQueryParamsFromObject(openstackFilters, { keyMap: LIST_ROUTERS_QUERY_KEY_MAP })
-        const response = await requestOrThrow(
-          () => network.get(withQuery(ROUTERS_BASE_URL, queryParams)),
-          RouterErrorHandlers.list
-        )
 
-        const data = await response.json()
-        const { routers } = parseOrThrow(RouterListResponseSchema, data, "routersRouter.list")
+        // Neutron caps a list at `pagination_max_limit` and exposes the rest through the `next` link in
+        // `routers_links`. Follow it so the BFF returns the complete list; otherwise the BFF-side search
+        // and filters would silently operate on the first page only. `visited` guards against a
+        // non-advancing `next` (a server bug) looping forever; healthy data ends when there is no `next`.
+        const routers: Router[] = []
+        const visited = new Set<string>()
+        let nextUrl: string | undefined = withQuery(ROUTERS_BASE_URL, queryParams)
+        while (nextUrl && !visited.has(nextUrl)) {
+          visited.add(nextUrl)
+          const url = nextUrl
+          const response = await requestOrThrow(() => network.get(url), RouterErrorHandlers.list)
+          const { routers: pageRouters, routers_links } = parseOrThrow(
+            RouterListResponseSchema,
+            await response.json(),
+            "routersRouter.list"
+          )
+          routers.push(...pageRouters)
+          nextUrl = nextPageUrl(ROUTERS_BASE_URL, routers_links)
+        }
 
         const filteredRouters = filterBySearchParams(
           filterRoutersByBffParams(routers, { status, has_gateway }),
