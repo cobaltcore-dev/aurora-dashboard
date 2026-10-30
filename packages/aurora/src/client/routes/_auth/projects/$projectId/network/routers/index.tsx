@@ -8,6 +8,7 @@ import { Routers } from "./-components/RoutersList"
 
 const routersSearchFields = {
   search: z.string().optional(),
+  status: z.string().optional(),
   sortBy: z.enum(["name", "status"]).optional(),
   sortDirection: z.enum(["asc", "desc"]).optional(),
   page: z.number().int().positive().optional(),
@@ -31,6 +32,7 @@ export const Route = createFileRoute("/_auth/projects/$projectId/network/routers
     return {
       ...search,
       search: routersSearchFields.search.safeParse(search.search).success ? search.search : undefined,
+      status: routersSearchFields.status.safeParse(search.status).success ? search.status : undefined,
       sortBy: routersSearchFields.sortBy.safeParse(search.sortBy).success ? search.sortBy : undefined,
       sortDirection: routersSearchFields.sortDirection.safeParse(search.sortDirection).success
         ? search.sortDirection

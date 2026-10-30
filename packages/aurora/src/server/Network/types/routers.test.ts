@@ -8,7 +8,6 @@ import {
   RouterInterfaceInfoSchema,
   RouterPortSchema,
   ExtensionListResponseSchema,
-  NetworkSummaryListResponseSchema,
   RouterInterfacePortSummaryListResponseSchema,
   RouterQueryParametersSchema,
   RouterIdInputSchema,
@@ -18,6 +17,7 @@ import {
   RouterInterfaceRequestSchema,
   ExternalGatewayInfoInputSchema,
 } from "./router"
+import { NetworkSummaryListResponseSchema } from "./index"
 
 const PROJECT_ID = "proj-1"
 
