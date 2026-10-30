@@ -10,6 +10,8 @@ interface ContainerListContainerProps {
   isError: boolean
   error: { message?: string } | null
   canDeleteContainer: boolean
+  // True when a search filter is active, so the empty state reads "no matches" rather than "no data".
+  isFiltered?: boolean
   onShowDetails: (container: Container) => void
   onDelete: (container: Container) => void
 }
@@ -20,6 +22,7 @@ export function ContainerListContainer({
   isError,
   error,
   canDeleteContainer,
+  isFiltered = false,
   onShowDetails,
   onDelete,
 }: ContainerListContainerProps) {
@@ -55,8 +58,12 @@ export function ContainerListContainer({
           <DataGridCell colSpan={CONTAINERS_COLUMN_COUNT}>
             <Status
               status="empty"
-              title={t`No Containers Found`}
-              body={t`There are no containers in this project. Create one to group your secrets.`}
+              title={isFiltered ? t`No Containers Match Your Search` : t`No Containers Found`}
+              body={
+                isFiltered
+                  ? t`Try a different name or clear the search.`
+                  : t`There are no containers in this project. Create one to group your secrets.`
+              }
             />
           </DataGridCell>
         </DataGridRow>

@@ -10,6 +10,8 @@ interface SecretListContainerProps {
   isError: boolean
   error: { message?: string } | null
   canDeleteSecret: boolean
+  // True when a search filter is active, so the empty state reads "no matches" rather than "no data".
+  isFiltered?: boolean
   onShowDetails: (secret: Secret) => void
   onDelete: (secret: Secret) => void
 }
@@ -20,6 +22,7 @@ export function SecretListContainer({
   isError,
   error,
   canDeleteSecret,
+  isFiltered = false,
   onShowDetails,
   onDelete,
 }: SecretListContainerProps) {
@@ -55,8 +58,12 @@ export function SecretListContainer({
           <DataGridCell colSpan={SECRETS_COLUMN_COUNT}>
             <Status
               status="empty"
-              title={t`No Secrets Found`}
-              body={t`There are no secrets in this project. Create one to get started.`}
+              title={isFiltered ? t`No Secrets Match Your Search` : t`No Secrets Found`}
+              body={
+                isFiltered
+                  ? t`Try a different name or clear the search.`
+                  : t`There are no secrets in this project. Create one to get started.`
+              }
             />
           </DataGridCell>
         </DataGridRow>

@@ -11,6 +11,7 @@ import {
   Stack,
 } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
+import { useLingui } from "@lingui/react/macro"
 import { useKeyManagerPermissions } from "../../-components/useKeyManagerPermissions"
 import { SecretListContainer } from "./SecretListContainer"
 import { CreateSecretModal, DeleteSecretModal } from "./SecretModals"
@@ -18,10 +19,7 @@ import type { Secret } from "@/server/KeyManager/types/keyManager"
 
 const PAGE_SIZE = 50
 
-const SORT_FIELDS = [
-  { value: "created", label: "Created At" },
-  { value: "name", label: "Name" },
-]
+const SORT_FIELDS = ["created", "name"] as const
 
 interface SecretsListProps {
   projectId: string
@@ -44,8 +42,21 @@ export function SecretsList({
   onPageChange,
   onShowDetail,
 }: SecretsListProps) {
+  const { t } = useLingui()
   const [showCreate, setShowCreate] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<Secret | null>(null)
+  // Local text state so typing doesn't navigate/refetch on every keystroke; we commit on submit/clear.
+  const [searchText, setSearchText] = useState(search)
+
+  // Keep the field in sync when the committed search changes elsewhere (e.g. browser back).
+  useEffect(() => {
+    setSearchText(search)
+  }, [search])
+
+  const sortLabels: Record<(typeof SORT_FIELDS)[number], string> = {
+    created: t`Created At`,
+    name: t`Name`,
+  }
 
   const { permissions, isLoading: permissionsLoading } = useKeyManagerPermissions(projectId, [
     "key-manager:secrets:list",
@@ -76,7 +87,7 @@ export function SecretsList({
 
   if (permissionsLoading) return null
   if (!permissions["key-manager:secrets:list"]) {
-    return <Message variant="warning">You do not have permission to view secrets.</Message>
+    return <Message variant="warning">{t`You do not have permission to view secrets.`}</Message>
   }
 
   const totalPages = data?.total ? Math.ceil(data.total / PAGE_SIZE) : 1
@@ -88,20 +99,20 @@ export function SecretsList({
           <Stack distribution="end" alignment="center" gap="2" className="jn:pb-2">
             <Stack gap="0.5">
               <Select
-                label="Sort by"
+                label={t`Sort by`}
                 value={sortField}
                 onChange={(v) => onSortChange(`${typeof v === "string" ? v : "created"}:${sortDir}`)}
                 className="jn:min-w-40"
               >
                 {SORT_FIELDS.map((f) => (
-                  <SelectOption key={f.value} value={f.value} label={f.label} />
+                  <SelectOption key={f} value={f} label={sortLabels[f]} />
                 ))}
               </Select>
               <SortButton order={sortDir} onChange={(dir) => onSortChange(`${sortField}:${dir}`)} />
             </Stack>
             {permissions["key-manager:secrets:create"] && (
               <Button variant="primary" onClick={() => setShowCreate(true)}>
-                Create Secret
+                {t`Create Secret`}
               </Button>
             )}
           </Stack>
@@ -109,11 +120,14 @@ export function SecretsList({
           <DataGridToolbar>
             <Stack distribution="end" alignment="center">
               <SearchInput
-                placeholder="Search by name or ID"
-                value={search}
+                placeholder={t`Search by name or ID`}
+                value={searchText}
                 onSearch={(v) => onSearchChange(typeof v === "string" ? v : "")}
-                onClear={() => onSearchChange("")}
-                onInput={(e) => onSearchChange((e.target as HTMLInputElement).value)}
+                onClear={() => {
+                  setSearchText("")
+                  onSearchChange("")
+                }}
+                onInput={(e) => setSearchText((e.target as HTMLInputElement).value)}
               />
             </Stack>
           </DataGridToolbar>
@@ -125,6 +139,7 @@ export function SecretsList({
           isError={isError}
           error={error}
           canDeleteSecret={permissions["key-manager:secrets:delete"]}
+          isFiltered={Boolean(search)}
           onShowDetails={onShowDetail}
           onDelete={setDeleteTarget}
         />

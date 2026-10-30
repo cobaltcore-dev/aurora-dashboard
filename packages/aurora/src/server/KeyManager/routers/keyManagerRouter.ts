@@ -41,6 +41,7 @@ const orderIdInput = z.object({ orderId: z.string() })
 
 function mapKmError(error: unknown, operation: string): TRPCError {
   const statusCode = (error as { statusCode?: number })?.statusCode
+  const description = (error as { description?: string })?.description
   const codeMap: Record<number, TRPCError["code"]> = {
     400: "BAD_REQUEST",
     401: "UNAUTHORIZED",
@@ -50,9 +51,37 @@ function mapKmError(error: unknown, operation: string): TRPCError {
   }
   return new TRPCError({
     code: codeMap[statusCode ?? 0] ?? "INTERNAL_SERVER_ERROR",
-    message: `Key Manager ${operation} failed`,
+    // Surface Barbican's own diagnostics when present so users see why a request was rejected.
+    message: description ? `Key Manager ${operation} failed: ${description}` : `Key Manager ${operation} failed`,
     cause: error,
   })
+}
+
+// Pull Barbican's human-readable reason out of an error response body. Barbican returns
+// `{ title, description }` (or occasionally a nested `error` object); fall back to undefined.
+function extractBarbicanDescription(body: unknown): string | undefined {
+  if (!body || typeof body !== "object") return undefined
+  const record = body as Record<string, unknown>
+  const nested = record.error as Record<string, unknown> | undefined
+  const candidate = record.description ?? record.title ?? nested?.description ?? nested?.message ?? nested?.title
+  return typeof candidate === "string" && candidate.trim() !== "" ? candidate : undefined
+}
+
+// Build a TRPCError from a non-ok fetch Response, reading the body for Barbican's description.
+// Defensive: tolerates responses without a usable `json()` (e.g. 204 deletes) and never throws here.
+async function kmErrorFromResponse(
+  res: { status: number; json?: () => Promise<unknown> },
+  operation: string
+): Promise<TRPCError> {
+  let description: string | undefined
+  try {
+    if (typeof res.json === "function") {
+      description = extractBarbicanDescription(await res.json())
+    }
+  } catch {
+    // No parseable body — fall back to the generic message.
+  }
+  return mapKmError({ statusCode: res.status, description }, operation)
 }
 
 function uuidFromRef(ref: string): string {
@@ -117,7 +146,7 @@ export const buildKeyManagerResourceRouter = (policyDir: string) => {
         const res = await km.get(`v1/secrets?${params}`).catch((e: unknown) => {
           throw mapKmError(e, "list secrets")
         })
-        if (!res.ok) throw mapKmError({ statusCode: res.status }, "list secrets")
+        if (!res.ok) throw await kmErrorFromResponse(res, "list secrets")
         return parseOrThrow(SecretsListSchema, await res.json(), "keyManager.listSecrets")
       }),
 
@@ -130,7 +159,7 @@ export const buildKeyManagerResourceRouter = (policyDir: string) => {
         const res = await km.get(`v1/secrets/${encodeURIComponent(input.secretId)}`).catch((e: unknown) => {
           throw mapKmError(e, "get secret")
         })
-        if (!res.ok) throw mapKmError({ statusCode: res.status }, "get secret")
+        if (!res.ok) throw await kmErrorFromResponse(res, "get secret")
         return parseOrThrow(SecretSchema, await res.json(), "keyManager.getSecret")
       }),
 
@@ -150,7 +179,7 @@ export const buildKeyManagerResourceRouter = (policyDir: string) => {
           .catch((e: unknown) => {
             throw mapKmError(e, "get secret payload")
           })
-        if (!res.ok) throw mapKmError({ statusCode: res.status }, "get secret payload")
+        if (!res.ok) throw await kmErrorFromResponse(res, "get secret payload")
         const contentType = res.headers?.get?.("content-type") ?? "text/plain"
         const text = await res.text()
         return { payload: text, contentType }
@@ -176,7 +205,7 @@ export const buildKeyManagerResourceRouter = (policyDir: string) => {
         const res = await km.post("v1/secrets", body).catch((e: unknown) => {
           throw mapKmError(e, "create secret")
         })
-        if (!res.ok) throw mapKmError({ statusCode: res.status }, "create secret")
+        if (!res.ok) throw await kmErrorFromResponse(res, "create secret")
         const data = await res.json()
         return { secretId: uuidFromRef(data.secret_ref as string), secret_ref: data.secret_ref as string }
       }),
@@ -194,7 +223,7 @@ export const buildKeyManagerResourceRouter = (policyDir: string) => {
           .catch((e: unknown) => {
             throw mapKmError(e, "update secret")
           })
-        if (!res.ok) throw mapKmError({ statusCode: res.status }, "update secret")
+        if (!res.ok) throw await kmErrorFromResponse(res, "update secret")
       }),
 
     deleteSecret: projectScopedProcedure
@@ -206,7 +235,7 @@ export const buildKeyManagerResourceRouter = (policyDir: string) => {
         const res = await km.del(`v1/secrets/${encodeURIComponent(input.secretId)}`).catch((e: unknown) => {
           throw mapKmError(e, "delete secret")
         })
-        if (res && !res.ok) throw mapKmError({ statusCode: res.status }, "delete secret")
+        if (res && !res.ok) throw await kmErrorFromResponse(res, "delete secret")
       }),
 
     // ─── Containers ───────────────────────────────────────────────────────────
@@ -224,7 +253,7 @@ export const buildKeyManagerResourceRouter = (policyDir: string) => {
         const res = await km.get(`v1/containers?${params}`).catch((e: unknown) => {
           throw mapKmError(e, "list containers")
         })
-        if (!res.ok) throw mapKmError({ statusCode: res.status }, "list containers")
+        if (!res.ok) throw await kmErrorFromResponse(res, "list containers")
         return parseOrThrow(ContainersListSchema, await res.json(), "keyManager.listContainers")
       }),
 
@@ -237,7 +266,7 @@ export const buildKeyManagerResourceRouter = (policyDir: string) => {
         const res = await km.get(`v1/containers/${encodeURIComponent(input.containerId)}`).catch((e: unknown) => {
           throw mapKmError(e, "get container")
         })
-        if (!res.ok) throw mapKmError({ statusCode: res.status }, "get container")
+        if (!res.ok) throw await kmErrorFromResponse(res, "get container")
         return parseOrThrow(ContainerSchema, await res.json(), "keyManager.getContainer")
       }),
 
@@ -255,7 +284,7 @@ export const buildKeyManagerResourceRouter = (policyDir: string) => {
         const res = await km.post("v1/containers", body).catch((e: unknown) => {
           throw mapKmError(e, "create container")
         })
-        if (!res.ok) throw mapKmError({ statusCode: res.status }, "create container")
+        if (!res.ok) throw await kmErrorFromResponse(res, "create container")
         const data = await res.json()
         return {
           containerId: uuidFromRef(data.container_ref as string),
@@ -272,7 +301,7 @@ export const buildKeyManagerResourceRouter = (policyDir: string) => {
         const res = await km.del(`v1/containers/${encodeURIComponent(input.containerId)}`).catch((e: unknown) => {
           throw mapKmError(e, "delete container")
         })
-        if (res && !res.ok) throw mapKmError({ statusCode: res.status }, "delete container")
+        if (res && !res.ok) throw await kmErrorFromResponse(res, "delete container")
       }),
 
     // ─── Orders ───────────────────────────────────────────────────────────────
@@ -290,7 +319,7 @@ export const buildKeyManagerResourceRouter = (policyDir: string) => {
         const res = await km.get(`v1/orders?${params}`).catch((e: unknown) => {
           throw mapKmError(e, "list orders")
         })
-        if (!res.ok) throw mapKmError({ statusCode: res.status }, "list orders")
+        if (!res.ok) throw await kmErrorFromResponse(res, "list orders")
         return parseOrThrow(OrdersListSchema, await res.json(), "keyManager.listOrders")
       }),
 
@@ -303,7 +332,7 @@ export const buildKeyManagerResourceRouter = (policyDir: string) => {
         const res = await km.get(`v1/orders/${encodeURIComponent(input.orderId)}`).catch((e: unknown) => {
           throw mapKmError(e, "get order")
         })
-        if (!res.ok) throw mapKmError({ statusCode: res.status }, "get order")
+        if (!res.ok) throw await kmErrorFromResponse(res, "get order")
         return parseOrThrow(OrderSchema, await res.json(), "keyManager.getOrder")
       }),
 
@@ -320,7 +349,7 @@ export const buildKeyManagerResourceRouter = (policyDir: string) => {
         const res = await km.post("v1/orders", body).catch((e: unknown) => {
           throw mapKmError(e, "create order")
         })
-        if (!res.ok) throw mapKmError({ statusCode: res.status }, "create order")
+        if (!res.ok) throw await kmErrorFromResponse(res, "create order")
         const data = await res.json()
         return { orderId: uuidFromRef(data.order_ref as string), order_ref: data.order_ref as string }
       }),
@@ -334,7 +363,7 @@ export const buildKeyManagerResourceRouter = (policyDir: string) => {
         const res = await km.del(`v1/orders/${encodeURIComponent(input.orderId)}`).catch((e: unknown) => {
           throw mapKmError(e, "delete order")
         })
-        if (res && !res.ok) throw mapKmError({ statusCode: res.status }, "delete order")
+        if (res && !res.ok) throw await kmErrorFromResponse(res, "delete order")
       }),
   }
 }

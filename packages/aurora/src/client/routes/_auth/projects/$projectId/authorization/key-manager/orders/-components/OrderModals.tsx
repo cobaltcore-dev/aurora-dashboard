@@ -7,16 +7,55 @@ import {
   TextInput,
   Select,
   SelectOption,
+  DateTimePicker,
   Message,
   Stack,
+  toast,
 } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { uuidFromRef } from "../../-components/utils"
+import { getOrderCreatedToast, getOrderDeletedToast } from "../../-components/KeyManagerToastNotifications"
 import type { Order } from "@/server/KeyManager/types/keyManager"
 
-type OrderType = "key" | "asymmetric" | "certificate"
-const ORDER_TYPES: OrderType[] = ["key", "asymmetric", "certificate"]
+type OrderType = "key" | "asymmetric"
+const ORDER_TYPES: { value: OrderType; label: string }[] = [
+  { value: "key", label: "Key" },
+  { value: "asymmetric", label: "Asymmetric" },
+]
+
+const ALGORITHMS = [
+  { value: "aes", label: "AES" },
+  { value: "rsa", label: "RSA" },
+  { value: "des", label: "DES" },
+  { value: "3des", label: "3DES" },
+  { value: "hmac", label: "HMAC" },
+]
+
+const AES_MODES = [
+  { value: "cbc", label: "CBC" },
+  { value: "gcm", label: "GCM" },
+  { value: "ctr", label: "CTR" },
+]
+
+// Bit-length presets per algorithm. Algorithms without a preset fall back to free numeric input.
+const BIT_LENGTHS_BY_ALGORITHM: Record<string, number[]> = {
+  aes: [128, 192, 256],
+  rsa: [1024, 2048, 4096],
+}
+
+const defaultBitLengthFor = (algorithm: string): string => {
+  const presets = BIT_LENGTHS_BY_ALGORITHM[algorithm]
+  if (algorithm === "aes") return "256"
+  if (presets && presets.length > 0) return String(presets[0])
+  return ""
+}
+
+interface OrderValidation {
+  algorithm?: string
+  bit_length?: string
+  expiration?: string
+}
 
 export function CreateOrderModal({
   projectId,
@@ -32,31 +71,65 @@ export function CreateOrderModal({
   const [name, setName] = useState("")
   const [algorithm, setAlgorithm] = useState("aes")
   const [bitLength, setBitLength] = useState("256")
+  const [mode, setMode] = useState("cbc")
+  const [payloadContentType, setPayloadContentType] = useState("application/octet-stream")
+  const [expiration, setExpiration] = useState("")
+  const [validation, setValidation] = useState<OrderValidation>({})
 
   const createMutation = trpcReact.keyManager.createOrder.useMutation({
     onSuccess: () => {
+      const { message, ...options } = getOrderCreatedToast(name.trim())
+      toast.success(message, options)
       onSuccess()
       onClose()
     },
   })
 
-  const parsedBitLength = Number(bitLength)
-  const algorithmError = algorithm.trim() === "" ? t`Algorithm is required.` : undefined
-  const bitLengthError =
-    !Number.isInteger(parsedBitLength) || parsedBitLength <= 0 ? t`Bit length must be a positive integer.` : undefined
-  const isValid = !algorithmError && !bitLengthError
+  const bitLengthPresets = BIT_LENGTHS_BY_ALGORITHM[algorithm]
+
+  const handleAlgorithmChange = (value: string) => {
+    setAlgorithm(value)
+    // Bit-length options depend on the algorithm — reset to that algorithm's default.
+    setBitLength(defaultBitLengthFor(value))
+    setValidation((prev) => ({ ...prev, algorithm: undefined, bit_length: undefined }))
+  }
+
+  const validate = (): OrderValidation => {
+    const errors: OrderValidation = {}
+    if (!algorithm) {
+      errors.algorithm = t`Algorithm is required.`
+    }
+    const parsed = parseInt(bitLength, 10)
+    if (!bitLength || !Number.isInteger(parsed) || parsed < 1) {
+      errors.bit_length = t`Valid bit length is required.`
+    } else if (algorithm === "aes" && ![128, 192, 256].includes(parsed)) {
+      errors.bit_length = t`AES supports 128, 192, or 256 bits.`
+    } else if (algorithm === "rsa" && parsed < 1024) {
+      errors.bit_length = t`RSA requires at least 1024 bits.`
+    }
+    if (expiration && new Date(expiration) <= new Date()) {
+      errors.expiration = t`Expiration date must be in the future.`
+    }
+    return errors
+  }
 
   const handleConfirm = () => {
-    if (!isValid) return
+    const errors = validate()
+    setValidation(errors)
+    if (Object.keys(errors).length > 0) return
     const trimmedName = name.trim()
+    const trimmedContentType = payloadContentType.trim()
     createMutation.mutate({
       project_id: projectId,
       type: orderType,
       // Barbican uses meta.name to name the secret this order generates; omit it when blank.
       meta: {
         ...(trimmedName ? { name: trimmedName } : {}),
-        algorithm: algorithm.trim(),
-        bit_length: parsedBitLength,
+        algorithm,
+        bit_length: parseInt(bitLength, 10),
+        ...(algorithm === "aes" ? { mode } : {}),
+        ...(trimmedContentType ? { payload_content_type: trimmedContentType } : {}),
+        ...(expiration ? { expiration } : {}),
       },
     })
   }
@@ -70,8 +143,9 @@ export function CreateOrderModal({
       onConfirm={handleConfirm}
       confirmButtonLabel={t`Create`}
       cancelButtonLabel={t`Cancel`}
-      disableConfirmButton={createMutation.isPending || !isValid}
+      disableConfirmButton={createMutation.isPending}
       disableCancelButton={createMutation.isPending}
+      disableCloseButton={createMutation.isPending}
     >
       <Form
         onSubmit={(e) => {
@@ -94,33 +168,100 @@ export function CreateOrderModal({
             />
           </FormRow>
           <FormRow>
-            <Select id="order-type" label={t`Type`} value={orderType} onChange={(v) => setOrderType(v as OrderType)}>
+            <Select
+              id="order-type"
+              label={t`Type`}
+              required
+              value={orderType}
+              onChange={(v) => setOrderType((typeof v === "string" ? v : "key") as OrderType)}
+            >
               {ORDER_TYPES.map((type) => (
-                <SelectOption key={type} value={type} label={type} />
+                <SelectOption key={type.value} value={type.value} label={type.label} />
               ))}
             </Select>
           </FormRow>
           <FormRow>
-            <TextInput
+            <Select
               id="algorithm"
               label={t`Algorithm`}
               required
               value={algorithm}
-              onChange={(e) => setAlgorithm(e.target.value)}
-              invalid={Boolean(algorithmError)}
-              errortext={algorithmError}
+              onChange={(v) => handleAlgorithmChange(typeof v === "string" ? v : "")}
+              invalid={Boolean(validation.algorithm)}
+              errortext={validation.algorithm}
+            >
+              {ALGORITHMS.map((a) => (
+                <SelectOption key={a.value} value={a.value} label={a.label} />
+              ))}
+            </Select>
+          </FormRow>
+          <FormRow>
+            {bitLengthPresets ? (
+              <Select
+                id="bit-length"
+                label={t`Bit Length`}
+                required
+                value={bitLength}
+                onChange={(v) => {
+                  setBitLength(typeof v === "string" ? v : "")
+                  setValidation((prev) => ({ ...prev, bit_length: undefined }))
+                }}
+                invalid={Boolean(validation.bit_length)}
+                errortext={validation.bit_length}
+              >
+                {bitLengthPresets.map((b) => (
+                  <SelectOption key={b} value={String(b)} label={t`${b} bits`} />
+                ))}
+              </Select>
+            ) : (
+              <TextInput
+                id="bit-length"
+                type="number"
+                label={t`Bit Length`}
+                required
+                value={bitLength}
+                onChange={(e) => {
+                  setBitLength(e.target.value)
+                  setValidation((prev) => ({ ...prev, bit_length: undefined }))
+                }}
+                invalid={Boolean(validation.bit_length)}
+                errortext={validation.bit_length}
+              />
+            )}
+          </FormRow>
+          {algorithm === "aes" && (
+            <FormRow>
+              <Select id="mode" label={t`Mode`} value={mode} onChange={(v) => setMode(typeof v === "string" ? v : "")}>
+                {AES_MODES.map((m) => (
+                  <SelectOption key={m.value} value={m.value} label={m.label} />
+                ))}
+              </Select>
+            </FormRow>
+          )}
+          <FormRow>
+            <TextInput
+              id="payload-content-type"
+              label={t`Payload Content Type`}
+              value={payloadContentType}
+              onChange={(e) => setPayloadContentType(e.target.value)}
+              placeholder="application/octet-stream"
             />
           </FormRow>
           <FormRow>
-            <TextInput
-              id="bit-length"
-              type="number"
-              label={t`Bit Length`}
-              required
-              value={bitLength}
-              onChange={(e) => setBitLength(e.target.value)}
-              invalid={Boolean(bitLengthError)}
-              errortext={bitLengthError}
+            <DateTimePicker
+              id="expiration"
+              label={t`Expiration`}
+              enableTime
+              minDate="today"
+              value={expiration || undefined}
+              onChange={(dates) => {
+                const picked = dates?.[0]
+                setExpiration(picked ? picked.toISOString() : "")
+                setValidation((prev) => ({ ...prev, expiration: undefined }))
+              }}
+              invalid={Boolean(validation.expiration)}
+              errortext={validation.expiration}
+              helptext={t`Optional. If set, the generated secret will not be available after this UTC timestamp.`}
             />
           </FormRow>
         </FormSection>
@@ -141,9 +282,12 @@ export function DeleteOrderModal({
   const { t } = useLingui()
   const orderId = uuidFromRef(order.order_ref)
   const orderTypeLabel = order.type
+  const orderName = typeof order.meta?.name === "string" ? order.meta.name : orderId
   const utils = trpcReact.useUtils()
   const deleteMutation = trpcReact.keyManager.deleteOrder.useMutation({
     onSuccess: () => {
+      const { message, ...options } = getOrderDeletedToast(orderName)
+      toast.success(message, options)
       void utils.keyManager.listOrders.invalidate()
       onClose()
     },
@@ -161,6 +305,7 @@ export function DeleteOrderModal({
       cancelButtonLabel={t`Cancel`}
       disableConfirmButton={deleteMutation.isPending}
       disableCancelButton={deleteMutation.isPending}
+      disableCloseButton={deleteMutation.isPending}
     >
       <Stack direction="vertical" gap="4">
         {deleteMutation.error && <Message variant="error" text={deleteMutation.error.message} />}

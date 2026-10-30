@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { Button, DataGridToolbar, Message, Pagination, SearchInput, Stack } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
+import { useLingui } from "@lingui/react/macro"
 import { useKeyManagerPermissions } from "../../-components/useKeyManagerPermissions"
 import { ContainerListContainer } from "./ContainerListContainer"
 import { CreateContainerModal, DeleteContainerModal } from "./ContainerModals"
@@ -25,8 +26,16 @@ export function ContainersList({
   onPageChange,
   onShowDetail,
 }: ContainersListProps) {
+  const { t } = useLingui()
   const [showCreate, setShowCreate] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<Container | null>(null)
+  // Local text state so typing doesn't navigate/refetch on every keystroke; we commit on submit/clear.
+  const [searchText, setSearchText] = useState(search)
+
+  // Keep the field in sync when the committed search changes elsewhere (e.g. browser back).
+  useEffect(() => {
+    setSearchText(search)
+  }, [search])
 
   const { permissions, isLoading: permissionsLoading } = useKeyManagerPermissions(projectId, [
     "key-manager:containers:list",
@@ -54,7 +63,7 @@ export function ContainersList({
 
   if (permissionsLoading) return null
   if (!permissions["key-manager:containers:list"]) {
-    return <Message variant="warning">You do not have permission to view containers.</Message>
+    return <Message variant="warning">{t`You do not have permission to view containers.`}</Message>
   }
 
   const totalPages = data?.total ? Math.ceil(data.total / PAGE_SIZE) : 1
@@ -66,7 +75,7 @@ export function ContainersList({
           <Stack distribution="end" alignment="center" gap="2" className="jn:pb-2">
             {permissions["key-manager:containers:create"] && (
               <Button variant="primary" onClick={() => setShowCreate(true)}>
-                Create Container
+                {t`Create Container`}
               </Button>
             )}
           </Stack>
@@ -74,11 +83,14 @@ export function ContainersList({
           <DataGridToolbar>
             <Stack distribution="end" alignment="center">
               <SearchInput
-                placeholder="Search by name or ID"
-                value={search}
+                placeholder={t`Search by name or ID`}
+                value={searchText}
                 onSearch={(v) => onSearchChange(typeof v === "string" ? v : "")}
-                onClear={() => onSearchChange("")}
-                onInput={(e) => onSearchChange((e.target as HTMLInputElement).value)}
+                onClear={() => {
+                  setSearchText("")
+                  onSearchChange("")
+                }}
+                onInput={(e) => setSearchText((e.target as HTMLInputElement).value)}
               />
             </Stack>
           </DataGridToolbar>
@@ -90,6 +102,7 @@ export function ContainersList({
           isError={isError}
           error={error}
           canDeleteContainer={permissions["key-manager:containers:delete"]}
+          isFiltered={Boolean(search)}
           onShowDetails={onShowDetail}
           onDelete={setDeleteTarget}
         />

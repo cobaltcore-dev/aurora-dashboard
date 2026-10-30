@@ -10,18 +10,15 @@ import {
   SelectOption,
   Message,
   Stack,
+  toast,
 } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { uuidFromRef } from "../../-components/utils"
+import { getContainerCreatedToast, getContainerDeletedToast } from "../../-components/KeyManagerToastNotifications"
 import type { Container } from "@/server/KeyManager/types/keyManager"
 
 const CONTAINER_TYPES: Container["type"][] = ["generic", "rsa", "certificate"]
-
-// RSA field names (used as secret_ref names in the Barbican API)
-const RSA_FIELD_NAMES = ["private_key", "private_key_passphrase", "public_key"] as const
-// Certificate field names
-const CERTIFICATE_FIELD_NAMES = ["certificate", "private_key", "private_key_passphrase", "intermediates"] as const
 
 export function CreateContainerModal({
   projectId,
@@ -58,22 +55,25 @@ export function CreateContainerModal({
     generic: t`A generic container is used for any type of container that a user may wish to create. There are no restrictions on the type or amount of secrets that can be held within a container`,
   }
 
-  // Field definitions with translated labels (inside component to use t)
+  // Field definitions with translated labels (inside component to use t).
+  // `secretType` filters the dropdown to only secrets of that Barbican type, matching the old plugin.
   const rsaFields = [
-    { name: "private_key", label: t`Private Key`, required: true },
-    { name: "private_key_passphrase", label: t`Private Key Passphrase`, required: false },
-    { name: "public_key", label: t`Public Key`, required: true },
+    { name: "private_key", label: t`Private Key`, required: true, secretType: "private" },
+    { name: "private_key_passphrase", label: t`Private Key Passphrase`, required: true, secretType: "passphrase" },
+    { name: "public_key", label: t`Public Key`, required: true, secretType: "public" },
   ]
   const certificateFields = [
-    { name: "certificate", label: t`Certificate`, required: true },
-    { name: "private_key", label: t`Private Key`, required: false },
-    { name: "private_key_passphrase", label: t`Private Key Passphrase`, required: false },
-    { name: "intermediates", label: t`Intermediates`, required: false },
+    { name: "certificate", label: t`Certificate`, required: true, secretType: "certificate" },
+    { name: "private_key", label: t`Private Key`, required: false, secretType: "private" },
+    { name: "private_key_passphrase", label: t`Private Key Passphrase`, required: false, secretType: "passphrase" },
+    { name: "intermediates", label: t`Intermediates`, required: false, secretType: "certificate" },
   ]
   const currentFields = type === "rsa" ? rsaFields : type === "certificate" ? certificateFields : null
 
   const createMutation = trpcReact.keyManager.createContainer.useMutation({
     onSuccess: () => {
+      const { message, ...options } = getContainerCreatedToast(name.trim())
+      toast.success(message, options)
       onSuccess()
       onClose()
     },
@@ -96,10 +96,11 @@ export function CreateContainerModal({
 
   const validate = (): string | null => {
     if (type === "rsa") {
-      if (!namedRefs[RSA_FIELD_NAMES[0]]) return t`Private Key is required for RSA containers`
-      if (!namedRefs[RSA_FIELD_NAMES[2]]) return t`Public Key is required for RSA containers`
+      if (!namedRefs["private_key"]) return t`Private Key is required for RSA containers`
+      if (!namedRefs["private_key_passphrase"]) return t`Private Key Passphrase is required for RSA containers`
+      if (!namedRefs["public_key"]) return t`Public Key is required for RSA containers`
     } else if (type === "certificate") {
-      if (!namedRefs[CERTIFICATE_FIELD_NAMES[0]]) return t`Certificate is required for certificate containers`
+      if (!namedRefs["certificate"]) return t`Certificate is required for certificate containers`
     }
     return null
   }
@@ -139,6 +140,7 @@ export function CreateContainerModal({
       cancelButtonLabel={t`Cancel`}
       disableConfirmButton={createMutation.isPending}
       disableCancelButton={createMutation.isPending}
+      disableCloseButton={createMutation.isPending}
     >
       <Form
         onSubmit={(e) => {
@@ -177,33 +179,40 @@ export function CreateContainerModal({
           </FormRow>
         </FormSection>
 
-        {/* RSA / Certificate: fixed named secret fields */}
+        {/* RSA / Certificate: fixed named secret fields, each filtered to the matching secret type */}
         {currentFields && (
           <FormSection>
-            {currentFields.map((field) => (
-              <FormRow key={field.name}>
-                <Select
-                  id={`secret-${field.name}`}
-                  label={field.required ? field.label : `${field.label} (${t`optional`})`}
-                  value={namedRefs[field.name] ?? ""}
-                  onChange={(v) => {
-                    setNamedRefs((prev) => ({
-                      ...prev,
-                      [field.name]: typeof v === "string" ? v : "",
-                    }))
-                    setValidationError(null)
-                  }}
-                >
-                  <SelectOption value="" label={field.required ? t`Select a secret...` : t`-- None --`} />
-                  {secrets.map((secret) => {
-                    const secretId = uuidFromRef(secret.secret_ref)
-                    return (
-                      <SelectOption key={secret.secret_ref} value={secret.secret_ref} label={secret.name ?? secretId} />
-                    )
-                  })}
-                </Select>
-              </FormRow>
-            ))}
+            {currentFields.map((field) => {
+              const fieldSecrets = secrets.filter((secret) => secret.secret_type === field.secretType)
+              return (
+                <FormRow key={field.name}>
+                  <Select
+                    id={`secret-${field.name}`}
+                    label={field.required ? field.label : `${field.label} (${t`optional`})`}
+                    value={namedRefs[field.name] ?? ""}
+                    onChange={(v) => {
+                      setNamedRefs((prev) => ({
+                        ...prev,
+                        [field.name]: typeof v === "string" ? v : "",
+                      }))
+                      setValidationError(null)
+                    }}
+                  >
+                    <SelectOption value="" label={field.required ? t`Select a secret...` : t`-- None --`} />
+                    {fieldSecrets.map((secret) => {
+                      const secretId = uuidFromRef(secret.secret_ref)
+                      return (
+                        <SelectOption
+                          key={secret.secret_ref}
+                          value={secret.secret_ref}
+                          label={secret.name ?? secretId}
+                        />
+                      )
+                    })}
+                  </Select>
+                </FormRow>
+              )
+            })}
           </FormSection>
         )}
 
@@ -288,6 +297,8 @@ export function DeleteContainerModal({
   const utils = trpcReact.useUtils()
   const deleteMutation = trpcReact.keyManager.deleteContainer.useMutation({
     onSuccess: () => {
+      const { message, ...options } = getContainerDeletedToast(containerName)
+      toast.success(message, options)
       void utils.keyManager.listContainers.invalidate()
       onClose()
     },
@@ -305,6 +316,7 @@ export function DeleteContainerModal({
       cancelButtonLabel={t`Cancel`}
       disableConfirmButton={deleteMutation.isPending}
       disableCancelButton={deleteMutation.isPending}
+      disableCloseButton={deleteMutation.isPending}
     >
       <Stack direction="vertical" gap="4">
         {deleteMutation.error && <Message variant="error" text={deleteMutation.error.message} />}

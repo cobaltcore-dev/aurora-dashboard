@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { Button, Message, Pagination, Stack } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
+import { useLingui } from "@lingui/react/macro"
 import { useKeyManagerPermissions } from "../../-components/useKeyManagerPermissions"
 import { OrderListContainer } from "./OrderListContainer"
 import { CreateOrderModal, DeleteOrderModal } from "./OrderModals"
@@ -16,6 +17,7 @@ interface OrdersListProps {
 }
 
 export function OrdersList({ projectId, page, onPageChange, onShowDetail }: OrdersListProps) {
+  const { t } = useLingui()
   const [showCreate, setShowCreate] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<Order | null>(null)
 
@@ -44,7 +46,7 @@ export function OrdersList({ projectId, page, onPageChange, onShowDetail }: Orde
 
   if (permissionsLoading) return null
   if (!permissions["key-manager:orders:list"]) {
-    return <Message variant="warning">You do not have permission to view orders.</Message>
+    return <Message variant="warning">{t`You do not have permission to view orders.`}</Message>
   }
 
   const totalPages = data?.total ? Math.ceil(data.total / PAGE_SIZE) : 1
@@ -56,7 +58,7 @@ export function OrdersList({ projectId, page, onPageChange, onShowDetail }: Orde
           <Stack distribution="end" alignment="center" gap="2" className="jn:pb-2">
             {permissions["key-manager:orders:create"] && (
               <Button variant="primary" onClick={() => setShowCreate(true)}>
-                Create Order
+                {t`Create Order`}
               </Button>
             )}
           </Stack>
