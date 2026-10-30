@@ -1,5 +1,38 @@
 # @cobaltcore-dev/aurora
 
+## 2.4.0
+
+### Minor Changes
+
+- 599479d: Add Neutron Ports management (BFF and read-only UI)
+
+  - Add `network.ports` tRPC BFF: `list` (current project, optionally scoped to one network via `network_id`, with search), `getById`, `create`, `update`, `delete`
+  - Resolve network, subnet and security group names with batched best-effort lookups that fall back to IDs, and add the IP version of every fixed IP
+  - Map port-specific Neutron errors (e.g. IP or MAC address already in use, port owned by a router, quota exceeded) to clear messages
+  - Add a "Ports" entry under Network in the side navigation and a "Ports" card on the project overview; both require `ports` in `enabledServices`
+  - Add a Ports list view (Status, Name / ID, Description, Network, Fixed IPs, Device Owner) with search, sorting and pagination; the list can be reused for a single network, which hides the Network column
+  - Add a port details view with copy-to-clipboard for IDs, IP addresses and the MAC address
+  - Show the port and router status as plain text in the first column of the list views
+  - Add a Status filter to the Ports and Routers lists (kept in the URL as `?status=`, shown as a removable pill); Ports filters client-side, Routers via the BFF `status` parameter
+  - On an expired session (401), the Ports and Routers list and details views redirect to sign-in and return to the page after authentication; unexpected errors show a generic message instead of the raw backend text
+  - Keep the active tab of the router details view in the URL (`?tab=`), so it is preserved on reload and when sharing a link
+
+### Patch Changes
+
+- 948bd2a: Use the Juno Label component (with required indicator) for the Create Image modal's file upload field so its accessible name and required semantics match the other form fields. Added line breaks between the sentences in the image list empty-state messages. Image table cells now use the new DataGrid `textContain` prop for overflow handling (truncate the name, break long IDs). Bumped juno-ui-components to 9.7.2.
+- 8cd09bf: Resolve Dependabot security advisories via dependency bumps and pnpm overrides:
+  - zod: force patched >=4.6.6 (fixes memory exhaustion via oversized constrained collections, GHSA-mrhx-c7xc-m3w5)
+  - undici: force patched >=7.30.1 and >=8.12.2 (fixes DoS via excessive content-encodings, EventSource unbounded memory, and SRI bypass)
+  - fast-uri: force patched >=3.1.9 / >=4.2.3 (fixes scheme spoofing, host confusion, scheme injection, path equivalence)
+  - vite: force patched >=8.2.4 (fixes dev-server fs allow-list bypasses)
+  - @vitest/mocker: force patched >=4.1.12 (fixes code injection and Windows backslash traversal in manual mock registration)
+  - fastify: force patched 5.12.6 (fixes header validation bypass via case-sensitive propertyNames)
+- d2ee935: Restore the `@fastify/static@<10.1.2` pnpm override. Without it, `@fastify/vite` pulls in `@fastify/static@9.3.0`, which is affected by two advisories:
+  - GHSA (route guard bypass via non-leading `..` / `%2E%2E` path segments, `<=10.1.0`)
+  - GHSA (authorization bypass via non-canonical URL paths, `<=10.1.1`)
+
+  The override forces the patched `10.1.2`. These are dev-dependency (`@fastify/vite`) vulnerabilities, so `pnpm audit --prod` did not surface them.
+
 ## 2.3.0
 
 ### Minor Changes
