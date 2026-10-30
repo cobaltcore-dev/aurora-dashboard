@@ -1,4 +1,4 @@
-# guardrails.md - Guardrails for Aurora Dashboard
+# Guardrails for Aurora Dashboard
 
 This file collects project-specific guardrails: conventions and patterns that must be followed but don't yet have a home in our skills or other references. Content grows or shrinks over time.
 
