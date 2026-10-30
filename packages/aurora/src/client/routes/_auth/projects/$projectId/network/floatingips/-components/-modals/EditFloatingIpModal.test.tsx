@@ -77,10 +77,11 @@ describe("EditFloatingIpModal", () => {
   })
 
   describe("Rendering", () => {
-    test("renders title with floating IP address", () => {
+    test("renders title without embedding the floating IP address", () => {
       renderModal()
 
-      expect(screen.getByText("Edit Floating IP 203.0.113.10 Description")).toBeInTheDocument()
+      expect(screen.getByText("Edit Description")).toBeInTheDocument()
+      expect(screen.queryByText("Edit Floating IP 203.0.113.10 Description")).not.toBeInTheDocument()
     })
 
     test("pre-fills description from floating IP", () => {
@@ -100,7 +101,7 @@ describe("EditFloatingIpModal", () => {
     test("does not render when open is false", () => {
       renderModal({ open: false })
 
-      expect(screen.queryByText("Edit Floating IP 203.0.113.10 Description")).not.toBeInTheDocument()
+      expect(screen.queryByText("Edit Description")).not.toBeInTheDocument()
     })
   })
 
@@ -170,7 +171,7 @@ describe("EditFloatingIpModal", () => {
       await waitFor(() => {
         expect(onUpdate).not.toHaveBeenCalled()
       })
-      expect(screen.getByText("Edit Floating IP 203.0.113.10 Description")).toBeInTheDocument()
+      expect(screen.getByText("Edit Description")).toBeInTheDocument()
     })
   })
 

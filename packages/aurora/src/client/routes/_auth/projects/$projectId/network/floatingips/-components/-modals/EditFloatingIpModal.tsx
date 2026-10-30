@@ -26,7 +26,7 @@ export const EditFloatingIpModal = ({
 }: EditFloatingIpModalProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
-  const { description, floating_ip_address } = floatingIp
+  const { description } = floatingIp
 
   const formSchema = z.object({
     description: z
@@ -71,7 +71,7 @@ export const EditFloatingIpModal = ({
       key={floatingIp.id}
       open={open}
       size="large"
-      title={t`Edit Floating IP ${floating_ip_address} Description`}
+      title={t`Edit Description`}
       onCancel={handleClose}
       cancelButtonLabel={t`Cancel`}
       confirmButtonLabel={t`Save`}

@@ -1459,9 +1459,6 @@ msgstr "Edit Description"
 msgid "Edit Details"
 msgstr "Edit Details"
 
-msgid "Edit Floating IP {floating_ip_address} Description"
-msgstr "Edit Floating IP {floating_ip_address} Description"
-
 msgid "Edit Group"
 msgstr "Edit Group"
 
