@@ -96,7 +96,7 @@ Give Aurora project members a read-only view of their project's Neutron networks
 **Aurora / Juno implementation notes**
 
 - Pattern A built-in scope — reference the **`floatingips`** resource as the closest implementation model (`…/$projectId/network/floatingips/` on the client; `Network/routers/floatingIpRouter.ts` on the server).
-- Server data access: standard Neutron list/show endpoints via `signal-openstack`; `projectScopedProcedure` auto-rescopes the token to the active project. Access token in a procedure: `ctx.openstackSession?.getToken()?.authToken`.
+- Server data access: standard Neutron list/show endpoints via `signal-openstack`; `projectScopedProcedure` auto-rescopes the token to the active project. Access token in a procedure: `ctx.openstack?.getToken()?.authToken`.
 - tRPC namespace: **`network.networks`** with procedures `list`, `getById`, `listSubnets`, `listPorts` (E4). Server resource object exported from `Network/routers/networksRouter.ts`; types in `Network/types/network.ts`; error handlers / enrichment in `Network/helpers/networkHelpers.ts` — matching the per-resource `routers.ts` / `types.ts` / `helpers.ts` layout of the siblings.
 - Route/URL state (search/sort/filter) via TanStack Router search params, Zod-validated.
 
