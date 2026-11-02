@@ -363,6 +363,7 @@ describe("AllocateFloatingIpModal", () => {
       })
 
       expect(screen.getByLabelText("DNS Name")).toBeInTheDocument()
+      expect(screen.getByLabelText("Description")).toBeInTheDocument()
     })
   })
 

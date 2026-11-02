@@ -234,7 +234,7 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
                   value={field.state.value}
                   onBlur={field.handleBlur}
                   onChange={(e) => field.handleChange(e.target.value)}
-                  placeholder={t`Description`}
+                  label={t`Description`}
                   errortext={field.state.meta.errors.map((e) => e?.message).join(", ")}
                   disabled={isPending}
                 />
