@@ -3,6 +3,8 @@ import { Button, DataGridToolbar, Message, Pagination, SearchInput, Stack } from
 import { trpcReact } from "@/client/trpcClient"
 import { useLingui } from "@lingui/react/macro"
 import { useKeyManagerPermissions } from "../../-components/useKeyManagerPermissions"
+import { useAllKeyManagerPages } from "../../-components/useAllKeyManagerPages"
+import { uuidFromRef } from "../../-components/utils"
 import { ContainerListContainer } from "./ContainerListContainer"
 import { CreateContainerModal, DeleteContainerModal } from "./ContainerModals"
 import type { Container } from "@/server/KeyManager/types/keyManager"
@@ -44,29 +46,52 @@ export function ContainersList({
   ])
 
   const utils = trpcReact.useUtils()
-  const { data, isLoading, isError, error } = trpcReact.keyManager.listContainers.useQuery(
-    {
-      project_id: projectId,
-      offset: (page - 1) * PAGE_SIZE,
-      limit: PAGE_SIZE,
-      name: search || undefined,
-    },
-    { enabled: permissions["key-manager:containers:list"] }
+  const canList = permissions["key-manager:containers:list"]
+  const isSearching = Boolean(search)
+
+  // Normal browsing: cheap server-side pagination.
+  const pageQuery = trpcReact.keyManager.listContainers.useQuery(
+    { project_id: projectId, offset: (page - 1) * PAGE_SIZE, limit: PAGE_SIZE },
+    { enabled: canList && !isSearching }
   )
+
+  // Searching: Barbican can't filter containers, so fetch all and match name or id in the browser.
+  const allQuery = useAllKeyManagerPages<Container>(
+    ["km-all-containers", projectId],
+    async (offset, limit) => {
+      const res = await utils.keyManager.listContainers.fetch({ project_id: projectId, offset, limit })
+      return { total: res.total, items: res.containers }
+    },
+    canList && isSearching
+  )
+
+  const term = search.trim().toLowerCase()
+  const filtered = (allQuery.data ?? []).filter((c) => {
+    const id = uuidFromRef(c.container_ref)
+    return (c.name ?? "").toLowerCase().includes(term) || id.toLowerCase().includes(term)
+  })
+
+  const isLoading = isSearching ? allQuery.isLoading : pageQuery.isLoading
+  const isError = isSearching ? allQuery.isError : pageQuery.isError
+  const error = isSearching ? allQuery.error : pageQuery.error
+  const totalCount = isSearching ? filtered.length : (pageQuery.data?.total ?? 0)
+  const containers = isSearching
+    ? filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+    : (pageQuery.data?.containers ?? [])
 
   // After deleting the last item on a page, step back so the user never lands on an empty page.
   useEffect(() => {
-    if (!isLoading && !isError && page > 1 && (data?.containers.length ?? 0) === 0) {
+    if (!isLoading && !isError && page > 1 && containers.length === 0) {
       onPageChange(page - 1)
     }
-  }, [isLoading, isError, page, data, onPageChange])
+  }, [isLoading, isError, page, containers.length, onPageChange])
 
   if (permissionsLoading) return null
-  if (!permissions["key-manager:containers:list"]) {
+  if (!canList) {
     return <Message variant="warning">{t`You do not have permission to view containers.`}</Message>
   }
 
-  const totalPages = data?.total ? Math.ceil(data.total / PAGE_SIZE) : 1
+  const totalPages = totalCount ? Math.ceil(totalCount / PAGE_SIZE) : 1
 
   return (
     <>
@@ -97,12 +122,12 @@ export function ContainersList({
         </Stack>
 
         <ContainerListContainer
-          containers={data?.containers ?? []}
+          containers={containers}
           isLoading={isLoading}
           isError={isError}
           error={error}
           canDeleteContainer={permissions["key-manager:containers:delete"]}
-          isFiltered={Boolean(search)}
+          isFiltered={isSearching}
           onShowDetails={onShowDetail}
           onDelete={setDeleteTarget}
         />
