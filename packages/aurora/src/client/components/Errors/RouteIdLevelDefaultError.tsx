@@ -29,8 +29,7 @@ export const RouteIdLevelDefaultError = ({
   const navigate = useNavigate()
   const { projectId } = useParams({ strict: false })
 
-  const navigateToProjectId = () =>
-    projectId ? navigate({ to: "/projects/$projectId", params: { projectId } }) : navigate({ to: "/" })
+  const navigateToProjectId = () => projectId && navigate({ to: "/projects/$projectId", params: { projectId } })
 
   return (
     <Status
@@ -39,11 +38,12 @@ export const RouteIdLevelDefaultError = ({
       title={errorTitle || t`Resource Not Found`}
       body={errorDescription || t`The Resource you are looking for does not exist or is not accessible.`}
       action={
-        action ?? (
+        action ??
+        (projectId ? (
           <Button variant="primary" onClick={navigateToProjectId}>
-            {projectId ? t`Go to Project Home` : t`Go to Home`}
+            {t`Go to Project Home`}
           </Button>
-        )
+        ) : undefined)
       }
     />
   )

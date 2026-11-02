@@ -2185,9 +2185,6 @@ msgstr "Wird generiert..."
 msgid "Get Involved"
 msgstr "Mitmachen"
 
-msgid "Go to Home"
-msgstr ""
-
 msgid "Go to Project"
 msgstr ""
 
@@ -3880,7 +3877,7 @@ msgstr ""
 msgid "The page you are looking for does not exist."
 msgstr "Die gesuchte Seite existiert nicht."
 
-msgid "The page you're looking for doesn't exist or may have moved. Check the URL or return to the home page."
+msgid "The page you're looking for doesn't exist or may have moved. Check the URL."
 msgstr ""
 
 msgid "The port could not be loaded."

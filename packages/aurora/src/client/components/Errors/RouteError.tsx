@@ -1,6 +1,5 @@
-import { Status, Button } from "@cloudoperators/juno-ui-components"
-import { useLingui, Trans } from "@lingui/react/macro"
-import { useNavigate } from "@tanstack/react-router"
+import { Status } from "@cloudoperators/juno-ui-components"
+import { useLingui } from "@lingui/react/macro"
 
 interface RouteErrorProps {
   error: unknown
@@ -17,7 +16,6 @@ interface RouteErrorProps {
  */
 export function RouteError({ error, title, helpText, safeErrorMessage }: RouteErrorProps) {
   const { t } = useLingui()
-  const navigate = useNavigate()
 
   const defaultTitle = t`Unable to Load Content`
   const defaultHelpText = t`This could be due to insufficient permissions or a temporary service issue. Please check your access rights or try refreshing the page.`
@@ -39,16 +37,5 @@ export function RouteError({ error, title, helpText, safeErrorMessage }: RouteEr
 
   const additionalInfo = helpText || defaultHelpText
 
-  return (
-    <Status
-      status="error"
-      title={title || defaultTitle}
-      body={errorMessage + " " + additionalInfo}
-      action={
-        <Button variant="primary" onClick={() => navigate({ to: "/" })}>
-          <Trans>Go to Home</Trans>
-        </Button>
-      }
-    />
-  )
+  return <Status status="error" title={title || defaultTitle} body={errorMessage + " " + additionalInfo} />
 }
