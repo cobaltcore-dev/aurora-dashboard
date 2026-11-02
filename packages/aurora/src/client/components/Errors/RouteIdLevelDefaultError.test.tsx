@@ -42,16 +42,13 @@ describe("RouteIdLevelDefaultError", () => {
     })
   })
 
-  test("navigates to the application home when no project ID is available", () => {
+  test("shows no action button when no project ID is available", () => {
     mockUseParams.mockReturnValue({})
 
     render(<RouteIdLevelDefaultError />, { wrapper: TestWrapper })
 
-    expect(screen.getByRole("button", { name: "Go to Home" })).toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Go to Home" })).not.toBeInTheDocument()
     expect(screen.queryByRole("button", { name: "Go to Project Home" })).not.toBeInTheDocument()
-    fireEvent.click(screen.getByRole("button", { name: "Go to Home" }))
-
-    expect(mockNavigate).toHaveBeenCalledWith({ to: "/" })
   })
 
   // Reused as an `errorComponent`, where the failure is rarely a 404 — so the status has

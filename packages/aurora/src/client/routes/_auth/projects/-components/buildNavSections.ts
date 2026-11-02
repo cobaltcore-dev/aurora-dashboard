@@ -101,6 +101,16 @@ export function buildNavSections(
               },
             ]
           : []),
+        ...(isEnabled("ports")
+          ? [
+              {
+                service: "ports",
+                label: t`Ports`,
+                navigate: (nav: NavigateFn) => nav({ to: "/projects/$projectId/network/ports", params: { projectId } }),
+                params: { projectId },
+              },
+            ]
+          : []),
       ]
     : []
 

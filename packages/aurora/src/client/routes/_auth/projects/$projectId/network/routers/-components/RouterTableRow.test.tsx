@@ -68,19 +68,20 @@ describe("RouterTableRow", () => {
       })
     })
 
-    it("renders the router name with its ID below", async () => {
+    it("renders the router name", async () => {
       renderComponent()
 
       await waitFor(() => {
         expect(screen.getByText("edge-router")).toBeInTheDocument()
       })
-      expect(screen.getByText("router-123")).toBeInTheDocument()
+      expect(screen.queryByText("router-123")).not.toBeInTheDocument()
     })
 
     it("renders only the ID when the router has no name", async () => {
       renderComponent({ ...mockRouter, name: "" })
 
       await waitFor(() => {
+        // ID appears once in col 1 as name fallback
         expect(screen.getAllByText("router-123")).toHaveLength(1)
       })
     })
@@ -124,29 +125,14 @@ describe("RouterTableRow", () => {
       })
     })
 
-    it("renders the external IP with the subnet name and without the subnet ID", async () => {
+    it("renders the external IP without the subnet name or ID", async () => {
       renderComponent()
 
       await waitFor(() => {
         expect(screen.getByText("172.24.4.10")).toBeInTheDocument()
       })
-      expect(screen.getByText("FloatingIP-sap-01")).toBeInTheDocument()
+      expect(screen.queryByText("FloatingIP-sap-01")).not.toBeInTheDocument()
       expect(screen.queryByText("ext-subnet-1")).not.toBeInTheDocument()
-    })
-
-    it("falls back to the subnet ID when the subnet name is unknown", async () => {
-      renderComponent({
-        ...mockRouter,
-        external_gateway_info: {
-          ...mockRouter.external_gateway_info!,
-          external_fixed_ips: [{ subnet_id: "ext-subnet-1", ip_address: "172.24.4.10" }],
-        },
-      })
-
-      await waitFor(() => {
-        expect(screen.getByText("172.24.4.10")).toBeInTheDocument()
-      })
-      expect(screen.getByText("ext-subnet-1")).toBeInTheDocument()
     })
 
     it("renders all external fixed IPs", async () => {
@@ -207,7 +193,7 @@ describe("RouterTableRow", () => {
       renderComponent(routerWithoutConnections)
 
       await waitFor(() => {
-        expect(screen.getAllByText("–")).toHaveLength(3)
+        expect(screen.getAllByText("- -")).toHaveLength(3)
       })
     })
 
@@ -215,7 +201,7 @@ describe("RouterTableRow", () => {
       renderComponent({ ...mockRouter, private_networks: undefined })
 
       await waitFor(() => {
-        expect(screen.getAllByText("–")).toHaveLength(1)
+        expect(screen.getAllByText("- -")).toHaveLength(1)
       })
     })
   })

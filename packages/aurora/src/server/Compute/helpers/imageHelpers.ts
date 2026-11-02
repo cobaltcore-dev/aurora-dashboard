@@ -292,6 +292,50 @@ export function mapErrorResponseToTRPCError(
 }
 
 /**
+ * Collapses a raw Glance error body (which may be an HTML page) into a single-line plain-text
+ * reason. Returns "" when nothing meaningful can be extracted so callers can fall back to a
+ * static message instead of surfacing markup.
+ */
+export function extractGlanceReason(raw?: string): string {
+  if (!raw) return ""
+  let text = raw
+    .replace(/<[^>]*>/g, " ") // drop HTML tags
+    .replace(/&#x27;|&#39;/g, "'") // common entities Glance emits
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, "&")
+    .replace(/\b\d{3}\s+Bad Request\b/gi, " ") // drop every "400 Bad Request" status line
+    .replace(/\b\d{3}\s+Forbidden\b/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+
+  // Glance appends a noisy validator trailer ("Failed validating 'enum' in schema[...] ...").
+  // Keep only the leading human-readable sentence.
+  text = text.replace(/\s*Failed validating\b.*$/i, "").trim()
+
+  return text
+}
+
+/**
+ * Classifies a Glance metadata-update rejection. Read-only/reserved attribute errors get a
+ * dedicated code; everything else is treated as an invalid update carrying a cleaned reason.
+ */
+export function classifyMetadataUpdateError(statusCode: number | undefined, rawMessage?: string): TRPCError {
+  const reason = extractGlanceReason(rawMessage)
+  const isReadOnly = /read[\s-]?only|forbidden to (?:modify|update)|cannot be (?:modified|updated|changed)/i.test(
+    reason
+  )
+
+  if (statusCode === 403 || isReadOnly) {
+    return new TRPCError({ code: "FORBIDDEN", message: "IMAGE_METADATA_RESERVED" })
+  }
+  // 400 (and other non-read-only rejections): invalid value / schema mismatch.
+  return new TRPCError({
+    code: "BAD_REQUEST",
+    message: reason ? `IMAGE_METADATA_INVALID: ${reason}` : "IMAGE_METADATA_INVALID",
+  })
+}
+
+/**
  * Handles specific error cases for image operations with custom messages
  */
 export const ImageErrorHandlers = {
@@ -334,6 +378,36 @@ export const ImageErrorHandlers = {
         return new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: `Failed to upload image: ${response.message || "Unknown error"}`,
+        })
+    }
+  },
+
+  /**
+   * Handles errors specific to image update (metadata patch) operations.
+   *
+   * Glance rejects read-only/base attributes and invalid values with 400 or 403. The message
+   * carries a sentinel code (`IMAGE_METADATA_RESERVED` or `IMAGE_METADATA_INVALID: <reason>`) so the
+   * client can show meaningful text; raw Glance bodies (often HTML) are cleaned, never passed as-is.
+   */
+  update: (response: { statusCode?: number; message?: string }, imageId: string) => {
+    switch (response.statusCode) {
+      case 400:
+      case 403:
+        return classifyMetadataUpdateError(response.statusCode, response.message)
+      case 404:
+        return new TRPCError({
+          code: "NOT_FOUND",
+          message: `Image not found: ${imageId}`,
+        })
+      case 409:
+        return new TRPCError({
+          code: "CONFLICT",
+          message: `Conflict updating image metadata: ${imageId}`,
+        })
+      default:
+        return new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: `Failed to update image: ${response.message || "Unknown error"}`,
         })
     }
   },

@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach } from "vitest"
-import { fireEvent, render, screen, waitFor, act } from "@testing-library/react"
+import { createEvent, fireEvent, render, screen, waitFor, act } from "@testing-library/react"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
@@ -291,7 +291,7 @@ describe("CreateImageModal", () => {
         expect(screen.getByText("test-image.qcow2")).toBeInTheDocument()
       })
 
-      const removeButton = screen.getByText("Remove")
+      const removeButton = screen.getByRole("button", { name: "Remove" })
       await user.click(removeButton)
 
       expect(screen.queryByText("test-image.qcow2")).not.toBeInTheDocument()
@@ -358,6 +358,108 @@ describe("CreateImageModal", () => {
       await waitFor(() => {
         expect(screen.getByText(/4\/255 characters/i)).toBeInTheDocument()
       })
+    })
+
+    test("should block non-digit keystrokes in numeric fields", async () => {
+      renderImageModal(true, mockOnClose, mockOnCreate)
+
+      const minDiskInput = screen.getByLabelText(/Min Disk/) as HTMLInputElement
+      // Only 0-9 are valid. Any other printable character (incl. the ones that build
+      // "1e5" / "e-25" / "-5", plus stray letters/symbols) must be prevented.
+      for (const key of ["e", "E", "+", "-", ".", "a", " "]) {
+        const event = createEvent.keyDown(minDiskInput, { key })
+        fireEvent(minDiskInput, event)
+        expect(event.defaultPrevented).toBe(true)
+      }
+
+      // Digits must pass through.
+      const digitEvent = createEvent.keyDown(minDiskInput, { key: "5" })
+      fireEvent(minDiskInput, digitEvent)
+      expect(digitEvent.defaultPrevented).toBe(false)
+
+      // Editing / navigation keys must pass through (Tab is excluded — focus handling
+      // elsewhere may legitimately consume it).
+      for (const key of ["Backspace", "Delete", "ArrowLeft"]) {
+        const event = createEvent.keyDown(minDiskInput, { key })
+        fireEvent(minDiskInput, event)
+        expect(event.defaultPrevented, `key "${key}" should not be prevented`).toBe(false)
+      }
+
+      // Paste / select-all shortcuts must pass through.
+      const pasteEvent = createEvent.keyDown(minDiskInput, { key: "v", ctrlKey: true })
+      fireEvent(minDiskInput, pasteEvent)
+      expect(pasteEvent.defaultPrevented).toBe(false)
+    })
+
+    test("should reject scientific-notation input in numeric fields", async () => {
+      renderImageModal(true, mockOnClose, mockOnCreate)
+
+      const minDiskInput = screen.getByLabelText(/Min Disk/) as HTMLInputElement
+      // parseInt would silently truncate "1e5" to 1; the field must flag it instead
+      fireEvent.change(minDiskInput, { target: { value: "1e5" } })
+
+      await waitFor(() => {
+        expect(screen.getByText(/Please enter a valid positive number/i)).toBeInTheDocument()
+      })
+    })
+
+    test("should reject bad numeric input (e.g. 'e-25') that the browser reports as empty", async () => {
+      renderImageModal(true, mockOnClose, mockOnCreate)
+
+      const minDiskInput = screen.getByLabelText(/Min Disk/) as HTMLInputElement
+      // type="number" blanks value to "" for unparseable text like "e-25" and sets
+      // validity.badInput. This must be flagged as an error, not mistaken for a clear.
+      // jsdom's validity is a read-only getter, so stub badInput before firing.
+      Object.defineProperty(minDiskInput, "validity", {
+        configurable: true,
+        value: { badInput: true },
+      })
+      fireEvent.change(minDiskInput, { target: { value: "" } })
+
+      await waitFor(() => {
+        expect(screen.getByText(/Please enter a valid positive number/i)).toBeInTheDocument()
+      })
+    })
+
+    test("should treat an empty numeric field as valid (optional)", async () => {
+      renderImageModal(true, mockOnClose, mockOnCreate)
+
+      const minDiskInput = screen.getByLabelText(/Min Disk/) as HTMLInputElement
+      // First make it invalid, then clear it — clearing should remove the error
+      fireEvent.change(minDiskInput, { target: { value: "1e5" } })
+      await waitFor(() => {
+        expect(screen.getByText(/Please enter a valid positive number/i)).toBeInTheDocument()
+      })
+
+      fireEvent.change(minDiskInput, { target: { value: "" } })
+      await waitFor(() => {
+        expect(screen.queryByText(/Please enter a valid positive number/i)).not.toBeInTheDocument()
+      })
+    })
+
+    test("should disable Create Image when an optional numeric field has a validation error", async () => {
+      const user = userEvent.setup()
+      renderImageModal(true, mockOnClose, mockOnCreate)
+
+      // Fill every required field so only the numeric error can block submission
+      const file = createMockFile()
+      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement
+      const nameInput = screen.getByLabelText(/^Image Name$/)
+      const diskFormatSelect = screen.getByLabelText(/^Disk Format$/)
+
+      await user.upload(fileInput, file)
+      await user.type(nameInput, "Test Image")
+      await user.click(diskFormatSelect)
+      await user.click(screen.getByText(/qcow2 - qemu emulator/i))
+
+      const createButton = screen.getByRole("button", { name: /Create Image/i })
+      await waitFor(() => expect(createButton).not.toBeDisabled())
+
+      // Introduce an invalid value in the optional Min Disk field
+      const minDiskInput = screen.getByLabelText(/Min Disk/) as HTMLInputElement
+      fireEvent.change(minDiskInput, { target: { value: "1e5" } })
+
+      await waitFor(() => expect(createButton).toBeDisabled())
     })
   })
 

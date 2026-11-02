@@ -10,7 +10,7 @@ import type { RouterListItem } from "@/server/Network/types/router"
 import { Routers } from "./RoutersList"
 
 // Mocked URL search params as a small external store, so navigate() re-renders like the real router
-const { searchStore } = vi.hoisted(() => {
+const { searchStore, mockRouter } = vi.hoisted(() => {
   const listeners = new Set<() => void>()
   return {
     searchStore: {
@@ -23,6 +23,9 @@ const { searchStore } = vi.hoisted(() => {
         this.params = params
         listeners.forEach((listener) => listener())
       },
+    },
+    mockRouter: {
+      state: { location: { pathname: "/projects/proj-1/network/routers", searchStr: "", hash: "" } },
     },
   }
 })
@@ -42,6 +45,7 @@ vi.mock("@tanstack/react-router", async () => {
   return {
     useSearch: () => useSyncExternalStore(searchStore.subscribe, () => searchStore.params),
     useNavigate: () => mockNavigate,
+    useRouter: () => mockRouter,
   }
 })
 
@@ -188,8 +192,10 @@ describe("Routers", () => {
       } as never)
       await renderList(vi.fn().mockRejectedValue(forbidden))
 
-      expect(await screen.findByText("You are not allowed to list routers")).toBeInTheDocument()
-      expect(screen.getByText("Failed to Load Routers")).toBeInTheDocument()
+      expect(
+        await screen.findByText("You do not have the required permissions to view routers in this project.")
+      ).toBeInTheDocument()
+      expect(screen.getByText("Insufficient Permissions")).toBeInTheDocument()
       expect(screen.queryByTestId("router-list-container")).not.toBeInTheDocument()
     })
 
@@ -198,7 +204,8 @@ describe("Routers", () => {
       await renderList(vi.fn().mockRejectedValue(new Error("Neutron is unavailable")))
 
       expect(await screen.findByText("Failed to Load Routers")).toBeInTheDocument()
-      expect(screen.getByText("Neutron is unavailable")).toBeInTheDocument()
+      expect(screen.getByText("An unexpected error occurred. Try again.")).toBeInTheDocument()
+      expect(screen.queryByText("Neutron is unavailable")).not.toBeInTheDocument()
 
       consoleError.mockRestore()
     })
@@ -254,8 +261,40 @@ describe("Routers", () => {
       } as never)
       await renderList(vi.fn().mockRejectedValue(forbidden))
 
-      await screen.findByText("You are not allowed to list routers")
+      await screen.findByText("You do not have the required permissions to view routers in this project.")
       expect(screen.queryByRole("button", { name: "Try Again" })).not.toBeInTheDocument()
+    })
+  })
+
+  describe("Status filter", () => {
+    it("passes the status filter from the URL to the query", async () => {
+      searchStore.params = { status: "ACTIVE" }
+      const { query } = await renderList()
+
+      await screen.findByTestId("router-list-container")
+
+      expect(query).toHaveBeenCalledWith(expect.objectContaining({ project_id: "proj-1", status: "ACTIVE" }))
+    })
+
+    it("omits the status param when no status is selected", async () => {
+      const { query } = await renderList()
+
+      await screen.findByTestId("router-list-container")
+
+      expect(query).toHaveBeenCalledWith({
+        project_id: "proj-1",
+        sort_key: "name",
+        sort_dir: "asc",
+        searchTerm: undefined,
+      })
+    })
+
+    it("shows the active status as a pill", async () => {
+      searchStore.params = { status: "ACTIVE" }
+      await renderList()
+
+      await screen.findByTestId("router-list-container")
+      expect(screen.getByText("ACTIVE")).toBeInTheDocument()
     })
   })
 

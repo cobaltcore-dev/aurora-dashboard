@@ -44,6 +44,18 @@ const makeMockClient = () =>
     },
   }) as unknown as import("@/client/trpcClient").TrpcClient
 
+const makeRejectingClient = (error: Error) =>
+  ({
+    compute: {
+      getImageMetadataExcludedProperties: {
+        query: vi.fn().mockResolvedValue(MOCK_EXCLUDED_PROPERTIES),
+      },
+      updateImage: {
+        mutate: vi.fn().mockRejectedValue(error),
+      },
+    },
+  }) as unknown as import("@/client/trpcClient").TrpcClient
+
 const renderMetadataModal = (
   isOpen = true,
   mockOnClose = vi.fn(),
@@ -241,6 +253,93 @@ describe("EditImageMetadataModal", () => {
     await waitFor(() => {
       expect(screen.getByText("trimmed_key")).toBeInTheDocument()
       expect(screen.getByText("trimmed_value")).toBeInTheDocument()
+    })
+  })
+
+  // ── Protected-property errors ─────────────────────────────────────────────────
+
+  test("shows the reserved message when adding a read-only property is rejected", async () => {
+    const client = makeRejectingClient(new Error("IMAGE_METADATA_RESERVED"))
+    renderMetadataModal(true, vi.fn(), mockImage, client)
+
+    await waitFor(() => expect(screen.getByRole("button", { name: /Add Property/i })).toBeInTheDocument())
+    fireEvent.click(screen.getByRole("button", { name: /Add Property/i }))
+
+    const inputs = screen.getAllByRole("textbox")
+    fireEvent.change(inputs[0], { target: { value: "os_glance_x" } })
+    fireEvent.change(inputs[1], { target: { value: "v" } })
+
+    const saveButtons = screen.getAllByTitle(/Save/i).filter((el) => el.tagName.toLowerCase() === "button")
+    fireEvent.click(saveButtons[0])
+
+    await waitFor(() => {
+      expect(screen.getByText("This property is reserved and cannot be modified.")).toBeInTheDocument()
+    })
+  })
+
+  test("shows the reserved message when editing a read-only property is rejected", async () => {
+    const client = makeRejectingClient(new Error("IMAGE_METADATA_RESERVED"))
+    renderMetadataModal(true, vi.fn(), mockImage, client)
+
+    await waitFor(() => expect(screen.getByText("custom_property")).toBeInTheDocument())
+    const editButtons = screen.getAllByTitle(/Edit/i).filter((el) => el.tagName.toLowerCase() === "button")
+    fireEvent.click(editButtons[1])
+
+    const inputs = screen.getAllByDisplayValue("custom_value")
+    fireEvent.change(inputs[0], { target: { value: "updated_value" } })
+
+    const saveButtons = screen.getAllByTitle(/Save/i).filter((el) => el.tagName.toLowerCase() === "button")
+    fireEvent.click(saveButtons[0])
+
+    await waitFor(() => {
+      expect(screen.getByText("This property is reserved and cannot be modified.")).toBeInTheDocument()
+    })
+  })
+
+  test("shows the cleaned reason when the image service rejects an invalid value", async () => {
+    const client = makeRejectingClient(new Error("IMAGE_METADATA_INVALID: 'barekkk' is not one of ['bare', 'ovf']"))
+    renderMetadataModal(true, vi.fn(), mockImage, client)
+
+    await waitFor(() => expect(screen.getByText("custom_property")).toBeInTheDocument())
+    const editButtons = screen.getAllByTitle(/Edit/i).filter((el) => el.tagName.toLowerCase() === "button")
+    fireEvent.click(editButtons[1])
+
+    const inputs = screen.getAllByDisplayValue("custom_value")
+    fireEvent.change(inputs[0], { target: { value: "barekkk" } })
+
+    const saveButtons = screen.getAllByTitle(/Save/i).filter((el) => el.tagName.toLowerCase() === "button")
+    fireEvent.click(saveButtons[0])
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("The image service rejected this change: 'barekkk' is not one of ['bare', 'ovf']")
+      ).toBeInTheDocument()
+    })
+  })
+
+  test("shows the generic rejection when the invalid error carries no reason", async () => {
+    const client = makeRejectingClient(new Error("IMAGE_METADATA_INVALID"))
+    renderMetadataModal(true, vi.fn(), mockImage, client)
+
+    await waitFor(() => expect(screen.getByText("custom_property")).toBeInTheDocument())
+    const deleteButtons = screen.getAllByTitle(/Delete/i).filter((el) => el.tagName.toLowerCase() === "button")
+    fireEvent.click(deleteButtons[1])
+
+    await waitFor(() => {
+      expect(screen.getByText("The image service rejected this change.")).toBeInTheDocument()
+    })
+  })
+
+  test("falls back to the generic message for an unrecognized error", async () => {
+    const client = makeRejectingClient(new Error("some other failure"))
+    renderMetadataModal(true, vi.fn(), mockImage, client)
+
+    await waitFor(() => expect(screen.getByText("custom_property")).toBeInTheDocument())
+    const deleteButtons = screen.getAllByTitle(/Delete/i).filter((el) => el.tagName.toLowerCase() === "button")
+    fireEvent.click(deleteButtons[1])
+
+    await waitFor(() => {
+      expect(screen.getByText("An unexpected error occurred. Please try again.")).toBeInTheDocument()
     })
   })
 })

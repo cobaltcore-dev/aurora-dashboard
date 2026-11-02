@@ -89,7 +89,7 @@ export const ImageMembersTable: React.FC<ImageMembersTableProps> = ({
       try {
         const project = await utils.project.getProject.fetch({ projectId: trimmedMemberId })
         if (!project) {
-          newErrors.memberId = t`Project not found or you don't have access to it.`
+          newErrors.memberId = t`Project not found.`
         }
       } catch {
         // Ignore validation errors - let backend handle it
@@ -247,8 +247,12 @@ export const ImageMembersTable: React.FC<ImageMembersTableProps> = ({
 
         {shouldShowEmptyState && !isAddingMember && (
           <DataGridRow>
-            <DataGridCell colSpan={4} className="text-theme-default py-4 text-center">
-              {t`No projects have access to this image yet. Click "Add Project Access" to grant access.`}
+            <DataGridCell colSpan={4}>
+              <Status
+                status="empty"
+                title={t`No Project Access`}
+                body={t`No projects have access to this image yet. Click "Add Project Access" to grant access.`}
+              />
             </DataGridCell>
           </DataGridRow>
         )}

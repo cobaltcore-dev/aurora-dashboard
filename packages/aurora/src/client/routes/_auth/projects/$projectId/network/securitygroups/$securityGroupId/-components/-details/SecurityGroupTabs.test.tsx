@@ -25,8 +25,8 @@ describe("SecurityGroupTabs", () => {
   it("marks the active tab", () => {
     render(<SecurityGroupTabs activeTab="rbac" onTabChange={vi.fn()} />, { wrapper: Wrapper })
 
-    expect(screen.getByRole("button", { name: "RBAC Policies" })).toHaveAttribute("aria-selected", "true")
-    expect(screen.getByRole("button", { name: "Rules" })).not.toHaveAttribute("aria-selected")
+    expect(screen.getByRole("button", { name: "RBAC Policies" })).toHaveAttribute("aria-current", "true")
+    expect(screen.getByRole("button", { name: "Rules" })).not.toHaveAttribute("aria-current")
   })
 
   it("follows activeTab after a tab has been clicked", async () => {
@@ -38,8 +38,8 @@ describe("SecurityGroupTabs", () => {
     // The parent switches back without a click, e.g. when the tab is reset
     rerender(<SecurityGroupTabs activeTab="rules" onTabChange={vi.fn()} />)
 
-    expect(screen.getByRole("button", { name: "Rules" })).toHaveAttribute("aria-selected", "true")
-    expect(screen.getByRole("button", { name: "RBAC Policies" })).not.toHaveAttribute("aria-selected")
+    expect(screen.getByRole("button", { name: "Rules" })).toHaveAttribute("aria-current", "true")
+    expect(screen.getByRole("button", { name: "RBAC Policies" })).not.toHaveAttribute("aria-current")
   })
 
   it("reports the clicked tab", async () => {

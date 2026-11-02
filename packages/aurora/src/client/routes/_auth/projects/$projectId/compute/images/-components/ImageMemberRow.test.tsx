@@ -44,13 +44,13 @@ describe("ImageMemberRow", () => {
     it("should display image_id in the first cell", () => {
       setup()
       const imageIdCell = screen.getByText("image-123").closest("div")
-      expect(imageIdCell).toHaveClass("break-all")
+      expect(imageIdCell).toHaveClass("jn:break-all")
     })
 
     it("should display member_id in the second cell with break-all class", () => {
       setup()
       const memberIdCell = screen.getByText("member-456").closest("div")
-      expect(memberIdCell).toHaveClass("break-all")
+      expect(memberIdCell).toHaveClass("jn:break-all")
     })
 
     it("should display status in the third cell", () => {
@@ -273,7 +273,7 @@ describe("ImageMemberRow", () => {
       const member = { ...mockMember, image_id: longImageId }
       setup(member)
       const imageIdCell = screen.getByText(longImageId).closest("div")
-      expect(imageIdCell).toHaveClass("break-all")
+      expect(imageIdCell).toHaveClass("jn:break-all")
     })
 
     it("should handle very long member_id", () => {
@@ -281,7 +281,7 @@ describe("ImageMemberRow", () => {
       const member = { ...mockMember, member_id: longMemberId }
       setup(member)
       const memberIdCell = screen.getByText(longMemberId).closest("div")
-      expect(memberIdCell).toHaveClass("break-all")
+      expect(memberIdCell).toHaveClass("jn:break-all")
     })
 
     it("should have Stack with correct distribution and alignment for delete button", () => {

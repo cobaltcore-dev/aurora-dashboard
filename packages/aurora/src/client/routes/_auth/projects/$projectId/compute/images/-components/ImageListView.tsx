@@ -592,11 +592,13 @@ export function ImageListView({
   if (isLoading) {
     return (
       <div data-testid="loading">
-        <DataGridRow>
-          <DataGridCell colSpan={3}>
-            <Status status="progress" title={t`Loading...`} />
-          </DataGridCell>
-        </DataGridRow>
+        <DataGrid columns={hasAnyBulkAction ? 9 : 8} className="images">
+          <DataGridRow>
+            <DataGridCell colSpan={hasAnyBulkAction ? 9 : 8}>
+              <Status status="progress" title={t`Loading...`} />
+            </DataGridCell>
+          </DataGridRow>
+        </DataGrid>
       </div>
     )
   }
@@ -687,11 +689,25 @@ export function ImageListView({
                             : t`No Images Found`
                       }
                       body={
-                        memberStatusView === "accepted"
-                          ? t`There are no accepted shared images for this project with the current filters applied. Try adjusting your filter criteria or check the Suggested Images tab.`
-                          : memberStatusView === "pending"
-                            ? t`There are no pending shared images for this project with the current filters applied. Try adjusting your filter criteria or check the All Images tab.`
-                            : t`There are no images available for this project with the current filters applied. Try adjusting your filter criteria or create a new image.`
+                        memberStatusView === "accepted" ? (
+                          <>
+                            {t`There are no accepted shared images for this project with the current filters applied.`}
+                            <br />
+                            {t`Try adjusting your filter criteria or check the Suggested Images tab.`}
+                          </>
+                        ) : memberStatusView === "pending" ? (
+                          <>
+                            {t`There are no pending shared images for this project with the current filters applied.`}
+                            <br />
+                            {t`Try adjusting your filter criteria or check the All Images tab.`}
+                          </>
+                        ) : (
+                          <>
+                            {t`There are no images available for this project with the current filters applied.`}
+                            <br />
+                            {t`Try adjusting your filter criteria or create a new image.`}
+                          </>
+                        )
                       }
                     />
                   </DataGridCell>

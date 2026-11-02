@@ -1,6 +1,6 @@
 {
   "name": "@cobaltcore-dev/aurora",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "private": false,
   "description": "Aurora OpenStack dashboard — server and client library",
   "license": "Apache-2.0",
@@ -80,10 +80,10 @@
     "fastify-plugin": "^5.1.0",
     "node-fetch": "^3.3.2",
     "tailwind-merge": "^3.6.0",
-    "zod": "^4.4.3"
+    "zod": "^4.6.6"
   },
   "devDependencies": {
-    "@cloudoperators/juno-ui-components": "9.4.0",
+    "@cloudoperators/juno-ui-components": "9.7.2",
     "@cobaltcore-dev/aurora-config": "workspace:*",
     "@cobaltcore-dev/policy-engine": "workspace:*",
     "@cobaltcore-dev/signal-openstack": "workspace:*",
@@ -123,6 +123,6 @@
     "vite-plugin-dts": "^5.0.3",
     "vite-plugin-svgr": "^5.2.0",
     "vite-tsconfig-paths": "^6.1.1",
-    "vitest": "^4.1.11"
+    "vitest": "^4.1.12"
   }
 }

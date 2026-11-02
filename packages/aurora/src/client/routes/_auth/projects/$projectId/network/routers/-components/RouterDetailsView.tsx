@@ -1,11 +1,12 @@
-import { Fragment, ReactNode, useState } from "react"
+import { Fragment, ReactNode } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import {
-  Stack,
+  ContentHeading,
+  DescriptionDefinition,
   DescriptionList,
   DescriptionTerm,
-  DescriptionDefinition,
+  Stack,
   Status,
   TabNavigation,
   TabNavigationItem,
@@ -13,36 +14,43 @@ import {
 import type { RouterDetails } from "@/server/Network/types/router"
 import { useProjectId } from "@/client/hooks"
 import ClipboardText from "@/client/components/ClipboardText"
+import { TwoColumnDescriptionList, type DetailListItem } from "@/client/components/TwoColumnDescriptionList"
 import { RouterInterfacesTable } from "./RouterInterfacesTable"
 
-type RouterDetailsTab = "external" | "internal"
+/** Tabs of the router details view, in display order. The first one is the default. */
+export const ROUTER_DETAILS_TABS = ["external", "internal"] as const
+
+export type RouterDetailsTab = (typeof ROUTER_DETAILS_TABS)[number]
+
+export const DEFAULT_ROUTER_DETAILS_TAB: RouterDetailsTab = "external"
+
+export const isRouterDetailsTab = (value: unknown): value is RouterDetailsTab =>
+  ROUTER_DETAILS_TABS.includes(value as RouterDetailsTab)
 
 interface RouterDetailsViewProps {
   router: RouterDetails
+  /** Active tab, owned by the route's `tab` search param */
+  activeTab: RouterDetailsTab
+  onTabChange: (tab: RouterDetailsTab) => void
 }
 
-interface DetailItem {
-  label: string
-  value: ReactNode
-}
-
-const DetailsList = ({ items, keyPrefix }: { items: DetailItem[]; keyPrefix: string }) => (
+/** Single-column list for the external gateway details; shows "- -" for empty values. */
+const DetailsList = ({ items }: { items: DetailListItem[] }) => (
   <DescriptionList alignTerms="right">
-    {items.map(({ label, value }, index) => (
-      <Fragment key={`${keyPrefix}-${index}`}>
+    {items.map(({ id, label, value }, index) => (
+      <Fragment key={id ?? `detail-${index}`}>
         <DescriptionTerm>{label}</DescriptionTerm>
         <DescriptionDefinition>
-          <div className="break-all">{value}</div>
+          <div className="break-all">{value === null || value === undefined || value === "" ? "- -" : value}</div>
         </DescriptionDefinition>
       </Fragment>
     ))}
   </DescriptionList>
 )
 
-export function RouterDetailsView({ router }: RouterDetailsViewProps) {
+export function RouterDetailsView({ router, activeTab, onTabChange }: RouterDetailsViewProps) {
   const { t } = useLingui()
   const projectId = useProjectId()
-  const [activeTab, setActiveTab] = useState<RouterDetailsTab>("external")
 
   const {
     data: interfaces = [],
@@ -54,18 +62,18 @@ export function RouterDetailsView({ router }: RouterDetailsViewProps) {
 
   const gateway = router.external_gateway_info
 
-  const basicInfoItems: DetailItem[] = [
-    { label: t`Name`, value: router.name || "—" },
+  const basicInfoItems: DetailListItem[] = [
+    { label: t`Name`, value: router.name || undefined },
     { label: t`ID`, value: <ClipboardText text={router.id} /> },
     { label: t`Project ID`, value: <ClipboardText text={router.project_id} /> },
-    { label: t`Description`, value: router.description || "—" },
+    { label: t`Description`, value: router.description || undefined },
     { label: t`Status`, value: router.status },
     { label: t`Admin State`, value: router.admin_state_up ? t`UP` : t`DOWN` },
   ]
 
-  const externalNetworkItems: DetailItem[] = gateway
+  const externalNetworkItems: DetailListItem[] = gateway
     ? [
-        { label: t`Network Name`, value: gateway.network_name || "—" },
+        { label: t`Network Name`, value: gateway.network_name || undefined },
         { label: t`Network ID`, value: <ClipboardText text={gateway.network_id} /> },
         ...(gateway.enable_snat !== undefined
           ? [{ label: t`SNAT`, value: gateway.enable_snat ? t`Enabled` : t`Disabled` }]
@@ -93,35 +101,40 @@ export function RouterDetailsView({ router }: RouterDetailsViewProps) {
                   </li>
                 ))}
               </ul>
-            ) : (
-              "—"
-            ),
+            ) : undefined,
         },
       ]
     : []
 
-  const tabs = [
-    { label: t`External Networks`, value: "external" },
-    { label: t`Internal Networks`, value: "internal" },
-  ]
+  const tabLabels: Record<RouterDetailsTab, string> = {
+    external: t`External Networks`,
+    internal: t`Internal Networks`,
+  }
 
   return (
     <Stack direction="vertical" gap="6" className="mt-6">
-      <DetailsList items={basicInfoItems} keyPrefix="basic" />
+      <Stack direction="vertical" gap="2">
+        <ContentHeading>
+          <Trans>Basic Info</Trans>
+        </ContentHeading>
+        <TwoColumnDescriptionList items={basicInfoItems} />
+      </Stack>
 
       <Stack direction="vertical" gap="4">
+        {/* TabNavigation keeps its own active item once a tab is clicked, so activeItem keeps it in sync with
+            the URL. `active` only covers the first render, before activeItem is applied. */}
         <TabNavigation
           activeItem={activeTab}
-          onActiveItemChange={(value: ReactNode) => setActiveTab(value as RouterDetailsTab)}
+          onActiveItemChange={(value: ReactNode) => isRouterDetailsTab(value) && onTabChange(value)}
         >
-          {tabs.map((tab) => (
-            <TabNavigationItem key={tab.value} label={tab.label} value={tab.value} />
+          {ROUTER_DETAILS_TABS.map((tab) => (
+            <TabNavigationItem key={tab} label={tabLabels[tab]} value={tab} active={activeTab === tab} />
           ))}
         </TabNavigation>
 
         {activeTab === "external" &&
           (gateway ? (
-            <DetailsList items={externalNetworkItems} keyPrefix="external" />
+            <DetailsList items={externalNetworkItems} />
           ) : (
             <Status
               status="empty"

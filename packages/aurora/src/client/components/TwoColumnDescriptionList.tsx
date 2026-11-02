@@ -11,6 +11,14 @@ interface TwoColumnDescriptionListProps {
   items: DetailListItem[]
 }
 
+// Placeholder shown when a detail value is empty (null, undefined, "", or [])
+const EmptyValue = () => <>- -</>
+
+const isEmptyValue = (value: DetailListItem["value"]): boolean =>
+  value === null || value === undefined || value === "" || (Array.isArray(value) && value.length === 0)
+
+const renderValue = (value: DetailListItem["value"]) => (isEmptyValue(value) ? <EmptyValue /> : value)
+
 export const TwoColumnDescriptionList = ({ items }: TwoColumnDescriptionListProps) => {
   const mid = Math.ceil(items.length / 2)
   const firstColumn = items.slice(0, mid)
@@ -25,7 +33,7 @@ export const TwoColumnDescriptionList = ({ items }: TwoColumnDescriptionListProp
           <Fragment key={id ?? `left-${index}`}>
             <DescriptionTerm>{label}</DescriptionTerm>
             <DescriptionDefinition>
-              <div className="truncate">{value}</div>
+              <div className="truncate">{renderValue(value)}</div>
             </DescriptionDefinition>
           </Fragment>
         ))}
@@ -36,7 +44,7 @@ export const TwoColumnDescriptionList = ({ items }: TwoColumnDescriptionListProp
           <Fragment key={id ?? `right-${index}`}>
             <DescriptionTerm>{label}</DescriptionTerm>
             <DescriptionDefinition>
-              <div className="truncate">{value}</div>
+              <div className="truncate">{renderValue(value)}</div>
             </DescriptionDefinition>
           </Fragment>
         ))}

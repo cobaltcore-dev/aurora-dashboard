@@ -156,12 +156,12 @@ describe("RouteError", () => {
     expect(screen.queryByText("Internal error")).not.toBeInTheDocument()
   })
 
-  test("renders error status with title and action button", () => {
+  test("renders error status with title and no action button", () => {
     const error = new Error("Test")
     render(<RouteError error={error} />, { wrapper: TestWrapper })
 
     // Verify the error UI renders with expected content
     expect(screen.getByText("Unable to Load Content")).toBeInTheDocument()
-    expect(screen.getByRole("button", { name: /Go to Home/i })).toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: /Go to Home/i })).not.toBeInTheDocument()
   })
 })

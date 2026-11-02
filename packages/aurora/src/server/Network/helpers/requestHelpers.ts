@@ -54,3 +54,15 @@ export const withQuery = (baseUrl: string, params: URLSearchParams): string => {
   const queryString = params.toString()
   return queryString ? `${baseUrl}?${queryString}` : baseUrl
 }
+
+/**
+ * The relative `<baseUrl>?...` URL for the next page of a Neutron collection (from its `*_links`), or
+ * undefined when there is no `next` link. Neutron's `next` href is absolute; only its query string is
+ * reused, against the known base path, so the request stays on the BFF's own route.
+ */
+export const nextPageUrl = (baseUrl: string, links?: Array<{ rel: string; href: string }>): string | undefined => {
+  const href = links?.find((link) => link.rel === "next")?.href
+  if (!href) return undefined
+  const queryIndex = href.indexOf("?")
+  return queryIndex === -1 ? baseUrl : `${baseUrl}${href.slice(queryIndex)}`
+}

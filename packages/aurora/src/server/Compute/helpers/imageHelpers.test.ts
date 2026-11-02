@@ -965,6 +965,55 @@ describe("imageHelpers", () => {
       })
     })
 
+    describe("update", () => {
+      it("should emit IMAGE_METADATA_RESERVED on 403", () => {
+        const error = ImageErrorHandlers.update({ statusCode: 403 }, "image-123")
+
+        expect(error.code).toBe("FORBIDDEN")
+        expect(error.message).toBe("IMAGE_METADATA_RESERVED")
+      })
+
+      it("should emit IMAGE_METADATA_RESERVED on a 400 read-only rejection", () => {
+        const error = ImageErrorHandlers.update(
+          { statusCode: 400, message: "Attribute 'id' is read-only" },
+          "image-123"
+        )
+
+        expect(error.code).toBe("FORBIDDEN")
+        expect(error.message).toBe("IMAGE_METADATA_RESERVED")
+      })
+
+      it("should emit IMAGE_METADATA_INVALID with a cleaned reason on a 400 validation error", () => {
+        const html =
+          "<html><head><title>400 Bad Request</title></head><body><h1>400 Bad Request</h1>" +
+          "Provided object does not match schema &#x27;image&#x27;: &#x27;barekkk&#x27; is not one of [&#x27;bare&#x27;, &#x27;ovf&#x27;] " +
+          "Failed validating &#x27;enum&#x27; in schema[&#x27;properties&#x27;][&#x27;container_format&#x27;]</body></html>"
+        const error = ImageErrorHandlers.update({ statusCode: 400, message: html }, "image-123")
+
+        expect(error.code).toBe("BAD_REQUEST")
+        expect(error.message).toContain("IMAGE_METADATA_INVALID:")
+        expect(error.message).toContain("does not match schema 'image'")
+        expect(error.message).not.toContain("<")
+        expect(error.message).not.toContain("&#x27;")
+        expect(error.message).not.toContain("Bad Request")
+        expect(error.message).not.toContain("Failed validating")
+      })
+
+      it("should emit the bare IMAGE_METADATA_INVALID when no reason can be extracted", () => {
+        const error = ImageErrorHandlers.update({ statusCode: 400 }, "image-123")
+
+        expect(error.code).toBe("BAD_REQUEST")
+        expect(error.message).toBe("IMAGE_METADATA_INVALID")
+      })
+
+      it("should handle 404 error for update", () => {
+        const error = ImageErrorHandlers.update({ statusCode: 404 }, "image-123")
+
+        expect(error.code).toBe("NOT_FOUND")
+        expect(error.message).toBe("Image not found: image-123")
+      })
+    })
+
     describe("member.create", () => {
       it("should handle 409 conflict for member creation", () => {
         const response = { status: 409 }

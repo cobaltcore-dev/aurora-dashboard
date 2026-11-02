@@ -120,14 +120,16 @@ export function ImageTableRow({
       )}
 
       <DataGridCell>{status}</DataGridCell>
-      <DataGridCell>{name || id}</DataGridCell>
+      <DataGridCell textContain="truncate-end" title={name || id}>
+        {name || id}
+      </DataGridCell>
       <DataGridCell>{visibility}</DataGridCell>
       <DataGridCell>{image.protected ? t`Yes` : t`No`}</DataGridCell>
       <DataGridCell>
         {uploadId && uploadId === id ? `${uploadProgressPercent}%` : <SizeDisplay size={size} />}
       </DataGridCell>
-      <DataGridCell>{disk_format || t`N/A`}</DataGridCell>
-      <DataGridCell>{created_at ? new Date(created_at).toLocaleDateString() : t`N/A`}</DataGridCell>
+      <DataGridCell>{disk_format || "- -"}</DataGridCell>
+      <DataGridCell>{created_at ? new Date(created_at).toLocaleDateString() : "- -"}</DataGridCell>
 
       <DataGridCell onClick={(e) => e.stopPropagation()}>
         {isMutating ? (

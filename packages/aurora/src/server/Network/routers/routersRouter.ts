@@ -41,7 +41,7 @@ import {
   getRouterExtensionFlags,
 } from "../helpers/routerHelpers"
 import { getNetworkService, parseOrThrow } from "../helpers/index"
-import { chunk, pickDefined, requestOrThrow, withQuery } from "../helpers/requestHelpers"
+import { chunk, pickDefined, requestOrThrow, withQuery, nextPageUrl } from "../helpers/requestHelpers"
 import { fetchNetworkSummaries, fetchSubnetSummaries } from "../helpers/lookupHelpers"
 
 const ROUTERS_BASE_URL = "v2.0/routers"
@@ -126,13 +126,26 @@ export const routersRouter = {
         const network = getNetworkService(ctx)
 
         const queryParams = appendQueryParamsFromObject(openstackFilters, { keyMap: LIST_ROUTERS_QUERY_KEY_MAP })
-        const response = await requestOrThrow(
-          () => network.get(withQuery(ROUTERS_BASE_URL, queryParams)),
-          RouterErrorHandlers.list
-        )
 
-        const data = await response.json()
-        const { routers } = parseOrThrow(RouterListResponseSchema, data, "routersRouter.list")
+        // Neutron caps a list at `pagination_max_limit` and exposes the rest through the `next` link in
+        // `routers_links`. Follow it so the BFF returns the complete list; otherwise the BFF-side search
+        // and filters would silently operate on the first page only. `visited` guards against a
+        // non-advancing `next` (a server bug) looping forever; healthy data ends when there is no `next`.
+        const routers: Router[] = []
+        const visited = new Set<string>()
+        let nextUrl: string | undefined = withQuery(ROUTERS_BASE_URL, queryParams)
+        while (nextUrl && !visited.has(nextUrl)) {
+          visited.add(nextUrl)
+          const url = nextUrl
+          const response = await requestOrThrow(() => network.get(url), RouterErrorHandlers.list)
+          const { routers: pageRouters, routers_links } = parseOrThrow(
+            RouterListResponseSchema,
+            await response.json(),
+            "routersRouter.list"
+          )
+          routers.push(...pageRouters)
+          nextUrl = nextPageUrl(ROUTERS_BASE_URL, routers_links)
+        }
 
         const filteredRouters = filterBySearchParams(
           filterRoutersByBffParams(routers, { status, has_gateway }),

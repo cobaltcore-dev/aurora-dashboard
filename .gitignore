@@ -23,3 +23,9 @@ playwright/.cache/
 
 # Dev app (local testing only)
 apps/dev/
+
+# Review artifacts
+tmp/
+
+# Playwright MCP
+.playwright-mcp/

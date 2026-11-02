@@ -37,12 +37,11 @@ const SharedImageBox: React.FC<{
   onStatusChange: (status: MemberStatus) => void
   isLoading: boolean
 }> = ({ image, myMemberData, canUpdateMember, onStatusChange, isLoading }) => {
-  const { t } = useLingui()
   const isPending = myMemberData.status === MEMBER_STATUSES.PENDING
   const isRejected = myMemberData.status === MEMBER_STATUSES.REJECTED
 
-  const sharedAt = myMemberData.created_at ? new Date(myMemberData.created_at).toLocaleString() : t`N/A`
-  const updatedAt = myMemberData.updated_at ? new Date(myMemberData.updated_at).toLocaleString() : t`N/A`
+  const sharedAt = myMemberData.created_at ? new Date(myMemberData.created_at).toLocaleString() : "- -"
+  const updatedAt = myMemberData.updated_at ? new Date(myMemberData.updated_at).toLocaleString() : "- -"
   const ownerProject = image.owner ?? ""
 
   return (
@@ -109,11 +108,11 @@ export const GeneralImageData: React.FC<{ image: GlanceImage }> = ({ image }) =>
     { label: t`Container Format`, value: <span className="uppercase">{image.container_format}</span> },
     {
       label: t`Created At`,
-      value: image.created_at ? new Date(image.created_at).toLocaleDateString() : t`N/A`,
+      value: image.created_at ? new Date(image.created_at).toLocaleDateString() : "",
     },
     {
       label: t`Updated At`,
-      value: image.updated_at ? new Date(image.updated_at).toLocaleDateString() : t`N/A`,
+      value: image.updated_at ? new Date(image.updated_at).toLocaleDateString() : "",
     },
   ]
 
@@ -186,6 +185,8 @@ export const CustomPropertiesSection: React.FC<{ image: GlanceImage }> = ({ imag
               <DescriptionDefinition>
                 {value === null || value === undefined ? (
                   <span>null</span>
+                ) : Array.isArray(value) && value.length === 0 ? (
+                  <span>- -</span>
                 ) : typeof value === "object" ? (
                   <span className="break-all">{JSON.stringify(value)}</span>
                 ) : typeof value === "boolean" ? (

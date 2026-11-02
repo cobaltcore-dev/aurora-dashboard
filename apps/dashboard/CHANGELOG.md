@@ -1,5 +1,14 @@
 # @cobaltcore-dev/dashboard
 
+## 1.2.18
+
+### Patch Changes
+
+- Updated dependencies [c65b36d]
+- Updated dependencies [a21ba3e]
+- Updated dependencies [a21ba3e]
+  - @cobaltcore-dev/aurora@2.3.0
+
 ## 1.2.17
 
 ### Patch Changes
