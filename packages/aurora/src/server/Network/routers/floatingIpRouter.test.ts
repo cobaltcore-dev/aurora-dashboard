@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest"
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 import { TRPCError } from "@trpc/server"
 import { createCallerFactory, auroraRouter } from "../../trpc"
 import { floatingIpRouter } from "./floatingIpRouter"
@@ -250,6 +250,17 @@ const createCaller = createCallerFactory(
     floatingIp: floatingIpRouter,
   })
 )
+
+// The router logs parse failures via console.error. Several tests deliberately exercise the
+// PARSE_ERROR path, so silence console.error to keep the test output clean while still asserting
+// on the thrown TRPCError.
+beforeEach(() => {
+  vi.spyOn(console, "error").mockImplementation(() => {})
+})
+
+afterEach(() => {
+  vi.restoreAllMocks()
+})
 
 describe("floatingIpRouter.list", () => {
   beforeEach(() => {
