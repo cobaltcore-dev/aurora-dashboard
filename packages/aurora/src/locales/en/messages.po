@@ -2935,6 +2935,9 @@ msgstr "No objects were deleted: {errorMessage}"
 msgid "No Orders Found"
 msgstr "No Orders Found"
 
+msgid "No Orders Match Your Search"
+msgstr "No Orders Match Your Search"
+
 msgid "No policies match your search"
 msgstr "No policies match your search"
 

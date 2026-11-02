@@ -2935,6 +2935,9 @@ msgstr ""
 msgid "No Orders Found"
 msgstr ""
 
+msgid "No Orders Match Your Search"
+msgstr ""
+
 msgid "No policies match your search"
 msgstr "Keine Richtlinien entsprechen Ihrer Suche"
 

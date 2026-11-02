@@ -7,6 +7,7 @@ import type { Order } from "@/server/KeyManager/types/keyManager"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 
 const ordersSearchSchema = z.object({
+  search: z.string().optional(),
   page: z.number().optional(),
 })
 
@@ -23,14 +24,21 @@ export const Route = createFileRoute("/_auth/projects/$projectId/authorization/k
 
 function OrdersListPage() {
   const { projectId } = Route.useParams() as { projectId: string }
-  const { page = 1 } = Route.useSearch()
+  const { search = "", page = 1 } = Route.useSearch()
   const navigate = useNavigate()
 
+  const handleSearchChange = (value: string) => {
+    void navigate({
+      to: "/projects/$projectId/authorization/key-manager/orders",
+      params: { projectId },
+      search: { search: value || undefined, page: undefined },
+    })
+  }
   const handlePageChange = (newPage: number) => {
     void navigate({
       to: "/projects/$projectId/authorization/key-manager/orders",
       params: { projectId },
-      search: { page: newPage === 1 ? undefined : newPage },
+      search: { search: search || undefined, page: newPage === 1 ? undefined : newPage },
     })
   }
   const handleShowDetail = (order: Order) => {
@@ -41,6 +49,13 @@ function OrdersListPage() {
   }
 
   return (
-    <OrdersList projectId={projectId} page={page} onPageChange={handlePageChange} onShowDetail={handleShowDetail} />
+    <OrdersList
+      projectId={projectId}
+      search={search}
+      page={page}
+      onSearchChange={handleSearchChange}
+      onPageChange={handlePageChange}
+      onShowDetail={handleShowDetail}
+    />
   )
 }

@@ -10,6 +10,8 @@ interface OrderListContainerProps {
   isError: boolean
   error: { message?: string } | null
   canDeleteOrder: boolean
+  // True when a search filter is active, so the empty state reads "no matches" rather than "no data".
+  isFiltered?: boolean
   onShowDetails: (order: Order) => void
   onDelete: (order: Order) => void
 }
@@ -20,6 +22,7 @@ export function OrderListContainer({
   isError,
   error,
   canDeleteOrder,
+  isFiltered = false,
   onShowDetails,
   onDelete,
 }: OrderListContainerProps) {
@@ -55,8 +58,12 @@ export function OrderListContainer({
           <DataGridCell colSpan={ORDERS_COLUMN_COUNT}>
             <Status
               status="empty"
-              title={t`No Orders Found`}
-              body={t`There are no orders in this project. Create one to request secret generation.`}
+              title={isFiltered ? t`No Orders Match Your Search` : t`No Orders Found`}
+              body={
+                isFiltered
+                  ? t`Try a different name or clear the search.`
+                  : t`There are no orders in this project. Create one to request secret generation.`
+              }
             />
           </DataGridCell>
         </DataGridRow>
