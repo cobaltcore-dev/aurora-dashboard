@@ -405,10 +405,10 @@ export const Images = ({ client, project }: ImagesProps) => {
 
   const [sortSettings, setSortSettings] = useState<RequiredSortSettings>({
     options: [
-      { label: t`Created At`, value: "created_at" },
+      { label: t`Status`, value: "status" },
       { label: t`Image Name`, value: "name" },
       { label: t`Size`, value: "size" },
-      { label: t`Status`, value: "status" },
+      { label: t`Created`, value: "created_at" },
     ],
     sortBy: searchParams.sortBy || "created_at",
     sortDirection: searchParams.sortDirection || "desc",
@@ -429,6 +429,13 @@ export const Images = ({ client, project }: ImagesProps) => {
         supportsMultiValue: false,
       },
       {
+        displayName: t`Protected`,
+        filterName: "protected",
+        values: ["true", "false"],
+        valueLabels: { true: t`Yes`, false: t`No` },
+        supportsMultiValue: false,
+      },
+      {
         displayName: t`Disk Format`,
         filterName: "disk_format",
         values: Object.values(DISK_FORMATS),
@@ -439,13 +446,6 @@ export const Images = ({ client, project }: ImagesProps) => {
         filterName: "container_format",
         values: Object.values(CONTAINER_FORMATS),
         supportsMultiValue: true,
-      },
-      {
-        displayName: t`Protected`,
-        filterName: "protected",
-        values: ["true", "false"],
-        valueLabels: { true: t`Yes`, false: t`No` },
-        supportsMultiValue: false,
       },
     ],
     selectedFilters: parseFiltersFromUrl(searchParams),
