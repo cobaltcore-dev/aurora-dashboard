@@ -42,13 +42,25 @@ const AES_MODES = [
 const BIT_LENGTHS_BY_ALGORITHM: Record<string, number[]> = {
   aes: [128, 192, 256],
   rsa: [1024, 2048, 4096],
+  des: [64],
+  "3des": [128, 192],
+  hmac: [128, 256, 512],
+}
+
+// The option pre-selected when an algorithm is chosen.
+const DEFAULT_BIT_LENGTH: Record<string, number> = {
+  aes: 256,
+  rsa: 1024,
+  des: 64,
+  "3des": 192,
+  hmac: 256,
 }
 
 const defaultBitLengthFor = (algorithm: string): string => {
+  const preferred = DEFAULT_BIT_LENGTH[algorithm]
+  if (preferred != null) return String(preferred)
   const presets = BIT_LENGTHS_BY_ALGORITHM[algorithm]
-  if (algorithm === "aes") return "256"
-  if (presets && presets.length > 0) return String(presets[0])
-  return ""
+  return presets && presets.length > 0 ? String(presets[0]) : ""
 }
 
 interface OrderValidation {
