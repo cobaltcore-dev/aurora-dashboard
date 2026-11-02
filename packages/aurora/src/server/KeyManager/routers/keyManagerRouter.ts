@@ -263,6 +263,8 @@ export const buildKeyManagerResourceRouter = (policyDir: string) => {
         params.set("offset", String(input.offset))
         params.set("limit", String(input.limit))
         if (input.name) params.set("name", input.name)
+        // Default to newest-first so freshly created containers appear at the top (matches elektra).
+        params.set("sort", "created:desc")
         const res = await km.get(`v1/containers?${params}`).catch((e: unknown) => {
           throw mapKmError(e, "list containers")
         })
@@ -328,7 +330,8 @@ export const buildKeyManagerResourceRouter = (policyDir: string) => {
         const params = new URLSearchParams()
         params.set("offset", String(input.offset))
         params.set("limit", String(input.limit))
-        // Barbican's GET /v1/orders supports only offset/limit — no sort params.
+        // Default to newest-first so freshly created orders appear at the top (matches elektra).
+        params.set("sort", "created:desc")
         const res = await km.get(`v1/orders?${params}`).catch((e: unknown) => {
           throw mapKmError(e, "list orders")
         })
