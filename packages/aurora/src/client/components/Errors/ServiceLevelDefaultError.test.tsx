@@ -39,17 +39,13 @@ describe("ServiceLevelDefaultError", () => {
     })
   })
 
-  test("navigates to the application home when no project route is available", () => {
+  test("shows no action button when no project route is available", () => {
     mockUseParams.mockReturnValue({})
 
     render(<ServiceLevelDefaultError />, { wrapper: TestWrapper })
 
     expect(screen.getByText("Page Not Found")).toBeInTheDocument()
-    expect(screen.getByText(/the home page/)).toBeInTheDocument()
-    expect(screen.getByRole("button", { name: "Go to Home" })).toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Go to Home" })).not.toBeInTheDocument()
     expect(screen.queryByRole("button", { name: "Go to Project Home" })).not.toBeInTheDocument()
-    fireEvent.click(screen.getByRole("button", { name: "Go to Home" }))
-
-    expect(mockNavigate).toHaveBeenCalledWith({ to: "/" })
   })
 })

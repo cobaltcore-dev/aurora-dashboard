@@ -273,6 +273,45 @@ describe("routersRouter.list", () => {
     expect(params.has("has_gateway")).toBe(false)
   })
 
+  describe("pagination", () => {
+    it("follows routers_links to fetch every page before filtering and enrichment", async () => {
+      const page1 = [{ ...defaultRouters[1], id: "router-1" }]
+      const page2 = [{ ...defaultRouters[1], id: "router-2" }]
+      const ctx = createMockContext()
+
+      const okJson = (body: unknown) =>
+        Promise.resolve({ ok: true, status: 200, statusText: "OK", json: vi.fn().mockResolvedValue(body) })
+
+      ctx.__networkGetMock.mockImplementation((url: string) => {
+        if (url.startsWith("v2.0/networks")) return okJson({ networks: [] })
+        if (url.startsWith("v2.0/subnets")) return okJson({ subnets: [] })
+        if (url.startsWith("v2.0/ports")) return okJson({ ports: [] })
+        if (url.startsWith("v2.0/extensions")) return okJson({ extensions: [] })
+        // First page carries a `next` link; the page it points to has none, which ends the loop.
+        const marker = new URLSearchParams(url.split("?")[1]).get("marker")
+        return marker
+          ? okJson({ routers: page2 })
+          : okJson({
+              routers: page1,
+              routers_links: [{ rel: "next", href: "http://neutron/v2.0/routers?marker=router-1" }],
+            })
+      })
+
+      const caller = createCaller(ctx)
+      const result = await caller.routers.list({ project_id: TEST_PROJECT_ID })
+
+      // Routers from both pages are returned, not just the first page
+      expect(result.map((router) => router.id)).toEqual(["router-1", "router-2"])
+
+      const routerRequests = ctx.__networkGetMock.mock.calls
+        .map((call: unknown[]) => call[0] as string)
+        .filter((url: string) => url.startsWith("v2.0/routers"))
+      expect(routerRequests).toHaveLength(2)
+      // The second request reuses the `next` link's query against the known base path
+      expect(routerRequests[1]).toBe("v2.0/routers?marker=router-1")
+    })
+  })
+
   describe("external gateway name enrichment", () => {
     it("adds external network and subnet names to the gateway", async () => {
       const caller = createCaller(createMockContext())

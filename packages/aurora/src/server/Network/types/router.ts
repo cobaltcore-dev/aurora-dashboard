@@ -79,6 +79,8 @@ export const RouterSchema = z.object({
 
 export const RouterListResponseSchema = z.object({
   routers: z.array(RouterSchema),
+  // Present when Neutron paginates the result; the `next` link drives the BFF's full-list fetch
+  routers_links: z.array(z.object({ rel: z.string(), href: z.string() })).optional(),
 })
 
 export const RouterResponseSchema = z.object({
@@ -112,16 +114,6 @@ export const RouterPortListResponseSchema = z.object({
   ports: z.array(RouterPortSchema),
 })
 
-export const SubnetSummarySchema = z.object({
-  id: z.string(),
-  name: z.string().optional().default(""),
-  cidr: z.string().optional(),
-})
-
-export const SubnetSummaryListResponseSchema = z.object({
-  subnets: z.array(SubnetSummarySchema),
-})
-
 /**
  * Reduced port schema for resolving the private networks of many routers at once.
  * Used by GET /v2.0/ports?device_id=...&device_owner=...&fields=id&fields=device_id&fields=device_owner&fields=network_id
@@ -136,16 +128,6 @@ export const RouterInterfacePortSummarySchema = z.object({
 
 export const RouterInterfacePortSummaryListResponseSchema = z.object({
   ports: z.array(RouterInterfacePortSummarySchema),
-})
-
-/** Reduced network schema, only the fields needed to label external and private networks. */
-export const NetworkSummarySchema = z.object({
-  id: z.string(),
-  name: z.string().nullable().optional(),
-})
-
-export const NetworkSummaryListResponseSchema = z.object({
-  networks: z.array(NetworkSummarySchema),
 })
 
 export const ExtensionListResponseSchema = z.object({
@@ -264,8 +246,6 @@ export type ExternalGatewayInfo = z.infer<typeof ExternalGatewayInfoSchema>
 export type ExtraRoute = z.infer<typeof ExtraRouteSchema>
 export type RouterInterfaceInfo = z.infer<typeof RouterInterfaceInfoSchema>
 export type RouterPort = z.infer<typeof RouterPortSchema>
-export type SubnetSummary = z.infer<typeof SubnetSummarySchema>
-export type NetworkSummary = z.infer<typeof NetworkSummarySchema>
 export type RouterInterfacePortSummary = z.infer<typeof RouterInterfacePortSummarySchema>
 export type ExternalFixedIp = z.infer<typeof ExternalFixedIpSchema>
 

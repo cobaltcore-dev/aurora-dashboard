@@ -1,18 +1,17 @@
 import { TRPCError } from "@trpc/server"
-import { SignalOpenstackApiError } from "@cobaltcore-dev/signal-openstack"
 import { ErrorHandler } from "./errorHandling"
 import { HTTP_STATUS_ERROR_MAP } from "./index"
+import { pickDefined } from "./requestHelpers"
 import type {
   Router,
   RouterListItem,
   RouterPort,
   RouterInterface,
-  SubnetSummary,
-  NetworkSummary,
   RouterInterfacePortSummary,
   ExternalGatewayInfoInput,
   RouterExtensionFlags,
 } from "../types/router"
+import type { NetworkSummary, SubnetSummary } from "../types/index"
 
 type ErrorResponse = { status?: number; statusText?: string }
 
@@ -107,44 +106,9 @@ export const RouterErrorHandlers = {
   listExtensions: ErrorHandler("Router"),
 }
 
-type RouterErrorHandler = (response: ErrorResponse, resourceLabel?: string) => TRPCError
-
-/**
- * Runs a Neutron request and maps any failure through the operation's router error handler.
- *
- * signal-openstack rejects every non-2xx response with SignalOpenstackApiError, so a plain
- * `if (!response.ok)` check never runs and the error would reach `withErrorHandling` as INTERNAL_SERVER_ERROR.
- * The error's `message` is Neutron's own message parsed from the JSON body (e.g. NeutronError.message
- * "Quota exceeded for resources: ['router']."), so it is passed to the handler as `statusText`.
- * Network failures are wrapped by the client as SignalOpenstackApiError with status 500 and end up in the default handler.
- * The `!response.ok` branch only guards against clients that resolve with error responses.
- */
-export const requestOrThrow = async <T extends { ok: boolean; status: number; statusText?: string }>(
-  request: () => Promise<T>,
-  handleError: RouterErrorHandler,
-  resourceLabel?: string
-): Promise<T> => {
-  let response: T
-  try {
-    response = await request()
-  } catch (error) {
-    if (error instanceof SignalOpenstackApiError) {
-      throw handleError({ status: error.statusCode, statusText: error.message }, resourceLabel)
-    }
-    throw error
-  }
-
-  if (!response.ok) throw handleError(response, resourceLabel)
-  return response
-}
-
 /* -------------------------------------------------------------------------- */
 /*                               Request builders                             */
 /* -------------------------------------------------------------------------- */
-
-/** Returns a shallow copy of `obj` without keys whose value is `undefined`. */
-export const pickDefined = <T extends object>(obj: T): Partial<T> =>
-  Object.fromEntries(Object.entries(obj).filter(([, value]) => value !== undefined)) as Partial<T>
 
 export const buildExternalGatewayInfoBody = (info: ExternalGatewayInfoInput) => ({
   network_id: info.network_id,
@@ -228,16 +192,6 @@ export const ROUTER_INTERFACE_DEVICE_OWNERS: ReadonlySet<string> = new Set([
 
 export const isRouterInterfacePort = (port: Pick<RouterPort, "device_owner">): boolean =>
   ROUTER_INTERFACE_DEVICE_OWNERS.has(port.device_owner)
-
-/** Splits items into chunks of at most `size` items (e.g. to keep query strings short). */
-export const chunk = <T>(items: T[], size: number): T[][] => {
-  if (size < 1) throw new Error("Chunk size must be at least 1")
-  const chunks: T[][] = []
-  for (let i = 0; i < items.length; i += size) {
-    chunks.push(items.slice(i, i + size))
-  }
-  return chunks
-}
 
 /**
  * Groups interface ports by router (device_id) into unique private network IDs, preserving first-seen order.

@@ -1,5 +1,5 @@
 import { createRootRouteWithContext, Outlet, HeadContent } from "@tanstack/react-router"
-import { AppShell, Button, Container, Status } from "@cloudoperators/juno-ui-components"
+import { AppShell, Container, Status } from "@cloudoperators/juno-ui-components"
 import { MainNavigation } from "../components/navigation/MainNavigation"
 import { TrpcClient, TrpcReact } from "../trpcClient"
 import { AuthContext } from "../store/AuthProvider"
@@ -8,7 +8,7 @@ import type { Slots, OnTrackEventCallback, ServiceExtension } from "../AuroraApp
 import styles from "../index.css?inline"
 import { RouteError } from "../components/Errors/RouteError"
 import { TRPCClientError } from "@trpc/client"
-import { useLingui, Trans } from "@lingui/react/macro"
+import { useLingui } from "@lingui/react/macro"
 import { Slot } from "../components/Slot"
 
 export interface RouterContext {
@@ -80,7 +80,6 @@ function RootErrorComponent({ error }: { error: Error }) {
 
 function PageNotFound() {
   const { t } = useLingui()
-  const navigateTo = Route.useNavigate()
 
   return (
     <Container className="py-8">
@@ -89,11 +88,6 @@ function PageNotFound() {
         code={404}
         title={t`Page Not Found`}
         body={t`The page you are looking for does not exist.`}
-        action={
-          <Button variant="primary" onClick={() => navigateTo({ to: "/" })}>
-            <Trans>Go to Home</Trans>
-          </Button>
-        }
       />
     </Container>
   )
