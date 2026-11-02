@@ -16,6 +16,8 @@ interface RouterListContainerProps {
   routers?: RouterListItem[]
   /** Whether a search term is applied, to tell "no matches" apart from "no routers in this project" */
   hasSearch?: boolean
+  /** Whether a status filter is applied, so the empty state offers to clear it instead of claiming the project is empty */
+  hasStatusFilter?: boolean
   currentPage?: number
   totalPages?: number
   onPageChange?: (page: number) => void
@@ -24,6 +26,7 @@ interface RouterListContainerProps {
 export const RouterListContainer = ({
   routers,
   hasSearch = false,
+  hasStatusFilter = false,
   currentPage = 1,
   totalPages = 1,
   onPageChange,
@@ -54,19 +57,19 @@ export const RouterListContainer = ({
       >
         <DataGridRow>
           <DataGridHeadCell>
+            <Trans>Status</Trans>
+          </DataGridHeadCell>
+          <DataGridHeadCell>
             <Trans>Name</Trans>
           </DataGridHeadCell>
           <DataGridHeadCell>
             <Trans>External Network</Trans>
           </DataGridHeadCell>
           <DataGridHeadCell>
-            <Trans>External Subnet</Trans>
+            <Trans>External IPs</Trans>
           </DataGridHeadCell>
           <DataGridHeadCell>
             <Trans>Private Network</Trans>
-          </DataGridHeadCell>
-          <DataGridHeadCell>
-            <Trans>Status</Trans>
           </DataGridHeadCell>
           <DataGridHeadCell></DataGridHeadCell>
         </DataGridRow>
@@ -82,7 +85,9 @@ export const RouterListContainer = ({
                 body={
                   hasSearch
                     ? t`No routers match your search. Clear the search to view all routers.`
-                    : t`There are no routers in this project.`
+                    : hasStatusFilter
+                      ? t`No routers match the selected status. Clear the status filter to view all routers.`
+                      : t`There are no routers in this project.`
                 }
               />
             </DataGridCell>

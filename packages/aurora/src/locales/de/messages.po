@@ -553,6 +553,9 @@ msgstr ""
 msgid "An unexpected error occurred. Please try again."
 msgstr "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
 
+msgid "An unexpected error occurred. Try again."
+msgstr ""
+
 msgid "Any"
 msgstr ""
 
@@ -644,6 +647,9 @@ msgid "Back to Images"
 msgstr "Zurück zu Images"
 
 msgid "Back to Key Manager"
+msgstr ""
+
+msgid "Back to Ports"
 msgstr ""
 
 msgid "Back to Routers"
@@ -1705,6 +1711,9 @@ msgstr ""
 msgid "Error Loading Image"
 msgstr ""
 
+msgid "Error Loading Port"
+msgstr ""
+
 msgid "Error Loading Router"
 msgstr ""
 
@@ -1753,13 +1762,13 @@ msgstr ""
 msgid "External Fixed IPs"
 msgstr ""
 
+msgid "External IPs"
+msgstr ""
+
 msgid "External Network"
 msgstr "Externes Netzwerk"
 
 msgid "External Networks"
-msgstr ""
-
-msgid "External Subnet"
 msgstr ""
 
 msgid "Extra spec key is required and cannot be empty."
@@ -1991,6 +2000,9 @@ msgid "Failed to load payload."
 msgstr ""
 
 msgid "Failed to Load Policy"
+msgstr ""
+
+msgid "Failed to Load Ports"
 msgstr ""
 
 msgid "Failed to Load Routers"
@@ -2248,6 +2260,9 @@ msgstr ""
 msgid "Full path:"
 msgstr ""
 
+msgid "General"
+msgstr ""
+
 msgid "General Image Data"
 msgstr "Allgemeine Image-Daten"
 
@@ -2268,9 +2283,6 @@ msgstr "Wird generiert..."
 
 msgid "Get Involved"
 msgstr "Mitmachen"
-
-msgid "Go to Home"
-msgstr ""
 
 msgid "Go to Project"
 msgstr ""
@@ -2429,6 +2441,9 @@ msgid "IP Version"
 msgstr "IP-Version"
 
 msgid "IP:"
+msgstr ""
+
+msgid "IPs"
 msgstr ""
 
 msgid "IPv4 or IPv6 CIDR, e.g. 10.0.0.0/24 or ::/0. Leave empty to allow any IPv4 address."
@@ -2611,6 +2626,12 @@ msgstr ""
 msgid "Loading Policy..."
 msgstr ""
 
+msgid "Loading Port Details..."
+msgstr ""
+
+msgid "Loading Ports..."
+msgstr ""
+
 msgid "Loading preview..."
 msgstr "Vorschau wird geladen..."
 
@@ -2639,6 +2660,9 @@ msgid "Loading..."
 msgstr "Lädt..."
 
 msgid "Loading…"
+msgstr ""
+
+msgid "MAC"
 msgstr ""
 
 msgid "MAC Address"
@@ -2791,6 +2815,9 @@ msgstr "keine Angabe"
 msgid "Name"
 msgstr "Name"
 
+msgid "Name / ID"
+msgstr ""
+
 msgid "Name can't be empty!"
 msgstr ""
 
@@ -2917,6 +2944,15 @@ msgstr "Keine Richtlinien entsprechen Ihrer Suche"
 msgid "No Policy Found"
 msgstr ""
 
+msgid "No Ports Found"
+msgstr ""
+
+msgid "No ports match the selected status. Clear the status filter to view all ports."
+msgstr ""
+
+msgid "No ports match your search. Clear the search to view all ports."
+msgstr ""
+
 msgid "No Project Access"
 msgstr ""
 
@@ -2936,6 +2972,9 @@ msgid "No projects have access to this image yet. Click \"Add Project Access\" t
 msgstr "Noch kein Projekt hat Zugriff auf dieses Image. Klicken Sie auf \"Projektzugriff hinzufügen\", um Zugriff zu gewähren."
 
 msgid "No Routers Found"
+msgstr ""
+
+msgid "No routers match the selected status. Clear the status filter to view all routers."
 msgstr ""
 
 msgid "No routers match your search. Clear the search to view all routers."
@@ -3238,6 +3277,9 @@ msgstr "Port (von)"
 msgid "Port (to)"
 msgstr "Port (bis)"
 
+msgid "Port actions"
+msgstr ""
+
 msgid "Port Forwarding"
 msgstr "Port Forwarding"
 
@@ -3247,8 +3289,14 @@ msgstr "Port-ID"
 msgid "Port Name"
 msgstr "Port-Name"
 
+msgid "Port Not Found"
+msgstr ""
+
 msgid "Port Range"
 msgstr "Port-Bereich"
+
+msgid "Ports"
+msgstr ""
 
 msgid "Pre-signed URL"
 msgstr "Vorsignierte URL"
@@ -3499,6 +3547,9 @@ msgstr "Root Disk (GiB)"
 msgid "Root Disk must be an integer ≥ 0."
 msgstr "Root Disk muss eine ganze Zahl ≥ 0 sein."
 
+msgid "Router actions"
+msgstr ""
+
 msgid "Router ID"
 msgstr "Router-ID"
 
@@ -3603,6 +3654,9 @@ msgstr ""
 
 msgid "Search objects..."
 msgstr "Objekte suchen..."
+
+msgid "Search ports..."
+msgstr ""
 
 msgid "Search RBAC policies..."
 msgstr ""
@@ -3940,6 +3994,9 @@ msgstr "Statisches Website-Serving"
 msgid "Status"
 msgstr "Status"
 
+msgid "Status & Security"
+msgstr ""
+
 msgid "Storage"
 msgstr "Storage"
 
@@ -4159,7 +4216,13 @@ msgstr ""
 msgid "The page you are looking for does not exist."
 msgstr "Die gesuchte Seite existiert nicht."
 
-msgid "The page you're looking for doesn't exist or may have moved. Check the URL or return to the home page."
+msgid "The page you're looking for doesn't exist or may have moved. Check the URL."
+msgstr ""
+
+msgid "The port could not be loaded."
+msgstr ""
+
+msgid "The port could not be loaded. Try again."
 msgstr ""
 
 msgid "The project you are looking for doesn't exist or you don't have access to it."
@@ -4199,9 +4262,6 @@ msgid "The selected objects will be permanently deleted. This cannot be undone."
 msgstr "Die ausgewählten Objekte werden dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden."
 
 msgid "The service you're looking for doesn't exist or may have moved. Check the URL or return to the project home."
-msgstr ""
-
-msgid "The session has expired. Log in again to continue."
 msgstr ""
 
 msgid "The specified project does not exist or you don't have permission to share with it."
@@ -4262,6 +4322,12 @@ msgid "There are no orders in this project. Create one to request secret generat
 msgstr ""
 
 msgid "There are no pending shared images for this project with the current filters applied."
+msgstr ""
+
+msgid "There are no ports in this project."
+msgstr ""
+
+msgid "There are no ports on this network."
 msgstr ""
 
 msgid "There are no RBAC policies for this security group"
@@ -4421,6 +4487,9 @@ msgid "This object and all its versions will be permanently deleted and cannot b
 msgstr ""
 
 msgid "This object storage service does not exist or is not available for this project."
+msgstr ""
+
+msgid "This port does not exist or has been deleted."
 msgstr ""
 
 msgid "This project already has access"
@@ -4802,6 +4871,15 @@ msgid "You do not have permission to view secrets."
 msgstr ""
 
 msgid "You do not have permission to view security groups"
+msgstr ""
+
+msgid "You do not have the required permissions to access this port."
+msgstr ""
+
+msgid "You do not have the required permissions to view ports in this project."
+msgstr ""
+
+msgid "You do not have the required permissions to view routers in this project."
 msgstr ""
 
 msgid "You don't have permission to access flavor access information for this flavor."

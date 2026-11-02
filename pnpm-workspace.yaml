@@ -13,7 +13,9 @@ minimumReleaseAgeExclude:
   - "@cloudoperators/juno-ui-components"
   - "source-map-js@1.2.2"
   - "shell-quote@1.11.0"
-  - '@tanstack/intent@0.5.6'
+  - "@tanstack/intent@0.5.6"
+  - seroval-plugins@1.7.6
+  - seroval@1.7.6
 
 overrides:
   "tmp@<0.2.6": ">=0.2.6"
@@ -28,8 +30,8 @@ overrides:
   "zod@<4.6.6": ">=4.6.6"
   "vite@>=8.0.0 <8.2.4": ">=8.2.4"
   "@vitest/mocker@>=2.1.0 <4.1.12": "^4.1.12"
-  "seroval@<1.6.3": "1.6.3"
-  "seroval-plugins@<1.6.3": "1.6.3"
+  "seroval@<1.7.6": "1.7.6"
+  "seroval-plugins@<1.7.6": "1.7.6"
   "source-map-js@<1.2.2": "1.2.2"
   "fastify@<5.12.6": "5.12.6"
   "@fastify/busboy@<3.2.2": "3.2.2"

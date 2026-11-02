@@ -15,8 +15,7 @@ export const ServiceLevelDefaultError = () => {
   const navigate = useNavigate()
   const { projectId } = useParams({ strict: false })
 
-  const navigateToProjectId = () =>
-    projectId ? navigate({ to: "/projects/$projectId", params: { projectId } }) : navigate({ to: "/" })
+  const navigateToProjectId = () => projectId && navigate({ to: "/projects/$projectId", params: { projectId } })
 
   return (
     <Status
@@ -25,12 +24,14 @@ export const ServiceLevelDefaultError = () => {
       body={
         projectId
           ? t`The service you're looking for doesn't exist or may have moved. Check the URL or return to the project home.`
-          : t`The page you're looking for doesn't exist or may have moved. Check the URL or return to the home page.`
+          : t`The page you're looking for doesn't exist or may have moved. Check the URL.`
       }
       action={
-        <Button variant="primary" onClick={navigateToProjectId}>
-          {projectId ? t`Go to Project Home` : t`Go to Home`}
-        </Button>
+        projectId ? (
+          <Button variant="primary" onClick={navigateToProjectId}>
+            {t`Go to Project Home`}
+          </Button>
+        ) : undefined
       }
     />
   )

@@ -69,8 +69,8 @@ describe("StorageTypeNotFound", () => {
   })
 
   // The list link is built from route params, so without them it must not be offered at
-  // all — the shared component then supplies its own action rather than none.
-  it("falls back to the shared component's action when the params are not readable", () => {
+  // all — and with no project to return to, the shared component shows no action either.
+  it("offers no action when the params are not readable", () => {
     vi.mocked(useParams).mockReturnValue({})
 
     render(
@@ -81,7 +81,7 @@ describe("StorageTypeNotFound", () => {
 
     expect(screen.getByText("Page Not Found")).toBeInTheDocument()
     expect(screen.queryByRole("button", { name: /Back to/ })).not.toBeInTheDocument()
-    expect(screen.getByRole("button", { name: "Go to Home" })).toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: /Go to/ })).not.toBeInTheDocument()
   })
 
   // The layout route has no guard, so an unknown provider segment reaches this boundary too.

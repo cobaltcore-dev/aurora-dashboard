@@ -553,6 +553,9 @@ msgstr "An Unexpected Error Occurred."
 msgid "An unexpected error occurred. Please try again."
 msgstr "An unexpected error occurred. Please try again."
 
+msgid "An unexpected error occurred. Try again."
+msgstr "An unexpected error occurred. Try again."
+
 msgid "Any"
 msgstr "Any"
 
@@ -645,6 +648,9 @@ msgstr "Back to Images"
 
 msgid "Back to Key Manager"
 msgstr "Back to Key Manager"
+
+msgid "Back to Ports"
+msgstr "Back to Ports"
 
 msgid "Back to Routers"
 msgstr "Back to Routers"
@@ -1705,6 +1711,9 @@ msgstr "Error Loading Floating IP"
 msgid "Error Loading Image"
 msgstr "Error Loading Image"
 
+msgid "Error Loading Port"
+msgstr "Error Loading Port"
+
 msgid "Error Loading Router"
 msgstr "Error Loading Router"
 
@@ -1753,14 +1762,14 @@ msgstr "Expose Headers"
 msgid "External Fixed IPs"
 msgstr "External Fixed IPs"
 
+msgid "External IPs"
+msgstr "External IPs"
+
 msgid "External Network"
 msgstr "External Network"
 
 msgid "External Networks"
 msgstr "External Networks"
-
-msgid "External Subnet"
-msgstr "External Subnet"
 
 msgid "Extra spec key is required and cannot be empty."
 msgstr "Extra spec key is required and cannot be empty."
@@ -1992,6 +2001,9 @@ msgstr "Failed to load payload."
 
 msgid "Failed to Load Policy"
 msgstr "Failed to Load Policy"
+
+msgid "Failed to Load Ports"
+msgstr "Failed to Load Ports"
 
 msgid "Failed to Load Routers"
 msgstr "Failed to Load Routers"
@@ -2248,6 +2260,9 @@ msgstr "Full Path"
 msgid "Full path:"
 msgstr "Full path:"
 
+msgid "General"
+msgstr "General"
+
 msgid "General Image Data"
 msgstr "General Image Data"
 
@@ -2268,9 +2283,6 @@ msgstr "Generating..."
 
 msgid "Get Involved"
 msgstr "Get Involved"
-
-msgid "Go to Home"
-msgstr "Go to Home"
 
 msgid "Go to Project"
 msgstr "Go to Project"
@@ -2430,6 +2442,9 @@ msgstr "IP Version"
 
 msgid "IP:"
 msgstr "IP:"
+
+msgid "IPs"
+msgstr "IPs"
 
 msgid "IPv4 or IPv6 CIDR, e.g. 10.0.0.0/24 or ::/0. Leave empty to allow any IPv4 address."
 msgstr "IPv4 or IPv6 CIDR, e.g. 10.0.0.0/24 or ::/0. Leave empty to allow any IPv4 address."
@@ -2611,6 +2626,12 @@ msgstr "Loading Permissions..."
 msgid "Loading Policy..."
 msgstr "Loading Policy..."
 
+msgid "Loading Port Details..."
+msgstr "Loading Port Details..."
+
+msgid "Loading Ports..."
+msgstr "Loading Ports..."
+
 msgid "Loading preview..."
 msgstr "Loading preview..."
 
@@ -2640,6 +2661,9 @@ msgstr "Loading..."
 
 msgid "Loading…"
 msgstr "Loading…"
+
+msgid "MAC"
+msgstr "MAC"
 
 msgid "MAC Address"
 msgstr "MAC Address"
@@ -2791,6 +2815,9 @@ msgstr "N/A"
 msgid "Name"
 msgstr "Name"
 
+msgid "Name / ID"
+msgstr "Name / ID"
+
 msgid "Name can't be empty!"
 msgstr "Name can't be empty!"
 
@@ -2917,6 +2944,15 @@ msgstr "No policies match your search"
 msgid "No Policy Found"
 msgstr "No Policy Found"
 
+msgid "No Ports Found"
+msgstr "No Ports Found"
+
+msgid "No ports match the selected status. Clear the status filter to view all ports."
+msgstr "No ports match the selected status. Clear the status filter to view all ports."
+
+msgid "No ports match your search. Clear the search to view all ports."
+msgstr "No ports match your search. Clear the search to view all ports."
+
 msgid "No Project Access"
 msgstr "No Project Access"
 
@@ -2937,6 +2973,9 @@ msgstr "No projects have access to this image yet. Click \"Add Project Access\" 
 
 msgid "No Routers Found"
 msgstr "No Routers Found"
+
+msgid "No routers match the selected status. Clear the status filter to view all routers."
+msgstr "No routers match the selected status. Clear the status filter to view all routers."
 
 msgid "No routers match your search. Clear the search to view all routers."
 msgstr "No routers match your search. Clear the search to view all routers."
@@ -3238,6 +3277,9 @@ msgstr "Port (from)"
 msgid "Port (to)"
 msgstr "Port (to)"
 
+msgid "Port actions"
+msgstr "Port actions"
+
 msgid "Port Forwarding"
 msgstr "Port Forwarding"
 
@@ -3247,8 +3289,14 @@ msgstr "Port ID"
 msgid "Port Name"
 msgstr "Port Name"
 
+msgid "Port Not Found"
+msgstr "Port Not Found"
+
 msgid "Port Range"
 msgstr "Port Range"
+
+msgid "Ports"
+msgstr "Ports"
 
 msgid "Pre-signed URL"
 msgstr "Pre-signed URL"
@@ -3499,6 +3547,9 @@ msgstr "Root Disk (GiB)"
 msgid "Root Disk must be an integer ≥ 0."
 msgstr "Root Disk must be an integer ≥ 0."
 
+msgid "Router actions"
+msgstr "Router actions"
+
 msgid "Router ID"
 msgstr "Router ID"
 
@@ -3603,6 +3654,9 @@ msgstr "Search lifecycle rules..."
 
 msgid "Search objects..."
 msgstr "Search objects..."
+
+msgid "Search ports..."
+msgstr "Search ports..."
 
 msgid "Search RBAC policies..."
 msgstr "Search RBAC policies..."
@@ -3940,6 +3994,9 @@ msgstr "Static website serving"
 msgid "Status"
 msgstr "Status"
 
+msgid "Status & Security"
+msgstr "Status & Security"
+
 msgid "Storage"
 msgstr "Storage"
 
@@ -4159,8 +4216,14 @@ msgstr "The other end of the traffic: where it comes from (ingress) or where it 
 msgid "The page you are looking for does not exist."
 msgstr "The page you are looking for does not exist."
 
-msgid "The page you're looking for doesn't exist or may have moved. Check the URL or return to the home page."
-msgstr "The page you're looking for doesn't exist or may have moved. Check the URL or return to the home page."
+msgid "The page you're looking for doesn't exist or may have moved. Check the URL."
+msgstr "The page you're looking for doesn't exist or may have moved. Check the URL."
+
+msgid "The port could not be loaded."
+msgstr "The port could not be loaded."
+
+msgid "The port could not be loaded. Try again."
+msgstr "The port could not be loaded. Try again."
 
 msgid "The project you are looking for doesn't exist or you don't have access to it."
 msgstr "The project you are looking for doesn't exist or you don't have access to it."
@@ -4200,9 +4263,6 @@ msgstr "The selected objects will be permanently deleted. This cannot be undone.
 
 msgid "The service you're looking for doesn't exist or may have moved. Check the URL or return to the project home."
 msgstr "The service you're looking for doesn't exist or may have moved. Check the URL or return to the project home."
-
-msgid "The session has expired. Log in again to continue."
-msgstr "The session has expired. Log in again to continue."
 
 msgid "The specified project does not exist or you don't have permission to share with it."
 msgstr "The specified project does not exist or you don't have permission to share with it."
@@ -4263,6 +4323,12 @@ msgstr "There are no orders in this project. Create one to request secret genera
 
 msgid "There are no pending shared images for this project with the current filters applied."
 msgstr "There are no pending shared images for this project with the current filters applied."
+
+msgid "There are no ports in this project."
+msgstr "There are no ports in this project."
+
+msgid "There are no ports on this network."
+msgstr "There are no ports on this network."
 
 msgid "There are no RBAC policies for this security group"
 msgstr "There are no RBAC policies for this security group"
@@ -4422,6 +4488,9 @@ msgstr "This object and all its versions will be permanently deleted and cannot 
 
 msgid "This object storage service does not exist or is not available for this project."
 msgstr "This object storage service does not exist or is not available for this project."
+
+msgid "This port does not exist or has been deleted."
+msgstr "This port does not exist or has been deleted."
 
 msgid "This project already has access"
 msgstr "This project already has access"
@@ -4803,6 +4872,15 @@ msgstr "You do not have permission to view secrets."
 
 msgid "You do not have permission to view security groups"
 msgstr "You do not have permission to view security groups"
+
+msgid "You do not have the required permissions to access this port."
+msgstr "You do not have the required permissions to access this port."
+
+msgid "You do not have the required permissions to view ports in this project."
+msgstr "You do not have the required permissions to view ports in this project."
+
+msgid "You do not have the required permissions to view routers in this project."
+msgstr "You do not have the required permissions to view routers in this project."
 
 msgid "You don't have permission to access flavor access information for this flavor."
 msgstr "You don't have permission to access flavor access information for this flavor."
