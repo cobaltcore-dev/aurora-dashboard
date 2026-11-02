@@ -1288,9 +1288,6 @@ msgstr "Delete Bucket Policy"
 msgid "Delete Container"
 msgstr "Delete Container"
 
-msgid "Delete Container \"{containerName}\""
-msgstr "Delete Container \"{containerName}\""
-
 msgid "Delete container:"
 msgstr "Delete container:"
 
@@ -1345,8 +1342,8 @@ msgstr "Delete object:"
 msgid "Delete Objects"
 msgstr "Delete Objects"
 
-msgid "Delete Order \"{orderId}\""
-msgstr "Delete Order \"{orderId}\""
+msgid "Delete Order"
+msgstr "Delete Order"
 
 msgid "Delete Policy"
 msgstr "Delete Policy"
@@ -1360,8 +1357,8 @@ msgstr "Delete Results"
 msgid "Delete Rule"
 msgstr "Delete Rule"
 
-msgid "Delete Secret \"{secretName}\""
-msgstr "Delete Secret \"{secretName}\""
+msgid "Delete Secret"
+msgstr "Delete Secret"
 
 msgid "Delete Security Group \"{securityGroupName}\""
 msgstr "Delete Security Group \"{securityGroupName}\""
@@ -4117,6 +4114,9 @@ msgstr "The bucket could not be created. Try again or choose a different name."
 msgid "The compute service is currently unavailable for this project. Please try again later."
 msgstr "The compute service is currently unavailable for this project. Please try again later."
 
+msgid "The container \"{containerName}\" will be permanently deleted. This action cannot be undone."
+msgstr "The container \"{containerName}\" will be permanently deleted. This action cannot be undone."
+
 msgid "The container cannot be deleted as it contains objects. Empty the container first."
 msgstr "The container cannot be deleted as it contains objects. Empty the container first."
 
@@ -4207,6 +4207,9 @@ msgstr "The object will be copied to this path. Navigate folders above to change
 msgid "The object will be moved to this path. Navigate folders above to change the destination."
 msgstr "The object will be moved to this path. Navigate folders above to change the destination."
 
+msgid "The order \"{orderName}\" will be permanently deleted. This action cannot be undone."
+msgstr "The order \"{orderName}\" will be permanently deleted. This action cannot be undone."
+
 msgid "The order was successfully created."
 msgstr "The order was successfully created."
 
@@ -4242,6 +4245,9 @@ msgstr "The router could not be loaded. Try again."
 
 msgid "The scan did not reach the end of the bucket, so non-current versions may remain. Run Delete Versions again."
 msgstr "The scan did not reach the end of the bucket, so non-current versions may remain. Run Delete Versions again."
+
+msgid "The secret \"{secretName}\" will be permanently deleted. This action cannot be undone."
+msgstr "The secret \"{secretName}\" will be permanently deleted. This action cannot be undone."
 
 msgid "The secret was successfully created."
 msgstr "The secret was successfully created."
@@ -4360,12 +4366,6 @@ msgstr "These objects and all their versions will be permanently deleted and can
 msgid "This action cannot be undone."
 msgstr "This action cannot be undone."
 
-msgid "This action cannot be undone. The {orderTypeLabel} order will be permanently deleted."
-msgstr "This action cannot be undone. The {orderTypeLabel} order will be permanently deleted."
-
-msgid "This action cannot be undone. The container will be permanently deleted."
-msgstr "This action cannot be undone. The container will be permanently deleted."
-
 msgid "This action cannot be undone. The flavor will be permanently deleted."
 msgstr "This action cannot be undone. The flavor will be permanently deleted."
 
@@ -4374,9 +4374,6 @@ msgstr "This action cannot be undone. The image will be permanently deleted."
 
 msgid "This action cannot be undone. The rule will be permanently deleted."
 msgstr "This action cannot be undone. The rule will be permanently deleted."
-
-msgid "This action cannot be undone. The secret will be permanently deleted."
-msgstr "This action cannot be undone. The secret will be permanently deleted."
 
 msgid "This action cannot be undone. The security group will be permanently deleted."
 msgstr "This action cannot be undone. The security group will be permanently deleted."

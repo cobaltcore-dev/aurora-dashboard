@@ -1288,9 +1288,6 @@ msgstr ""
 msgid "Delete Container"
 msgstr ""
 
-msgid "Delete Container \"{containerName}\""
-msgstr ""
-
 msgid "Delete container:"
 msgstr "Container löschen:"
 
@@ -1345,7 +1342,7 @@ msgstr "Objekt löschen:"
 msgid "Delete Objects"
 msgstr ""
 
-msgid "Delete Order \"{orderId}\""
+msgid "Delete Order"
 msgstr ""
 
 msgid "Delete Policy"
@@ -1360,7 +1357,7 @@ msgstr ""
 msgid "Delete Rule"
 msgstr "Regel löschen"
 
-msgid "Delete Secret \"{secretName}\""
+msgid "Delete Secret"
 msgstr ""
 
 msgid "Delete Security Group \"{securityGroupName}\""
@@ -4117,6 +4114,9 @@ msgstr ""
 msgid "The compute service is currently unavailable for this project. Please try again later."
 msgstr "Der Compute-Dienst ist für dieses Projekt derzeit nicht verfügbar. Bitte versuchen Sie es später erneut."
 
+msgid "The container \"{containerName}\" will be permanently deleted. This action cannot be undone."
+msgstr ""
+
 msgid "The container cannot be deleted as it contains objects. Empty the container first."
 msgstr "Der Container kann nicht gelöscht werden, da er Objekte enthält. Leeren Sie den Container zuerst."
 
@@ -4207,6 +4207,9 @@ msgstr "Das Objekt wird zu diesem Pfad kopiert. Navigieren Sie oben durch die Or
 msgid "The object will be moved to this path. Navigate folders above to change the destination."
 msgstr "Das Objekt wird zu diesem Pfad verschoben. Navigieren Sie oben durch die Ordner, um das Ziel zu ändern."
 
+msgid "The order \"{orderName}\" will be permanently deleted. This action cannot be undone."
+msgstr ""
+
 msgid "The order was successfully created."
 msgstr ""
 
@@ -4241,6 +4244,9 @@ msgid "The router could not be loaded. Try again."
 msgstr ""
 
 msgid "The scan did not reach the end of the bucket, so non-current versions may remain. Run Delete Versions again."
+msgstr ""
+
+msgid "The secret \"{secretName}\" will be permanently deleted. This action cannot be undone."
 msgstr ""
 
 msgid "The secret was successfully created."
@@ -4360,12 +4366,6 @@ msgstr ""
 msgid "This action cannot be undone."
 msgstr ""
 
-msgid "This action cannot be undone. The {orderTypeLabel} order will be permanently deleted."
-msgstr ""
-
-msgid "This action cannot be undone. The container will be permanently deleted."
-msgstr ""
-
 msgid "This action cannot be undone. The flavor will be permanently deleted."
 msgstr "Diese Aktion kann nicht rückgängig gemacht werden. Der Flavor wird dauerhaft gelöscht."
 
@@ -4374,9 +4374,6 @@ msgstr "Diese Aktion kann nicht rückgängig gemacht werden. Das Image wird daue
 
 msgid "This action cannot be undone. The rule will be permanently deleted."
 msgstr "Diese Aktion kann nicht rückgängig gemacht werden. Die Regel wird dauerhaft gelöscht."
-
-msgid "This action cannot be undone. The secret will be permanently deleted."
-msgstr ""
 
 msgid "This action cannot be undone. The security group will be permanently deleted."
 msgstr "Diese Aktion kann nicht rückgängig gemacht werden. Die Security Group wird dauerhaft gelöscht."

@@ -293,7 +293,6 @@ export function DeleteOrderModal({
 }) {
   const { t } = useLingui()
   const orderId = uuidFromRef(order.order_ref)
-  const orderTypeLabel = order.type
   const orderName = typeof order.meta?.name === "string" ? order.meta.name : orderId
   const utils = trpcReact.useUtils()
   const deleteMutation = trpcReact.keyManager.deleteOrder.useMutation({
@@ -309,7 +308,7 @@ export function DeleteOrderModal({
     <Modal
       open
       size="small"
-      title={t`Delete Order "${orderId}"`}
+      title={t`Delete Order`}
       onCancel={onClose}
       onConfirm={() => deleteMutation.mutate({ project_id: projectId, orderId })}
       confirmButtonLabel={deleteMutation.isPending ? t`Deleting...` : t`Delete`}
@@ -322,7 +321,7 @@ export function DeleteOrderModal({
       <Stack direction="vertical" gap="4">
         {deleteMutation.error && <Message variant="error" text={deleteMutation.error.message} />}
         <p className="text-theme-default">
-          {t`This action cannot be undone. The ${orderTypeLabel} order will be permanently deleted.`}
+          {t`The order "${orderName}" will be permanently deleted. This action cannot be undone.`}
         </p>
       </Stack>
     </Modal>

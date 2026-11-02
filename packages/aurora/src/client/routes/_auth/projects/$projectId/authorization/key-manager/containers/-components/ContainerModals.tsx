@@ -298,7 +298,7 @@ export function DeleteContainerModal({
     <Modal
       open
       size="small"
-      title={t`Delete Container "${containerName}"`}
+      title={t`Delete Container`}
       onCancel={onClose}
       onConfirm={() => deleteMutation.mutate({ project_id: projectId, containerId })}
       confirmButtonLabel={deleteMutation.isPending ? t`Deleting...` : t`Delete`}
@@ -311,7 +311,7 @@ export function DeleteContainerModal({
       <Stack direction="vertical" gap="4">
         {deleteMutation.error && <Message variant="error" text={deleteMutation.error.message} />}
         <p className="text-theme-default">
-          {t`This action cannot be undone. The container will be permanently deleted.`}
+          {t`The container "${containerName}" will be permanently deleted. This action cannot be undone.`}
         </p>
       </Stack>
     </Modal>

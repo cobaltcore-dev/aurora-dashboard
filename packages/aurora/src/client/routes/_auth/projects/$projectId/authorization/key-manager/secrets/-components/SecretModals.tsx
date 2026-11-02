@@ -324,7 +324,7 @@ export function DeleteSecretModal({
     <Modal
       open
       size="small"
-      title={t`Delete Secret "${secretName}"`}
+      title={t`Delete Secret`}
       onCancel={onClose}
       onConfirm={() => deleteMutation.mutate({ project_id: projectId, secretId })}
       confirmButtonLabel={deleteMutation.isPending ? t`Deleting...` : t`Delete`}
@@ -336,7 +336,7 @@ export function DeleteSecretModal({
     >
       <Stack direction="vertical" gap="4">
         {deleteMutation.error && <Message variant="error" text={deleteMutation.error.message} />}
-        <p className="text-theme-default">{t`This action cannot be undone. The secret will be permanently deleted.`}</p>
+        <p className="text-theme-default">{t`The secret "${secretName}" will be permanently deleted. This action cannot be undone.`}</p>
       </Stack>
     </Modal>
   )
