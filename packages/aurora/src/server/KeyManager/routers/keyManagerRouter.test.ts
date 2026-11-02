@@ -582,11 +582,22 @@ describe("keyManagerRouter error mapping", () => {
     )
   })
 
-  it("maps a thrown 409 to INTERNAL_SERVER_ERROR (the shared middleware does not special-case 409)", async () => {
+  it("maps a thrown 409 to CONFLICT (Key Manager maps status codes itself)", async () => {
     const caller = createCaller(createMockContext({ httpStatus: 409, statusText: "Conflict" }))
 
     await expect(caller.keyManager.getSecret({ project_id: TEST_PROJECT_ID, secretId: "s" })).rejects.toMatchObject({
-      code: "INTERNAL_SERVER_ERROR",
+      code: "CONFLICT",
+    })
+  })
+
+  it("surfaces Barbican's error detail in the message instead of a generic one", async () => {
+    const caller = createCaller(
+      createMockContext({ httpStatus: 400, statusText: "Invalid payload for payload_content_encoding" })
+    )
+
+    await expect(caller.keyManager.getSecret({ project_id: TEST_PROJECT_ID, secretId: "s" })).rejects.toMatchObject({
+      code: "BAD_REQUEST",
+      message: expect.stringContaining("Invalid payload for payload_content_encoding"),
     })
   })
 

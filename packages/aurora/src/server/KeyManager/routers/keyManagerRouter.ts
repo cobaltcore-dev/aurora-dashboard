@@ -1,5 +1,6 @@
 import { TRPCError } from "@trpc/server"
 import { z } from "zod"
+import { SignalOpenstackApiError } from "@cobaltcore-dev/signal-openstack"
 import { projectScopedProcedure, projectScopedInputSchema } from "@/server/trpc"
 import { validateOpenstackService } from "@/server/helpers/validateOpenstackService"
 import { parseOrThrow } from "@/server/Network/helpers"
@@ -41,7 +42,12 @@ const orderIdInput = z.object({ orderId: z.string() })
 
 function mapKmError(error: unknown, operation: string): TRPCError {
   const statusCode = (error as { statusCode?: number })?.statusCode
-  const description = (error as { description?: string })?.description
+  // signal-openstack throws SignalOpenstackApiError on non-2xx, carrying Barbican's own reason
+  // (its `description`/`title`, extracted by parseErrorObject) as the error message. On the
+  // resolve-with-non-ok path we instead pass an explicit `description`. Prefer whichever we have.
+  const description =
+    (error as { description?: string })?.description ??
+    (error instanceof SignalOpenstackApiError ? error.message : undefined)
   const codeMap: Record<number, TRPCError["code"]> = {
     400: "BAD_REQUEST",
     401: "UNAUTHORIZED",
@@ -52,8 +58,15 @@ function mapKmError(error: unknown, operation: string): TRPCError {
   return new TRPCError({
     code: codeMap[statusCode ?? 0] ?? "INTERNAL_SERVER_ERROR",
     // Surface Barbican's own diagnostics when present so users see why a request was rejected.
-    message: description ? `Key Manager ${operation} failed: ${description}` : `Key Manager ${operation} failed`,
-    cause: error,
+    message:
+      description && description.trim() !== ""
+        ? `Key Manager ${operation} failed: ${description}`
+        : `Key Manager ${operation} failed`,
+    // Intentionally do NOT forward a SignalOpenstackApiError as `cause`: the shared
+    // openstackErrorMiddleware re-maps any error whose cause is a SignalOpenstackApiError to a
+    // generic message (e.g. "The OpenStack request was invalid."), discarding the detail above.
+    // We map the status code to a TRPC code ourselves here. (Same tactic as mapScopeError.)
+    cause: error instanceof SignalOpenstackApiError ? undefined : error,
   })
 }
 
