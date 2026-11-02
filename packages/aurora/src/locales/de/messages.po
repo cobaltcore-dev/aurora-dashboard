@@ -3502,7 +3502,7 @@ msgstr "Entfernte Sicherheitsgruppe"
 msgid "Remove"
 msgstr "Entfernen"
 
-msgid "Remove {refName}"
+msgid "Remove {secretLabel}"
 msgstr ""
 
 msgid "Remove access for {memberIdDisplay}"

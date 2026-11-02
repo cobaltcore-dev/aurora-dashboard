@@ -3502,8 +3502,8 @@ msgstr "Remote Security Group"
 msgid "Remove"
 msgstr "Remove"
 
-msgid "Remove {refName}"
-msgstr "Remove {refName}"
+msgid "Remove {secretLabel}"
+msgstr "Remove {secretLabel}"
 
 msgid "Remove access for {memberIdDisplay}"
 msgstr "Remove access for {memberIdDisplay}"

@@ -36,8 +36,7 @@ export function CreateContainerModal({
   const [namedRefs, setNamedRefs] = useState<Record<string, string>>({})
   // Generic: list of { name, secret_ref } pairs the user has added
   const [genericRefs, setGenericRefs] = useState<Array<{ name: string; secret_ref: string }>>([])
-  // Pending inputs for the generic "add a secret ref" row
-  const [pendingRefName, setPendingRefName] = useState("")
+  // Pending selection for the generic "add a secret" row
   const [pendingRefSecret, setPendingRefSecret] = useState("")
   const [validationError, setValidationError] = useState<string | null>(null)
 
@@ -83,7 +82,6 @@ export function CreateContainerModal({
     setType(newType as Container["type"])
     setNamedRefs({})
     setGenericRefs([])
-    setPendingRefName("")
     setPendingRefSecret("")
     setValidationError(null)
   }
@@ -121,9 +119,13 @@ export function CreateContainerModal({
   }
 
   const handleAddGenericRef = () => {
-    if (!pendingRefName.trim() || !pendingRefSecret) return
-    setGenericRefs((prev) => [...prev, { name: pendingRefName.trim(), secret_ref: pendingRefSecret }])
-    setPendingRefName("")
+    if (!pendingRefSecret) return
+    const secret = secrets.find((s) => s.secret_ref === pendingRefSecret)
+    const baseName = secret?.name ?? uuidFromRef(pendingRefSecret)
+    // Generic container secret_refs take an arbitrary name; derive it from the secret and add a
+    // random suffix so adding several secrets never collides on a duplicate name (matches elektra).
+    const uniqueName = `${baseName}-gen-${Math.random().toString(16).slice(2)}`
+    setGenericRefs((prev) => [...prev, { name: uniqueName, secret_ref: pendingRefSecret }])
     setPendingRefSecret("")
   }
 
@@ -216,22 +218,17 @@ export function CreateContainerModal({
           </FormSection>
         )}
 
-        {/* Generic: add arbitrary named secret references */}
+        {/* Generic: pick any secrets to include; the secret_ref name is generated automatically. */}
         {type === "generic" && (
           <FormSection>
             <FormRow>
               <Stack gap="2" alignment="end">
-                <TextInput
-                  id="generic-ref-name"
-                  label={t`Name`}
-                  value={pendingRefName}
-                  onChange={(e) => setPendingRefName(e.target.value)}
-                />
                 <Select
                   id="generic-ref-secret"
                   label={t`Secret`}
                   value={pendingRefSecret}
                   onChange={(v) => setPendingRefSecret(typeof v === "string" ? v : "")}
+                  className="jn:grow"
                 >
                   <SelectOption value="" label={t`Select...`} />
                   {secrets.map((secret) => {
@@ -241,11 +238,7 @@ export function CreateContainerModal({
                     )
                   })}
                 </Select>
-                <Button
-                  variant="default"
-                  disabled={!pendingRefName.trim() || !pendingRefSecret}
-                  onClick={handleAddGenericRef}
-                >
+                <Button variant="default" disabled={!pendingRefSecret} onClick={handleAddGenericRef}>
                   {t`Add`}
                 </Button>
               </Stack>
@@ -256,15 +249,12 @@ export function CreateContainerModal({
                   {genericRefs.map((ref, idx) => {
                     const refSecret = secrets.find((s) => s.secret_ref === ref.secret_ref)
                     const secretLabel = refSecret?.name ?? uuidFromRef(ref.secret_ref)
-                    const refName = ref.name
                     return (
-                      <Stack key={idx} gap="2" alignment="center" distribution="between">
-                        <span className="text-sm">
-                          {refName}: {secretLabel}
-                        </span>
+                      <Stack key={ref.name} gap="2" alignment="center" distribution="between">
+                        <span className="text-sm">{secretLabel}</span>
                         <Button
                           title={t`Remove`}
-                          aria-label={t`Remove ${refName}`}
+                          aria-label={t`Remove ${secretLabel}`}
                           onClick={() => setGenericRefs((prev) => prev.filter((_, i) => i !== idx))}
                         >
                           {t`Remove`}
