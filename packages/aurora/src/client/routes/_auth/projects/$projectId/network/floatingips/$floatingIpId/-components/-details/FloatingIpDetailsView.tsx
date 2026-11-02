@@ -12,6 +12,8 @@ import { formatFloatingIpStatus } from "@/client/utils/formatFloatingIpStatus"
 import type { DetailListItem } from "@/client/components/TwoColumnDescriptionList"
 import { TwoColumnDescriptionList } from "@/client/components/TwoColumnDescriptionList"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
+import { trpcReact } from "@/client/trpcClient"
+import { useProjectId } from "@/client/hooks"
 import { FloatingIpActionModals } from "../../../-components/-modals/FloatingIpActionModals"
 
 interface FloatingIpDetailsViewProps {
@@ -20,6 +22,30 @@ interface FloatingIpDetailsViewProps {
 
 export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps) => {
   const { t } = useLingui()
+  const projectId = useProjectId()
+
+  const { data: permissions } = trpcReact.network.canUser.useQuery(
+    {
+      project_id: projectId,
+      permission: [
+        "network:floatingips:update",
+        "network:floatingips:disassociate",
+        "network:floatingips:delete",
+        "network:floatingips:associate",
+      ],
+    },
+    {
+      select: ([canUpdate, canDisassociate, canDelete, canAssociate]) => ({
+        canUpdate,
+        canDisassociate,
+        canDelete,
+        canAssociate,
+      }),
+    }
+  )
+
+  // The kebab menu only makes sense when the user can perform at least one of its actions.
+  const canOpenActionMenu = Boolean(permissions?.canUpdate || permissions?.canDisassociate || permissions?.canDelete)
 
   const basicInfoItems: DetailListItem[] = [
     { label: t`ID`, value: floatingIp.id },
@@ -60,19 +86,25 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
           <FloatingIpActionModals floatingIp={floatingIp}>
             {({ toggleEditModal, toggleAttachModal, toggleDetachModal, toggleReleaseModal }) => (
               <Stack gap="0.5" alignment="center">
-                <PopupMenu className="flex items-center">
-                  <PopupMenuToggle as="div">
-                    <Button icon="moreVert" title={t`Floating IP actions`} />
-                  </PopupMenuToggle>
-                  <PopupMenuOptions>
-                    <PopupMenuItem label={t`Edit Description`} onClick={toggleEditModal} />
-                    <PopupMenuItem label={t`Detach`} onClick={toggleDetachModal} />
-                    <PopupMenuItem label={t`Release`} onClick={toggleReleaseModal} />
-                  </PopupMenuOptions>
-                </PopupMenu>
-                <Button variant="primary" className="whitespace-nowrap" onClick={toggleAttachModal}>
-                  {t`Attach`}
-                </Button>
+                {canOpenActionMenu && (
+                  <PopupMenu className="flex items-center">
+                    <PopupMenuToggle as="div">
+                      <Button icon="moreVert" title={t`Floating IP actions`} />
+                    </PopupMenuToggle>
+                    <PopupMenuOptions>
+                      {permissions?.canUpdate && (
+                        <PopupMenuItem label={t`Edit Description`} onClick={toggleEditModal} />
+                      )}
+                      {permissions?.canDisassociate && <PopupMenuItem label={t`Detach`} onClick={toggleDetachModal} />}
+                      {permissions?.canDelete && <PopupMenuItem label={t`Release`} onClick={toggleReleaseModal} />}
+                    </PopupMenuOptions>
+                  </PopupMenu>
+                )}
+                {permissions?.canAssociate && (
+                  <Button variant="primary" className="whitespace-nowrap" onClick={toggleAttachModal}>
+                    {t`Attach`}
+                  </Button>
+                )}
               </Stack>
             )}
           </FloatingIpActionModals>

@@ -6,8 +6,31 @@ import { I18nProvider } from "@lingui/react"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
+import { trpcReact } from "@/client/trpcClient"
 import { FloatingIpDetailsView } from "./FloatingIpDetailsView"
 import { FloatingIpActionModalTriggers } from "../../../-components/-modals/FloatingIpActionModals"
+
+vi.mock("@/client/hooks", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/client/hooks")>()
+  return {
+    ...actual,
+    useProjectId: vi.fn(() => "proj-1"),
+  }
+})
+
+vi.mock("@/client/trpcClient", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/client/trpcClient")>()
+  return {
+    ...actual,
+    trpcReact: {
+      network: {
+        canUser: {
+          useQuery: vi.fn(),
+        },
+      },
+    },
+  }
+})
 
 vi.mock("../../../-components/-modals/FloatingIpActionModals", () => ({
   FloatingIpActionModals: ({ children }: { children: (triggers: FloatingIpActionModalTriggers) => ReactElement }) =>
@@ -66,6 +89,10 @@ describe("FloatingIpDetailsView", () => {
 
   beforeEach(() => {
     i18n.activate("en")
+    // Default: user is allowed to perform every action. Individual tests override this to assert gating.
+    vi.mocked(trpcReact.network.canUser.useQuery).mockReturnValue({
+      data: { canUpdate: true, canDisassociate: true, canDelete: true, canAssociate: true },
+    } as ReturnType<typeof trpcReact.network.canUser.useQuery>)
   })
 
   afterEach(() => {
@@ -97,6 +124,61 @@ describe("FloatingIpDetailsView", () => {
       expect(screen.getByText("Edit Description")).toBeInTheDocument()
       expect(screen.getByText("Detach")).toBeInTheDocument()
       expect(screen.getByText("Release")).toBeInTheDocument()
+    })
+
+    it("hides Edit Description when the user lacks update permission", async () => {
+      vi.mocked(trpcReact.network.canUser.useQuery).mockReturnValue({
+        data: { canUpdate: false, canDisassociate: true, canDelete: true, canAssociate: true },
+      } as ReturnType<typeof trpcReact.network.canUser.useQuery>)
+      const user = userEvent.setup()
+      render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
+
+      await user.click(screen.getByRole("button", { name: "Floating IP actions" }))
+
+      expect(screen.queryByText("Edit Description")).not.toBeInTheDocument()
+    })
+
+    it("hides Detach when the user lacks disassociate permission", async () => {
+      vi.mocked(trpcReact.network.canUser.useQuery).mockReturnValue({
+        data: { canUpdate: true, canDisassociate: false, canDelete: true, canAssociate: true },
+      } as ReturnType<typeof trpcReact.network.canUser.useQuery>)
+      const user = userEvent.setup()
+      render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
+
+      await user.click(screen.getByRole("button", { name: "Floating IP actions" }))
+
+      expect(screen.queryByText("Detach")).not.toBeInTheDocument()
+    })
+
+    it("hides Release when the user lacks delete permission", async () => {
+      vi.mocked(trpcReact.network.canUser.useQuery).mockReturnValue({
+        data: { canUpdate: true, canDisassociate: true, canDelete: false, canAssociate: true },
+      } as ReturnType<typeof trpcReact.network.canUser.useQuery>)
+      const user = userEvent.setup()
+      render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
+
+      await user.click(screen.getByRole("button", { name: "Floating IP actions" }))
+
+      expect(screen.queryByText("Release")).not.toBeInTheDocument()
+    })
+
+    it("hides Attach when the user lacks associate permission", () => {
+      vi.mocked(trpcReact.network.canUser.useQuery).mockReturnValue({
+        data: { canUpdate: true, canDisassociate: true, canDelete: true, canAssociate: false },
+      } as ReturnType<typeof trpcReact.network.canUser.useQuery>)
+      render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
+
+      expect(screen.queryByText("Attach")).not.toBeInTheDocument()
+    })
+
+    it("hides the entire action menu when the user has no write permissions (viewer)", () => {
+      vi.mocked(trpcReact.network.canUser.useQuery).mockReturnValue({
+        data: { canUpdate: false, canDisassociate: false, canDelete: false, canAssociate: false },
+      } as ReturnType<typeof trpcReact.network.canUser.useQuery>)
+      render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
+
+      expect(screen.queryByRole("button", { name: "Floating IP actions" })).not.toBeInTheDocument()
+      expect(screen.queryByText("Attach")).not.toBeInTheDocument()
     })
   })
 

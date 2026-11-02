@@ -55,6 +55,13 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
     error: portsError,
   } = trpcReact.network.floatingIp.listAvailablePorts.useQuery({ project_id: projectId })
 
+  // Specifying an exact floating IP address is admin-only; the field is hidden for everyone else
+  // Non admin users get an auto-assigned floating IP address instead
+  const { data: canSpecifyIpAddress = false } = trpcReact.network.canUser.useQuery(
+    { project_id: projectId, permission: ["network:floatingips:specify_ip_address"] },
+    { select: ([canSpecify]) => canSpecify }
+  )
+
   const formSchema = z.object({
     floating_network_id: z.string(),
     dns_domain: z.string(),
@@ -241,25 +248,27 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
               )}
             />
           </FormSection>
-          <FormSection className="mb-4">
-            <form.Field
-              name="floating_ip_address"
-              children={(field) => (
-                <TextInput
-                  id={field.name}
-                  name={field.name}
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  label={t`Floating IP Address`}
-                  placeholder={t`Enter a floating IP`}
-                  helptext={t`Enter a floating IP or leave blank to auto-assign one`}
-                  errortext={field.state.meta.errors.map((e) => e?.message).join(", ")}
-                  disabled={isPending}
-                />
-              )}
-            />
-          </FormSection>
+          {canSpecifyIpAddress && (
+            <FormSection className="mb-4">
+              <form.Field
+                name="floating_ip_address"
+                children={(field) => (
+                  <TextInput
+                    id={field.name}
+                    name={field.name}
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    label={t`Floating IP Address`}
+                    placeholder={t`Enter a floating IP`}
+                    helptext={t`Enter a floating IP or leave blank to auto-assign one`}
+                    errortext={field.state.meta.errors.map((e) => e?.message).join(", ")}
+                    disabled={isPending}
+                  />
+                )}
+              />
+            </FormSection>
+          )}
           <FormSection className="mb-4">
             <form.Field
               name="port_id"

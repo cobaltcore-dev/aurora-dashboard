@@ -82,6 +82,9 @@ vi.mock("@/client/trpcClient", async (importOriginal) => {
             useMutation: vi.fn(),
           },
         },
+        canUser: {
+          useQuery: vi.fn(),
+        },
       },
     },
   }
@@ -152,6 +155,10 @@ describe("AllocateFloatingIpModal", () => {
       >
     )
     vi.mocked(trpcReact.network.floatingIp.create.useMutation).mockReturnValue(createMockCreateMutationResult())
+    // Default: admin who may specify an exact IP address. Individual tests override to assert gating.
+    vi.mocked(trpcReact.network.canUser.useQuery).mockReturnValue({
+      data: true,
+    } as ReturnType<typeof trpcReact.network.canUser.useQuery>)
   })
 
   describe("Modal visibility", () => {
@@ -196,6 +203,26 @@ describe("AllocateFloatingIpModal", () => {
       expect(screen.getByText("Floating IP Address")).toBeInTheDocument()
       expect(screen.getByText("Port ID")).toBeInTheDocument()
       expect(screen.getByText("Fixed IP Address")).toBeInTheDocument()
+    })
+
+    it("shows the Floating IP Address field when the user may specify an exact IP (admin)", () => {
+      vi.mocked(trpcReact.network.canUser.useQuery).mockReturnValue({
+        data: true,
+      } as ReturnType<typeof trpcReact.network.canUser.useQuery>)
+      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, { wrapper: createWrapper() })
+
+      expect(screen.getByText("Floating IP Address")).toBeInTheDocument()
+    })
+
+    it("hides the Floating IP Address field when the user may not specify an exact IP (non-admin)", () => {
+      vi.mocked(trpcReact.network.canUser.useQuery).mockReturnValue({
+        data: false,
+      } as ReturnType<typeof trpcReact.network.canUser.useQuery>)
+      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, { wrapper: createWrapper() })
+
+      expect(screen.queryByText("Floating IP Address")).not.toBeInTheDocument()
+      // The rest of the allocation form stays available to non-admins.
+      expect(screen.getByText("External Network")).toBeInTheDocument()
     })
 
     it("renders external networks as options", async () => {
