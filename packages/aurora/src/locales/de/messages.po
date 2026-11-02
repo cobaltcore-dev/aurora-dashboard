@@ -3700,9 +3700,6 @@ msgstr ""
 msgid "Secret Details"
 msgstr ""
 
-msgid "Secret ID"
-msgstr ""
-
 msgid "Secret Not Found"
 msgstr ""
 

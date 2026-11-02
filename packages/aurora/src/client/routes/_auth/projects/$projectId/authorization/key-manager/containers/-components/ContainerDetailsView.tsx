@@ -6,7 +6,13 @@ import {
   DataGridRow,
   DataGridHeadCell,
   DataGridCell,
+  Button,
+  PopupMenu,
+  PopupMenuToggle,
+  PopupMenuItem,
+  PopupMenuOptions,
 } from "@cloudoperators/juno-ui-components"
+import { useNavigate } from "@tanstack/react-router"
 import { useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
@@ -21,6 +27,7 @@ interface ContainerDetailsViewProps {
 
 export function ContainerDetailsView({ projectId, containerId }: ContainerDetailsViewProps) {
   const { t } = useLingui()
+  const navigate = useNavigate()
   const {
     data: container,
     isLoading,
@@ -45,6 +52,13 @@ export function ContainerDetailsView({ projectId, containerId }: ContainerDetail
     { label: t`Updated`, value: new Date(container.updated).toLocaleString() },
   ]
 
+  const showSecretDetails = (secretId: string) => {
+    void navigate({
+      to: "/projects/$projectId/authorization/key-manager/secrets/$secretId",
+      params: { projectId, secretId },
+    })
+  }
+
   return (
     <>
       <ContentHeader title={container.name ?? containerId} projectId={projectId} />
@@ -57,20 +71,40 @@ export function ContainerDetailsView({ projectId, containerId }: ContainerDetail
 
         <Stack direction="vertical" gap="2">
           <ContentHeading>{t`Secrets`}</ContentHeading>
-          <DataGrid columns={2}>
+          <DataGrid columns={2} minContentColumns={[1]}>
             <DataGridRow>
-              <DataGridHeadCell>{t`Name`}</DataGridHeadCell>
-              <DataGridHeadCell>{t`Secret ID`}</DataGridHeadCell>
+              <DataGridHeadCell>{t`Name / ID`}</DataGridHeadCell>
+              <DataGridHeadCell>{""}</DataGridHeadCell>
             </DataGridRow>
             {container.secret_refs.length > 0 ? (
-              container.secret_refs.map((ref) => (
-                <DataGridRow key={ref.secret_ref}>
-                  <DataGridCell>{ref.name || "- -"}</DataGridCell>
-                  <DataGridCell>
-                    <ClipboardText text={uuidFromRef(ref.secret_ref)} />
-                  </DataGridCell>
-                </DataGridRow>
-              ))
+              container.secret_refs.map((ref) => {
+                const secretId = uuidFromRef(ref.secret_ref)
+                return (
+                  <DataGridRow key={ref.secret_ref}>
+                    <DataGridCell>
+                      <div>{ref.name || <em>{t`unnamed`}</em>}</div>
+                      <div className="text-xs opacity-60">
+                        <ClipboardText text={secretId} />
+                      </div>
+                    </DataGridCell>
+                    <DataGridCell onClick={(e: React.MouseEvent) => e.stopPropagation()} className="items-end pr-0">
+                      <PopupMenu>
+                        <PopupMenuToggle as="div">
+                          <Button
+                            icon="moreVert"
+                            title={t`Secret actions`}
+                            aria-label={t`Secret actions`}
+                            className="!bg-transparent"
+                          />
+                        </PopupMenuToggle>
+                        <PopupMenuOptions>
+                          <PopupMenuItem label={t`Show Details`} onClick={() => showSecretDetails(secretId)} />
+                        </PopupMenuOptions>
+                      </PopupMenu>
+                    </DataGridCell>
+                  </DataGridRow>
+                )
+              })
             ) : (
               <DataGridRow>
                 <DataGridCell colSpan={2}>
