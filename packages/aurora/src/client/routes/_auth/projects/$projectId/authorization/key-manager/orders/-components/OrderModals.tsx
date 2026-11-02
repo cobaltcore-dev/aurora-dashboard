@@ -168,6 +168,23 @@ export function CreateOrderModal({
             />
           </FormRow>
           <FormRow>
+            <DateTimePicker
+              id="expiration"
+              label={t`Expiration`}
+              enableTime
+              minDate="today"
+              value={expiration || undefined}
+              onChange={(dates) => {
+                const picked = dates?.[0]
+                setExpiration(picked ? picked.toISOString() : "")
+                setValidation((prev) => ({ ...prev, expiration: undefined }))
+              }}
+              invalid={Boolean(validation.expiration)}
+              errortext={validation.expiration}
+              helptext={t`Optional. If set, the generated secret will not be available after this UTC timestamp.`}
+            />
+          </FormRow>
+          <FormRow>
             <Select
               id="order-type"
               label={t`Type`}
@@ -245,23 +262,6 @@ export function CreateOrderModal({
               value={payloadContentType}
               onChange={(e) => setPayloadContentType(e.target.value)}
               placeholder="application/octet-stream"
-            />
-          </FormRow>
-          <FormRow>
-            <DateTimePicker
-              id="expiration"
-              label={t`Expiration`}
-              enableTime
-              minDate="today"
-              value={expiration || undefined}
-              onChange={(dates) => {
-                const picked = dates?.[0]
-                setExpiration(picked ? picked.toISOString() : "")
-                setValidation((prev) => ({ ...prev, expiration: undefined }))
-              }}
-              invalid={Boolean(validation.expiration)}
-              errortext={validation.expiration}
-              helptext={t`Optional. If set, the generated secret will not be available after this UTC timestamp.`}
             />
           </FormRow>
         </FormSection>
