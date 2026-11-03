@@ -11,10 +11,11 @@ import {
   DateTimePicker,
   Message,
   Stack,
-  Icon,
+  Button,
   toast,
 } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
+import { useQueryClient } from "@tanstack/react-query"
 import { trpcReact } from "@/client/trpcClient"
 import { uuidFromRef } from "../../-components/utils"
 import { getSecretCreatedToast, getSecretDeletedToast } from "../../-components/KeyManagerToastNotifications"
@@ -54,6 +55,7 @@ export function CreateSecretModal({
   onSuccess: () => void
 }) {
   const { t } = useLingui()
+  const queryClient = useQueryClient()
   const [name, setName] = useState("")
   const [secretType, setSecretType] = useState("")
   const [payload, setPayload] = useState("")
@@ -69,6 +71,7 @@ export function CreateSecretModal({
     onSuccess: () => {
       const { message, ...options } = getSecretCreatedToast(name.trim())
       toast.success(message, options)
+      void queryClient.invalidateQueries({ queryKey: ["km-all-secrets", projectId] })
       onSuccess()
       onClose()
     },
@@ -86,12 +89,12 @@ export function CreateSecretModal({
 
   const validate = (): SecretValidation => {
     const errors: SecretValidation = {}
-    if (!name.trim()) errors.name = t`Name can't be empty!`
-    if (!secretType) errors.secret_type = t`Secret type can't be empty!`
-    if (!payload.trim()) errors.payload = t`Payload can't be empty!`
-    if (!payloadContentType) errors.payload_content_type = t`Payload content type can't be empty!`
+    if (!name.trim()) errors.name = t`Name is required`
+    if (!secretType) errors.secret_type = t`Secret type is required`
+    if (!payload.trim()) errors.payload = t`Payload is required`
+    if (!payloadContentType) errors.payload_content_type = t`Payload content type is required`
     if (expiration && new Date(expiration) <= new Date()) {
-      errors.expiration = t`Selected date must be greater than the current date and time!`
+      errors.expiration = t`Expiration must be in the future`
     }
     return errors
   }
@@ -233,7 +236,7 @@ export function CreateSecretModal({
               label={t`Payload Content Type`}
               required
               value={payloadContentType}
-              placeholder={secretType ? t`Select...` : t`Please first select a secret type`}
+              placeholder={secretType ? t`Select...` : t`Select a secret type first`}
               disabled={!secretType}
               onChange={(v) => {
                 setPayloadContentType(typeof v === "string" ? v : "")
@@ -250,10 +253,7 @@ export function CreateSecretModal({
           {needsBase64 && (
             <>
               <FormRow>
-                <Message
-                  variant="warning"
-                  text={t`Please encode the payload according to the chosen content encoding below.`}
-                />
+                <Message variant="info" text={t`Encode the payload according to the content encoding below.`} />
               </FormRow>
               <FormRow>
                 <TextInput
@@ -274,26 +274,26 @@ export function CreateSecretModal({
 
 function SecretTypeHelp({ show, onToggle }: { show: boolean; onToggle: (value: boolean) => void }) {
   const { t } = useLingui()
-  if (!show) {
-    return (
-      <Stack alignment="center" gap="1" className="cursor-pointer" onClick={() => onToggle(true)}>
-        <p className="text-theme-light text-sm">{t`Show more info about secret types`}</p>
-        <Icon icon="chevronRight" />
-      </Stack>
-    )
-  }
   return (
     <Stack direction="vertical" gap="1" className="text-theme-light text-sm">
-      <p>{t`certificate — Used for storing cryptographic certificates such as X.509 certificates`}</p>
-      <p>{t`opaque — Used for backwards compatibility with previous versions of the API without typed secrets`}</p>
-      <p>{t`passphrase — Used for storing plain text passphrases`}</p>
-      <p>{t`private — Used for storing the private key of an asymmetric keypair`}</p>
-      <p>{t`public — Used for storing the public key of an asymmetric keypair`}</p>
-      <p>{t`symmetric — Used for storing byte arrays such as keys suitable for symmetric encryption`}</p>
-      <Stack alignment="center" gap="1" className="cursor-pointer" onClick={() => onToggle(false)}>
-        <p>{t`Hide info about secret types`}</p>
-        <Icon icon="chevronLeft" />
-      </Stack>
+      {show && (
+        <>
+          <p>{t`certificate — Used for storing cryptographic certificates such as X.509 certificates`}</p>
+          <p>{t`opaque — Used for backwards compatibility with previous versions of the API without typed secrets`}</p>
+          <p>{t`passphrase — Used for storing plain text passphrases`}</p>
+          <p>{t`private — Used for storing the private key of an asymmetric keypair`}</p>
+          <p>{t`public — Used for storing the public key of an asymmetric keypair`}</p>
+          <p>{t`symmetric — Used for storing byte arrays such as keys suitable for symmetric encryption`}</p>
+        </>
+      )}
+      <Button
+        variant="subdued"
+        size="small"
+        icon={show ? "chevronLeft" : "chevronRight"}
+        onClick={() => onToggle(!show)}
+        label={show ? t`Hide info about secret types` : t`Show more info about secret types`}
+        className="jn:self-start jn:!px-0"
+      />
     </Stack>
   )
 }
@@ -308,6 +308,7 @@ export function DeleteSecretModal({
   onClose: () => void
 }) {
   const { t } = useLingui()
+  const queryClient = useQueryClient()
   const secretId = uuidFromRef(secret.secret_ref)
   const secretName = secret.name ?? secretId
   const utils = trpcReact.useUtils()
@@ -316,6 +317,7 @@ export function DeleteSecretModal({
       const { message, ...options } = getSecretDeletedToast(secretName)
       toast.success(message, options)
       void utils.keyManager.listSecrets.invalidate()
+      void queryClient.invalidateQueries({ queryKey: ["km-all-secrets", projectId] })
       onClose()
     },
   })

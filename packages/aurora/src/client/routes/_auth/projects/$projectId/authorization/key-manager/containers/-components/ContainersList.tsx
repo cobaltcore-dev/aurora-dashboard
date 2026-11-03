@@ -49,35 +49,33 @@ export function ContainersList({
   const canList = permissions["key-manager:containers:list"]
   const isSearching = Boolean(search)
 
-  // Normal browsing: cheap server-side pagination.
-  const pageQuery = trpcReact.keyManager.listContainers.useQuery(
-    { project_id: projectId, offset: (page - 1) * PAGE_SIZE, limit: PAGE_SIZE },
-    { enabled: canList && !isSearching }
-  )
-
-  // Searching: Barbican can't filter containers, so fetch all and match name or id in the browser.
+  // Barbican's containers list ignores sort and returns oldest-first, so we fetch every page and
+  // sort newest-first in the browser (this also enables search by name or id). Paginated client-side.
   const allQuery = useAllKeyManagerPages<Container>(
     ["km-all-containers", projectId],
     async (offset, limit) => {
       const res = await utils.keyManager.listContainers.fetch({ project_id: projectId, offset, limit })
       return { total: res.total, items: res.containers }
     },
-    canList && isSearching
+    canList
   )
 
   const term = search.trim().toLowerCase()
-  const filtered = (allQuery.data ?? []).filter((c) => {
-    const id = uuidFromRef(c.container_ref)
-    return (c.name ?? "").toLowerCase().includes(term) || id.toLowerCase().includes(term)
-  })
+  const sorted = [...(allQuery.data ?? [])].sort(
+    (a, b) => new Date(b.created).getTime() - new Date(a.created).getTime()
+  )
+  const filtered = term
+    ? sorted.filter((c) => {
+        const id = uuidFromRef(c.container_ref)
+        return (c.name ?? "").toLowerCase().includes(term) || id.toLowerCase().includes(term)
+      })
+    : sorted
 
-  const isLoading = isSearching ? allQuery.isLoading : pageQuery.isLoading
-  const isError = isSearching ? allQuery.isError : pageQuery.isError
-  const error = isSearching ? allQuery.error : pageQuery.error
-  const totalCount = isSearching ? filtered.length : (pageQuery.data?.total ?? 0)
-  const containers = isSearching
-    ? filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
-    : (pageQuery.data?.containers ?? [])
+  const isLoading = allQuery.isLoading
+  const isError = allQuery.isError
+  const error = allQuery.error
+  const totalCount = filtered.length
+  const containers = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   // After deleting the last item on a page, step back so the user never lands on an empty page.
   useEffect(() => {

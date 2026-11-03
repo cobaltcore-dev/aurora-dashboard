@@ -425,7 +425,7 @@ describe("keyManagerRouter containers", () => {
       expect(result.containers[0].type).toBe("certificate")
     })
 
-    it("forwards pagination and name params and defaults to created:desc sort", async () => {
+    it("forwards pagination and name params but not sort (Barbican containers ignores sort)", async () => {
       const ctx = createMockContext()
       const caller = createCaller(ctx)
 
@@ -436,7 +436,7 @@ describe("keyManagerRouter containers", () => {
       expect(params.get("offset")).toBe("20")
       expect(params.get("limit")).toBe("10")
       expect(params.get("name")).toBe("tls")
-      expect(params.get("sort")).toBe("created:desc")
+      expect(params.has("sort")).toBe(false)
     })
   })
 
@@ -509,7 +509,7 @@ describe("keyManagerRouter orders", () => {
       expect(result.orders[0].type).toBe("key")
     })
 
-    it("sends offset/limit and defaults to created:desc sort", async () => {
+    it("sends only offset/limit (Barbican orders ignores sort)", async () => {
       const ctx = createMockContext()
       const caller = createCaller(ctx)
 
@@ -519,7 +519,7 @@ describe("keyManagerRouter orders", () => {
       expect(path).toBe("v1/orders")
       expect(params.get("offset")).toBe("10")
       expect(params.get("limit")).toBe("25")
-      expect(params.get("sort")).toBe("created:desc")
+      expect(params.has("sort")).toBe(false)
     })
   })
 

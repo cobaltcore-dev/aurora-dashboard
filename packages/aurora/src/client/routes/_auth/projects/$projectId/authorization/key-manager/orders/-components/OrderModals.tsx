@@ -13,6 +13,7 @@ import {
   toast,
 } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
+import { useQueryClient } from "@tanstack/react-query"
 import { trpcReact } from "@/client/trpcClient"
 import { uuidFromRef } from "../../-components/utils"
 import { getOrderCreatedToast, getOrderDeletedToast } from "../../-components/KeyManagerToastNotifications"
@@ -79,6 +80,7 @@ export function CreateOrderModal({
   onSuccess: () => void
 }) {
   const { t } = useLingui()
+  const queryClient = useQueryClient()
   const [orderType, setOrderType] = useState<OrderType>("key")
   const [name, setName] = useState("")
   const [algorithm, setAlgorithm] = useState("aes")
@@ -92,6 +94,7 @@ export function CreateOrderModal({
     onSuccess: () => {
       const { message, ...options } = getOrderCreatedToast(name.trim())
       toast.success(message, options)
+      void queryClient.invalidateQueries({ queryKey: ["km-all-orders", projectId] })
       onSuccess()
       onClose()
     },
@@ -292,6 +295,7 @@ export function DeleteOrderModal({
   onClose: () => void
 }) {
   const { t } = useLingui()
+  const queryClient = useQueryClient()
   const orderId = uuidFromRef(order.order_ref)
   const orderName = typeof order.meta?.name === "string" ? order.meta.name : orderId
   const utils = trpcReact.useUtils()
@@ -300,6 +304,7 @@ export function DeleteOrderModal({
       const { message, ...options } = getOrderDeletedToast(orderName)
       toast.success(message, options)
       void utils.keyManager.listOrders.invalidate()
+      void queryClient.invalidateQueries({ queryKey: ["km-all-orders", projectId] })
       onClose()
     },
   })

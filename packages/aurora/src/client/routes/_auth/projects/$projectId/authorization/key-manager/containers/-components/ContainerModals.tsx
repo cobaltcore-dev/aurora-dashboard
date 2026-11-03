@@ -13,6 +13,7 @@ import {
   toast,
 } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
+import { useQueryClient } from "@tanstack/react-query"
 import { trpcReact } from "@/client/trpcClient"
 import { uuidFromRef } from "../../-components/utils"
 import { getContainerCreatedToast, getContainerDeletedToast } from "../../-components/KeyManagerToastNotifications"
@@ -30,6 +31,7 @@ export function CreateContainerModal({
   onSuccess: () => void
 }) {
   const { t } = useLingui()
+  const queryClient = useQueryClient()
   const [name, setName] = useState("")
   const [type, setType] = useState<Container["type"]>("generic")
   // RSA / Certificate: maps field name → selected secret_ref URI
@@ -73,6 +75,7 @@ export function CreateContainerModal({
     onSuccess: () => {
       const { message, ...options } = getContainerCreatedToast(name.trim())
       toast.success(message, options)
+      void queryClient.invalidateQueries({ queryKey: ["km-all-containers", projectId] })
       onSuccess()
       onClose()
     },
@@ -282,6 +285,7 @@ export function DeleteContainerModal({
   onClose: () => void
 }) {
   const { t } = useLingui()
+  const queryClient = useQueryClient()
   const containerId = uuidFromRef(container.container_ref)
   const containerName = container.name ?? containerId
   const utils = trpcReact.useUtils()
@@ -290,6 +294,7 @@ export function DeleteContainerModal({
       const { message, ...options } = getContainerDeletedToast(containerName)
       toast.success(message, options)
       void utils.keyManager.listContainers.invalidate()
+      void queryClient.invalidateQueries({ queryKey: ["km-all-containers", projectId] })
       onClose()
     },
   })

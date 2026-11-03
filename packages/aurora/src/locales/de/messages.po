@@ -1615,6 +1615,9 @@ msgstr ""
 msgid "Enabled"
 msgstr ""
 
+msgid "Encode the payload according to the content encoding below."
+msgstr ""
+
 msgid "End of the range. Leave empty for a single port."
 msgstr ""
 
@@ -1736,6 +1739,9 @@ msgid "Expiration"
 msgstr ""
 
 msgid "Expiration date must be in the future."
+msgstr ""
+
+msgid "Expiration must be in the future"
 msgstr ""
 
 msgid "Expire non-current versions"
@@ -2815,7 +2821,7 @@ msgstr "Name"
 msgid "Name / ID"
 msgstr ""
 
-msgid "Name can't be empty!"
+msgid "Name is required"
 msgstr ""
 
 msgid "Name must be 2-50 characters long."
@@ -3226,31 +3232,25 @@ msgstr ""
 msgid "Payload"
 msgstr ""
 
-msgid "Payload can't be empty!"
-msgstr ""
-
 msgid "Payload Content Encoding"
 msgstr ""
 
 msgid "Payload Content Type"
 msgstr ""
 
-msgid "Payload content type can't be empty!"
+msgid "Payload content type is required"
+msgstr ""
+
+msgid "Payload is required"
 msgstr ""
 
 msgid "Pending"
 msgstr "Ausstehend"
 
-msgid "Please encode the payload according to the chosen content encoding below."
-msgstr ""
-
 msgid "Please enter a valid number of minutes greater than 0"
 msgstr "Bitte geben Sie eine gültige Anzahl von Minuten größer als 0 ein"
 
 msgid "Please enter a valid positive number"
-msgstr ""
-
-msgid "Please first select a secret type"
 msgstr ""
 
 msgid "Please fix the validation errors below."
@@ -3706,7 +3706,7 @@ msgstr ""
 msgid "Secret Type"
 msgstr ""
 
-msgid "Secret type can't be empty!"
+msgid "Secret type is required"
 msgstr ""
 
 msgid "Secrets"
@@ -3769,6 +3769,9 @@ msgstr ""
 msgid "Select a rule type..."
 msgstr "Regeltyp auswählen..."
 
+msgid "Select a secret type first"
+msgstr ""
+
 msgid "Select a secret..."
 msgstr ""
 
@@ -3809,9 +3812,6 @@ msgid "Select rule {ruleLabel}"
 msgstr ""
 
 msgid "Select..."
-msgstr ""
-
-msgid "Selected date must be greater than the current date and time!"
 msgstr ""
 
 msgid "Serve objects as index when file name is:"
