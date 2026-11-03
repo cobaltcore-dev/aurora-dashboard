@@ -160,7 +160,7 @@ function ImagesContent({
     .map((img) => imageOverrides.get(img.id) ?? img)
 
   // Calculate total pages from API's totalCount if available
-  const PAGE_SIZE = 50
+  const PAGE_SIZE = 30
   const hasNextPage = !!imagesData.next
   const totalItems = imagesData.totalCount ?? (hasNextPage ? PAGE_SIZE * (currentPage + 1) : images.length)
   const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE))
