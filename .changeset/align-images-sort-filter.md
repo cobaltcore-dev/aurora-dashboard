@@ -11,3 +11,4 @@
 - Reduce Images list pagination to 30 items per page
 - Show a friendly "Access Denied" message when listing images returns a 403
 - Show a success toast after deleting an image from its detail page
+- Refetch the Images list after a rename so search reflects the new name

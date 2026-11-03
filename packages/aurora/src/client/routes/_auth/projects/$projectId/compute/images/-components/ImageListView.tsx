@@ -237,6 +237,10 @@ export function ImageListView({
       toast.success(message, options)
       setSelectedImage(updatedImage)
       onImageUpdated(updatedImage)
+      // The list/search runs server-side (listImagesWithSearch filters by name), so an optimistic
+      // override alone leaves a rename invisible to the active search until a full refresh. Rebuild
+      // the list promise so search operates on the updated names. Matches the create flow.
+      onMemberStatusChanged()
       return true
     } catch (error) {
       const errorMessage = (error as TRPCClientError<InferrableClientTypes>)?.message ?? ""
