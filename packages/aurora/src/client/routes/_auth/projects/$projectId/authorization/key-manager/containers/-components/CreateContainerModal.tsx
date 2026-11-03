@@ -171,6 +171,7 @@ export function CreateContainerModal({
             <Select
               id="container-type"
               label={t`Type`}
+              required
               value={type}
               onChange={(v) => handleTypeChange(typeof v === "string" ? v : "generic")}
             >
@@ -194,6 +195,7 @@ export function CreateContainerModal({
                   <Select
                     id={`secret-${field.name}`}
                     label={field.required ? field.label : `${field.label} (${t`optional`})`}
+                    required={field.required}
                     value={namedRefs[field.name] ?? ""}
                     onChange={(v) => {
                       setNamedRefs((prev) => ({
