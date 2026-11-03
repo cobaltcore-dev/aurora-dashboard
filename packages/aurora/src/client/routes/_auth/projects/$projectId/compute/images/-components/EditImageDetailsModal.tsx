@@ -106,8 +106,9 @@ export const EditImageDetailsModal: React.FC<EditImageDetailsModalProps> = ({
     const { name, value, type, checked } = e.target
 
     if (type === "number") {
-      // type="number" blanks e.target.value for input it can't parse (e.g. "1e", "-") and sets
-      // validity.badInput. Check badInput FIRST so such input is always treated as an error.
+      // type="number" blanks e.target.value for input it can't parse (e.g. "1e", "-3e", "e-25")
+      // and sets validity.badInput. Check badInput FIRST so unparseable input is always an error
+      // and never mistaken for a deliberate clear — even though value reads as "" in both cases.
       if (e.target.validity.badInput) {
         if (name === "min_disk") {
           setFieldError("min_disk", t`Please enter a valid positive number`)
@@ -116,8 +117,8 @@ export const EditImageDetailsModal: React.FC<EditImageDetailsModalProps> = ({
         }
         return
       }
-      // min_disk / min_ram are optional — an empty field is valid and means 0. Match Create:
-      // never error on empty, reset to 0 and clear any existing error.
+      // min_disk / min_ram are optional — a genuinely empty field (not badInput) is valid and
+      // means 0. Clearing a parseable invalid value like "-234" lands here and clears the error.
       if (value.trim() === "") {
         setProperties((prev) => ({ ...prev, [name]: 0 }))
         setFieldError(name, null)
@@ -147,6 +148,19 @@ export const EditImageDetailsModal: React.FC<EditImageDetailsModalProps> = ({
       if (type !== "checkbox") {
         setFieldError(name, validateField(name, value))
       }
+    }
+  }
+
+  const handleNumericKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // min_disk / min_ram accept only non-negative integers, so allow only the digits 0-9.
+    // Everything else type="number" would otherwise accept ("e", "E", "+", "-", ".") leaves the
+    // field in a badInput state the change handler can't reliably see, so block it at the
+    // keystroke. Editing/navigation keys and shortcuts (Backspace, arrows, Ctrl+V, …) are let
+    // through — they are not single printable characters.
+    const isSingleChar = e.key.length === 1
+    const isModifierCombo = e.ctrlKey || e.metaKey || e.altKey
+    if (isSingleChar && !isModifierCombo && !/^[0-9]$/.test(e.key)) {
+      e.preventDefault()
     }
   }
 
@@ -350,6 +364,7 @@ export const EditImageDetailsModal: React.FC<EditImageDetailsModalProps> = ({
                 min="0"
                 value={String(properties.min_disk)}
                 onChange={handleInputChange}
+                onKeyDown={handleNumericKeyDown}
                 helptext={t`Minimum disk size required to boot this image`}
                 errortext={errors.min_disk}
               />
@@ -364,6 +379,7 @@ export const EditImageDetailsModal: React.FC<EditImageDetailsModalProps> = ({
                 min="0"
                 value={String(properties.min_ram)}
                 onChange={handleInputChange}
+                onKeyDown={handleNumericKeyDown}
                 helptext={t`Minimum RAM required to boot this image`}
                 errortext={errors.min_ram}
               />

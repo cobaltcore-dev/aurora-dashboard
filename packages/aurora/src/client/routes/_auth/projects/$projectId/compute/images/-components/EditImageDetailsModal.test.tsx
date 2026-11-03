@@ -681,4 +681,25 @@ describe("EditImageDetailsModal", () => {
     await user.click(saveButton)
     await waitFor(() => expect(mockOnSave).toHaveBeenCalledWith({ min_disk: 0 }))
   })
+
+  test("clears the number error after an invalid value is deleted", async () => {
+    renderEditModal(true, mockOnClose, mockImage, mockOnSave)
+
+    const minDiskInput = screen.getByLabelText("Minimum Disk (GB)")
+
+    // Enter an invalid negative value → error appears
+    await act(async () => {
+      fireEvent.change(minDiskInput, { target: { value: "-234" } })
+    })
+    await waitFor(() => expect(screen.getByText("Please enter a valid positive number")).toBeDefined())
+
+    // Delete it back to empty → error must clear (empty optional field is valid)
+    await act(async () => {
+      fireEvent.change(minDiskInput, { target: { value: "" } })
+    })
+    await waitFor(() => {
+      expect(screen.queryByText("Please enter a valid positive number")).toBeNull()
+      expect(screen.getByRole("button", { name: /Save Changes/i })).not.toBeDisabled()
+    })
+  })
 })

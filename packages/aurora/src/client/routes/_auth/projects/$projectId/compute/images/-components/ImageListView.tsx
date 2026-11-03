@@ -452,7 +452,10 @@ export function ImageListView({
   const closeEditMetadataModal = () => {
     setSelectedImage(null)
     setEditMetadataModalOpen(false)
-    utils.compute.listImagesWithPagination.invalidate()
+    // The list is driven by a promise built in List.tsx, not a React Query hook, so invalidating
+    // the query cache does nothing here. onMemberStatusChanged() rebuilds that promise so metadata
+    // edits are reflected in the list (and the modal's source image) without a manual refresh.
+    onMemberStatusChanged()
   }
 
   const closeDeleteModal = () => {
