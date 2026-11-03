@@ -191,6 +191,15 @@ export function CreateOrderModal({
                 setExpiration(picked ? picked.toISOString() : "")
                 setValidation((prev) => ({ ...prev, expiration: undefined }))
               }}
+              onBlur={() =>
+                setValidation((prev) => ({
+                  ...prev,
+                  expiration:
+                    expiration && new Date(expiration) <= new Date()
+                      ? t`Expiration date must be in the future.`
+                      : undefined,
+                }))
+              }
               invalid={Boolean(validation.expiration)}
               errortext={validation.expiration}
               helptext={t`Optional. If set, the generated secret will not be available after this UTC timestamp.`}

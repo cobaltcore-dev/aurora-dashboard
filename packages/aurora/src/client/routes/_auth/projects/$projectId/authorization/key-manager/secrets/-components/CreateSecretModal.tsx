@@ -85,14 +85,37 @@ export function CreateSecretModal({
     setValidation((prev) => ({ ...prev, secret_type: undefined }))
   }
 
+  // Per-field validator reused on blur and on submit (mirrors the Security Group create modal).
+  const validateField = (field: keyof SecretValidation): string | undefined => {
+    switch (field) {
+      case "name":
+        return name.trim() ? undefined : t`Name is required`
+      case "secret_type":
+        return secretType ? undefined : t`Secret type is required`
+      case "payload":
+        return payload.trim() ? undefined : t`Payload is required`
+      case "payload_content_type":
+        return payloadContentType ? undefined : t`Payload content type is required`
+      case "expiration":
+        return expiration && new Date(expiration) <= new Date() ? t`Expiration must be in the future` : undefined
+      default:
+        return undefined
+    }
+  }
+
+  const handleBlur = (field: keyof SecretValidation) => {
+    setValidation((prev) => ({ ...prev, [field]: validateField(field) }))
+  }
+
+  const clearError = (field: keyof SecretValidation) => {
+    setValidation((prev) => ({ ...prev, [field]: undefined }))
+  }
+
   const validate = (): SecretValidation => {
     const errors: SecretValidation = {}
-    if (!name.trim()) errors.name = t`Name is required`
-    if (!secretType) errors.secret_type = t`Secret type is required`
-    if (!payload.trim()) errors.payload = t`Payload is required`
-    if (!payloadContentType) errors.payload_content_type = t`Payload content type is required`
-    if (expiration && new Date(expiration) <= new Date()) {
-      errors.expiration = t`Expiration must be in the future`
+    for (const field of ["name", "secret_type", "payload", "payload_content_type", "expiration"] as const) {
+      const error = validateField(field)
+      if (error) errors[field] = error
     }
     return errors
   }
@@ -146,7 +169,11 @@ export function CreateSecretModal({
               label={t`Name`}
               required
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                setName(e.target.value)
+                clearError("name")
+              }}
+              onBlur={() => handleBlur("name")}
               invalid={Boolean(validation.name)}
               errortext={validation.name}
             />
@@ -161,8 +188,9 @@ export function CreateSecretModal({
               onChange={(dates) => {
                 const picked = dates?.[0]
                 setExpiration(picked ? picked.toISOString() : "")
-                setValidation((prev) => ({ ...prev, expiration: undefined }))
+                clearError("expiration")
               }}
+              onBlur={() => handleBlur("expiration")}
               invalid={Boolean(validation.expiration)}
               errortext={validation.expiration}
               helptext={t`Optional. If set, the secret will not be available after this UTC timestamp.`}
@@ -222,7 +250,11 @@ export function CreateSecretModal({
               required
               rows={6}
               value={payload}
-              onChange={(e) => setPayload(e.target.value)}
+              onChange={(e) => {
+                setPayload(e.target.value)
+                clearError("payload")
+              }}
+              onBlur={() => handleBlur("payload")}
               invalid={Boolean(validation.payload)}
               errortext={validation.payload}
               helptext={validation.payload ? undefined : t`The secret's data to be stored.`}
