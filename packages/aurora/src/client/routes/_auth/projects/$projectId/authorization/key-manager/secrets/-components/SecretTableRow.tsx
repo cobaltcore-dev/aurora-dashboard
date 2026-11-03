@@ -49,7 +49,7 @@ export function SecretTableRow({ secret, canDeleteSecret, onShowDetails, onDelet
             {canDeleteSecret && (
               <>
                 <PopupMenuSectionSeparator />
-                <PopupMenuItem label={t`Delete`} onClick={() => onDelete(secret)} />
+                <PopupMenuItem label={t`Delete Secret`} onClick={() => onDelete(secret)} />
               </>
             )}
           </PopupMenuOptions>

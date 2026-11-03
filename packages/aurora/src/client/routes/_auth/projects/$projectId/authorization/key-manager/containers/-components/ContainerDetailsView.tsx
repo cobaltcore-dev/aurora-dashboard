@@ -19,6 +19,7 @@ import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import { TwoColumnDescriptionList, type DetailListItem } from "@/client/components/TwoColumnDescriptionList"
 import ClipboardText from "@/client/components/ClipboardText"
 import { uuidFromRef } from "../../-components/utils"
+import { useKeyManagerPermissions } from "../../-components/useKeyManagerPermissions"
 
 interface ContainerDetailsViewProps {
   projectId: string
@@ -28,16 +29,25 @@ interface ContainerDetailsViewProps {
 export function ContainerDetailsView({ projectId, containerId }: ContainerDetailsViewProps) {
   const { t } = useLingui()
   const navigate = useNavigate()
+  const { permissions, isLoading: permissionsLoading } = useKeyManagerPermissions(projectId, [
+    "key-manager:containers:get",
+  ])
+  const canGet = permissions["key-manager:containers:get"]
   const {
     data: container,
     isLoading,
     isError,
     error,
-  } = trpcReact.keyManager.getContainer.useQuery({
-    project_id: projectId,
-    containerId,
-  })
+  } = trpcReact.keyManager.getContainer.useQuery(
+    {
+      project_id: projectId,
+      containerId,
+    },
+    { enabled: canGet }
+  )
 
+  if (permissionsLoading) return null
+  if (!canGet) return <Status status="error" title={t`You do not have permission to view this container.`} />
   if (isLoading) return <Status status="progress" title={t`Loading Container...`} />
   if (isError) return <Status status="error" title={error?.message ?? t`Failed to Load Container`} />
   if (!container) return <Status status="empty" title={t`Container Not Found`} />

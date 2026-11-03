@@ -83,7 +83,7 @@ describe("ContainerTableRow", () => {
       const { onDelete } = renderRow(mockContainer, true)
 
       await user.click(screen.getByRole("button", { name: "Container actions" }))
-      await user.click(await screen.findByText("Delete"))
+      await user.click(await screen.findByText("Delete Container"))
 
       expect(onDelete).toHaveBeenCalledWith(mockContainer)
     })
@@ -95,7 +95,7 @@ describe("ContainerTableRow", () => {
       await user.click(screen.getByRole("button", { name: "Container actions" }))
 
       expect(await screen.findByText("Show Details")).toBeInTheDocument()
-      expect(screen.queryByText("Delete")).not.toBeInTheDocument()
+      expect(screen.queryByText("Delete Container")).not.toBeInTheDocument()
     })
   })
 })

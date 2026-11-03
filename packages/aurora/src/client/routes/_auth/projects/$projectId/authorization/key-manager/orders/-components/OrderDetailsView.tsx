@@ -6,6 +6,7 @@ import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import { TwoColumnDescriptionList, type DetailListItem } from "@/client/components/TwoColumnDescriptionList"
 import ClipboardText from "@/client/components/ClipboardText"
 import { uuidFromRef } from "../../-components/utils"
+import { useKeyManagerPermissions } from "../../-components/useKeyManagerPermissions"
 
 interface OrderDetailsViewProps {
   projectId: string
@@ -14,16 +15,23 @@ interface OrderDetailsViewProps {
 
 export function OrderDetailsView({ projectId, orderId }: OrderDetailsViewProps) {
   const { t } = useLingui()
+  const { permissions, isLoading: permissionsLoading } = useKeyManagerPermissions(projectId, ["key-manager:orders:get"])
+  const canGet = permissions["key-manager:orders:get"]
   const {
     data: order,
     isLoading,
     isError,
     error,
-  } = trpcReact.keyManager.getOrder.useQuery({
-    project_id: projectId,
-    orderId,
-  })
+  } = trpcReact.keyManager.getOrder.useQuery(
+    {
+      project_id: projectId,
+      orderId,
+    },
+    { enabled: canGet }
+  )
 
+  if (permissionsLoading) return null
+  if (!canGet) return <Status status="error" title={t`You do not have permission to view this order.`} />
   if (isLoading) return <Status status="progress" title={t`Loading Order...`} />
   if (isError) return <Status status="error" title={error?.message ?? t`Failed to Load Order`} />
   if (!order) return <Status status="empty" title={t`Order Not Found`} />

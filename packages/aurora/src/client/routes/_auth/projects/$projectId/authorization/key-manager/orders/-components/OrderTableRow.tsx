@@ -49,7 +49,7 @@ export function OrderTableRow({ order, canDeleteOrder, onShowDetails, onDelete }
             {canDeleteOrder && (
               <>
                 <PopupMenuSectionSeparator />
-                <PopupMenuItem label={t`Delete`} onClick={() => onDelete(order)} />
+                <PopupMenuItem label={t`Delete Order`} onClick={() => onDelete(order)} />
               </>
             )}
           </PopupMenuOptions>

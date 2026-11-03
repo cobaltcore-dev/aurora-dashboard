@@ -38,8 +38,15 @@ export const Route = createFileRoute("/_auth/projects/$projectId/authorization/k
     crumb: { text: msg`Key Manager` },
   } satisfies RouteInfo,
   beforeLoad: async ({ context, params }) => {
-    const { trpcClient } = context
+    const { trpcClient, enabledServices, deniedServices } = context
     const { projectId } = params
+    // Honor the appConfig service visibility (allow/deny lists) the nav uses, so a direct URL
+    // can't reach a service the operator disabled. Deny always wins, even with no allow list.
+    const isEnabled =
+      (!enabledServices || enabledServices.includes("key-manager")) && !deniedServices?.includes("key-manager")
+    if (!isEnabled) {
+      throw redirect({ to: "/projects/$projectId", params: { projectId } })
+    }
     try {
       const availableServices = await trpcClient?.auth.getAvailableServices.query()
       const serviceIndex = getServiceIndex(availableServices ?? [])

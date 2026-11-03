@@ -17,7 +17,11 @@ export function SecretDetailsView({ projectId, secretId }: SecretDetailsViewProp
   const [showPayload, setShowPayload] = useState(false)
 
   // Payload exposes the raw secret material; fail-closed until the dedicated permission resolves.
-  const { permissions } = useKeyManagerPermissions(projectId, ["key-manager:secrets:payload"])
+  const { permissions, isLoading: permissionsLoading } = useKeyManagerPermissions(projectId, [
+    "key-manager:secrets:get",
+    "key-manager:secrets:payload",
+  ])
+  const canGet = permissions["key-manager:secrets:get"]
   const canRevealPayload = permissions["key-manager:secrets:payload"]
 
   const {
@@ -25,10 +29,13 @@ export function SecretDetailsView({ projectId, secretId }: SecretDetailsViewProp
     isLoading,
     isError,
     error,
-  } = trpcReact.keyManager.getSecret.useQuery({
-    project_id: projectId,
-    secretId,
-  })
+  } = trpcReact.keyManager.getSecret.useQuery(
+    {
+      project_id: projectId,
+      secretId,
+    },
+    { enabled: canGet }
+  )
 
   const {
     data: payloadData,
@@ -37,6 +44,8 @@ export function SecretDetailsView({ projectId, secretId }: SecretDetailsViewProp
     refetch: fetchPayload,
   } = trpcReact.keyManager.getSecretPayload.useQuery({ project_id: projectId, secretId }, { enabled: false })
 
+  if (permissionsLoading) return null
+  if (!canGet) return <Status status="error" title={t`You do not have permission to view this secret.`} />
   if (isLoading) return <Status status="progress" title={t`Loading Secret...`} />
   if (isError) return <Status status="error" title={error?.message ?? t`Failed to Load Secret`} />
   if (!secret) return <Status status="empty" title={t`Secret Not Found`} />
@@ -92,7 +101,11 @@ export function SecretDetailsView({ projectId, secretId }: SecretDetailsViewProp
               <Message variant="error" text={t`Failed to load payload.`} />
             ) : payloadData ? (
               <Stack direction="vertical" gap="2">
-                <p className="text-sm opacity-60">{payloadData.contentType}</p>
+                <p className="text-sm opacity-60">
+                  {payloadData.encoding === "base64"
+                    ? `${payloadData.contentType} ${t`(base64-encoded)`}`
+                    : payloadData.contentType}
+                </p>
                 <pre className="bg-theme-background-lvl-2 max-h-48 overflow-auto rounded p-4 text-xs">
                   {payloadData.payload}
                 </pre>

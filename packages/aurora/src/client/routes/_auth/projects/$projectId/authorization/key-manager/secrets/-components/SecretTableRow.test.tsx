@@ -94,7 +94,7 @@ describe("SecretTableRow", () => {
       const { onDelete } = renderRow(mockSecret, true)
 
       await user.click(screen.getByRole("button", { name: "Secret actions" }))
-      await user.click(await screen.findByText("Delete"))
+      await user.click(await screen.findByText("Delete Secret"))
 
       expect(onDelete).toHaveBeenCalledWith(mockSecret)
     })
@@ -106,7 +106,7 @@ describe("SecretTableRow", () => {
       await user.click(screen.getByRole("button", { name: "Secret actions" }))
 
       expect(await screen.findByText("Show Details")).toBeInTheDocument()
-      expect(screen.queryByText("Delete")).not.toBeInTheDocument()
+      expect(screen.queryByText("Delete Secret")).not.toBeInTheDocument()
     })
   })
 })

@@ -105,6 +105,7 @@ const createMockContext = (opts?: {
     statusText: statusText ?? (ok ? "OK" : "Error"),
     json: vi.fn().mockResolvedValue(parseError ? { invalid: "data" } : body),
     text: vi.fn().mockResolvedValue(payloadText),
+    arrayBuffer: vi.fn().mockResolvedValue(new TextEncoder().encode(payloadText).buffer),
     headers: { get: vi.fn().mockReturnValue(payloadContentType) },
   })
 
@@ -317,14 +318,26 @@ describe("keyManagerRouter secrets", () => {
   })
 
   describe("getSecretPayload", () => {
-    it("returns the raw payload text and content type", async () => {
+    it("returns a text payload as-is with utf-8 encoding", async () => {
+      const caller = createCaller(createMockContext({ payloadText: "hello", payloadContentType: "text/plain" }))
+
+      const result = await caller.keyManager.getSecretPayload({ project_id: TEST_PROJECT_ID, secretId: "secret-1" })
+
+      expect(result).toEqual({ payload: "hello", contentType: "text/plain", encoding: "utf-8" })
+    })
+
+    it("base64-encodes a binary payload so bytes survive transport", async () => {
       const caller = createCaller(
         createMockContext({ payloadText: "my-key", payloadContentType: "application/octet-stream" })
       )
 
       const result = await caller.keyManager.getSecretPayload({ project_id: TEST_PROJECT_ID, secretId: "secret-1" })
 
-      expect(result).toEqual({ payload: "my-key", contentType: "application/octet-stream" })
+      expect(result).toEqual({
+        payload: Buffer.from("my-key").toString("base64"),
+        contentType: "application/octet-stream",
+        encoding: "base64",
+      })
     })
 
     it("requests the payload endpoint with an octet-stream Accept header and debugging disabled", async () => {

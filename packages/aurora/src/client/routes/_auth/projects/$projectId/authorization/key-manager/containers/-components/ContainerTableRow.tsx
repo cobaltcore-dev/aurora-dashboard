@@ -48,7 +48,7 @@ export function ContainerTableRow({ container, canDeleteContainer, onShowDetails
             {canDeleteContainer && (
               <>
                 <PopupMenuSectionSeparator />
-                <PopupMenuItem label={t`Delete`} onClick={() => onDelete(container)} />
+                <PopupMenuItem label={t`Delete Container`} onClick={() => onDelete(container)} />
               </>
             )}
           </PopupMenuOptions>

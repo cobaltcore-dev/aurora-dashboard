@@ -62,6 +62,9 @@ msgstr "\"{objectName}\" wurde erfolgreich nach {destination} verschoben."
 msgid "\"{objectName}\" was successfully uploaded."
 msgstr "\"{objectName}\" wurde erfolgreich hochgeladen."
 
+msgid "(base64-encoded)"
+msgstr ""
+
 #. placeholder {0}: selectedIndices.length
 msgid "{0, plural, one {Delete # Lifecycle Rule} other {Delete # Lifecycle Rules}}"
 msgstr ""
@@ -4868,6 +4871,15 @@ msgid "You do not have permission to view secrets."
 msgstr ""
 
 msgid "You do not have permission to view security groups"
+msgstr ""
+
+msgid "You do not have permission to view this container."
+msgstr ""
+
+msgid "You do not have permission to view this order."
+msgstr ""
+
+msgid "You do not have permission to view this secret."
 msgstr ""
 
 msgid "You do not have the required permissions to access this port."

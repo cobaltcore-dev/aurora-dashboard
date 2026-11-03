@@ -73,7 +73,7 @@ describe("OrderTableRow", () => {
       const { onDelete } = renderRow(mockOrder, true)
 
       await user.click(screen.getByRole("button", { name: "Order actions" }))
-      await user.click(await screen.findByText("Delete"))
+      await user.click(await screen.findByText("Delete Order"))
 
       expect(onDelete).toHaveBeenCalledWith(mockOrder)
     })
@@ -85,7 +85,7 @@ describe("OrderTableRow", () => {
       await user.click(screen.getByRole("button", { name: "Order actions" }))
 
       expect(await screen.findByText("Show Details")).toBeInTheDocument()
-      expect(screen.queryByText("Delete")).not.toBeInTheDocument()
+      expect(screen.queryByText("Delete Order")).not.toBeInTheDocument()
     })
   })
 })

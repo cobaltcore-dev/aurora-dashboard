@@ -194,8 +194,13 @@ export const buildKeyManagerResourceRouter = (policyDir: string) => {
           })
         if (!res.ok) throw await kmErrorFromResponse(res, "get secret payload")
         const contentType = res.headers?.get?.("content-type") ?? "text/plain"
-        const text = await res.text()
-        return { payload: text, contentType }
+        // Text payloads are returned as-is; binary payloads (octet-stream, pkcs8, pkix-cert, …) are
+        // base64-encoded so the bytes survive JSON transport instead of being mangled by res.text().
+        if (contentType.startsWith("text/")) {
+          return { payload: await res.text(), contentType, encoding: "utf-8" as const }
+        }
+        const bytes = Buffer.from(await res.arrayBuffer())
+        return { payload: bytes.toString("base64"), contentType, encoding: "base64" as const }
       }),
 
     createSecret: projectScopedProcedure
