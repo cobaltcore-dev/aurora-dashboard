@@ -1,6 +1,6 @@
 import { DataGrid, DataGridHeadCell, DataGridRow, DataGridCell, Status } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
-import { SECRETS_COLUMNS, SECRETS_COLUMN_COUNT } from "./constants"
+import { SECRETS_COLUMNS, SECRETS_COLUMN_COUNT } from "./secretColumns"
 import { SecretTableRow } from "./SecretTableRow"
 import type { Secret } from "@/server/KeyManager/types/keyManager"
 

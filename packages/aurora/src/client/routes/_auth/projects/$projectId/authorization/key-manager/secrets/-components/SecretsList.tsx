@@ -12,11 +12,12 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useLingui } from "@lingui/react/macro"
-import { useKeyManagerPermissions } from "../../-components/useKeyManagerPermissions"
-import { useAllKeyManagerPages } from "../../-components/useAllKeyManagerPages"
-import { uuidFromRef } from "../../-components/keyManagerUtils"
+import { useKeyManagerPermissions } from "@/client/routes/_auth/projects/$projectId/authorization/key-manager/-components/useKeyManagerPermissions"
+import { useAllKeyManagerPages } from "@/client/routes/_auth/projects/$projectId/authorization/key-manager/-components/useAllKeyManagerPages"
+import { uuidFromRef } from "@/client/routes/_auth/projects/$projectId/authorization/key-manager/-components/keyManagerUtils"
 import { SecretListContainer } from "./SecretListContainer"
-import { CreateSecretModal, DeleteSecretModal } from "./SecretModals"
+import { CreateSecretModal } from "./CreateSecretModal"
+import { DeleteSecretModal } from "./DeleteSecretModal"
 import type { Secret } from "@/server/KeyManager/types/keyManager"
 
 const PAGE_SIZE = 50

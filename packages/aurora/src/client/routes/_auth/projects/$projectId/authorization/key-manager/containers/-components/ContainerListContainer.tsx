@@ -1,6 +1,6 @@
 import { DataGrid, DataGridHeadCell, DataGridRow, DataGridCell, Status } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
-import { CONTAINERS_COLUMNS, CONTAINERS_COLUMN_COUNT } from "./constants"
+import { CONTAINERS_COLUMNS, CONTAINERS_COLUMN_COUNT } from "./containerColumns"
 import { ContainerTableRow } from "./ContainerTableRow"
 import type { Container } from "@/server/KeyManager/types/keyManager"
 

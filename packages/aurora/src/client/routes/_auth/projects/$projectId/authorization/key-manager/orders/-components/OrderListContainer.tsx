@@ -1,6 +1,6 @@
 import { DataGrid, DataGridHeadCell, DataGridRow, DataGridCell, Status } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
-import { ORDERS_COLUMNS, ORDERS_COLUMN_COUNT } from "./constants"
+import { ORDERS_COLUMNS, ORDERS_COLUMN_COUNT } from "./orderColumns"
 import { OrderTableRow } from "./OrderTableRow"
 import type { Order } from "@/server/KeyManager/types/keyManager"
 

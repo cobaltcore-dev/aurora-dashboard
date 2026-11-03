@@ -5,8 +5,8 @@ import { trpcReact } from "@/client/trpcClient"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import { TwoColumnDescriptionList, type DetailListItem } from "@/client/components/TwoColumnDescriptionList"
 import ClipboardText from "@/client/components/ClipboardText"
-import { uuidFromRef } from "../../-components/keyManagerUtils"
-import { useKeyManagerPermissions } from "../../-components/useKeyManagerPermissions"
+import { uuidFromRef } from "@/client/routes/_auth/projects/$projectId/authorization/key-manager/-components/keyManagerUtils"
+import { useKeyManagerPermissions } from "@/client/routes/_auth/projects/$projectId/authorization/key-manager/-components/useKeyManagerPermissions"
 
 interface OrderDetailsViewProps {
   projectId: string
