@@ -308,8 +308,8 @@ describe("imageRouter", () => {
       expect(mockCtx.mockGlance.get).toHaveBeenCalledTimes(3)
       const ubuntuImages = result.images.filter((img) => img.name?.includes("ubuntu"))
       expect(ubuntuImages.length).toBeGreaterThan(0)
-      // Should only return first 50 results (FRONTEND_PAGE_SIZE)
-      expect(result.images.length).toBeLessThanOrEqual(50)
+      // Should only return first page of results (FRONTEND_PAGE_SIZE)
+      expect(result.images.length).toBeLessThanOrEqual(30)
     })
 
     it("should fetch all pages to get accurate total count", async () => {
@@ -354,7 +354,7 @@ describe("imageRouter", () => {
 
       // Should fetch all 3 pages to get accurate total count
       expect(mockCtx.mockGlance.get).toHaveBeenCalledTimes(3)
-      expect(result.images).toHaveLength(50) // Returns FRONTEND_PAGE_SIZE
+      expect(result.images).toHaveLength(30) // Returns FRONTEND_PAGE_SIZE
       expect(result.next).toBeDefined() // Should have next marker for more results
       expect(result.totalCount).toBe(90) // Should have accurate total count from all pages
     })
