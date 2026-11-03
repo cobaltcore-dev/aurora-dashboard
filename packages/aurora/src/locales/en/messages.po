@@ -4543,6 +4543,9 @@ msgstr "You don't have permission to share this security group."
 msgid "You don't have permission to view extra specs for this flavor."
 msgstr "You don't have permission to view extra specs for this flavor."
 
+msgid "You don't have permission to view images in this project. Contact your administrator to grant you the necessary permissions."
+msgstr "You don't have permission to view images in this project. Contact your administrator to grant you the necessary permissions."
+
 msgid "You don't have permission to view this flavor's details."
 msgstr "You don't have permission to view this flavor's details."
 

@@ -59,6 +59,7 @@ type ImagesResult = {
   next?: string
   schema: string
   listError?: string
+  listForbidden?: boolean
   totalCount?: number
 }
 
@@ -150,6 +151,16 @@ function ImagesContent({
   const acceptedSharedIds = new Set((sharedAcceptedQuery.data ?? []).map((img) => img.id))
 
   useEffect(() => () => clearTimeout(debounceTimer.current), [])
+
+  if (imagesData.listForbidden) {
+    return (
+      <Status
+        status="error"
+        title={t`Access Denied`}
+        body={t`You don't have permission to view images in this project. Contact your administrator to grant you the necessary permissions.`}
+      />
+    )
+  }
 
   if (imagesData.listError) {
     return <Status status="error" title={t`Failed to Load Images`} body={imagesData.listError} />
