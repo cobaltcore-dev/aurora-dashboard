@@ -184,7 +184,7 @@ Give Aurora project members a read-only view of their project's Nova instances a
 
 **Aurora / Juno implementation notes**
 
-- The `addresses` field is `z.record(networkName, addressItem[])` in `serverSchema` (`addr`, `version`, `mac_addr`, `type`). Grouping is pure client-side over that map — zero additional requests.
+- The `addresses` field is a network-name-to-address-array map. Nova supplies `addr`, `version`, `OS-EXT-IPS-MAC:mac_addr`, and `OS-EXT-IPS:type`; before implementing this view, update `addressItemSchema` to preserve and normalize the prefixed keys to the client's `mac_addr` / `type` fields, with a regression test using the existing Nova fixtures. Grouping remains entirely client-side, with zero additional requests.
 - Datagrid-in-detail pattern — reference the `flavors` detail layout for the nested table.
 - **Refresh:** none (E1).
 
