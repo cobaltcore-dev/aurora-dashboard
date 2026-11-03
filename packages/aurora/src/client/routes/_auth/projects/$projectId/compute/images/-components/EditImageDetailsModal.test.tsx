@@ -613,4 +613,54 @@ describe("EditImageDetailsModal", () => {
       protected: true,
     })
   })
+
+  test("disables Save and shows error on input when name exceeds 255 characters", async () => {
+    const user = userEvent.setup()
+    renderEditModal(true, mockOnClose, mockImage, mockOnSave)
+
+    const nameInput = screen.getByLabelText("Image Name")
+    await user.clear(nameInput)
+    await user.type(nameInput, "a".repeat(256))
+
+    const saveButton = screen.getByRole("button", { name: /Save Changes/i })
+    await waitFor(() => {
+      expect(screen.getByText("Image name must be at most 255 characters")).toBeDefined()
+      expect(saveButton).toBeDisabled()
+    })
+  })
+
+  test("re-enables Save when name is corrected back to valid length", async () => {
+    const user = userEvent.setup()
+    renderEditModal(true, mockOnClose, mockImage, mockOnSave)
+
+    const nameInput = screen.getByLabelText("Image Name")
+    await user.clear(nameInput)
+    await user.type(nameInput, "a".repeat(256))
+
+    const saveButton = screen.getByRole("button", { name: /Save Changes/i })
+    await waitFor(() => expect(saveButton).toBeDisabled())
+
+    // Correct it: error clears and Save becomes available again
+    await user.clear(nameInput)
+    await user.type(nameInput, "Valid Name")
+
+    await waitFor(() => {
+      expect(screen.queryByText("Image name must be at most 255 characters")).toBeNull()
+      expect(saveButton).not.toBeDisabled()
+    })
+  })
+
+  test("disables Save on input when name is cleared (required)", async () => {
+    const user = userEvent.setup()
+    renderEditModal(true, mockOnClose, mockImage, mockOnSave)
+
+    const nameInput = screen.getByLabelText("Image Name")
+    await user.clear(nameInput)
+
+    const saveButton = screen.getByRole("button", { name: /Save Changes/i })
+    await waitFor(() => {
+      expect(screen.getByText("Image name is required")).toBeDefined()
+      expect(saveButton).toBeDisabled()
+    })
+  })
 })

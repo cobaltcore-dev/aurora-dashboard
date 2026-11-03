@@ -761,7 +761,7 @@ export function ImageListView({
               client={trpcClient}
               isOpen={editMetadataModalOpen}
               onClose={closeEditMetadataModal}
-              image={selectedImage}
+              image={images.find((img) => img.id === selectedImage.id) ?? selectedImage}
               projectId={projectId}
             />
             <DeleteImageModal
