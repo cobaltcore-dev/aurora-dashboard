@@ -247,7 +247,7 @@ describe("ImageDetailsView", () => {
       expect(screen.getByText("False")).toBeInTheDocument()
     })
 
-    it("should render null values as 'null'", () => {
+    it("should render null values as a placeholder", () => {
       const imageWithCustomProps = {
         ...mockImage,
         nullable_field: null,
@@ -255,7 +255,7 @@ describe("ImageDetailsView", () => {
       setup(<CustomPropertiesSection image={imageWithCustomProps} />)
 
       expect(screen.getByText("nullable_field")).toBeInTheDocument()
-      expect(screen.getByText("null")).toBeInTheDocument()
+      expect(screen.getByText("- -")).toBeInTheDocument()
     })
 
     it("should render empty array values as a placeholder", () => {

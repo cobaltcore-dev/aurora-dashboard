@@ -4318,6 +4318,9 @@ msgstr "Objekt hochladen nach:"
 msgid "Upload of \"{objectName}\" was cancelled."
 msgstr "Upload von \"{objectName}\" wurde abgebrochen."
 
+msgid "Upload progress"
+msgstr ""
+
 msgid "Uploading File..."
 msgstr ""
 
@@ -4539,6 +4542,9 @@ msgstr "Sie haben keine Berechtigung, diese Sicherheitsgruppe zu teilen."
 
 msgid "You don't have permission to view extra specs for this flavor."
 msgstr "Sie haben keine Berechtigung, Metadata für diesen Flavor anzusehen."
+
+msgid "You don't have permission to view images in this project. Contact your administrator to grant you the necessary permissions."
+msgstr ""
 
 msgid "You don't have permission to view this flavor's details."
 msgstr "Sie haben keine Berechtigung, die Details dieses Flavors anzuzeigen."
