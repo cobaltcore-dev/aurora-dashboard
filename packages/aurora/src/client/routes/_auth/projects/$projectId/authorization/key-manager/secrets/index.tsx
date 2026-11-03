@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { z } from "zod"
 import { t } from "@lingui/core/macro"
 import { SecretsList } from "./-components/SecretsList"
-import { uuidFromRef } from "../-components/utils"
+import { uuidFromRef } from "../-components/keyManagerUtils"
 import type { Secret } from "@/server/KeyManager/types/keyManager"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 

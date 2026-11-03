@@ -17,7 +17,7 @@ import {
 import { useLingui } from "@lingui/react/macro"
 import { useQueryClient } from "@tanstack/react-query"
 import { trpcReact } from "@/client/trpcClient"
-import { uuidFromRef } from "../../-components/utils"
+import { uuidFromRef } from "../../-components/keyManagerUtils"
 import { getSecretCreatedToast, getSecretDeletedToast } from "../../-components/KeyManagerToastNotifications"
 import type { Secret } from "@/server/KeyManager/types/keyManager"
 

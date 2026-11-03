@@ -9,7 +9,7 @@ import {
   PopupMenuSectionSeparator,
 } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
-import { uuidFromRef } from "../../-components/utils"
+import { uuidFromRef } from "../../-components/keyManagerUtils"
 import ClipboardText from "@/client/components/ClipboardText"
 import type { Secret } from "@/server/KeyManager/types/keyManager"
 

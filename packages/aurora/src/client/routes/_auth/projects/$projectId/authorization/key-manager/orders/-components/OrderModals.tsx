@@ -15,7 +15,7 @@ import {
 import { useLingui } from "@lingui/react/macro"
 import { useQueryClient } from "@tanstack/react-query"
 import { trpcReact } from "@/client/trpcClient"
-import { uuidFromRef } from "../../-components/utils"
+import { uuidFromRef } from "../../-components/keyManagerUtils"
 import { getOrderCreatedToast, getOrderDeletedToast } from "../../-components/KeyManagerToastNotifications"
 import type { Order } from "@/server/KeyManager/types/keyManager"
 
