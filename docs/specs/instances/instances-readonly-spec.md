@@ -61,7 +61,7 @@ Give Aurora project members a read-only view of their project's Nova instances a
 
 ## 1 — API & environment gate
 
-**What to build:** Nothing to code — a tracking/verification sub-issue that the backing API and dev environment are ready, so every downstream sub-issue has a clear green light.
+**What to build:** Verify the backing API and dev environment, and harden the existing `compute.getServersByProjectId` procedure: propagate Nova failures through the existing OpenStack-to-tRPC error middleware, surface service/parse failures as errors, and return `[]` only for a successfully fetched empty list. These are prerequisites for the downstream unauthorized and retry states.
 **Blocked by:** None (can start immediately) · **Status:** ready-for-agent
 
 **Checklist**
