@@ -4318,6 +4318,9 @@ msgstr "Upload object to:"
 msgid "Upload of \"{objectName}\" was cancelled."
 msgstr "Upload of \"{objectName}\" was cancelled."
 
+msgid "Upload progress"
+msgstr "Upload progress"
+
 msgid "Uploading File..."
 msgstr "Uploading File..."
 
