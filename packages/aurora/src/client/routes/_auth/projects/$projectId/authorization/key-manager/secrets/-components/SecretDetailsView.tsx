@@ -73,7 +73,7 @@ export function SecretDetailsView({ projectId, secretId }: SecretDetailsViewProp
     <>
       <ContentHeader title={secret.name ?? secretId} projectId={projectId} />
 
-      <Stack direction="vertical" gap="6" className="my-6">
+      <Stack direction="vertical" gap="6" className="mt-6">
         <Stack direction="vertical" gap="2">
           <ContentHeading>{t`Secret Details`}</ContentHeading>
           <TwoColumnDescriptionList items={detailItems} />
@@ -93,7 +93,7 @@ export function SecretDetailsView({ projectId, secretId }: SecretDetailsViewProp
             ) : payloadData ? (
               <Stack direction="vertical" gap="2">
                 <p className="text-sm opacity-60">{payloadData.contentType}</p>
-                <pre className="bg-theme-background-lvl-2 max-h-48 overflow-auto rounded p-3 text-xs">
+                <pre className="bg-theme-background-lvl-2 max-h-48 overflow-auto rounded p-4 text-xs">
                   {payloadData.payload}
                 </pre>
                 <Stack gap="2">

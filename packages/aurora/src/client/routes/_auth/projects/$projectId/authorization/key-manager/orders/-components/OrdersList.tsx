@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Button, DataGridToolbar, Message, Pagination, SearchInput, Stack } from "@cloudoperators/juno-ui-components"
+import { Button, DataGridToolbar, Pagination, SearchInput, Stack, Status } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useLingui } from "@lingui/react/macro"
 import { useKeyManagerPermissions } from "../../-components/useKeyManagerPermissions"
@@ -80,7 +80,7 @@ export function OrdersList({ projectId, search, page, onSearchChange, onPageChan
 
   if (permissionsLoading) return null
   if (!canList) {
-    return <Message variant="warning">{t`You do not have permission to view orders.`}</Message>
+    return <Status status="error" title={t`You do not have permission to view orders.`} />
   }
 
   const totalPages = totalCount ? Math.ceil(totalCount / PAGE_SIZE) : 1

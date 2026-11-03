@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import {
   Button,
   DataGridToolbar,
-  Message,
+  Status,
   Pagination,
   SearchInput,
   Select,
@@ -116,7 +116,7 @@ export function SecretsList({
 
   if (permissionsLoading) return null
   if (!canList) {
-    return <Message variant="warning">{t`You do not have permission to view secrets.`}</Message>
+    return <Status status="error" title={t`You do not have permission to view secrets.`} />
   }
 
   const totalPages = totalCount ? Math.ceil(totalCount / PAGE_SIZE) : 1

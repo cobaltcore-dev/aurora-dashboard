@@ -72,7 +72,7 @@ export function OrderDetailsView({ projectId, orderId }: OrderDetailsViewProps) 
     <>
       <ContentHeader title={`${t`Order`}: ${order.type}`} projectId={projectId} />
 
-      <Stack direction="vertical" gap="6" className="my-6">
+      <Stack direction="vertical" gap="6" className="mt-6">
         <Stack direction="vertical" gap="2">
           <ContentHeading>{t`Order Details`}</ContentHeading>
           <TwoColumnDescriptionList items={detailItems} />

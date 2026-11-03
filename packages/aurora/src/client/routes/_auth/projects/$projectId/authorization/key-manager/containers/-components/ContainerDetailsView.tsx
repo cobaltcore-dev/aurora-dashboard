@@ -63,7 +63,7 @@ export function ContainerDetailsView({ projectId, containerId }: ContainerDetail
     <>
       <ContentHeader title={container.name ?? containerId} projectId={projectId} />
 
-      <Stack direction="vertical" gap="6" className="my-6">
+      <Stack direction="vertical" gap="6" className="mt-6">
         <Stack direction="vertical" gap="2">
           <ContentHeading>{t`Container Details`}</ContentHeading>
           <TwoColumnDescriptionList items={detailItems} />
