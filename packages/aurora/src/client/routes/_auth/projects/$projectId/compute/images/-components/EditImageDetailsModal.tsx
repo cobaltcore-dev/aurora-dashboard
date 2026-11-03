@@ -106,9 +106,25 @@ export const EditImageDetailsModal: React.FC<EditImageDetailsModalProps> = ({
     const { name, value, type, checked } = e.target
 
     if (type === "number") {
-      // For number inputs, check if the input is invalid
-      if (value === "" || e.target.validity.valid === false) {
-        // Invalid number input - set error immediately
+      // type="number" blanks e.target.value for input it can't parse (e.g. "1e", "-") and sets
+      // validity.badInput. Check badInput FIRST so such input is always treated as an error.
+      if (e.target.validity.badInput) {
+        if (name === "min_disk") {
+          setFieldError("min_disk", t`Please enter a valid positive number`)
+        } else if (name === "min_ram") {
+          setFieldError("min_ram", t`Please enter a valid positive number`)
+        }
+        return
+      }
+      // min_disk / min_ram are optional — an empty field is valid and means 0. Match Create:
+      // never error on empty, reset to 0 and clear any existing error.
+      if (value.trim() === "") {
+        setProperties((prev) => ({ ...prev, [name]: 0 }))
+        setFieldError(name, null)
+        return
+      }
+      // Accept only plain non-negative integers (parseInt is too lenient: "1e5" -> 1).
+      if (!/^\d+$/.test(value.trim())) {
         if (name === "min_disk") {
           setFieldError("min_disk", t`Please enter a valid positive number`)
         } else if (name === "min_ram") {

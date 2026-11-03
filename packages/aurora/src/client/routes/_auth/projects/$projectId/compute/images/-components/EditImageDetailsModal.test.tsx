@@ -663,4 +663,22 @@ describe("EditImageDetailsModal", () => {
       expect(saveButton).toBeDisabled()
     })
   })
+
+  test("clearing an optional number field is valid and treated as 0 (matches Create)", async () => {
+    const user = userEvent.setup()
+    renderEditModal(true, mockOnClose, mockImage, mockOnSave)
+
+    const minDiskInput = screen.getByLabelText("Minimum Disk (GB)") as HTMLInputElement
+    await user.clear(minDiskInput)
+
+    // No error, and Save is enabled because clearing changed min_disk from 10 to 0
+    const saveButton = screen.getByRole("button", { name: /Save Changes/i })
+    await waitFor(() => {
+      expect(screen.queryByText("Please enter a valid positive number")).toBeNull()
+      expect(saveButton).not.toBeDisabled()
+    })
+
+    await user.click(saveButton)
+    await waitFor(() => expect(mockOnSave).toHaveBeenCalledWith({ min_disk: 0 }))
+  })
 })

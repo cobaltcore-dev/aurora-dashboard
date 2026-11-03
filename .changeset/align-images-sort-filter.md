@@ -7,3 +7,4 @@
 - Use Juno ProgressBar for image upload progress
 - Refresh image data after metadata edits so reopening the modal shows current values
 - Validate Edit Image fields on input, disabling Save until corrected
+- Treat empty optional number fields as valid in Edit Image, matching Create
