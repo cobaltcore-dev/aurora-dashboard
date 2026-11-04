@@ -237,6 +237,10 @@ export function ImageListView({
       toast.success(message, options)
       setSelectedImage(updatedImage)
       onImageUpdated(updatedImage)
+      // The list/search runs server-side (listImagesWithSearch filters by name), so an optimistic
+      // override alone leaves a rename invisible to the active search until a full refresh. Rebuild
+      // the list promise so search operates on the updated names. Matches the create flow.
+      onMemberStatusChanged()
       return true
     } catch (error) {
       const errorMessage = (error as TRPCClientError<InferrableClientTypes>)?.message ?? ""
@@ -452,7 +456,10 @@ export function ImageListView({
   const closeEditMetadataModal = () => {
     setSelectedImage(null)
     setEditMetadataModalOpen(false)
-    utils.compute.listImagesWithPagination.invalidate()
+    // The list is driven by a promise built in List.tsx, not a React Query hook, so invalidating
+    // the query cache does nothing here. onMemberStatusChanged() rebuilds that promise so metadata
+    // edits are reflected in the list (and the modal's source image) without a manual refresh.
+    onMemberStatusChanged()
   }
 
   const closeDeleteModal = () => {
@@ -761,7 +768,7 @@ export function ImageListView({
               client={trpcClient}
               isOpen={editMetadataModalOpen}
               onClose={closeEditMetadataModal}
-              image={selectedImage}
+              image={images.find((img) => img.id === selectedImage.id) ?? selectedImage}
               projectId={projectId}
             />
             <DeleteImageModal
