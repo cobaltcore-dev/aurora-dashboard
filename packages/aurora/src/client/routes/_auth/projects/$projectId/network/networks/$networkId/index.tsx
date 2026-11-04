@@ -122,7 +122,7 @@ function NetworkErrorComponent({ error, reset }: ErrorComponentProps) {
   return <NetworkLoadError error={error} onRetry={handleRetry} />
 }
 
-export const Route = createFileRoute("/_auth/projects/$projectId/network/networks/$networkId")({
+export const Route = createFileRoute("/_auth/projects/$projectId/network/networks/$networkId/")({
   staticData: {
     section: "network",
     service: "networks",

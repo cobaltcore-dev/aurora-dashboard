@@ -3,8 +3,8 @@ import { useSearch, useNavigate } from "@tanstack/react-router"
 import { ErrorBoundary } from "react-error-boundary"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { TRPCClientError } from "@trpc/client"
-import { TrpcClient } from "@/client/trpcClient"
-import { Button, Stack, DataGridToolbar, SearchInput, Status } from "@cloudoperators/juno-ui-components"
+import { trpcClient, TrpcClient } from "@/client/trpcClient"
+import { Button, Message, Stack, DataGridToolbar, SearchInput, Status } from "@cloudoperators/juno-ui-components"
 import type { NetworkListItem, NetworkQueryParameters } from "@/server/Network/types/network"
 import { SortInput } from "@/client/components/ListToolbar/SortInput"
 import { FiltersInput } from "@/client/components/ListToolbar/FiltersInput"
@@ -39,7 +39,7 @@ interface NetworkFilters {
   shared?: NetworkSharedFilter
 }
 
-type NetworksResult = { networks: NetworkListItem[]; listError?: string }
+type NetworksResult = { networks: NetworkListItem[]; forbidden?: boolean; unauthorized?: boolean }
 
 const createNetworksPromise = (
   client: TrpcClient,
@@ -60,10 +60,15 @@ const createNetworksPromise = (
 
   return client.network.networks.list
     .query(query)
-    .then((networks) => ({ networks, listError: undefined }))
+    .then((networks) => ({ networks }))
     .catch((err: unknown) => {
+      // 403: no access — render as an info message, not an error boundary (B.6)
       if (err instanceof TRPCClientError && err.data?.code === "FORBIDDEN") {
-        return { networks: [], listError: err.message }
+        return { networks: [], forbidden: true }
+      }
+      // 401: session expired — redirect to sign-in (B.6)
+      if (err instanceof TRPCClientError && err.data?.code === "UNAUTHORIZED") {
+        return { networks: [], unauthorized: true }
       }
       throw err
     })
@@ -74,6 +79,23 @@ const isStatusFilter = (value: string): value is NetworkStatusFilter =>
 
 const isSharedFilter = (value: string): value is NetworkSharedFilter =>
   (NETWORK_SHARED_FILTER_VALUES as readonly string[]).includes(value)
+
+/** Full-document redirect to sign-in (not a client navigate) so AuthProvider re-checks the session on
+ *  reload; a client navigate keeps its stale cached user and bounces straight back to this list (B.6).
+ *  Terminates the server session first so the landing route does not immediately send the user back. */
+function UnauthorizedRedirect() {
+  useEffect(() => {
+    const { pathname, search, hash } = window.location
+    const redirect = encodeURIComponent(pathname + search + hash)
+    trpcClient.auth.terminateUserSession
+      .mutate()
+      .catch(() => {})
+      .finally(() => {
+        window.location.replace(`/?redirect=${redirect}`)
+      })
+  }, [])
+  return null
+}
 
 function NetworksContent({
   networksPromise,
@@ -106,7 +128,7 @@ function NetworksContent({
   isStale: boolean
 }) {
   const { t } = useLingui()
-  const { networks, listError } = use(networksPromise)
+  const { networks, forbidden, unauthorized } = use(networksPromise)
   const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm)
   const debounceTimer = useRef<number | undefined>(undefined)
   // Last term this input sent to the URL, so only external URL changes (back/forward, links) overwrite the input
@@ -137,8 +159,14 @@ function NetworksContent({
     if (!isStale && currentPage > totalPages) onPageChange(1)
   }, [isStale, totalPages, currentPage, onPageChange])
 
-  if (listError) {
-    return <Status status="error" title={t`Failed to Load Networks`} body={listError} />
+  if (unauthorized) return <UnauthorizedRedirect />
+
+  if (forbidden) {
+    return (
+      <Message variant="info" title={t`Insufficient Permissions`}>
+        <Trans>You do not have the required permissions to view networks in this project.</Trans>
+      </Message>
+    )
   }
 
   return (

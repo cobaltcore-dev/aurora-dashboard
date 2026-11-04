@@ -4579,6 +4579,9 @@ msgstr "You do not have permission to view security groups"
 msgid "You do not have the required permissions to access this port."
 msgstr "You do not have the required permissions to access this port."
 
+msgid "You do not have the required permissions to view networks in this project."
+msgstr "You do not have the required permissions to view networks in this project."
+
 msgid "You do not have the required permissions to view ports in this project."
 msgstr "You do not have the required permissions to view ports in this project."
 

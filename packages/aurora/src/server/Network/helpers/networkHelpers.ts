@@ -82,6 +82,8 @@ export const NetworkErrorHandlers = {
   }),
 
   listSubnets: ErrorHandler("Network"),
+
+  listPorts: ErrorHandler("Network"),
 }
 
 /* -------------------------------------------------------------------------- */

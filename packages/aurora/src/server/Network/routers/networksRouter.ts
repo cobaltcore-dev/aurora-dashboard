@@ -19,6 +19,7 @@ import {
   NetworkTagsResponseSchema,
   NetworkSubnetListResponseSchema,
 } from "../types/network"
+import { Port, PortListResponseSchema } from "../types/port"
 import {
   NetworkErrorHandlers,
   buildNetworkBody,
@@ -34,6 +35,7 @@ import { fetchSubnetSummaries } from "../helpers/lookupHelpers"
 
 const NETWORKS_BASE_URL = "v2.0/networks"
 const SUBNETS_BASE_URL = "v2.0/subnets"
+const PORTS_BASE_URL = "v2.0/ports"
 
 const LIST_NETWORKS_QUERY_KEY_MAP: Record<string, string> = {
   tags_any: "tags-any",
@@ -212,4 +214,24 @@ export const networksRouter = {
         return parseOrThrow(NetworkSubnetListResponseSchema, data, "networksRouter.listSubnets").subnets
       }, "list network subnets")
     }),
+
+  listPorts: projectScopedProcedure.input(NetworkIdInputSchema).query(async ({ input, ctx }): Promise<Port[]> => {
+    return withErrorHandling(async () => {
+      const { network_id } = input
+      const network = getNetworkService(ctx)
+
+      // Validates the ID; it is sent as a query param (encoded by URLSearchParams), not as a path segment
+      validateAndEncodeResourceId(network_id, "Network")
+
+      const params = appendQueryParamsFromObject({ network_id })
+      const response = await requestOrThrow(
+        () => network.get(withQuery(PORTS_BASE_URL, params)),
+        NetworkErrorHandlers.listPorts,
+        network_id
+      )
+
+      const data = await response.json()
+      return parseOrThrow(PortListResponseSchema, data, "networksRouter.listPorts").ports
+    }, "list network ports")
+  }),
 }
