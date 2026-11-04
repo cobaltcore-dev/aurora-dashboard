@@ -9,7 +9,10 @@ import {
   PopupMenuSectionSeparator,
 } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
-import { uuidFromRef } from "@/client/routes/_auth/projects/$projectId/authorization/key-manager/-components/keyManagerUtils"
+import {
+  uuidFromRef,
+  toMixedCase,
+} from "@/client/routes/_auth/projects/$projectId/authorization/key-manager/-components/keyManagerUtils"
 import ClipboardText from "@/client/components/ClipboardText"
 import type { Secret } from "@/server/KeyManager/types/keyManager"
 
@@ -31,7 +34,7 @@ export function SecretTableRow({ secret, canDeleteSecret, onShowDetails, onDelet
           <ClipboardText text={id} />
         </div>
       </DataGridCell>
-      <DataGridCell>{secret.status}</DataGridCell>
+      <DataGridCell>{toMixedCase(secret.status)}</DataGridCell>
       <DataGridCell>{secret.secret_type}</DataGridCell>
       <DataGridCell>{secret.content_types ? Object.values(secret.content_types).join(", ") : "- -"}</DataGridCell>
       <DataGridCell onClick={(e: React.MouseEvent) => e.stopPropagation()} className="items-end pr-0">

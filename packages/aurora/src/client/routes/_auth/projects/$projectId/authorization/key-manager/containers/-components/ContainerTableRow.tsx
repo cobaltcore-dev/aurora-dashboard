@@ -9,7 +9,10 @@ import {
   PopupMenuSectionSeparator,
 } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
-import { uuidFromRef } from "@/client/routes/_auth/projects/$projectId/authorization/key-manager/-components/keyManagerUtils"
+import {
+  uuidFromRef,
+  toMixedCase,
+} from "@/client/routes/_auth/projects/$projectId/authorization/key-manager/-components/keyManagerUtils"
 import ClipboardText from "@/client/components/ClipboardText"
 import type { Container } from "@/server/KeyManager/types/keyManager"
 
@@ -31,7 +34,7 @@ export function ContainerTableRow({ container, canDeleteContainer, onShowDetails
           <ClipboardText text={id} />
         </div>
       </DataGridCell>
-      <DataGridCell>{container.status}</DataGridCell>
+      <DataGridCell>{toMixedCase(container.status)}</DataGridCell>
       <DataGridCell>{container.type}</DataGridCell>
       <DataGridCell onClick={(e: React.MouseEvent) => e.stopPropagation()} className="items-end pr-0">
         <PopupMenu>
