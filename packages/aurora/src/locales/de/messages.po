@@ -3634,6 +3634,9 @@ msgstr ""
 msgid "Search buckets..."
 msgstr "Buckets suchen..."
 
+msgid "Search by name"
+msgstr ""
+
 msgid "Search by name or ID"
 msgstr ""
 

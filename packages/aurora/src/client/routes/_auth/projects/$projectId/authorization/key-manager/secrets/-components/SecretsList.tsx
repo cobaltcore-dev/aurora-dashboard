@@ -13,8 +13,6 @@ import {
 import { trpcReact } from "@/client/trpcClient"
 import { useLingui } from "@lingui/react/macro"
 import { useKeyManagerPermissions } from "@/client/routes/_auth/projects/$projectId/authorization/key-manager/-components/useKeyManagerPermissions"
-import { useAllKeyManagerPages } from "@/client/routes/_auth/projects/$projectId/authorization/key-manager/-components/useAllKeyManagerPages"
-import { uuidFromRef } from "@/client/routes/_auth/projects/$projectId/authorization/key-manager/-components/keyManagerUtils"
 import { SecretListContainer } from "./SecretListContainer"
 import { CreateSecretModal } from "./CreateSecretModal"
 import { DeleteSecretModal } from "./DeleteSecretModal"
@@ -73,40 +71,18 @@ export function SecretsList({
   const canList = permissions["key-manager:secrets:list"]
   const isSearching = Boolean(search)
 
-  // Normal browsing: cheap server-side pagination.
-  const pageQuery = trpcReact.keyManager.listSecrets.useQuery(
-    { project_id: projectId, offset: (page - 1) * PAGE_SIZE, limit: PAGE_SIZE, sort: sort || undefined },
-    { enabled: canList && !isSearching }
-  )
-
-  // Searching: Barbican's secret filter matches name only, so fetch all and match name or id here.
-  const allQuery = useAllKeyManagerPages<Secret>(
-    ["km-all-secrets", projectId, sort],
-    async (offset, limit) => {
-      const res = await utils.keyManager.listSecrets.fetch({
-        project_id: projectId,
-        offset,
-        limit,
-        sort: sort || undefined,
-      })
-      return { total: res.total, items: res.secrets }
+  const { data, isLoading, isError, error } = trpcReact.keyManager.listSecrets.useQuery(
+    {
+      project_id: projectId,
+      offset: (page - 1) * PAGE_SIZE,
+      limit: PAGE_SIZE,
+      name: search || undefined,
+      sort: sort || undefined,
     },
-    canList && isSearching
+    { enabled: canList }
   )
 
-  const term = search.trim().toLowerCase()
-  const filtered = (allQuery.data ?? []).filter((s) => {
-    const id = uuidFromRef(s.secret_ref)
-    return (s.name ?? "").toLowerCase().includes(term) || id.toLowerCase().includes(term)
-  })
-
-  const isLoading = isSearching ? allQuery.isLoading : pageQuery.isLoading
-  const isError = isSearching ? allQuery.isError : pageQuery.isError
-  const error = isSearching ? allQuery.error : pageQuery.error
-  const totalCount = isSearching ? filtered.length : (pageQuery.data?.total ?? 0)
-  const secrets = isSearching
-    ? filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
-    : (pageQuery.data?.secrets ?? [])
+  const secrets = data?.secrets ?? []
 
   // After deleting the last item on a page, step back so the user never lands on an empty page.
   useEffect(() => {
@@ -120,7 +96,7 @@ export function SecretsList({
     return <Status status="error" title={t`You do not have permission to view secrets.`} />
   }
 
-  const totalPages = totalCount ? Math.ceil(totalCount / PAGE_SIZE) : 1
+  const totalPages = data?.total ? Math.ceil(data.total / PAGE_SIZE) : 1
 
   return (
     <>
@@ -150,7 +126,7 @@ export function SecretsList({
           <DataGridToolbar>
             <Stack distribution="end" alignment="center">
               <SearchInput
-                placeholder={t`Search by name or ID`}
+                placeholder={t`Search by name`}
                 value={searchText}
                 onSearch={(v) => onSearchChange(typeof v === "string" ? v : "")}
                 onClear={() => {

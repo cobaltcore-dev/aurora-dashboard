@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
+
 import {
   Button,
   Modal,
@@ -32,6 +33,7 @@ export function CreateContainerModal({
 }) {
   const { t } = useLingui()
   const queryClient = useQueryClient()
+  const utils = trpcReact.useUtils()
   const [name, setName] = useState("")
   const [type, setType] = useState<Container["type"]>("generic")
   // RSA / Certificate: maps field name → selected secret_ref URI
@@ -75,6 +77,7 @@ export function CreateContainerModal({
     onSuccess: () => {
       const { message, ...options } = getContainerCreatedToast(name.trim())
       toast.success(message, options)
+      void utils.keyManager.listContainers.invalidate()
       void queryClient.invalidateQueries({ queryKey: ["km-all-containers", projectId] })
       onSuccess()
       onClose()

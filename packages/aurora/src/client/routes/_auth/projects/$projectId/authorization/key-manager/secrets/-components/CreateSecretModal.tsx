@@ -1,5 +1,4 @@
 import { useState } from "react"
-import { useQueryClient } from "@tanstack/react-query"
 import { useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import {
@@ -53,7 +52,7 @@ export function CreateSecretModal({
   onSuccess: () => void
 }) {
   const { t } = useLingui()
-  const queryClient = useQueryClient()
+  const utils = trpcReact.useUtils()
   const [name, setName] = useState("")
   const [secretType, setSecretType] = useState("")
   const [payload, setPayload] = useState("")
@@ -69,7 +68,7 @@ export function CreateSecretModal({
     onSuccess: () => {
       const { message, ...options } = getSecretCreatedToast(name.trim())
       toast.success(message, options)
-      void queryClient.invalidateQueries({ queryKey: ["km-all-secrets", projectId] })
+      void utils.keyManager.listSecrets.invalidate()
       onSuccess()
       onClose()
     },

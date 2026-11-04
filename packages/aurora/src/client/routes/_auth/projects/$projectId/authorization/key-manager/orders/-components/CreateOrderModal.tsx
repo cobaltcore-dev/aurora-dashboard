@@ -78,6 +78,7 @@ export function CreateOrderModal({
 }) {
   const { t } = useLingui()
   const queryClient = useQueryClient()
+  const utils = trpcReact.useUtils()
   const [orderType, setOrderType] = useState<OrderType>("key")
   const [name, setName] = useState("")
   const [algorithm, setAlgorithm] = useState("aes")
@@ -91,6 +92,7 @@ export function CreateOrderModal({
     onSuccess: () => {
       const { message, ...options } = getOrderCreatedToast(name.trim())
       toast.success(message, options)
+      void utils.keyManager.listOrders.invalidate()
       void queryClient.invalidateQueries({ queryKey: ["km-all-orders", projectId] })
       onSuccess()
       onClose()
