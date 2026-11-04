@@ -229,8 +229,10 @@ describe("Networks", () => {
     it("shows an inline error when listing is forbidden", async () => {
       await renderList(vi.fn().mockRejectedValue(forbiddenError()))
 
-      expect(await screen.findByText("You are not allowed to list networks")).toBeInTheDocument()
-      expect(screen.getByText("Failed to Load Networks")).toBeInTheDocument()
+      expect(await screen.findByText("Insufficient Permissions")).toBeInTheDocument()
+      expect(
+        screen.getByText("You do not have the required permissions to view networks in this project.")
+      ).toBeInTheDocument()
       expect(screen.queryByTestId("network-list-container")).not.toBeInTheDocument()
       expect(screen.queryByRole("button", { name: "Try Again" })).not.toBeInTheDocument()
     })
