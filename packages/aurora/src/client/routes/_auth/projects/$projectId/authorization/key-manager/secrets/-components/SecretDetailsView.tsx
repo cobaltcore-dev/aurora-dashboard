@@ -42,7 +42,12 @@ export function SecretDetailsView({ projectId, secretId }: SecretDetailsViewProp
     isFetching: payloadFetching,
     isError: payloadError,
     refetch: fetchPayload,
-  } = trpcReact.keyManager.getSecretPayload.useQuery({ project_id: projectId, secretId }, { enabled: false })
+  } = trpcReact.keyManager.getSecretPayload.useQuery(
+    // Pass the secret's own content-type so the server can send the matching Accept header.
+    // secret may not be loaded yet (undefined); the query is disabled until the user clicks Reveal.
+    { project_id: projectId, secretId, payloadContentType: secret?.content_types?.default ?? undefined },
+    { enabled: false }
+  )
 
   if (permissionsLoading) return null
   if (!canGet) return <Status status="error" title={t`You do not have permission to view this secret.`} />

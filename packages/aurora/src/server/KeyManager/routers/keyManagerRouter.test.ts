@@ -340,14 +340,30 @@ describe("keyManagerRouter secrets", () => {
       })
     })
 
-    it("requests the payload endpoint with Accept: */* so Barbican returns the stored content-type", async () => {
+    it("uses the provided payloadContentType as the Accept header", async () => {
+      const ctx = createMockContext()
+      const caller = createCaller(ctx)
+
+      await caller.keyManager.getSecretPayload({
+        project_id: TEST_PROJECT_ID,
+        secretId: "secret-1",
+        payloadContentType: "text/plain",
+      })
+
+      expect(ctx.__getMock).toHaveBeenCalledWith("v1/secrets/secret-1/payload", {
+        headers: { Accept: "text/plain" },
+        debug: false,
+      })
+    })
+
+    it("falls back to application/octet-stream when no payloadContentType is provided", async () => {
       const ctx = createMockContext()
       const caller = createCaller(ctx)
 
       await caller.keyManager.getSecretPayload({ project_id: TEST_PROJECT_ID, secretId: "secret-1" })
 
       expect(ctx.__getMock).toHaveBeenCalledWith("v1/secrets/secret-1/payload", {
-        headers: { Accept: "*/*" },
+        headers: { Accept: "application/octet-stream" },
         debug: false,
       })
     })

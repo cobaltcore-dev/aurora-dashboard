@@ -177,18 +177,20 @@ export const buildKeyManagerResourceRouter = (policyDir: string) => {
       }),
 
     getSecretPayload: projectScopedProcedure
-      .input(projectScopedInputSchema.extend(resourceIdInput.shape))
+      .input(projectScopedInputSchema.extend({ ...resourceIdInput.shape, payloadContentType: z.string().optional() }))
       .query(async ({ input, ctx }) => {
         enforce(ctx, "key-manager:secrets:payload")
         const km = ctx.openstack?.service("key-manager")
         validateOpenstackService(km, "key-manager")
-        // Barbican's /payload endpoint rejects Accept: application/json with 406.
-        // Use Accept: */* so Barbican returns the payload with its actual stored content-type
-        // (e.g. text/plain, application/octet-stream, application/pkcs8).
+        // Barbican's /payload endpoint rejects Accept: application/json with 406, and it echoes
+        // back whatever Accept value you send (including */*). Pass the secret's own stored
+        // content-type so Barbican returns the payload in the right format.
+        // Falls back to application/octet-stream (safe for all binary types).
         // debug:false keeps secret material out of transport logs.
+        const acceptHeader = input.payloadContentType ?? "application/octet-stream"
         const res = await km
           .get(`v1/secrets/${encodeURIComponent(input.secretId)}/payload`, {
-            headers: { Accept: "*/*" },
+            headers: { Accept: acceptHeader },
             debug: false,
           })
           .catch((e: unknown) => {
