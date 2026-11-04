@@ -157,7 +157,9 @@ describe("NetworkTableRow", () => {
       const user = userEvent.setup()
       renderComponent()
 
-      await user.click(screen.getByTestId("network-row-net-123").querySelector("button[aria-label]")!)
+      // The overflow menu button is the last button in the row (ClipboardText buttons precede it)
+      const buttons = screen.getByTestId("network-row-net-123").querySelectorAll("button")
+      await user.click(buttons[buttons.length - 1])
       await user.click(await screen.findByText("Show Details"))
 
       expect(mockNavigate).toHaveBeenCalledWith(expectedNavigation)
@@ -178,7 +180,8 @@ describe("NetworkTableRow", () => {
       const user = userEvent.setup()
       renderComponent()
 
-      await user.click(screen.getByTestId("network-row-net-123").querySelector("button[aria-label]")!)
+      const buttons = screen.getByTestId("network-row-net-123").querySelectorAll("button")
+      await user.click(buttons[buttons.length - 1])
 
       expect(await screen.findAllByRole("menuitem")).toHaveLength(1)
     })
