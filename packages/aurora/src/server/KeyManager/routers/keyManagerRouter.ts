@@ -182,11 +182,13 @@ export const buildKeyManagerResourceRouter = (policyDir: string) => {
         enforce(ctx, "key-manager:secrets:payload")
         const km = ctx.openstack?.service("key-manager")
         validateOpenstackService(km, "key-manager")
-        // Barbican's /payload endpoint rejects the client's default Accept: application/json with 406;
-        // request the raw stored material instead. debug:false keeps secret material out of transport logs.
+        // Barbican's /payload endpoint rejects Accept: application/json with 406.
+        // Use Accept: */* so Barbican returns the payload with its actual stored content-type
+        // (e.g. text/plain, application/octet-stream, application/pkcs8).
+        // debug:false keeps secret material out of transport logs.
         const res = await km
           .get(`v1/secrets/${encodeURIComponent(input.secretId)}/payload`, {
-            headers: { Accept: "application/octet-stream" },
+            headers: { Accept: "*/*" },
             debug: false,
           })
           .catch((e: unknown) => {

@@ -340,14 +340,14 @@ describe("keyManagerRouter secrets", () => {
       })
     })
 
-    it("requests the payload endpoint with an octet-stream Accept header and debugging disabled", async () => {
+    it("requests the payload endpoint with Accept: */* so Barbican returns the stored content-type", async () => {
       const ctx = createMockContext()
       const caller = createCaller(ctx)
 
       await caller.keyManager.getSecretPayload({ project_id: TEST_PROJECT_ID, secretId: "secret-1" })
 
       expect(ctx.__getMock).toHaveBeenCalledWith("v1/secrets/secret-1/payload", {
-        headers: { Accept: "application/octet-stream" },
+        headers: { Accept: "*/*" },
         debug: false,
       })
     })
