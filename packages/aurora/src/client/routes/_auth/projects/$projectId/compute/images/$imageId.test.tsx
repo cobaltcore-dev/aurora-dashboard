@@ -15,6 +15,7 @@ const h = vi.hoisted(() => ({
   canUserResult: { data: [false, false, false, false, false] as boolean[] | undefined },
   getImageMemberResult: { data: undefined as unknown },
   updateMemberMutateAsync: vi.fn(),
+  deleteImageMutateAsync: vi.fn(),
   navigate: vi.fn(),
 }))
 
@@ -53,7 +54,7 @@ vi.mock("@/client/trpcClient", () => ({
       canUser: { useQuery: () => h.canUserResult },
       getImageMember: { useQuery: () => h.getImageMemberResult },
       updateImage: { useMutation: () => ({ mutateAsync: vi.fn(), isPending: false }) },
-      deleteImage: { useMutation: () => ({ mutateAsync: vi.fn(), isPending: false }) },
+      deleteImage: { useMutation: () => ({ mutateAsync: h.deleteImageMutateAsync, isPending: false }) },
       deactivateImage: { useMutation: () => ({ mutateAsync: vi.fn(), isPending: false }) },
       reactivateImage: { useMutation: () => ({ mutateAsync: vi.fn(), isPending: false }) },
       updateImageVisibility: { useMutation: () => ({ mutateAsync: vi.fn(), isPending: false }) },
@@ -72,11 +73,22 @@ vi.mock("./-components/ImageDetailsView", () => ({
   ),
 }))
 vi.mock("@/client/components/ContentHeader/ContentHeader", () => ({
-  ContentHeader: ({ title }: { title: string }) => <div>{title}</div>,
+  ContentHeader: ({ title, actions }: { title: string; actions?: ReactNode }) => (
+    <div>
+      {title}
+      {actions}
+    </div>
+  ),
 }))
 vi.mock("./-components/EditImageDetailsModal", () => ({ EditImageDetailsModal: () => null }))
 vi.mock("./-components/EditImageMetadataModal", () => ({ EditImageMetadataModal: () => null }))
-vi.mock("./-components/DeleteImageModal", () => ({ DeleteImageModal: () => null }))
+vi.mock("./-components/DeleteImageModal", () => ({
+  DeleteImageModal: ({ image, onDelete }: { image: unknown; onDelete: (img: unknown) => void }) => (
+    <button type="button" onClick={() => onDelete(image)}>
+      confirm-delete
+    </button>
+  ),
+}))
 vi.mock("./-components/ActivateImageModal", () => ({ ActivateImageModal: () => null }))
 vi.mock("./-components/DeactivateImageModal", () => ({ DeactivateImageModal: () => null }))
 vi.mock("@/server/Authentication/helpers", () => ({ getServiceIndex: vi.fn() }))
@@ -195,6 +207,45 @@ describe("RouteComponent (image detail)", () => {
 
       expect(await screen.findByText("Access Status")).toBeInTheDocument()
       expect(await screen.findByText("Permission denied")).toBeInTheDocument()
+    })
+  })
+
+  describe("delete", () => {
+    beforeEach(() => {
+      h.getImageByIdResult = { data: successImage, status: "success", error: null }
+      // canDelete is index 0; the image is owned (owner === projectId) and unprotected.
+      h.canUserResult = { data: [true, false, false, false, false] }
+    })
+
+    it("shows a success toast and navigates back after a successful delete", async () => {
+      h.deleteImageMutateAsync.mockResolvedValueOnce({})
+
+      renderRoute()
+      fireEvent.click(screen.getByRole("button", { name: "More Actions" }))
+      fireEvent.click(await screen.findByText("Delete Image"))
+      fireEvent.click(await screen.findByText("confirm-delete"))
+
+      // Success toast fires (and survives the navigate() back to the list).
+      expect(await screen.findByText('Image instance "Ubuntu 24.04" has been deleted')).toBeInTheDocument()
+      expect(h.deleteImageMutateAsync).toHaveBeenCalledWith({ project_id: "p1", imageId: "img-1" })
+      expect(h.navigate).toHaveBeenCalledWith(
+        expect.objectContaining({ to: "/projects/$projectId/compute/images", params: { projectId: "p1" } })
+      )
+    })
+
+    it("does not navigate back when the delete fails", async () => {
+      h.deleteImageMutateAsync.mockRejectedValueOnce(new Error("Boom"))
+
+      renderRoute()
+      fireEvent.click(screen.getByRole("button", { name: "More Actions" }))
+      fireEvent.click(await screen.findByText("Delete Image"))
+      fireEvent.click(await screen.findByText("confirm-delete"))
+
+      // handleDelete swallows the error and stays on the detail page (no success toast fires
+      // either, since none is reached before the throw).
+      await screen.findByText("Ubuntu 24.04")
+      expect(h.deleteImageMutateAsync).toHaveBeenCalledWith({ project_id: "p1", imageId: "img-1" })
+      expect(h.navigate).not.toHaveBeenCalled()
     })
   })
 })

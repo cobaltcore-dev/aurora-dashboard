@@ -56,6 +56,34 @@ export const EditImageDetailsModal: React.FC<EditImageDetailsModalProps> = ({
   const [tagsInput, setTagsInput] = useState<string>("")
   const [errors, setErrors] = useState<{ [key: string]: string }>({})
 
+  // Client-only validation (no backend needed). Runs on input so the user gets
+  // immediate, reversible feedback and Save is disabled while anything is invalid.
+  const validateField = (name: string, value: string | number): string | null => {
+    switch (name) {
+      case "name": {
+        const str = String(value)
+        if (!str || str.trim() === "") return t`Image name is required`
+        if (str.length > 255) return t`Image name must be at most 255 characters`
+        return null
+      }
+      case "min_disk":
+        return typeof value === "number" && (isNaN(value) || value < 0) ? t`Minimum disk must be 0 or greater` : null
+      case "min_ram":
+        return typeof value === "number" && (isNaN(value) || value < 0) ? t`Minimum RAM must be 0 or greater` : null
+      default:
+        return null
+    }
+  }
+
+  const setFieldError = (name: string, message: string | null) => {
+    setErrors((prev) => {
+      const next = { ...prev }
+      if (message) next[name] = message
+      else delete next[name]
+      return next
+    })
+  }
+
   // Helper function to compare arrays
   const arraysEqual = (a: string[], b: string[]) => {
     if (a.length !== b.length) return false
@@ -64,7 +92,7 @@ export const EditImageDetailsModal: React.FC<EditImageDetailsModalProps> = ({
     return sortedA.every((val, index) => val === sortedB[index])
   }
 
-  const isSubmitDisabled =
+  const isUnchanged =
     image.name === properties.name &&
     arraysEqual(image.tags || [], properties.tags) &&
     image.visibility === properties.visibility &&
@@ -72,17 +100,36 @@ export const EditImageDetailsModal: React.FC<EditImageDetailsModalProps> = ({
     image.min_disk === properties.min_disk &&
     image.min_ram === properties.min_ram
 
+  const isSubmitDisabled = isUnchanged || Object.keys(errors).length > 0
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target
 
     if (type === "number") {
-      // For number inputs, check if the input is invalid
-      if (value === "" || e.target.validity.valid === false) {
-        // Invalid number input - set error immediately
+      // type="number" blanks e.target.value for input it can't parse (e.g. "1e", "-3e", "e-25")
+      // and sets validity.badInput. Check badInput FIRST so unparseable input is always an error
+      // and never mistaken for a deliberate clear — even though value reads as "" in both cases.
+      if (e.target.validity.badInput) {
         if (name === "min_disk") {
-          setErrors((prev) => ({ ...prev, min_disk: t`Please enter a valid positive number` }))
+          setFieldError("min_disk", t`Please enter a valid positive number`)
         } else if (name === "min_ram") {
-          setErrors((prev) => ({ ...prev, min_ram: t`Please enter a valid positive number` }))
+          setFieldError("min_ram", t`Please enter a valid positive number`)
+        }
+        return
+      }
+      // min_disk / min_ram are optional — a genuinely empty field (not badInput) is valid and
+      // means 0. Clearing a parseable invalid value like "-234" lands here and clears the error.
+      if (value.trim() === "") {
+        setProperties((prev) => ({ ...prev, [name]: 0 }))
+        setFieldError(name, null)
+        return
+      }
+      // Accept only plain non-negative integers (parseInt is too lenient: "1e5" -> 1).
+      if (!/^\d+$/.test(value.trim())) {
+        if (name === "min_disk") {
+          setFieldError("min_disk", t`Please enter a valid positive number`)
+        } else if (name === "min_ram") {
+          setFieldError("min_ram", t`Please enter a valid positive number`)
         }
         return // Don't update state with invalid value
       }
@@ -91,20 +138,29 @@ export const EditImageDetailsModal: React.FC<EditImageDetailsModalProps> = ({
         ...prev,
         [name]: numValue,
       }))
+      // Live, reversible validation: clears when corrected, flags when invalid
+      setFieldError(name, validateField(name, numValue))
     } else {
       setProperties((prev) => ({
         ...prev,
         [name]: type === "checkbox" ? checked : value,
       }))
+      if (type !== "checkbox") {
+        setFieldError(name, validateField(name, value))
+      }
     }
+  }
 
-    // Clear error for this field
-    if (errors[name]) {
-      setErrors((prev) => {
-        const newErrors = { ...prev }
-        delete newErrors[name]
-        return newErrors
-      })
+  const handleNumericKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // min_disk / min_ram accept only non-negative integers, so allow only the digits 0-9.
+    // Everything else type="number" would otherwise accept ("e", "E", "+", "-", ".") leaves the
+    // field in a badInput state the change handler can't reliably see, so block it at the
+    // keystroke. Editing/navigation keys and shortcuts (Backspace, arrows, Ctrl+V, …) are let
+    // through — they are not single printable characters.
+    const isSingleChar = e.key.length === 1
+    const isModifierCombo = e.ctrlKey || e.metaKey || e.altKey
+    if (isSingleChar && !isModifierCombo && !/^[0-9]$/.test(e.key)) {
+      e.preventDefault()
     }
   }
 
@@ -308,6 +364,7 @@ export const EditImageDetailsModal: React.FC<EditImageDetailsModalProps> = ({
                 min="0"
                 value={String(properties.min_disk)}
                 onChange={handleInputChange}
+                onKeyDown={handleNumericKeyDown}
                 helptext={t`Minimum disk size required to boot this image`}
                 errortext={errors.min_disk}
               />
@@ -322,6 +379,7 @@ export const EditImageDetailsModal: React.FC<EditImageDetailsModalProps> = ({
                 min="0"
                 value={String(properties.min_ram)}
                 onChange={handleInputChange}
+                onKeyDown={handleNumericKeyDown}
                 helptext={t`Minimum RAM required to boot this image`}
                 errortext={errors.min_ram}
               />
