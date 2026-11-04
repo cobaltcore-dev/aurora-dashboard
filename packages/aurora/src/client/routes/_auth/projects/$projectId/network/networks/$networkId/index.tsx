@@ -13,7 +13,7 @@ import {
   type NetworkDetailsTab,
 } from "./-components/NetworkDetailsView"
 
-const ROUTE_ID = "/_auth/projects/$projectId/network/networks/$networkId"
+const ROUTE_ID = "/_auth/projects/$projectId/network/networks/$networkId/"
 
 const HTTP_STATUS_BY_TRPC_CODE: Record<string, number> = {
   BAD_REQUEST: 400,
