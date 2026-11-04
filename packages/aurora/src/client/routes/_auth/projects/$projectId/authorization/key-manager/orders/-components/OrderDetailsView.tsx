@@ -34,7 +34,14 @@ export function OrderDetailsView({ projectId, orderId }: OrderDetailsViewProps) 
   )
 
   if (permissionsLoading) return null
-  if (!canGet) return <Status status="error" title={t`You do not have permission to view this order.`} />
+  if (!canGet)
+    return (
+      <Status
+        status="error"
+        title={t`Access Denied`}
+        body={t`You do not have the necessary permissions to view this Order.`}
+      />
+    )
   if (isLoading) return <Status status="progress" title={t`Loading Order...`} />
   if (isError) return <Status status="error" title={error?.message ?? t`Failed to Load Order`} />
   if (!order) return <Status status="empty" title={t`Order Not Found`} />

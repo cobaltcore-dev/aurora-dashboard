@@ -93,7 +93,13 @@ export function SecretsList({
 
   if (permissionsLoading) return null
   if (!canList) {
-    return <Status status="error" title={t`You do not have permission to view secrets.`} />
+    return (
+      <Status
+        status="error"
+        title={t`Access Denied`}
+        body={t`You do not have the necessary permissions to view Secrets.`}
+      />
+    )
   }
 
   const totalPages = data?.total ? Math.ceil(data.total / PAGE_SIZE) : 1

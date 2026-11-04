@@ -4864,25 +4864,25 @@ msgstr ""
 msgid "You can rename the object by changing the name here."
 msgstr "Sie können das Objekt umbenennen, indem Sie den Namen hier ändern."
 
-msgid "You do not have permission to view containers."
-msgstr ""
-
-msgid "You do not have permission to view orders."
-msgstr ""
-
-msgid "You do not have permission to view secrets."
-msgstr ""
-
 msgid "You do not have permission to view security groups"
 msgstr ""
 
-msgid "You do not have permission to view this container."
+msgid "You do not have the necessary permissions to view Containers."
 msgstr ""
 
-msgid "You do not have permission to view this order."
+msgid "You do not have the necessary permissions to view Orders."
 msgstr ""
 
-msgid "You do not have permission to view this secret."
+msgid "You do not have the necessary permissions to view Secrets."
+msgstr ""
+
+msgid "You do not have the necessary permissions to view this Container."
+msgstr ""
+
+msgid "You do not have the necessary permissions to view this Order."
+msgstr ""
+
+msgid "You do not have the necessary permissions to view this Secret."
 msgstr ""
 
 msgid "You do not have the required permissions to access this port."

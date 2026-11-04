@@ -4864,26 +4864,26 @@ msgstr "You can re-enable versioning at any time"
 msgid "You can rename the object by changing the name here."
 msgstr "You can rename the object by changing the name here."
 
-msgid "You do not have permission to view containers."
-msgstr "You do not have permission to view containers."
-
-msgid "You do not have permission to view orders."
-msgstr "You do not have permission to view orders."
-
-msgid "You do not have permission to view secrets."
-msgstr "You do not have permission to view secrets."
-
 msgid "You do not have permission to view security groups"
 msgstr "You do not have permission to view security groups"
 
-msgid "You do not have permission to view this container."
-msgstr "You do not have permission to view this container."
+msgid "You do not have the necessary permissions to view Containers."
+msgstr "You do not have the necessary permissions to view Containers."
 
-msgid "You do not have permission to view this order."
-msgstr "You do not have permission to view this order."
+msgid "You do not have the necessary permissions to view Orders."
+msgstr "You do not have the necessary permissions to view Orders."
 
-msgid "You do not have permission to view this secret."
-msgstr "You do not have permission to view this secret."
+msgid "You do not have the necessary permissions to view Secrets."
+msgstr "You do not have the necessary permissions to view Secrets."
+
+msgid "You do not have the necessary permissions to view this Container."
+msgstr "You do not have the necessary permissions to view this Container."
+
+msgid "You do not have the necessary permissions to view this Order."
+msgstr "You do not have the necessary permissions to view this Order."
+
+msgid "You do not have the necessary permissions to view this Secret."
+msgstr "You do not have the necessary permissions to view this Secret."
 
 msgid "You do not have the required permissions to access this port."
 msgstr "You do not have the required permissions to access this port."

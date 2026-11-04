@@ -50,7 +50,14 @@ export function ContainerDetailsView({ projectId, containerId }: ContainerDetail
   )
 
   if (permissionsLoading) return null
-  if (!canGet) return <Status status="error" title={t`You do not have permission to view this container.`} />
+  if (!canGet)
+    return (
+      <Status
+        status="error"
+        title={t`Access Denied`}
+        body={t`You do not have the necessary permissions to view this Container.`}
+      />
+    )
   if (isLoading) return <Status status="progress" title={t`Loading Container...`} />
   if (isError) return <Status status="error" title={error?.message ?? t`Failed to Load Container`} />
   if (!container) return <Status status="empty" title={t`Container Not Found`} />

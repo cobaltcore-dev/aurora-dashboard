@@ -87,7 +87,13 @@ export function ContainersList({
 
   if (permissionsLoading) return null
   if (!canList) {
-    return <Status status="error" title={t`You do not have permission to view containers.`} />
+    return (
+      <Status
+        status="error"
+        title={t`Access Denied`}
+        body={t`You do not have the necessary permissions to view Containers.`}
+      />
+    )
   }
 
   const totalPages = totalCount ? Math.ceil(totalCount / PAGE_SIZE) : 1

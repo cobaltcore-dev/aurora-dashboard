@@ -81,7 +81,13 @@ export function OrdersList({ projectId, search, page, onSearchChange, onPageChan
 
   if (permissionsLoading) return null
   if (!canList) {
-    return <Status status="error" title={t`You do not have permission to view orders.`} />
+    return (
+      <Status
+        status="error"
+        title={t`Access Denied`}
+        body={t`You do not have the necessary permissions to view Orders.`}
+      />
+    )
   }
 
   const totalPages = totalCount ? Math.ceil(totalCount / PAGE_SIZE) : 1
