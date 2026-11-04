@@ -10,23 +10,12 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import type { NetworkListItem } from "@/server/Network/types/network"
 import { useProjectId } from "@/client/hooks"
+import ClipboardText from "@/client/components/ClipboardText"
 
 interface NetworkTableRowProps {
   network: NetworkListItem
 }
 
-/** Primary value on top, optional secondary value below in a lighter color. */
-const TwoLineCell = ({ primary, secondary }: { primary: string; secondary?: string }) => (
-  <Stack direction="vertical" gap="0.5" className="min-w-0">
-    <span className="break-all">{primary}</span>
-    {secondary && <span className="text-theme-light text-sm break-all">{secondary}</span>}
-  </Stack>
-)
-
-/**
- * Only the network's own ID is shown in the list; subnet IDs are shown on the details page.
- * A subnet's ID is only used as a fallback when its name can't be resolved.
- */
 export const NetworkTableRow = ({ network }: NetworkTableRowProps) => {
   const { t } = useLingui()
   const navigate = useNavigate()
@@ -43,27 +32,28 @@ export const NetworkTableRow = ({ network }: NetworkTableRowProps) => {
 
   return (
     <DataGridRow key={network.id} data-testid={`network-row-${network.id}`} onClick={navigateToDetailsPage}>
+      {/* Name — ID shown beneath the name with a copy affordance (E2-adjacent, spec AC) */}
       <DataGridCell>
-        <TwoLineCell primary={network.name || network.id} secondary={network.name ? network.id : undefined} />
+        <Stack direction="vertical" gap="0.5" className="min-w-0">
+          {network.name ? (
+            <>
+              <span className="break-all">{network.name}</span>
+              <ClipboardText text={network.id} className="text-theme-light text-sm" truncateAt={13} />
+            </>
+          ) : (
+            <ClipboardText text={network.id} truncateAt={13} />
+          )}
+        </Stack>
       </DataGridCell>
       <DataGridCell>{network.status}</DataGridCell>
       <DataGridCell>{network.admin_state_up ? t`UP` : t`DOWN`}</DataGridCell>
+      {/* Subnet count — derived from subnets.length; no extra API call (spec AC) */}
+      <DataGridCell>{network.subnets.length}</DataGridCell>
+      {/* Shared — show owning project_id with copy when shared, "No" otherwise (E2) */}
       <DataGridCell>
-        {network.subnet_details.length > 0 ? (
-          <Stack direction="vertical" gap="1">
-            {network.subnet_details.map((subnet) => (
-              <span key={subnet.id} className="break-all">
-                {subnet.name || subnet.id}
-              </span>
-            ))}
-          </Stack>
-        ) : (
-          "–"
-        )}
+        {network.shared ? <ClipboardText text={network.project_id} truncateAt={13} /> : t`No`}
       </DataGridCell>
-      <DataGridCell>{network.shared ? t`Yes` : t`No`}</DataGridCell>
       <DataGridCell>{external === undefined || external === null ? "–" : external ? t`Yes` : t`No`}</DataGridCell>
-      <DataGridCell>{network.mtu ?? "–"}</DataGridCell>
       <DataGridCell onClick={(e) => e.stopPropagation()}>
         <PopupMenu>
           <PopupMenuOptions>

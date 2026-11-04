@@ -1,4 +1,4 @@
-import { use, Suspense, useState, useRef, useEffect, useCallback, useMemo, useDeferredValue } from "react"
+import { use, Suspense, useState, useRef, useEffect, useMemo, useDeferredValue } from "react"
 import { useSearch, useNavigate } from "@tanstack/react-router"
 import { ErrorBoundary } from "react-error-boundary"
 import { Trans, useLingui } from "@lingui/react/macro"
@@ -12,16 +12,16 @@ import { SelectedFilters } from "@/client/components/ListToolbar/SelectedFilters
 import { Filter, SelectedFilter, SortSettings } from "@/client/components/ListToolbar/types"
 import type { NetworksSearchParams } from "@/client/routes/_auth/projects/$projectId/network/networks/index"
 import {
+  NETWORK_EXTERNAL_FILTER_VALUES,
   NETWORK_SHARED_FILTER_VALUES,
   NETWORK_STATUS_FILTER_VALUES,
+  type NetworkExternalFilter,
   type NetworkSharedFilter,
   type NetworkStatusFilter,
 } from "./networkListFilters"
 import { NetworkListContainer } from "./NetworkListContainer"
 
-const PAGE_SIZE = 50
-
-type NetworkSortKey = "name" | "status" | "mtu"
+type NetworkSortKey = "name" | "status" | "subnet_count"
 
 interface NetworksProps {
   client: TrpcClient
@@ -37,9 +37,42 @@ type RequiredSortSettings = {
 interface NetworkFilters {
   status?: NetworkStatusFilter
   shared?: NetworkSharedFilter
+  external?: NetworkExternalFilter
 }
 
-type NetworksResult = { networks: NetworkListItem[]; forbidden?: boolean; unauthorized?: boolean }
+type NetworksResult = { networks: NetworkListItem[]; forbidden?: boolean; unauthorized?: boolean; resolvedAt?: number }
+
+/** Attention-first status order (E3): ERROR → BUILD → DOWN → ACTIVE. Unknown statuses sort last. */
+const STATUS_ORDER: Record<string, number> = { ERROR: 0, BUILD: 1, DOWN: 2, ACTIVE: 3 }
+
+function applyClientSort(
+  networks: NetworkListItem[],
+  sortBy: NetworkSortKey,
+  sortDirection: "asc" | "desc"
+): NetworkListItem[] {
+  if (sortBy === "name") return networks // BFF already sorted by name via Neutron
+
+  if (sortBy === "status") {
+    return [...networks].sort((a, b) => {
+      const ao = STATUS_ORDER[a.status] ?? 4
+      const bo = STATUS_ORDER[b.status] ?? 4
+      return sortDirection === "desc" ? bo - ao : ao - bo
+    })
+  }
+
+  // subnet_count
+  return [...networks].sort((a, b) => {
+    const diff = a.subnets.length - b.subnets.length
+    return sortDirection === "desc" ? -diff : diff
+  })
+}
+
+function formatRelativeTime(timestamp: number): string {
+  const diffSeconds = Math.floor((Date.now() - timestamp) / 1000)
+  if (diffSeconds < 60) return "just now"
+  if (diffSeconds < 3600) return `${Math.floor(diffSeconds / 60)} min ago`
+  return `${Math.floor(diffSeconds / 3600)} h ago`
+}
 
 const createNetworksPromise = (
   client: TrpcClient,
@@ -47,20 +80,24 @@ const createNetworksPromise = (
   sortBy: NetworkSortKey,
   sortDirection: "asc" | "desc",
   searchTerm: string,
-  { status, shared }: NetworkFilters
+  { status, shared, external }: NetworkFilters
 ): Promise<NetworksResult> => {
   const query: NetworkQueryParameters = {
     project_id: project,
-    sort_key: sortBy,
-    sort_dir: sortDirection,
+    // Only pass sort params to the BFF for Neutron-native name sort; status and subnet_count are client-side
+    ...(sortBy === "name" && { sort_key: "name", sort_dir: sortDirection }),
     searchTerm: searchTerm || undefined,
     status,
     shared: shared === undefined ? undefined : shared === "true",
+    ...(external !== undefined && { "router:external": external === "true" }),
   }
 
   return client.network.networks.list
     .query(query)
-    .then((networks) => ({ networks }))
+    .then((networks) => ({
+      networks: applyClientSort(networks, sortBy, sortDirection),
+      resolvedAt: Date.now(),
+    }))
     .catch((err: unknown) => {
       // 403: no access — render as an info message, not an error boundary (B.6)
       if (err instanceof TRPCClientError && err.data?.code === "FORBIDDEN") {
@@ -79,6 +116,9 @@ const isStatusFilter = (value: string): value is NetworkStatusFilter =>
 
 const isSharedFilter = (value: string): value is NetworkSharedFilter =>
   (NETWORK_SHARED_FILTER_VALUES as readonly string[]).includes(value)
+
+const isExternalFilter = (value: string): value is NetworkExternalFilter =>
+  (NETWORK_EXTERNAL_FILTER_VALUES as readonly string[]).includes(value)
 
 /** Full-document redirect to sign-in (not a client navigate) so AuthProvider re-checks the session on
  *  reload; a client navigate keeps its stale cached user and bounces straight back to this list (B.6).
@@ -108,8 +148,6 @@ function NetworksContent({
   onFilterSelect,
   onFilterRemove,
   onFiltersClear,
-  currentPage,
-  onPageChange,
   isStale,
 }: {
   networksPromise: Promise<NetworksResult>
@@ -122,13 +160,11 @@ function NetworksContent({
   onFilterSelect: (filter: SelectedFilter) => void
   onFilterRemove: (filter: SelectedFilter) => void
   onFiltersClear: () => void
-  currentPage: number
-  onPageChange: (page: number) => void
   /** True while the shown networks are from the previous query and the next one is still loading */
   isStale: boolean
 }) {
   const { t } = useLingui()
-  const { networks, forbidden, unauthorized } = use(networksPromise)
+  const { networks, forbidden, unauthorized, resolvedAt } = use(networksPromise)
   const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm)
   const debounceTimer = useRef<number | undefined>(undefined)
   // Last term this input sent to the URL, so only external URL changes (back/forward, links) overwrite the input
@@ -140,10 +176,6 @@ function NetworksContent({
     setSearchTerm(term)
   }
 
-  const totalPages = Math.max(1, Math.ceil(networks.length / PAGE_SIZE))
-  const safePage = Math.min(currentPage, totalPages)
-  const paginatedNetworks = networks.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
-
   useEffect(() => () => clearTimeout(debounceTimer.current), [])
 
   useEffect(() => {
@@ -152,12 +184,6 @@ function NetworksContent({
     submittedSearchTerm.current = searchTerm
     setLocalSearchTerm(searchTerm)
   }, [searchTerm])
-
-  // Validate the page only against the current query's result: while the previous result is still shown,
-  // its page count says nothing about the URL's page (e.g. back/forward from a filtered to an unfiltered list).
-  useEffect(() => {
-    if (!isStale && currentPage > totalPages) onPageChange(1)
-  }, [isStale, totalPages, currentPage, onPageChange])
 
   if (unauthorized) return <UnauthorizedRedirect />
 
@@ -168,6 +194,10 @@ function NetworksContent({
       </Message>
     )
   }
+
+  const isFiltered = Boolean(searchTerm.trim()) || selectedFilters.length > 0
+  const networkCount = networks.length
+  const lastUpdatedText = resolvedAt && !isStale ? formatRelativeTime(resolvedAt) : null
 
   return (
     <>
@@ -195,7 +225,7 @@ function NetworksContent({
               onChange={onFilterSelect}
             />
             <SearchInput
-              placeholder={t`Search networks...`}
+              placeholder={t`Search by name or ID...`}
               data-testid="searchbar"
               value={localSearchTerm}
               onInput={(e: React.FormEvent<HTMLInputElement>) => {
@@ -222,13 +252,19 @@ function NetworksContent({
         </Stack>
       </DataGridToolbar>
 
-      <NetworkListContainer
-        networks={paginatedNetworks}
-        isFiltered={Boolean(searchTerm.trim()) || selectedFilters.length > 0}
-        currentPage={safePage}
-        totalPages={totalPages}
-        onPageChange={onPageChange}
-      />
+      {/* Zone 3 — item count + last-updated; no refresh button (E1) */}
+      <Stack distribution="between" alignment="center" className="text-theme-light py-1 text-sm">
+        <span>
+          <Trans>{networkCount} networks</Trans>
+        </span>
+        {lastUpdatedText && (
+          <span>
+            <Trans>Last updated: {lastUpdatedText}</Trans>
+          </span>
+        )}
+      </Stack>
+
+      <NetworkListContainer networks={networks} isFiltered={isFiltered} />
     </>
   )
 }
@@ -243,15 +279,15 @@ export const Networks = ({ client, project }: NetworksProps) => {
   const searchTerm = searchParams.search ?? ""
   const sortBy: NetworkSortKey = searchParams.sortBy || "name"
   const sortDirection = searchParams.sortDirection || "asc"
-  const currentPage = searchParams.page ?? 1
   const statusFilter = searchParams.status
   const sharedFilter = searchParams.shared
+  const externalFilter = searchParams.external
 
   const sortSettings: RequiredSortSettings = {
     options: [
       { label: t`Name`, value: "name" },
       { label: t`Status`, value: "status" },
-      { label: t`MTU`, value: "mtu" },
+      { label: t`Subnet count`, value: "subnet_count" },
     ],
     sortBy,
     sortDirection,
@@ -269,11 +305,18 @@ export const Networks = ({ client, project }: NetworksProps) => {
       values: [...NETWORK_SHARED_FILTER_VALUES],
       valueLabels: { true: t`Yes`, false: t`No` },
     },
+    {
+      displayName: t`External`,
+      filterName: "external",
+      values: [...NETWORK_EXTERNAL_FILTER_VALUES],
+      valueLabels: { true: t`Yes`, false: t`No` },
+    },
   ]
 
   const selectedFilters: SelectedFilter[] = [
     ...(statusFilter ? [{ name: "status", value: statusFilter }] : []),
     ...(sharedFilter ? [{ name: "shared", value: sharedFilter }] : []),
+    ...(externalFilter ? [{ name: "external", value: externalFilter }] : []),
   ]
 
   // Bumped by "Try Again" to create a fresh query with the same parameters
@@ -284,9 +327,10 @@ export const Networks = ({ client, project }: NetworksProps) => {
       createNetworksPromise(client, project, sortBy, sortDirection, searchTerm, {
         status: statusFilter,
         shared: sharedFilter,
+        external: externalFilter,
       }),
     // retryCount is not used in the factory, it only forces a new promise on "Try Again"
-    [client, project, sortBy, sortDirection, searchTerm, statusFilter, sharedFilter, retryCount]
+    [client, project, sortBy, sortDirection, searchTerm, statusFilter, sharedFilter, externalFilter, retryCount]
   )
   // Keeps the current list (and the search input) on screen while the next query loads,
   // instead of falling back to the Suspense loading state on every search, filter or sort change
@@ -295,7 +339,7 @@ export const Networks = ({ client, project }: NetworksProps) => {
 
   const updateSearch = (update: Partial<NetworksSearchParams>) => {
     navigate({
-      search: ((prev: NetworksSearchParams) => ({ ...prev, ...update, page: undefined })) as unknown as true,
+      search: ((prev: NetworksSearchParams) => ({ ...prev, ...update })) as unknown as true,
       replace: true,
     })
   }
@@ -314,27 +358,16 @@ export const Networks = ({ client, project }: NetworksProps) => {
   const handleFilterSelect = ({ name, value }: SelectedFilter) => {
     if (name === "status" && isStatusFilter(value)) updateSearch({ status: value })
     if (name === "shared" && isSharedFilter(value)) updateSearch({ shared: value })
+    if (name === "external" && isExternalFilter(value)) updateSearch({ external: value })
   }
 
   const handleFilterRemove = ({ name }: SelectedFilter) => {
-    if (name === "status" || name === "shared") updateSearch({ [name]: undefined })
+    if (name === "status" || name === "shared" || name === "external") updateSearch({ [name]: undefined })
   }
 
   const handleFiltersClear = () => {
-    updateSearch({ status: undefined, shared: undefined })
+    updateSearch({ status: undefined, shared: undefined, external: undefined })
   }
-
-  const handlePageChange = useCallback(
-    (page: number) => {
-      navigate({
-        search: ((prev: NetworksSearchParams) => ({
-          ...prev,
-          page: page === 1 ? undefined : page,
-        })) as unknown as true,
-      })
-    },
-    [navigate]
-  )
 
   return (
     <div className="relative">
@@ -368,8 +401,6 @@ export const Networks = ({ client, project }: NetworksProps) => {
             onFilterSelect={handleFilterSelect}
             onFilterRemove={handleFilterRemove}
             onFiltersClear={handleFiltersClear}
-            currentPage={currentPage}
-            onPageChange={handlePageChange}
             isStale={isStale}
           />
         </Suspense>

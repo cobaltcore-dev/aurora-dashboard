@@ -169,6 +169,9 @@ msgstr "{filteredCount, plural, one {{filteredCount} of {totalCount} container} 
 msgid "{name} (this group)"
 msgstr "{name} (this group)"
 
+msgid "{networkCount} networks"
+msgstr "{networkCount} networks"
+
 msgid "{numberDeleted} object was permanently deleted."
 msgstr "{numberDeleted} object was permanently deleted."
 
@@ -2413,6 +2416,9 @@ msgstr "Last modified (UTC)"
 msgid "Last updated: {formattedDate}"
 msgstr "Last updated: {formattedDate}"
 
+msgid "Last updated: {lastUpdatedText}"
+msgstr "Last updated: {lastUpdatedText}"
+
 msgid "Latest"
 msgstr "Latest"
 
@@ -3418,6 +3424,9 @@ msgstr "Scope"
 msgid "Search buckets..."
 msgstr "Search buckets..."
 
+msgid "Search by name or ID..."
+msgstr "Search by name or ID..."
+
 msgid "Search containers..."
 msgstr "Search containers..."
 
@@ -3432,9 +3441,6 @@ msgstr "Search floating IPs..."
 
 msgid "Search lifecycle rules..."
 msgstr "Search lifecycle rules..."
-
-msgid "Search networks..."
-msgstr "Search networks..."
 
 msgid "Search objects..."
 msgstr "Search objects..."
@@ -3756,6 +3762,9 @@ msgstr "Stored as X-Object-Meta-* headers. Keys are case-insensitive."
 
 msgid "Subnet"
 msgstr "Subnet"
+
+msgid "Subnet count"
+msgstr "Subnet count"
 
 msgid "Subnet ID:"
 msgstr "Subnet ID:"

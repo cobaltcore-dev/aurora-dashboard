@@ -31,7 +31,7 @@ const mockNetwork: NetworkListItem = {
   ],
   mtu: 8950,
   "router:external": false,
-  project_id: "proj-1",
+  project_id: "proj-owner",
 }
 
 const renderComponent = (network: NetworkListItem = mockNetwork) =>
@@ -56,55 +56,85 @@ describe("NetworkTableRow", () => {
   })
 
   describe("Rendering", () => {
-    it("renders the network name with its ID below", () => {
+    it("renders the network name with its ID beneath", () => {
       renderComponent()
 
       expect(screen.getByText("private")).toBeInTheDocument()
+      // ID is shown as ClipboardText (truncated to 13 chars: "net-123" is 7 chars, no truncation)
       expect(screen.getByText("net-123")).toBeInTheDocument()
     })
 
-    it("renders only the ID when the network has no name", () => {
-      renderComponent({ ...mockNetwork, name: "" })
-
-      expect(screen.getAllByText("net-123")).toHaveLength(1)
-    })
-
-    it("renders status, admin state, shared, external and MTU", () => {
+    it("shows a copy affordance for the network ID", () => {
       renderComponent()
 
-      const [, status, adminState, , shared, external, mtu] = cells()
-      expect(status).toHaveTextContent("ACTIVE")
-      expect(adminState).toHaveTextContent("UP")
-      expect(shared).toHaveTextContent("Yes")
-      expect(external).toHaveTextContent("No")
-      expect(mtu).toHaveTextContent("8950")
+      // ClipboardText renders a button with aria-label "Copy <id> to clipboard"
+      expect(screen.getByRole("button", { name: /copy net-123 to clipboard/i })).toBeInTheDocument()
     })
 
-    it("renders DOWN, unshared and external networks", () => {
-      renderComponent({ ...mockNetwork, admin_state_up: false, shared: false, "router:external": true })
+    it("renders only the ID (with copy affordance) when the network has no name", () => {
+      renderComponent({ ...mockNetwork, name: "" })
 
-      const [, , adminState, , shared, external] = cells()
-      expect(adminState).toHaveTextContent("DOWN")
+      // ID appears once: as the primary ClipboardText (no secondary line)
+      expect(screen.getAllByText("net-123")).toHaveLength(1)
+      expect(screen.getByRole("button", { name: /copy net-123 to clipboard/i })).toBeInTheDocument()
+    })
+
+    it("renders status, admin state, subnet count, external", () => {
+      renderComponent()
+
+      const [, status, adminState, subnets, , external] = cells()
+      expect(status).toHaveTextContent("ACTIVE")
+      expect(adminState).toHaveTextContent("UP")
+      expect(subnets).toHaveTextContent("2")
+      expect(external).toHaveTextContent("No")
+    })
+
+    it("shows the owning project_id with copy affordance when the network is shared (E2)", () => {
+      renderComponent()
+
+      // Shared cell: ClipboardText for project_id
+      expect(screen.getByRole("button", { name: /copy proj-owner to clipboard/i })).toBeInTheDocument()
+    })
+
+    it("shows 'No' in the Shared column when the network is not shared", () => {
+      renderComponent({ ...mockNetwork, shared: false })
+
+      const [, , , , shared] = cells()
       expect(shared).toHaveTextContent("No")
+      // No copy button for project_id in the shared cell
+      expect(screen.queryByRole("button", { name: /copy proj-owner to clipboard/i })).not.toBeInTheDocument()
+    })
+
+    it("renders DOWN admin state and external=Yes", () => {
+      renderComponent({ ...mockNetwork, admin_state_up: false, "router:external": true })
+
+      const [, , adminState, , , external] = cells()
+      expect(adminState).toHaveTextContent("DOWN")
       expect(external).toHaveTextContent("Yes")
     })
 
-    it("renders subnet names and falls back to the subnet ID", () => {
+    it("renders the subnet count (not names)", () => {
       renderComponent()
 
       const subnets = cells()[3]
-      expect(subnets).toHaveTextContent("private-v4")
-      expect(subnets).toHaveTextContent("subnet-v6")
-      expect(subnets).not.toHaveTextContent("subnet-v4")
+      expect(subnets).toHaveTextContent("2")
+      // subnet names must not appear in the list row
+      expect(subnets).not.toHaveTextContent("private-v4")
     })
 
-    it("renders dashes for missing subnets, external flag and MTU", () => {
-      renderComponent({ ...mockNetwork, subnets: [], subnet_details: [], "router:external": null, mtu: undefined })
+    it("renders 0 subnets and dash for absent external flag", () => {
+      renderComponent({ ...mockNetwork, subnets: [], subnet_details: [], "router:external": null })
 
-      const [, , , subnets, , external, mtu] = cells()
-      expect(subnets).toHaveTextContent("–")
+      const [, , , subnets, , external] = cells()
+      expect(subnets).toHaveTextContent("0")
       expect(external).toHaveTextContent("–")
-      expect(mtu).toHaveTextContent("–")
+    })
+
+    it("does not render an MTU column", () => {
+      renderComponent()
+
+      // 7 cells total: Name, Status, Admin State, Subnets, Shared, External, overflow
+      expect(cells()).toHaveLength(7)
     })
   })
 
@@ -127,17 +157,19 @@ describe("NetworkTableRow", () => {
       const user = userEvent.setup()
       renderComponent()
 
-      await user.click(screen.getByTestId("network-row-net-123").querySelector("button")!)
+      await user.click(screen.getByTestId("network-row-net-123").querySelector("button[aria-label]")!)
       await user.click(await screen.findByText("Show Details"))
 
       expect(mockNavigate).toHaveBeenCalledWith(expectedNavigation)
     })
 
-    it("does not navigate when the menu button is clicked", async () => {
+    it("does not navigate when the overflow menu button is clicked", async () => {
       const user = userEvent.setup()
       renderComponent()
 
-      await user.click(screen.getByTestId("network-row-net-123").querySelector("button")!)
+      // The overflow menu button is the last button in the row; click the cell's button only
+      const overflowCell = cells()[6]
+      await user.click(overflowCell.querySelector("button")!)
 
       expect(mockNavigate).not.toHaveBeenCalled()
     })
@@ -146,7 +178,7 @@ describe("NetworkTableRow", () => {
       const user = userEvent.setup()
       renderComponent()
 
-      await user.click(screen.getByTestId("network-row-net-123").querySelector("button")!)
+      await user.click(screen.getByTestId("network-row-net-123").querySelector("button[aria-label]")!)
 
       expect(await screen.findAllByRole("menuitem")).toHaveLength(1)
     })

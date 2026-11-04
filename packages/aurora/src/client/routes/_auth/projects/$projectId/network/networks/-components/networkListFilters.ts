@@ -4,6 +4,8 @@
  */
 export const NETWORK_STATUS_FILTER_VALUES = ["ACTIVE", "DOWN", "BUILD", "ERROR"] as const
 export const NETWORK_SHARED_FILTER_VALUES = ["true", "false"] as const
+export const NETWORK_EXTERNAL_FILTER_VALUES = ["true", "false"] as const
 
 export type NetworkStatusFilter = (typeof NETWORK_STATUS_FILTER_VALUES)[number]
 export type NetworkSharedFilter = (typeof NETWORK_SHARED_FILTER_VALUES)[number]
+export type NetworkExternalFilter = (typeof NETWORK_EXTERNAL_FILTER_VALUES)[number]

@@ -47,31 +47,13 @@ vi.mock("@tanstack/react-router", async () => {
 })
 
 vi.mock("./NetworkListContainer", () => ({
-  NetworkListContainer: ({
-    networks,
-    isFiltered,
-    currentPage,
-    totalPages,
-    onPageChange,
-  }: {
-    networks?: NetworkListItem[]
-    isFiltered?: boolean
-    currentPage?: number
-    totalPages?: number
-    onPageChange?: (page: number) => void
-  }) => (
-    <div
-      data-testid="network-list-container"
-      data-is-filtered={String(Boolean(isFiltered))}
-      data-current-page={currentPage}
-      data-total-pages={totalPages}
-    >
+  NetworkListContainer: ({ networks, isFiltered }: { networks?: NetworkListItem[]; isFiltered?: boolean }) => (
+    <div data-testid="network-list-container" data-is-filtered={String(Boolean(isFiltered))}>
       {networks?.map((network) => (
         <div key={network.id} data-testid={`network-${network.id}`}>
           {network.name}
         </div>
       ))}
-      <button onClick={() => onPageChange?.(2)}>Go to page 2</button>
     </div>
   ),
 }))
@@ -82,6 +64,8 @@ vi.mock("@/client/components/ListToolbar/FiltersInput", () => ({
     <div data-testid="filters-input" data-filters={filters.map((filter) => filter.filterName).join(",")}>
       <button onClick={() => onChange({ name: "status", value: "DOWN" })}>Select status DOWN</button>
       <button onClick={() => onChange({ name: "shared", value: "true" })}>Select shared true</button>
+      <button onClick={() => onChange({ name: "external", value: "true" })}>Select external true</button>
+      <button onClick={() => onChange({ name: "external", value: "false" })}>Select external false</button>
       <button onClick={() => onChange({ name: "status", value: "UNKNOWN" })}>Select unknown status</button>
     </div>
   ),
@@ -191,7 +175,7 @@ describe("Networks", () => {
       expect(screen.getByTestId("network-net-2")).toHaveTextContent("db")
     })
 
-    it("queries networks for the project with default sorting and no filters", async () => {
+    it("queries networks for the project with default sort (name asc) and no filters", async () => {
       const { query } = await renderList()
 
       await screen.findByTestId("network-list-container")
@@ -199,15 +183,15 @@ describe("Networks", () => {
       expect(query).toHaveBeenCalledWith(defaultQuery)
     })
 
-    it("uses search, sort, direction and filters from the URL for the initial query", async () => {
-      searchStore.params = { search: "priv", sortBy: "mtu", sortDirection: "desc", status: "DOWN", shared: "false" }
+    it("uses search, sort and filters from the URL for the initial query (name sort passes to BFF)", async () => {
+      searchStore.params = { search: "priv", sortBy: "name", sortDirection: "desc", status: "DOWN", shared: "false" }
       const { query } = await renderList()
 
       await screen.findByTestId("network-list-container")
 
       expect(query).toHaveBeenCalledWith({
         project_id: "proj-1",
-        sort_key: "mtu",
+        sort_key: "name",
         sort_dir: "desc",
         searchTerm: "priv",
         status: "DOWN",
@@ -216,12 +200,34 @@ describe("Networks", () => {
       expect(screen.getByRole("searchbox")).toHaveValue("priv")
     })
 
+    it("does not pass sort params to BFF for client-side sorts (status, subnet_count)", async () => {
+      searchStore.params = { sortBy: "status", sortDirection: "desc" }
+      const { query } = await renderList()
+
+      await screen.findByTestId("network-list-container")
+
+      expect(query).toHaveBeenCalledWith({
+        project_id: "proj-1",
+        searchTerm: undefined,
+        status: undefined,
+        shared: undefined,
+      })
+    })
+
     it("does not render a create action (read-only)", async () => {
       await renderList()
 
       await screen.findByTestId("network-list-container")
 
       expect(screen.queryByRole("button", { name: /create network/i })).not.toBeInTheDocument()
+    })
+
+    it("displays the network count in Zone 3", async () => {
+      await renderList()
+
+      await screen.findByTestId("network-list-container")
+
+      expect(screen.getByText("2 networks")).toBeInTheDocument()
     })
   })
 
@@ -269,26 +275,25 @@ describe("Networks", () => {
         expect(query).toHaveBeenLastCalledWith(expect.objectContaining({ searchTerm: "db" }))
       })
       expect(mockNavigate).toHaveBeenLastCalledWith(expect.objectContaining({ replace: true }))
-      expect(lastNavigateSearch()).toEqual({ search: "db", page: undefined })
+      expect(lastNavigateSearch()).toEqual({ search: "db" })
     })
   })
 
   describe("Filters", () => {
-    it("offers status and shared filters", async () => {
+    it("offers status, shared and external filters", async () => {
       await renderList()
 
-      expect(await screen.findByTestId("filters-input")).toHaveAttribute("data-filters", "status,shared")
+      expect(await screen.findByTestId("filters-input")).toHaveAttribute("data-filters", "status,shared,external")
     })
 
     it("sets the status filter in the URL and refetches", async () => {
       const user = userEvent.setup()
-      searchStore.params = { page: 2 }
       const { query } = await renderList()
       await screen.findByTestId("network-list-container")
 
       await user.click(screen.getByRole("button", { name: "Select status DOWN" }))
 
-      expect(searchStore.params).toEqual({ status: "DOWN", page: undefined })
+      expect(searchStore.params).toEqual({ status: "DOWN" })
       await waitFor(() => {
         expect(query).toHaveBeenLastCalledWith({ ...defaultQuery, status: "DOWN" })
       })
@@ -301,9 +306,35 @@ describe("Networks", () => {
 
       await user.click(screen.getByRole("button", { name: "Select shared true" }))
 
-      expect(searchStore.params).toEqual({ shared: "true", page: undefined })
+      expect(searchStore.params).toEqual({ shared: "true" })
       await waitFor(() => {
         expect(query).toHaveBeenLastCalledWith({ ...defaultQuery, shared: true })
+      })
+    })
+
+    it("sets the external filter in the URL and passes router:external boolean to the BFF", async () => {
+      const user = userEvent.setup()
+      const { query } = await renderList()
+      await screen.findByTestId("network-list-container")
+
+      await user.click(screen.getByRole("button", { name: "Select external true" }))
+
+      expect(searchStore.params).toEqual({ external: "true" })
+      await waitFor(() => {
+        expect(query).toHaveBeenLastCalledWith({ ...defaultQuery, "router:external": true })
+      })
+    })
+
+    it("sets external=false filter and passes boolean false to the BFF", async () => {
+      const user = userEvent.setup()
+      const { query } = await renderList()
+      await screen.findByTestId("network-list-container")
+
+      await user.click(screen.getByRole("button", { name: "Select external false" }))
+
+      expect(searchStore.params).toEqual({ external: "false" })
+      await waitFor(() => {
+        expect(query).toHaveBeenLastCalledWith({ ...defaultQuery, "router:external": false })
       })
     })
 
@@ -326,24 +357,29 @@ describe("Networks", () => {
 
     it("removes a single filter", async () => {
       const user = userEvent.setup()
-      searchStore.params = { status: "DOWN", shared: "true" }
+      searchStore.params = { status: "DOWN", shared: "true", external: "true" }
       await renderList()
       await screen.findByTestId("network-list-container")
 
       await user.click(screen.getByRole("button", { name: "Remove status=DOWN" }))
 
-      expect(searchStore.params).toEqual({ status: undefined, shared: "true", page: undefined })
+      expect(searchStore.params).toEqual({ status: undefined, shared: "true", external: "true" })
     })
 
     it("clears all filters but keeps the search", async () => {
       const user = userEvent.setup()
-      searchStore.params = { status: "DOWN", shared: "true", search: "db" }
+      searchStore.params = { status: "DOWN", shared: "true", external: "false", search: "db" }
       await renderList()
       await screen.findByTestId("network-list-container")
 
       await user.click(screen.getByRole("button", { name: "Clear all" }))
 
-      expect(searchStore.params).toEqual({ status: undefined, shared: undefined, search: "db", page: undefined })
+      expect(searchStore.params).toEqual({
+        status: undefined,
+        shared: undefined,
+        external: undefined,
+        search: "db",
+      })
     })
   })
 
@@ -351,6 +387,7 @@ describe("Networks", () => {
     it.each([
       [{ search: "nomatch" }, "true"],
       [{ status: "ERROR" }, "true"],
+      [{ external: "true" }, "true"],
       [{}, "false"],
     ])("tells the container whether a search or filter is applied (%j)", async (params, expected) => {
       searchStore.params = params
@@ -366,13 +403,12 @@ describe("Networks", () => {
       await screen.findByTestId("network-list-container")
 
       await act(async () => {
-        setUrlSearch({ search: "backend", sortBy: "status", sortDirection: "desc" })
+        setUrlSearch({ search: "backend", sortBy: "name", sortDirection: "desc" })
       })
 
       await waitFor(() => {
         expect(query).toHaveBeenLastCalledWith({
           ...defaultQuery,
-          sort_key: "status",
           sort_dir: "desc",
           searchTerm: "backend",
         })
@@ -380,58 +416,21 @@ describe("Networks", () => {
       expect(screen.getByRole("searchbox")).toHaveValue("backend")
     })
 
-    it("does not refetch when only the page changes", async () => {
+    it("does not pass sort params to BFF when sort changes to subnet_count", async () => {
       const { query } = await renderList()
       await screen.findByTestId("network-list-container")
 
       await act(async () => {
-        setUrlSearch({ page: 2 })
+        setUrlSearch({ sortBy: "subnet_count", sortDirection: "desc" })
       })
 
-      expect(query).toHaveBeenCalledTimes(1)
-    })
-  })
-
-  describe("Pagination", () => {
-    const manyNetworks = Array.from({ length: 51 }, (_, i) => makeNetwork(`net-${i}`))
-
-    it("shows 50 networks per page", async () => {
-      await renderList(vi.fn().mockResolvedValue(manyNetworks))
-
-      const container = await screen.findByTestId("network-list-container")
-
-      expect(container).toHaveAttribute("data-total-pages", "2")
-      expect(container).toHaveAttribute("data-current-page", "1")
-      expect(screen.getByTestId("network-net-0")).toBeInTheDocument()
-      expect(screen.queryByTestId("network-net-50")).not.toBeInTheDocument()
-    })
-
-    it("shows the page from the URL", async () => {
-      searchStore.params = { page: 2 }
-      await renderList(vi.fn().mockResolvedValue(manyNetworks))
-
-      const container = await screen.findByTestId("network-list-container")
-
-      expect(container).toHaveAttribute("data-current-page", "2")
-      expect(screen.getByTestId("network-net-50")).toBeInTheDocument()
-    })
-
-    it("updates the page in the URL on page change", async () => {
-      const user = userEvent.setup()
-      await renderList(vi.fn().mockResolvedValue(manyNetworks))
-
-      await screen.findByTestId("network-list-container")
-      await user.click(screen.getByRole("button", { name: "Go to page 2" }))
-
-      expect(lastNavigateSearch()).toEqual({ page: 2 })
-    })
-
-    it("resets an out-of-range page to the first page", async () => {
-      searchStore.params = { page: 5 }
-      await renderList()
-
       await waitFor(() => {
-        expect(searchStore.params.page).toBeUndefined()
+        expect(query).toHaveBeenLastCalledWith({
+          project_id: "proj-1",
+          searchTerm: undefined,
+          status: undefined,
+          shared: undefined,
+        })
       })
     })
   })

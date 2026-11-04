@@ -1,4 +1,4 @@
-import { cleanup, render, screen, fireEvent } from "@testing-library/react"
+import { cleanup, render, screen } from "@testing-library/react"
 import { describe, it, expect, vi, beforeAll, afterEach } from "vitest"
 import { act, ReactNode } from "react"
 import { I18nProvider } from "@lingui/react"
@@ -51,15 +51,21 @@ describe("NetworkListContainer", () => {
     it("renders all column headers", () => {
       render(<NetworkListContainer networks={mockNetworks} />, { wrapper: TestWrapper })
 
-      for (const header of ["Name", "Status", "Admin State", "Subnets", "Shared", "External", "MTU"]) {
+      for (const header of ["Name", "Status", "Admin State", "Subnets", "Shared", "External"]) {
         expect(screen.getByText(header)).toBeInTheDocument()
       }
     })
 
-    it("renders 7 data columns and 1 actions column", () => {
+    it("does not render an MTU column", () => {
       render(<NetworkListContainer networks={mockNetworks} />, { wrapper: TestWrapper })
 
-      expect(screen.getAllByRole("columnheader")).toHaveLength(8)
+      expect(screen.queryByText("MTU")).not.toBeInTheDocument()
+    })
+
+    it("renders 6 data columns and 1 actions column", () => {
+      render(<NetworkListContainer networks={mockNetworks} />, { wrapper: TestWrapper })
+
+      expect(screen.getAllByRole("columnheader")).toHaveLength(7)
     })
 
     it("does not render a Project column", () => {
@@ -108,42 +114,6 @@ describe("NetworkListContainer", () => {
       render(<NetworkListContainer />, { wrapper: TestWrapper })
 
       expect(screen.getByText("No Networks Found")).toBeInTheDocument()
-    })
-  })
-
-  describe("Pagination", () => {
-    it("does not render pagination for a single page", () => {
-      render(<NetworkListContainer networks={mockNetworks} totalPages={1} />, { wrapper: TestWrapper })
-
-      expect(screen.queryByRole("textbox")).not.toBeInTheDocument()
-    })
-
-    it("calls onPageChange with a valid page number when Enter is pressed", () => {
-      const onPageChange = vi.fn()
-      render(
-        <NetworkListContainer networks={mockNetworks} currentPage={1} totalPages={5} onPageChange={onPageChange} />,
-        { wrapper: TestWrapper }
-      )
-
-      const input = screen.getByRole("textbox")
-      fireEvent.change(input, { target: { value: "3" } })
-      fireEvent.keyDown(input, { key: "Enter", code: "Enter", charCode: 13 })
-
-      expect(onPageChange).toHaveBeenCalledWith(3)
-    })
-
-    it("does not call onPageChange for empty input when Enter is pressed", () => {
-      const onPageChange = vi.fn()
-      render(
-        <NetworkListContainer networks={mockNetworks} currentPage={1} totalPages={5} onPageChange={onPageChange} />,
-        { wrapper: TestWrapper }
-      )
-
-      const input = screen.getByRole("textbox")
-      fireEvent.change(input, { target: { value: "" } })
-      fireEvent.keyDown(input, { key: "Enter", code: "Enter", charCode: 13 })
-
-      expect(onPageChange).not.toHaveBeenCalled()
     })
   })
 })

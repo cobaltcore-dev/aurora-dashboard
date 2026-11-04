@@ -5,15 +5,19 @@ import { z } from "zod"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import { Networks } from "./-components/NetworksList"
-import { NETWORK_SHARED_FILTER_VALUES, NETWORK_STATUS_FILTER_VALUES } from "./-components/networkListFilters"
+import {
+  NETWORK_EXTERNAL_FILTER_VALUES,
+  NETWORK_SHARED_FILTER_VALUES,
+  NETWORK_STATUS_FILTER_VALUES,
+} from "./-components/networkListFilters"
 
 const networksSearchFields = {
   search: z.string().optional(),
-  sortBy: z.enum(["name", "status", "mtu"]).optional(),
+  sortBy: z.enum(["name", "status", "subnet_count"]).optional(),
   sortDirection: z.enum(["asc", "desc"]).optional(),
-  page: z.number().int().positive().optional(),
   status: z.enum(NETWORK_STATUS_FILTER_VALUES).optional(),
   shared: z.enum(NETWORK_SHARED_FILTER_VALUES).optional(),
+  external: z.enum(NETWORK_EXTERNAL_FILTER_VALUES).optional(),
 }
 
 const networksSearchSchema = z.looseObject(networksSearchFields)
@@ -41,9 +45,9 @@ export const Route = createFileRoute("/_auth/projects/$projectId/network/network
       search: validOrUndefined(networksSearchFields.search, search.search),
       sortBy: validOrUndefined(networksSearchFields.sortBy, search.sortBy),
       sortDirection: validOrUndefined(networksSearchFields.sortDirection, search.sortDirection),
-      page: validOrUndefined(networksSearchFields.page, search.page),
       status: validOrUndefined(networksSearchFields.status, search.status),
       shared: validOrUndefined(networksSearchFields.shared, search.shared),
+      external: validOrUndefined(networksSearchFields.external, search.external),
     }
   },
   head: () => ({ meta: [{ title: t`Networks` }] }),
