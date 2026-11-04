@@ -3172,9 +3172,6 @@ msgstr ""
 msgid "or drag and drop"
 msgstr "oder per Drag & Drop"
 
-msgid "Order"
-msgstr ""
-
 msgid "Order \"{name}\" was successfully created."
 msgstr ""
 

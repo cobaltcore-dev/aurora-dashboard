@@ -3172,9 +3172,6 @@ msgstr "Optional. Up to 255 characters."
 msgid "or drag and drop"
 msgstr "or drag and drop"
 
-msgid "Order"
-msgstr "Order"
-
 msgid "Order \"{name}\" was successfully created."
 msgstr "Order \"{name}\" was successfully created."
 

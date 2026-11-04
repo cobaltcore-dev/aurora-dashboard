@@ -78,7 +78,7 @@ export function OrderDetailsView({ projectId, orderId }: OrderDetailsViewProps) 
 
   return (
     <>
-      <ContentHeader title={`${t`Order`}: ${order.type}`} projectId={projectId} />
+      <ContentHeader title={typeof order.meta?.name === "string" ? order.meta.name : orderId} projectId={projectId} />
 
       <Stack direction="vertical" gap="6" className="mt-6">
         <Stack direction="vertical" gap="2">
