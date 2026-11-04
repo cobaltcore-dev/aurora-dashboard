@@ -69,7 +69,7 @@ export const imageRouter = {
         validateGlanceService(glance)
 
         // Configuration for intelligent pagination
-        const FRONTEND_PAGE_SIZE = 50
+        const FRONTEND_PAGE_SIZE = 30
         const OPENSTACK_PAGE_SIZE = 100
         const MAX_PAGES_TO_SEARCH = 1000 // Safety limit to prevent infinite loops
 

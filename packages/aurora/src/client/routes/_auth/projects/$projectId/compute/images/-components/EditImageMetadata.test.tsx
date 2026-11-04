@@ -29,7 +29,20 @@ const MOCK_EXCLUDED_PROPERTIES = [
 
 vi.mock("@/client/trpcClient", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/client/trpcClient")>()
-  return { ...actual }
+  return {
+    ...actual,
+    // The modal calls trpcReact.useUtils() to invalidate the image cache after
+    // mutations. Stub it so the component renders without a tRPC/React Query provider.
+    trpcReact: {
+      ...actual.trpcReact,
+      useUtils: () => ({
+        compute: {
+          getImageById: { invalidate: vi.fn() },
+          listImagesWithPagination: { invalidate: vi.fn() },
+        },
+      }),
+    },
+  }
 })
 
 const makeMockClient = () =>
