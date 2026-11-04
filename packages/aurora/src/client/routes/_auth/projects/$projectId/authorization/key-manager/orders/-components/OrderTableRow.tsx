@@ -25,7 +25,7 @@ export function OrderTableRow({ order, canDeleteOrder, onShowDetails, onDelete }
   const id = uuidFromRef(order.order_ref)
   const name = typeof order.meta?.name === "string" ? order.meta.name : null
   return (
-    <DataGridRow>
+    <DataGridRow onClick={() => onShowDetails(order)}>
       <DataGridCell>
         <div>{name ?? <em>{t`unnamed`}</em>}</div>
         <div className="text-xs opacity-60">

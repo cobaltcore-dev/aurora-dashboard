@@ -24,7 +24,7 @@ export function SecretTableRow({ secret, canDeleteSecret, onShowDetails, onDelet
   const { t } = useLingui()
   const id = uuidFromRef(secret.secret_ref)
   return (
-    <DataGridRow>
+    <DataGridRow onClick={() => onShowDetails(secret)}>
       <DataGridCell>
         <div>{secret.name ?? <em>{t`unnamed`}</em>}</div>
         <div className="text-xs opacity-60">

@@ -24,7 +24,7 @@ export function ContainerTableRow({ container, canDeleteContainer, onShowDetails
   const { t } = useLingui()
   const id = uuidFromRef(container.container_ref)
   return (
-    <DataGridRow>
+    <DataGridRow onClick={() => onShowDetails(container)}>
       <DataGridCell>
         <div>{container.name ?? <em>{t`unnamed`}</em>}</div>
         <div className="text-xs opacity-60">
