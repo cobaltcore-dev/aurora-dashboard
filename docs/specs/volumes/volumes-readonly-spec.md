@@ -114,7 +114,7 @@ Give Aurora project members a read-only view of their project's Cinder volumes a
 
 ## 3 — Volumes tab — list project volumes
 
-**What to build:** The Volumes tab's list — a DataGrid of the current project's volumes with the confirmed composed 3-zone toolbar, clickable rows that open the detail route, per-row status, and ID copy. Fully handles its own loading / empty / error / unauthorized states.
+**What to build:** The Volumes tab's list — a DataGrid of the current project's volumes with the confirmed composed 3-zone toolbar, clickable rows that open the detail route, and per-row status. Fully handles its own loading / empty / error / unauthorized states.
 **Blocked by:** 1, 2 · **Status:** ready-for-agent
 
 **User story:** As a Project Member (Viewer), I want to see a list of the volumes in my project, so that I can get an overview of my project's block storage at a glance.
