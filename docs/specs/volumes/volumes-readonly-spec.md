@@ -259,7 +259,7 @@ Give Aurora project members a read-only view of their project's Cinder volumes a
 **Aurora / Juno implementation notes**
 
 - Model this on the Networks scope's port → router deep-link: ID-based route construction, catalog-gated graceful degradation, no data/code coupling — a navigation-only soft dependency.
-- Gate the instance link on the catalog presence of the compute/Nova service (the Instances scope's own gate); gate intra-scope volume/snapshot links on the route existing (always true within this scope).
+- Gate the instance link on both the compute/Nova catalog entry and the Instances detail route being implemented and enabled in the deployed Aurora build; otherwise render the plain ID. Apply the same target-route availability check to intra-scope volume/snapshot links rather than assuming every detail view has shipped.
 
 **BRD Reference** — Story §5.1 Story 2 (attachment deep-link) · Story 4 (source volume) · Out-of-Scope §4 (no name resolution) · Dependencies §8 (soft dependency on Instances scope).
 
