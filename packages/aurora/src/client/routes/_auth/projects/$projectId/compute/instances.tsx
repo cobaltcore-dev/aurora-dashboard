@@ -6,14 +6,12 @@ import type { RouteInfo } from "@/client/routes/routeInfo"
 
 const instancesSearchFields = {
   search: z.string().optional(),
-  sortBy: z.enum(["name", "status", "created", "flavor", "az", "updated"]).optional(),
+  sortBy: z.enum(["status", "name", "flavor", "availability_zone", "created"]).optional(),
   sortDirection: z.enum(["asc", "desc"]).optional(),
   status: z.string().optional(),
-  az: z.string().optional(),
   flavor: z.string().optional(),
   image: z.string().optional(),
-  key_name: z.string().optional(),
-  locked: z.string().optional(),
+  az: z.string().optional(),
   page: z.number().int().positive().optional(),
 }
 
@@ -41,11 +39,9 @@ export const Route = createFileRoute("/_auth/projects/$projectId/compute/instanc
         ? search.sortDirection
         : undefined,
       status: instancesSearchFields.status.safeParse(search.status).success ? search.status : undefined,
-      az: instancesSearchFields.az.safeParse(search.az).success ? search.az : undefined,
       flavor: instancesSearchFields.flavor.safeParse(search.flavor).success ? search.flavor : undefined,
       image: instancesSearchFields.image.safeParse(search.image).success ? search.image : undefined,
-      key_name: instancesSearchFields.key_name.safeParse(search.key_name).success ? search.key_name : undefined,
-      locked: instancesSearchFields.locked.safeParse(search.locked).success ? search.locked : undefined,
+      az: instancesSearchFields.az.safeParse(search.az).success ? search.az : undefined,
       page: instancesSearchFields.page.safeParse(search.page).success ? (search.page as number) : undefined,
     }
   },

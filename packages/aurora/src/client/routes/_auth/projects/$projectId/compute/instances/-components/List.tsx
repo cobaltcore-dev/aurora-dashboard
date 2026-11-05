@@ -9,7 +9,7 @@ import { FiltersInput } from "@/client/components/ListToolbar/FiltersInput"
 import { SelectedFilters } from "@/client/components/ListToolbar/SelectedFilters"
 import { SortSettings, SelectedFilter, Filter } from "@/client/components/ListToolbar/types"
 import { InstanceListView } from "./InstanceListView"
-import { availabilityZones, instanceStatuses, flavorFacet, imageFacet, keyNameFacet } from "../-utils/instanceDisplay"
+import { availabilityZones, instanceStatuses, flavorFacet, imageFacet } from "../-utils/instanceDisplay"
 import { createInstancesPromise, createPermissionsPromise, type InstancesResult } from "../apiHelpers"
 import { parseFiltersFromUrl, buildFilterParams, buildUrlFilterParams, applyFilterSelection } from "../urlHelpers"
 import type { InstancesSearchParams } from "@/client/routes/_auth/projects/$projectId/compute/instances"
@@ -27,21 +27,15 @@ type RequiredSortSettings = {
   sortDirection: "asc" | "desc"
 }
 
-// Filter facet definitions. Facets whose values are open-ended per project
-// (flavor, image id, key name) are derived from the data; status/az likewise.
+// Filter facet definitions. Labels and order match the table columns
+// (Status, Flavor, Image ID, Availability Zone); Name is handled by search and
+// IP/Created are not facetable. Facet values are derived from the data.
 // Multi-value facets encode as "in:a,b" in the URL and BFF query, mirroring Images.
 const buildFilters = (servers: InstancesResult["servers"], t: (s: TemplateStringsArray) => string): Filter[] => [
   { displayName: t`Status`, filterName: "status", values: instanceStatuses(servers), supportsMultiValue: true },
-  { displayName: t`Availability Zone`, filterName: "az", values: availabilityZones(servers) },
   { displayName: t`Flavor`, filterName: "flavor", values: flavorFacet(servers), supportsMultiValue: true },
   { displayName: t`Image ID`, filterName: "image", values: imageFacet(servers), supportsMultiValue: true },
-  { displayName: t`Key Name`, filterName: "key_name", values: keyNameFacet(servers), supportsMultiValue: true },
-  {
-    displayName: t`Locked`,
-    filterName: "locked",
-    values: ["true", "false"],
-    valueLabels: { true: t`Yes`, false: t`No` },
-  },
+  { displayName: t`Availability Zone`, filterName: "az", values: availabilityZones(servers) },
 ]
 
 function InstancesContent({
@@ -107,7 +101,7 @@ function InstancesContent({
           options={sortSettings.options}
           sortBy={sortSettings.sortBy}
           sortDirection={sortSettings.sortDirection ?? "asc"}
-          selectClassName="min-w-40"
+          selectClassName="min-w-52"
           onSortByChange={(v) =>
             handleSortChange({ ...sortSettings, sortBy: v, sortDirection: sortSettings.sortDirection })
           }
@@ -172,13 +166,13 @@ export const Instances = ({ client, project }: InstancesProps) => {
   const navigate = useNavigate()
   const searchParams = useSearch({ strict: false }) as InstancesSearchParams
 
+  // Labels and order match the table columns (sortable ones).
   const sortOptions = [
-    { label: t`Name`, value: "name" },
     { label: t`Status`, value: "status" },
+    { label: t`Name`, value: "name" },
     { label: t`Flavor`, value: "flavor" },
     { label: t`Availability Zone`, value: "availability_zone" },
     { label: t`Created`, value: "created" },
-    { label: t`Updated`, value: "updated" },
   ]
 
   const [sortSettings, setSortSettings] = useState<RequiredSortSettings>({

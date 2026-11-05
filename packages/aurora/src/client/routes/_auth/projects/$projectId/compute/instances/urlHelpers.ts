@@ -2,18 +2,16 @@ import { SelectedFilter, Filter } from "@/client/components/ListToolbar/types"
 import type { InstancesSearchParams } from "@/client/routes/_auth/projects/$projectId/compute/instances"
 import type { ServerFilterParams } from "./apiHelpers"
 
-/** URL search param keys that back a filter facet. */
-export const FILTER_KEYS = ["status", "az", "flavor", "image", "key_name", "locked"] as const
+/** URL search param keys that back a filter facet (matches the table columns). */
+export const FILTER_KEYS = ["status", "flavor", "image", "az"] as const
 type FilterKey = (typeof FILTER_KEYS)[number]
 
 /** Maps a URL/filter key to the BFF query-param name. */
 const API_PARAM_BY_KEY: Record<FilterKey, keyof ServerFilterParams> = {
   status: "status",
-  az: "availability_zone",
   flavor: "flavor",
   image: "image",
-  key_name: "key_name",
-  locked: "locked",
+  az: "availability_zone",
 }
 
 const parseValues = (raw: string): string[] => (raw.startsWith("in:") ? raw.replace("in:", "").split(",") : [raw])
