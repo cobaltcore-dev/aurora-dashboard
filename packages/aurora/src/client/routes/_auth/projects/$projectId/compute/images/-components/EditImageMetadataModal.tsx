@@ -13,7 +13,7 @@ import {
   toast,
 } from "@cloudoperators/juno-ui-components"
 import { GlanceImage } from "@/server/Compute/types/image"
-import { TrpcClient } from "@/client/trpcClient"
+import { TrpcClient, trpcReact } from "@/client/trpcClient"
 import { useErrorTranslation } from "@/client/utils/useErrorTranslation"
 import {
   getImageMetadataPropertyCreatedToast,
@@ -76,6 +76,15 @@ function EditImageMetadataModalInner({
 }) {
   const { t } = useLingui()
   const { translateError } = useErrorTranslation()
+  const utils = trpcReact.useUtils()
+
+  // Refresh the source image so reopening the modal (and the detail/list views)
+  // reflects metadata changes without a manual page refresh. The modal mutates
+  // via the vanilla client, which does not touch the React Query cache on its own.
+  const refreshImageData = () => {
+    utils.compute.getImageById.invalidate({ project_id: projectId, imageId })
+    utils.compute.listImagesWithPagination.invalidate()
+  }
 
   const [metadata, setMetadata] = useState<MetadataEntry[]>(initialMetadata)
   const [errors, setErrors] = useState<{ [key: string]: string }>({})
@@ -142,6 +151,7 @@ function EditImageMetadataModalInner({
       setIsAddingNew(false)
       setErrors({})
       setValidationMessage(null)
+      refreshImageData()
       const { message, ...options } = getImageMetadataPropertyCreatedToast()
       toast.success(message, options)
     } catch (error) {
@@ -214,6 +224,7 @@ function EditImageMetadataModalInner({
       )
       setErrors({})
       setValidationMessage(null)
+      refreshImageData()
       const { message, ...options } = getImageMetadataPropertyUpdatedToast()
       toast.success(message, options)
     } catch (error) {
@@ -247,6 +258,7 @@ function EditImageMetadataModalInner({
       setMetadata((prev) => prev.filter((_, i) => i !== index))
       setErrors({})
       setValidationMessage(null)
+      refreshImageData()
       const { message, ...options } = getImageMetadataPropertyDeletedToast()
       toast.success(message, options)
     } catch (error) {

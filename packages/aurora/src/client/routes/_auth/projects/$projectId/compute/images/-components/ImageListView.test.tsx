@@ -39,6 +39,7 @@ vi.mock("@/client/trpcClient", () => ({
       updateImageVisibility: { useMutation: () => mockMutation },
       updateImageMember: { useMutation: () => mockMutation },
       listSharedImagesByMemberStatus: { useQuery: () => ({ data: [] }) },
+      listImageMembers: { useQuery: () => ({ data: [], isLoading: false }) },
       watchUploadProgress: { useSubscription: () => ({ data: undefined }) },
     },
   },
@@ -397,5 +398,72 @@ describe("ImageListView — permission-gated actions", () => {
     })
     expect(screen.getByText("Image 1")).toBeInTheDocument()
     expect(screen.getByText("Image 3")).toBeInTheDocument()
+  })
+})
+
+describe("ImageListView — rename refetch", () => {
+  beforeAll(() => {
+    // jsdom gaps that Headless UI (PopupMenu) relies on.
+    if (!Element.prototype.scrollIntoView) Element.prototype.scrollIntoView = vi.fn()
+    if (!window.matchMedia) {
+      window.matchMedia = (query: string) =>
+        ({
+          matches: false,
+          media: query,
+          onchange: null,
+          addListener: vi.fn(),
+          removeListener: vi.fn(),
+          addEventListener: vi.fn(),
+          removeEventListener: vi.fn(),
+          dispatchEvent: vi.fn(),
+        }) as unknown as MediaQueryList
+    }
+    if (!("ResizeObserver" in globalThis)) {
+      ;(globalThis as unknown as { ResizeObserver: unknown }).ResizeObserver = class {
+        observe() {}
+        unobserve() {}
+        disconnect() {}
+      }
+    }
+  })
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("rebuilds the list promise after a successful rename so search sees the new name", async () => {
+    // Owned, updatable image so the row's "Edit Details" action is available.
+    const image = { ...makeImage(1), owner: "test-project-id" } as GlanceImage
+    mockMutation.mutateAsync.mockResolvedValueOnce({ ...image, name: "renamed" })
+    const onMemberStatusChanged = vi.fn()
+
+    await act(async () => {
+      render(
+        <ImageListView
+          {...defaultProps}
+          images={[image]}
+          permissions={{ ...mockPermissions, canUpdate: true }}
+          onMemberStatusChanged={onMemberStatusChanged}
+        />,
+        { wrapper: TestingProvider }
+      )
+    })
+
+    // Open the row menu (the only button until items mount) → Edit Details.
+    fireEvent.click(screen.getByRole("button"))
+    fireEvent.click(await screen.findByText("Edit Details"))
+
+    // Rename and save.
+    const nameInput = await screen.findByLabelText("Image Name")
+    await act(async () => {
+      fireEvent.change(nameInput, { target: { value: "renamed" } })
+    })
+    fireEvent.click(await screen.findByRole("button", { name: /Save Changes/i }))
+
+    await act(async () => {})
+
+    expect(mockMutation.mutateAsync).toHaveBeenCalled()
+    // The refetch is what makes the server-side search reflect the new name.
+    expect(onMemberStatusChanged).toHaveBeenCalled()
   })
 })
