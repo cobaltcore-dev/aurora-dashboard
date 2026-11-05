@@ -90,7 +90,7 @@ describe("FloatingIpTableRow", () => {
       expect(row.textContent).toContain("ACTIVE")
     })
 
-    it("renders em dash when fixed IP is missing", async () => {
+    it("renders empty state placeholder when fixed IP is missing", async () => {
       const fipWithoutFixedIp = { ...mockFloatingIp, fixed_ip_address: null }
       render(
         <I18nProvider i18n={i18n}>
@@ -101,12 +101,12 @@ describe("FloatingIpTableRow", () => {
       )
 
       await waitFor(() => {
-        const cells = screen.getAllByText("—")
+        const cells = screen.getAllByText("- -")
         expect(cells.length).toBeGreaterThan(0)
       })
     })
 
-    it("renders em dash when description is missing", async () => {
+    it("renders empty state placeholder when description is missing", async () => {
       const fipWithoutDescription = { ...mockFloatingIp, description: null }
       render(
         <I18nProvider i18n={i18n}>
@@ -117,7 +117,7 @@ describe("FloatingIpTableRow", () => {
       )
 
       await waitFor(() => {
-        const cells = screen.getAllByText("—")
+        const cells = screen.getAllByText("- -")
         expect(cells.length).toBeGreaterThan(0)
       })
     })

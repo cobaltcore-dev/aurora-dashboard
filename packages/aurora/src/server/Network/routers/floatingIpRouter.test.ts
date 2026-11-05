@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 import { TRPCError } from "@trpc/server"
+import { SignalOpenstackApiError } from "@cobaltcore-dev/signal-openstack"
 import { createCallerFactory, auroraRouter } from "../../trpc"
 import { floatingIpRouter } from "./floatingIpRouter"
 import { AvailablePort, DnsDomain, ExternalNetwork, FloatingIp } from "../types/floatingIp"
@@ -795,6 +796,26 @@ describe("floatingIpRouter.create", () => {
         floating_network_id: "net-external-1",
       })
     ).rejects.toThrow(TRPCError)
+  })
+
+  it("surfaces Neutron's reason when the client throws a 400 (not the generic middleware message)", async () => {
+    const ctx = createMockContext()
+    ctx.__networkPostMock.mockRejectedValueOnce(
+      new SignalOpenstackApiError("Bad floatingip request: dns_name cannot be specified without a dns_domain.", 400)
+    )
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.floatingIp.create({
+        project_id: TEST_PROJECT_ID,
+        floating_network_id: "net-external-1",
+        dns_name: "my-fip",
+      })
+    ).rejects.toMatchObject({
+      code: "BAD_REQUEST",
+      message:
+        "Failed to allocate floating IP: Bad floatingip request: dns_name cannot be specified without a dns_domain.",
+    })
   })
 })
 

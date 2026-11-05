@@ -31,10 +31,10 @@ export const FloatingIpTableRow = ({ floatingIp }: FloatingIpTableRowProps) => {
     <DataGridRow key={floatingIp.id} data-testid={`floating-ip-row-${floatingIp.id}`} onClick={navigateToDetailsPage}>
       <DataGridCell>{floatingIp.status}</DataGridCell>
       <DataGridCell>{floatingIp.floating_ip_address}</DataGridCell>
-      <DataGridCell>{floatingIp.fixed_ip_address || "—"}</DataGridCell>
+      <DataGridCell>{floatingIp.fixed_ip_address || "- -"}</DataGridCell>
       <DataGridCell>{floatingIp.floating_network_id}</DataGridCell>
       <DataGridCell>
-        <div className="truncate">{floatingIp.description || "—"}</div>
+        <div className="truncate">{floatingIp.description || "- -"}</div>
       </DataGridCell>
       <DataGridCell onClick={(e) => e.stopPropagation()} className="items-end pr-0">
         <FloatingIpActionModals floatingIp={floatingIp}>

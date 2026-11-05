@@ -65,17 +65,15 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
   const formSchema = z.object({
     floating_network_id: z.string(),
     dns_domain: z.string(),
+    // DNS name length is validated live on the field (onChange); format stays on submit.
     dns_name: z
       .string()
       .trim()
-      .max(63, t`DNS name must be at most 63 characters.`)
       .refine((value) => value === "" || dnsNameRegex.test(value), {
         message: t`Must be a valid PQDN or FQDN (alphanumeric and hyphens only, cannot start or end with hyphen).`,
       }),
-    description: z
-      .string()
-      .trim()
-      .max(255, t`Description must be at most 255 characters.`),
+    // Description length is validated live on the field (onChange), not here.
+    description: z.string(),
     floating_ip_address: z
       .string()
       .trim()
@@ -215,6 +213,10 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
           <FormSection className="mb-4">
             <form.Field
               name="dns_name"
+              validators={{
+                onChange: ({ value }) =>
+                  value.trim().length > 63 ? t`DNS name must be at most 63 characters.` : undefined,
+              }}
               children={(field) => (
                 <TextInput
                   id={field.name}
@@ -225,7 +227,7 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
                   label={t`DNS Name`}
                   placeholder={t`Enter DNS name`}
                   helptext={t`Enter a valid PQDN or FQDN (max 63 characters) to associate with the floating IP. A and PTR records are created automatically.`}
-                  errortext={field.state.meta.errors.map((e) => e?.message).join(", ")}
+                  errortext={field.state.meta.errors.map((e) => (typeof e === "string" ? e : e?.message)).join(", ")}
                   disabled={isPending}
                 />
               )}
@@ -234,6 +236,10 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
           <FormSection className="mb-4">
             <form.Field
               name="description"
+              validators={{
+                onChange: ({ value }) =>
+                  value.trim().length > 255 ? t`Description must be at most 255 characters.` : undefined,
+              }}
               children={(field) => (
                 <Textarea
                   id={field.name}
@@ -242,7 +248,8 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
                   onBlur={field.handleBlur}
                   onChange={(e) => field.handleChange(e.target.value)}
                   label={t`Description`}
-                  errortext={field.state.meta.errors.map((e) => e?.message).join(", ")}
+                  helptext={t`Enter an optional description for the floating IP (max 255 characters).`}
+                  errortext={field.state.meta.errors.map((e) => (typeof e === "string" ? e : e?.message)).join(", ")}
                   disabled={isPending}
                 />
               )}

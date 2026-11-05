@@ -173,6 +173,31 @@ describe("EditFloatingIpModal", () => {
       })
       expect(screen.getByText("Edit Description")).toBeInTheDocument()
     })
+
+    test("shows length error and disables Save on change when description exceeds 255 characters", async () => {
+      renderModal()
+
+      const descriptionInput = screen.getByLabelText("Description") as HTMLTextAreaElement
+      // Validates live on change — no submit needed.
+      fireEvent.change(descriptionInput, { target: { value: "a".repeat(256) } })
+
+      await waitFor(() => {
+        expect(screen.getByText("Description must be at most 255 characters.")).toBeInTheDocument()
+      })
+      expect(screen.getByRole("button", { name: "Save" })).toBeDisabled()
+    })
+
+    test("keeps Save enabled and shows no length error for a 255 character description", async () => {
+      renderModal()
+
+      const descriptionInput = screen.getByLabelText("Description") as HTMLTextAreaElement
+      fireEvent.change(descriptionInput, { target: { value: "a".repeat(255) } })
+
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: "Save" })).toBeEnabled()
+      })
+      expect(screen.queryByText("Description must be at most 255 characters.")).not.toBeInTheDocument()
+    })
   })
 
   describe("Loading and error states", () => {
