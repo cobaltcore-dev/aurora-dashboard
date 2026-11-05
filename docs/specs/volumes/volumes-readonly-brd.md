@@ -230,7 +230,7 @@ backlog item.
 - The volume detail view must exist before the volume attachments / deep-links.
 - The snapshots list must exist before the snapshot detail view.
 - The snapshot → volume deep-link depends on the volume detail route existing.
-- (Later increment) a "Snapshots of this volume" section on the volume detail depends on the project snapshot list being fetchable; it is deferred and not part of phase 1.
+- A "Snapshots of this volume" section on the volume detail depends on the project snapshot list being fetchable. Phase-1 inclusion is pending developer confirmation (Q-F8 / spec O5); otherwise it moves to a fast-follow and does not block the volume-detail MVP.
 
 ---
 
