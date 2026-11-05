@@ -2371,9 +2371,6 @@ msgstr "Invalid value for public flavor setting."
 msgid "IP Address"
 msgstr "IP Address"
 
-msgid "IP Addresses"
-msgstr "IP Addresses"
-
 msgid "IP Restricted"
 msgstr "IP Restricted"
 

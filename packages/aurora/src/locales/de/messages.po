@@ -2371,9 +2371,6 @@ msgstr "Ungültiger Wert für die Einstellung des öffentlichen Flavors."
 msgid "IP Address"
 msgstr ""
 
-msgid "IP Addresses"
-msgstr ""
-
 msgid "IP Restricted"
 msgstr ""
 

@@ -9,15 +9,14 @@ import {
   PopupMenuItem,
   Status,
   Pagination,
-  Stack,
 } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "@tanstack/react-router"
-import { flavorName, rawImageId, instanceIps, EMPTY_VALUE } from "../-utils/instanceDisplay"
+import { flavorName, rawImageId, EMPTY_VALUE } from "../-utils/instanceDisplay"
 import ClipboardText from "@/client/components/ClipboardText"
 
-const COLUMN_COUNT = 8
+const COLUMN_COUNT = 7
 
 interface InstanceListViewProps {
   instances: Server[]
@@ -57,7 +56,7 @@ export const InstanceListView = ({
 
   return (
     <>
-      <DataGrid columns={COLUMN_COUNT} minContentColumns={[7]} className="instances" data-testid="instances-table">
+      <DataGrid columns={COLUMN_COUNT} minContentColumns={[6]} className="instances" data-testid="instances-table">
         <DataGridRow>
           <DataGridHeadCell>
             <Trans>Status</Trans>
@@ -75,9 +74,6 @@ export const InstanceListView = ({
             <Trans>Availability Zone</Trans>
           </DataGridHeadCell>
           <DataGridHeadCell>
-            <Trans>IP Addresses</Trans>
-          </DataGridHeadCell>
-          <DataGridHeadCell>
             <Trans>Created</Trans>
           </DataGridHeadCell>
           <DataGridHeadCell></DataGridHeadCell>
@@ -85,7 +81,6 @@ export const InstanceListView = ({
 
         {instances.length > 0 ? (
           instances.map((instance) => {
-            const ips = instanceIps(instance)
             return (
               <DataGridRow
                 key={instance.id}
@@ -99,19 +94,6 @@ export const InstanceListView = ({
                   {rawImageId(instance) ? <ClipboardText text={rawImageId(instance)} truncateAt={8} /> : EMPTY_VALUE}
                 </DataGridCell>
                 <DataGridCell>{instance["OS-EXT-AZ:availability_zone"] || EMPTY_VALUE}</DataGridCell>
-                <DataGridCell>
-                  {ips.length > 0 ? (
-                    <Stack direction="vertical" gap="0.5">
-                      {ips.map((ip) => (
-                        <span key={ip} className="break-all">
-                          {ip}
-                        </span>
-                      ))}
-                    </Stack>
-                  ) : (
-                    EMPTY_VALUE
-                  )}
-                </DataGridCell>
                 <DataGridCell>{instance.created || EMPTY_VALUE}</DataGridCell>
                 <DataGridCell onClick={(e) => e.stopPropagation()}>
                   <PopupMenu>
