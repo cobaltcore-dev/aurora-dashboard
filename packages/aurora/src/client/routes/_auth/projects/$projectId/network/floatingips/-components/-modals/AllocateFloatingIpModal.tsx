@@ -55,20 +55,25 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
     error: portsError,
   } = trpcReact.network.floatingIp.listAvailablePorts.useQuery({ project_id: projectId })
 
+  // Specifying an exact floating IP address is admin-only; the field is hidden for everyone else
+  // Non admin users get an auto-assigned floating IP address instead
+  const { data: canSpecifyIpAddress = false } = trpcReact.network.canUser.useQuery(
+    { project_id: projectId, permission: ["network:floatingips:specify_ip_address"] },
+    { select: ([canSpecify]) => canSpecify }
+  )
+
   const formSchema = z.object({
     floating_network_id: z.string(),
     dns_domain: z.string(),
+    // DNS name length is validated live on the field (onChange); format stays on submit.
     dns_name: z
       .string()
       .trim()
-      .max(63, t`DNS name must be at most 63 characters.`)
       .refine((value) => value === "" || dnsNameRegex.test(value), {
         message: t`Must be a valid PQDN or FQDN (alphanumeric and hyphens only, cannot start or end with hyphen).`,
       }),
-    description: z
-      .string()
-      .trim()
-      .max(255, t`Description must be at most 255 characters.`),
+    // Description length is validated live on the field (onChange), not here.
+    description: z.string(),
     floating_ip_address: z
       .string()
       .trim()
@@ -208,6 +213,10 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
           <FormSection className="mb-4">
             <form.Field
               name="dns_name"
+              validators={{
+                onChange: ({ value }) =>
+                  value.trim().length > 63 ? t`DNS name must be at most 63 characters.` : undefined,
+              }}
               children={(field) => (
                 <TextInput
                   id={field.name}
@@ -218,7 +227,7 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
                   label={t`DNS Name`}
                   placeholder={t`Enter DNS name`}
                   helptext={t`Enter a valid PQDN or FQDN (max 63 characters) to associate with the floating IP. A and PTR records are created automatically.`}
-                  errortext={field.state.meta.errors.map((e) => e?.message).join(", ")}
+                  errortext={field.state.meta.errors.map((e) => (typeof e === "string" ? e : e?.message)).join(", ")}
                   disabled={isPending}
                 />
               )}
@@ -227,6 +236,10 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
           <FormSection className="mb-4">
             <form.Field
               name="description"
+              validators={{
+                onChange: ({ value }) =>
+                  value.trim().length > 255 ? t`Description must be at most 255 characters.` : undefined,
+              }}
               children={(field) => (
                 <Textarea
                   id={field.name}
@@ -234,32 +247,35 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
                   value={field.state.value}
                   onBlur={field.handleBlur}
                   onChange={(e) => field.handleChange(e.target.value)}
-                  placeholder={t`Description`}
-                  errortext={field.state.meta.errors.map((e) => e?.message).join(", ")}
+                  label={t`Description`}
+                  helptext={t`Enter an optional description for the floating IP (max 255 characters).`}
+                  errortext={field.state.meta.errors.map((e) => (typeof e === "string" ? e : e?.message)).join(", ")}
                   disabled={isPending}
                 />
               )}
             />
           </FormSection>
-          <FormSection className="mb-4">
-            <form.Field
-              name="floating_ip_address"
-              children={(field) => (
-                <TextInput
-                  id={field.name}
-                  name={field.name}
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  label={t`Floating IP Address`}
-                  placeholder={t`Enter a floating IP`}
-                  helptext={t`Enter a floating IP or leave blank to auto-assign one`}
-                  errortext={field.state.meta.errors.map((e) => e?.message).join(", ")}
-                  disabled={isPending}
-                />
-              )}
-            />
-          </FormSection>
+          {canSpecifyIpAddress && (
+            <FormSection className="mb-4">
+              <form.Field
+                name="floating_ip_address"
+                children={(field) => (
+                  <TextInput
+                    id={field.name}
+                    name={field.name}
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    label={t`Floating IP Address`}
+                    placeholder={t`Enter a floating IP`}
+                    helptext={t`Enter a floating IP or leave blank to auto-assign one`}
+                    errortext={field.state.meta.errors.map((e) => e?.message).join(", ")}
+                    disabled={isPending}
+                  />
+                )}
+              />
+            </FormSection>
+          )}
           <FormSection className="mb-4">
             <form.Field
               name="port_id"

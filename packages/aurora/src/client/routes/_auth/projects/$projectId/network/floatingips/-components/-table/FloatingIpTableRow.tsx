@@ -8,9 +8,8 @@ import {
   PopupMenuOptions,
 } from "@cloudoperators/juno-ui-components"
 import { FloatingIp } from "@/server/Network/types/floatingIp"
-import { STATUS_CONFIG } from "./constants"
-import { FloatingIpActionModals } from "../-modals/FloatingIpActionModals"
 import { useProjectId } from "@/client/hooks"
+import { FloatingIpActionModals } from "../-modals/FloatingIpActionModals"
 
 interface FloatingIpTableRowProps {
   floatingIp: FloatingIp
@@ -30,17 +29,12 @@ export const FloatingIpTableRow = ({ floatingIp }: FloatingIpTableRowProps) => {
 
   return (
     <DataGridRow key={floatingIp.id} data-testid={`floating-ip-row-${floatingIp.id}`} onClick={navigateToDetailsPage}>
-      <DataGridCell>
-        <div className="flex items-center gap-2">
-          {STATUS_CONFIG[floatingIp.status].icon}
-          {STATUS_CONFIG[floatingIp.status].text}
-        </div>
-      </DataGridCell>
+      <DataGridCell>{floatingIp.status}</DataGridCell>
       <DataGridCell>{floatingIp.floating_ip_address}</DataGridCell>
-      <DataGridCell>{floatingIp.fixed_ip_address || "—"}</DataGridCell>
+      <DataGridCell>{floatingIp.fixed_ip_address || "- -"}</DataGridCell>
       <DataGridCell>{floatingIp.floating_network_id}</DataGridCell>
       <DataGridCell>
-        <div className="truncate">{floatingIp.description || "—"}</div>
+        <div className="truncate">{floatingIp.description || "- -"}</div>
       </DataGridCell>
       <DataGridCell onClick={(e) => e.stopPropagation()} className="items-end pr-0">
         <FloatingIpActionModals floatingIp={floatingIp}>

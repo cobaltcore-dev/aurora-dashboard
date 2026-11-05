@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
-import { render, screen, cleanup, waitFor } from "@testing-library/react"
+import { render, screen, cleanup, waitFor, fireEvent } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
@@ -82,6 +82,9 @@ vi.mock("@/client/trpcClient", async (importOriginal) => {
             useMutation: vi.fn(),
           },
         },
+        canUser: {
+          useQuery: vi.fn(),
+        },
       },
     },
   }
@@ -152,6 +155,10 @@ describe("AllocateFloatingIpModal", () => {
       >
     )
     vi.mocked(trpcReact.network.floatingIp.create.useMutation).mockReturnValue(createMockCreateMutationResult())
+    // Default: admin who may specify an exact IP address. Individual tests override to assert gating.
+    vi.mocked(trpcReact.network.canUser.useQuery).mockReturnValue({
+      data: true,
+    } as ReturnType<typeof trpcReact.network.canUser.useQuery>)
   })
 
   describe("Modal visibility", () => {
@@ -196,6 +203,26 @@ describe("AllocateFloatingIpModal", () => {
       expect(screen.getByText("Floating IP Address")).toBeInTheDocument()
       expect(screen.getByText("Port ID")).toBeInTheDocument()
       expect(screen.getByText("Fixed IP Address")).toBeInTheDocument()
+    })
+
+    it("shows the Floating IP Address field when the user may specify an exact IP (admin)", () => {
+      vi.mocked(trpcReact.network.canUser.useQuery).mockReturnValue({
+        data: true,
+      } as ReturnType<typeof trpcReact.network.canUser.useQuery>)
+      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, { wrapper: createWrapper() })
+
+      expect(screen.getByText("Floating IP Address")).toBeInTheDocument()
+    })
+
+    it("hides the Floating IP Address field when the user may not specify an exact IP (non-admin)", () => {
+      vi.mocked(trpcReact.network.canUser.useQuery).mockReturnValue({
+        data: false,
+      } as ReturnType<typeof trpcReact.network.canUser.useQuery>)
+      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, { wrapper: createWrapper() })
+
+      expect(screen.queryByText("Floating IP Address")).not.toBeInTheDocument()
+      // The rest of the allocation form stays available to non-admins.
+      expect(screen.getByText("External Network")).toBeInTheDocument()
     })
 
     it("renders external networks as options", async () => {
@@ -363,6 +390,7 @@ describe("AllocateFloatingIpModal", () => {
       })
 
       expect(screen.getByLabelText("DNS Name")).toBeInTheDocument()
+      expect(screen.getByLabelText("Description")).toBeInTheDocument()
     })
   })
 
@@ -402,6 +430,51 @@ describe("AllocateFloatingIpModal", () => {
 
       const allocateButton = screen.getByRole("button", { name: /Allocate/i })
       expect(allocateButton).toBeDisabled()
+    })
+
+    it("validates DNS Name length live on change", async () => {
+      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, { wrapper: createWrapper() })
+
+      // Length is validated on the field (onChange) — no submit needed.
+      fireEvent.change(screen.getByLabelText("DNS Name"), { target: { value: "a".repeat(64) } })
+
+      await waitFor(() => {
+        expect(screen.getByText("DNS name must be at most 63 characters.")).toBeInTheDocument()
+      })
+    })
+
+    it("does not validate DNS Name format on change (format is deferred to submit)", async () => {
+      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, { wrapper: createWrapper() })
+
+      // Invalid format but within the length limit: no error should appear while typing.
+      fireEvent.change(screen.getByLabelText("DNS Name"), { target: { value: "-invalid-" } })
+
+      await waitFor(() => {
+        expect(screen.getByLabelText("DNS Name")).toHaveValue("-invalid-")
+      })
+      expect(
+        screen.queryByText(
+          "Must be a valid PQDN or FQDN (alphanumeric and hyphens only, cannot start or end with hyphen)."
+        )
+      ).not.toBeInTheDocument()
+    })
+
+    it("validates Description length live on change", async () => {
+      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, { wrapper: createWrapper() })
+
+      fireEvent.change(screen.getByLabelText("Description"), { target: { value: "a".repeat(256) } })
+
+      await waitFor(() => {
+        expect(screen.getByText("Description must be at most 255 characters.")).toBeInTheDocument()
+      })
+    })
+
+    it("renders the Description helptext", () => {
+      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, { wrapper: createWrapper() })
+
+      expect(
+        screen.getByText("Enter an optional description for the floating IP (max 255 characters).")
+      ).toBeInTheDocument()
     })
   })
 

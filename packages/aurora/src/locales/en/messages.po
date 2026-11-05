@@ -1540,9 +1540,6 @@ msgstr "Edit Description"
 msgid "Edit Details"
 msgstr "Edit Details"
 
-msgid "Edit Floating IP {floating_ip_address} Description"
-msgstr "Edit Floating IP {floating_ip_address} Description"
-
 msgid "Edit Group"
 msgstr "Edit Group"
 
@@ -1666,6 +1663,9 @@ msgstr "Enter a valid project ID: 32 hexadecimal characters, dashes optional."
 msgid "Enter a whole number of days greater than 0"
 msgstr "Enter a whole number of days greater than 0"
 
+msgid "Enter an optional description for the floating IP (max 255 characters)."
+msgstr "Enter an optional description for the floating IP (max 255 characters)."
+
 msgid "Enter bucket policy JSON..."
 msgstr "Enter bucket policy JSON..."
 
@@ -1707,9 +1707,6 @@ msgstr "Error Loading Containers"
 
 msgid "Error Loading Flavor"
 msgstr "Error Loading Flavor"
-
-msgid "Error Loading Floating IP"
-msgstr "Error Loading Floating IP"
 
 msgid "Error Loading Image"
 msgstr "Error Loading Image"
@@ -1971,6 +1968,9 @@ msgstr "Failed to load flavor details. Please try again."
 
 msgid "Failed to Load Flavors"
 msgstr "Failed to Load Flavors"
+
+msgid "Failed to Load Floating IP"
+msgstr "Failed to Load Floating IP"
 
 msgid "Failed to Load Floating IPs"
 msgstr "Failed to Load Floating IPs"
@@ -3649,9 +3649,6 @@ msgstr "Search CORS rules..."
 msgid "Search flavors..."
 msgstr "Search flavors..."
 
-msgid "Search floating IPs..."
-msgstr "Search floating IPs..."
-
 msgid "Search lifecycle rules..."
 msgstr "Search lifecycle rules..."
 
@@ -3675,6 +3672,9 @@ msgstr "Search security groups..."
 
 msgid "Search..."
 msgstr "Search..."
+
+msgid "Search…"
+msgstr "Search…"
 
 msgid "Secret"
 msgstr "Secret"
