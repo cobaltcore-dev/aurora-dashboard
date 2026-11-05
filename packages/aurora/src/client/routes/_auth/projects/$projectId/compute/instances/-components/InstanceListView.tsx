@@ -14,7 +14,8 @@ import {
 import { Trans, useLingui } from "@lingui/react/macro"
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "@tanstack/react-router"
-import { flavorName, imageId, instanceIps, EMPTY_VALUE } from "../-utils/instanceDisplay"
+import { flavorName, rawImageId, instanceIps, EMPTY_VALUE } from "../-utils/instanceDisplay"
+import ClipboardText from "@/client/components/ClipboardText"
 
 const COLUMN_COUNT = 8
 
@@ -94,7 +95,9 @@ export const InstanceListView = ({
                 <DataGridCell>{instance.status || EMPTY_VALUE}</DataGridCell>
                 <DataGridCell>{instance.name || instance.id}</DataGridCell>
                 <DataGridCell>{flavorName(instance)}</DataGridCell>
-                <DataGridCell>{imageId(instance)}</DataGridCell>
+                <DataGridCell>
+                  {rawImageId(instance) ? <ClipboardText text={rawImageId(instance)} truncateAt={8} /> : EMPTY_VALUE}
+                </DataGridCell>
                 <DataGridCell>{instance["OS-EXT-AZ:availability_zone"] || EMPTY_VALUE}</DataGridCell>
                 <DataGridCell>
                   {ips.length > 0 ? (

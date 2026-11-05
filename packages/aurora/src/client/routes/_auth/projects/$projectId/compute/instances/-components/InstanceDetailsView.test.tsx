@@ -47,6 +47,30 @@ describe("InstanceDetailsView", () => {
     expect(screen.getByText("ACTIVE")).toBeInTheDocument()
   })
 
+  it("renders the image id shortened and copyable", () => {
+    const server = makeServer({ image: { id: "35ffd44f-6550-4c99-8ca3-f55099fd504a" } })
+    render(
+      <TestingProvider>
+        <InstanceDetailsView instance={server} />
+      </TestingProvider>
+    )
+    // Shortened for display (first 8 chars + ellipsis), full id copied via the button aria-label.
+    expect(screen.getByText("35ffd44f...")).toBeInTheDocument()
+    expect(
+      screen.getByRole("button", { name: /Copy 35ffd44f-6550-4c99-8ca3-f55099fd504a to clipboard/i })
+    ).toBeInTheDocument()
+  })
+
+  it("shows the empty placeholder for boot-from-volume instances (no image)", () => {
+    render(
+      <TestingProvider>
+        <InstanceDetailsView instance={makeServer({ image: "" })} />
+      </TestingProvider>
+    )
+    // No image id means no clipboard trigger for it.
+    expect(screen.queryByText(/35ffd44f/)).not.toBeInTheDocument()
+  })
+
   it("groups addresses by network and shows MAC/type", () => {
     const server = makeServer({
       addresses: {

@@ -34,6 +34,16 @@ export function imageId(server: Server): string {
 }
 
 /**
+ * Raw image id ("" when boot-from-volume or absent) — use when deciding
+ * whether to render the image id.
+ */
+export function rawImageId(server: Server): string {
+  const image = server.image
+  if (!image) return ""
+  return typeof image === "string" ? image : (image.id ?? "")
+}
+
+/**
  * Collect the instance's IP addresses across all networks, in order.
  */
 export function instanceIps(server: Server): string[] {

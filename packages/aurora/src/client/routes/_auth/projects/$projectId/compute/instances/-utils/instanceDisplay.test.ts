@@ -4,6 +4,7 @@ import {
   powerStateLabel,
   flavorName,
   imageId,
+  rawImageId,
   instanceIps,
   availabilityZones,
   instanceStatuses,
@@ -47,6 +48,13 @@ describe("field accessors", () => {
     expect(imageId(makeServer({ image: "img-str" }))).toBe("img-str")
     expect(imageId(makeServer({ image: "" }))).toBe(EMPTY_VALUE)
     expect(imageId(makeServer({ image: null }))).toBe(EMPTY_VALUE)
+  })
+
+  it("rawImageId returns the id or empty string (boot-from-volume)", () => {
+    expect(rawImageId(makeServer({ image: { id: "img-9" } }))).toBe("img-9")
+    expect(rawImageId(makeServer({ image: "img-str" }))).toBe("img-str")
+    expect(rawImageId(makeServer({ image: "" }))).toBe("")
+    expect(rawImageId(makeServer({ image: null }))).toBe("")
   })
 
   it("instanceIps flattens addresses across networks", () => {

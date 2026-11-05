@@ -11,7 +11,7 @@ import { useLingui } from "@lingui/react/macro"
 import type { Server } from "@/server/Compute/types/server"
 import ClipboardText from "@/client/components/ClipboardText"
 import { TwoColumnDescriptionList } from "@/client/components/TwoColumnDescriptionList"
-import { flavorName, imageId, powerStateLabel, EMPTY_VALUE } from "../-utils/instanceDisplay"
+import { flavorName, rawImageId, powerStateLabel, EMPTY_VALUE } from "../-utils/instanceDisplay"
 
 interface InstanceDetailsViewProps {
   instance: Server
@@ -25,7 +25,10 @@ function OverviewSection({ instance }: { instance: Server }) {
     { label: t`Status`, value: instance.status },
     { label: t`Availability Zone`, value: instance["OS-EXT-AZ:availability_zone"] },
     { label: t`Flavor`, value: flavorName(instance) },
-    { label: t`Image ID`, value: imageId(instance) },
+    {
+      label: t`Image ID`,
+      value: rawImageId(instance) ? <ClipboardText text={rawImageId(instance)} truncateAt={8} /> : "",
+    },
     { label: t`Key Name`, value: instance.key_name },
     { label: t`Created`, value: instance.created },
     { label: t`Updated`, value: instance.updated },

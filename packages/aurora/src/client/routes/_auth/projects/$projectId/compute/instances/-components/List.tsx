@@ -31,11 +31,15 @@ type RequiredSortSettings = {
 // (Status, Flavor, Image ID, Availability Zone); Name is handled by search and
 // IP/Created are not facetable. Facet values are derived from the data.
 // Multi-value facets encode as "in:a,b" in the URL and BFF query, mirroring Images.
-const buildFilters = (servers: InstancesResult["servers"], t: (s: TemplateStringsArray) => string): Filter[] => [
-  { displayName: t`Status`, filterName: "status", values: instanceStatuses(servers), supportsMultiValue: true },
-  { displayName: t`Flavor`, filterName: "flavor", values: flavorFacet(servers), supportsMultiValue: true },
-  { displayName: t`Image ID`, filterName: "image", values: imageFacet(servers), supportsMultiValue: true },
-  { displayName: t`Availability Zone`, filterName: "az", values: availabilityZones(servers) },
+// `labels` are passed in already translated: the Lingui `t` macro only resolves
+// correctly against the `useLingui()` hook in component scope, not a forwarded t.
+type FilterLabels = { status: string; flavor: string; image: string; az: string }
+
+const buildFilters = (servers: InstancesResult["servers"], labels: FilterLabels): Filter[] => [
+  { displayName: labels.status, filterName: "status", values: instanceStatuses(servers), supportsMultiValue: true },
+  { displayName: labels.flavor, filterName: "flavor", values: flavorFacet(servers), supportsMultiValue: true },
+  { displayName: labels.image, filterName: "image", values: imageFacet(servers), supportsMultiValue: true },
+  { displayName: labels.az, filterName: "az", values: availabilityZones(servers) },
 ]
 
 function InstancesContent({
@@ -87,7 +91,8 @@ function InstancesContent({
 
   // Facet values are built from the broadest result we've seen so the dropdown
   // options don't collapse to only what the current filter already matches.
-  const filters = buildFilters(allServers.length >= servers.length ? allServers : servers, t)
+  const filterLabels = { status: t`Status`, flavor: t`Flavor`, image: t`Image ID`, az: t`Availability Zone` }
+  const filters = buildFilters(allServers.length >= servers.length ? allServers : servers, filterLabels)
 
   const totalPages = Math.max(1, Math.ceil(servers.length / PAGE_SIZE))
   const safePage = Math.min(currentPage, totalPages)
@@ -184,7 +189,14 @@ export const Instances = ({ client, project }: InstancesProps) => {
   const [searchTerm, setSearchTerm] = useState(searchParams.search || "")
   const currentPage = searchParams.page ?? 1
 
-  const filterDefs = buildFilters([], t)
+  // Only filterName/supportsMultiValue matter here (used to build URL/BFF params),
+  // but pass real labels for consistency.
+  const filterDefs = buildFilters([], {
+    status: t`Status`,
+    flavor: t`Flavor`,
+    image: t`Image ID`,
+    az: t`Availability Zone`,
+  })
   const selectedFilters = parseFiltersFromUrl(searchParams)
 
   // Keep the widest server set seen so filter-facet dropdowns stay complete.
