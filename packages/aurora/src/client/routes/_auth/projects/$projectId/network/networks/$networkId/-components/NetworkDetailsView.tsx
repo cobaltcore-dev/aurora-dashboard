@@ -1,21 +1,13 @@
 import { ReactNode } from "react"
-import { Trans, useLingui } from "@lingui/react/macro"
+import { useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import {
-  DataGrid,
-  DataGridCell,
-  DataGridHeadCell,
-  DataGridRow,
-  Stack,
-  Status,
-  TabNavigation,
-  TabNavigationItem,
-} from "@cloudoperators/juno-ui-components"
+import { Stack, Status, TabNavigation, TabNavigationItem } from "@cloudoperators/juno-ui-components"
 import type { Network } from "@/server/Network/types/network"
 import { useProjectId } from "@/client/hooks"
 import ClipboardText from "@/client/components/ClipboardText"
 import { TwoColumnDescriptionList, type DetailListItem } from "@/client/components/TwoColumnDescriptionList"
 import { NetworkSubnetsTable } from "./NetworkSubnetsTable"
+import { NetworkSegmentationTab } from "./NetworkSegmentationTab"
 
 /** Tabs of the network details view, in display order. The first one is the default. */
 export const NETWORK_DETAILS_TABS = ["segmentation", "subnets", "ports", "routers"] as const
@@ -35,51 +27,6 @@ interface NetworkDetailsViewProps {
 }
 
 const formatDateTime = (value?: string): string | undefined => (value ? new Date(value).toLocaleString() : undefined)
-
-/** Segmentation tab: one row from the network's provider:* fields (at most 1 per network fetch). */
-function SegmentationTab({ network }: { network: Network }) {
-  const { t } = useLingui()
-
-  const networkType = network["provider:network_type"]
-  const physicalNetwork = network["provider:physical_network"]
-  const segmentationId = network["provider:segmentation_id"]
-
-  const hasData = networkType != null || physicalNetwork != null || segmentationId != null
-
-  if (!hasData) {
-    return (
-      <Status
-        status="empty"
-        title={t`No Segmentation Data`}
-        body={t`No segmentation data available.`}
-        data-testid="segmentation-empty"
-      />
-    )
-  }
-
-  const segmentCount = 1
-
-  return (
-    <Stack direction="vertical" gap="2">
-      <span className="text-theme-light text-sm" data-testid="segment-count">
-        <Trans>{segmentCount} segment</Trans>
-        {networkType && ` · ${networkType}: 1`}
-      </span>
-      <DataGrid columns={3} data-testid="segmentation-table">
-        <DataGridRow>
-          <DataGridHeadCell>{t`Network Type`}</DataGridHeadCell>
-          <DataGridHeadCell>{t`Physical Network`}</DataGridHeadCell>
-          <DataGridHeadCell>{t`Segmentation ID`}</DataGridHeadCell>
-        </DataGridRow>
-        <DataGridRow>
-          <DataGridCell>{networkType ?? "- -"}</DataGridCell>
-          <DataGridCell>{physicalNetwork ?? "- -"}</DataGridCell>
-          <DataGridCell>{segmentationId != null ? String(segmentationId) : "- -"}</DataGridCell>
-        </DataGridRow>
-      </DataGrid>
-    </Stack>
-  )
-}
 
 export function NetworkDetailsView({ network, activeTab, onTabChange }: NetworkDetailsViewProps) {
   const { t } = useLingui()
@@ -148,7 +95,7 @@ export function NetworkDetailsView({ network, activeTab, onTabChange }: NetworkD
           ))}
         </TabNavigation>
 
-        {activeTab === "segmentation" && <SegmentationTab network={network} />}
+        {activeTab === "segmentation" && <NetworkSegmentationTab network={network} />}
 
         {activeTab === "subnets" && (
           <NetworkSubnetsTable

@@ -222,62 +222,6 @@ describe("NetworkDetailsView", () => {
 
       expect(screen.getByText("Segmentation")).toBeInTheDocument()
     })
-
-    it("shows a datagrid with segmentation columns when provider data is present", () => {
-      mockSubnetsResult()
-      renderView()
-
-      expect(screen.getByTestId("segmentation-table")).toBeInTheDocument()
-      expect(screen.getByText("Network Type")).toBeInTheDocument()
-      expect(screen.getByText("Physical Network")).toBeInTheDocument()
-      expect(screen.getByText("Segmentation ID")).toBeInTheDocument()
-    })
-
-    it("displays the provider field values in the segmentation row", () => {
-      mockSubnetsResult()
-      renderView()
-
-      expect(screen.getByTestId("segmentation-table")).toHaveTextContent("vlan")
-      expect(screen.getByTestId("segmentation-table")).toHaveTextContent("physnet1")
-      expect(screen.getByTestId("segmentation-table")).toHaveTextContent("100")
-    })
-
-    it("shows segment count above the datagrid", () => {
-      mockSubnetsResult()
-      renderView()
-
-      expect(screen.getByTestId("segment-count")).toHaveTextContent("1 segment")
-      expect(screen.getByTestId("segment-count")).toHaveTextContent("vlan: 1")
-    })
-
-    it("shows 'No segmentation data available' when all provider fields are absent", () => {
-      mockSubnetsResult()
-      renderView({
-        ...mockNetwork,
-        "provider:network_type": null,
-        "provider:physical_network": null,
-        "provider:segmentation_id": null,
-      })
-
-      expect(screen.queryByTestId("segmentation-table")).not.toBeInTheDocument()
-      expect(screen.getByTestId("segmentation-empty")).toBeInTheDocument()
-    })
-
-    it("shows '- -' for a present-but-null provider sub-field", () => {
-      mockSubnetsResult()
-      // network_type present, other fields null
-      renderView({
-        ...mockNetwork,
-        "provider:network_type": "vlan",
-        "provider:physical_network": null,
-        "provider:segmentation_id": null,
-      })
-
-      const table = screen.getByTestId("segmentation-table")
-      expect(table).toHaveTextContent("vlan")
-      // physical network and segmentation ID are null → "- -"
-      expect(table.textContent).toContain("- -")
-    })
   })
 
   describe("Subnets tab", () => {
