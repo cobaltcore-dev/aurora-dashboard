@@ -535,6 +535,9 @@ msgstr "Allocate Floating IP"
 msgid "Allocating Floating IP..."
 msgstr "Allocating Floating IP..."
 
+msgid "Allocation Pools"
+msgstr "Allocation Pools"
+
 msgid "Allowed Headers"
 msgstr "Allowed Headers"
 
@@ -1483,6 +1486,9 @@ msgstr "DNS Name"
 msgid "DNS name must be at most 63 characters."
 msgstr "DNS name must be at most 63 characters."
 
+msgid "DNS Nameservers"
+msgstr "DNS Nameservers"
+
 msgid "Done"
 msgstr "Done"
 
@@ -2358,6 +2364,9 @@ msgstr "Hide info about secret types"
 
 msgid "Home"
 msgstr "Home"
+
+msgid "Host Routes"
+msgstr "Host Routes"
 
 msgid "How long browsers can cache preflight responses. Common values: 3600 (1 hour), 86400 (1 day), 604800 (1 week)."
 msgstr "How long browsers can cache preflight responses. Common values: 3600 (1 hour), 86400 (1 day), 604800 (1 week)."

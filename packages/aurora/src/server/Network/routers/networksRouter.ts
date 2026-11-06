@@ -202,7 +202,17 @@ export const networksRouter = {
 
         const params = appendQueryParamsFromObject({
           network_id,
-          fields: ["id", "name", "cidr", "ip_version", "gateway_ip", "enable_dhcp"],
+          fields: [
+            "id",
+            "name",
+            "cidr",
+            "ip_version",
+            "gateway_ip",
+            "enable_dhcp",
+            "allocation_pools",
+            "dns_nameservers",
+            "host_routes",
+          ],
         })
         const response = await requestOrThrow(
           () => network.get(withQuery(SUBNETS_BASE_URL, params)),

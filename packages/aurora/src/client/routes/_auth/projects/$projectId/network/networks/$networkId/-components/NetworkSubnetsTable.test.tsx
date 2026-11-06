@@ -22,8 +22,21 @@ const mockSubnets: NetworkSubnet[] = [
     ip_version: 4,
     gateway_ip: "10.0.0.1",
     enable_dhcp: true,
+    allocation_pools: [{ start: "10.0.0.2", end: "10.0.0.254" }],
+    dns_nameservers: ["8.8.8.8", "8.8.4.4"],
+    host_routes: [{ destination: "192.168.1.0/24", nexthop: "10.0.0.100" }],
   },
-  { id: "subnet-v6", name: "", cidr: "fd00::/64", ip_version: 6, gateway_ip: null, enable_dhcp: false },
+  {
+    id: "subnet-v6",
+    name: "",
+    cidr: "fd00::/64",
+    ip_version: 6,
+    gateway_ip: null,
+    enable_dhcp: false,
+    allocation_pools: [],
+    dns_nameservers: [],
+    host_routes: [],
+  },
 ]
 
 const renderTable = (props: Partial<React.ComponentProps<typeof NetworkSubnetsTable>> = {}) =>
@@ -43,40 +56,116 @@ describe("NetworkSubnetsTable", () => {
     vi.clearAllMocks()
   })
 
-  it("renders the column headers", () => {
+  it("renders all column headers", () => {
     renderTable()
 
-    for (const header of ["Name", "CIDR", "IP Version", "Gateway IP", "DHCP"]) {
+    for (const header of [
+      "Name",
+      "CIDR",
+      "IP Version",
+      "Gateway IP",
+      "DHCP",
+      "Allocation Pools",
+      "DNS Nameservers",
+      "Host Routes",
+    ]) {
       expect(screen.getByText(header)).toBeInTheDocument()
     }
-    expect(screen.getAllByRole("columnheader")).toHaveLength(5)
+    expect(screen.getAllByRole("columnheader")).toHaveLength(8)
   })
 
-  it("renders one row per subnet", () => {
+  it("renders one row per subnet with all field values", () => {
     renderTable()
 
     const v4 = within(screen.getByTestId("network-subnet-row-subnet-v4"))
     expect(v4.getByText("private-v4")).toBeInTheDocument()
-    expect(v4.getByText("subnet-v4")).toBeInTheDocument()
+    expect(v4.getByRole("button", { name: /copy subnet-v4 to clipboard/i })).toBeInTheDocument()
     expect(v4.getByText("10.0.0.0/24")).toBeInTheDocument()
     expect(v4.getByText("IPv4")).toBeInTheDocument()
     expect(v4.getByText("10.0.0.1")).toBeInTheDocument()
-    expect(v4.getByText("Enabled")).toBeInTheDocument()
+    expect(v4.getByText("Yes")).toBeInTheDocument()
+    expect(v4.getByText("10.0.0.2–10.0.0.254")).toBeInTheDocument()
+    expect(v4.getByText("8.8.8.8, 8.8.4.4")).toBeInTheDocument()
+    expect(v4.getByText("192.168.1.0/24 → 10.0.0.100")).toBeInTheDocument()
   })
 
-  it("falls back to the ID and dashes for missing values", () => {
-    renderTable({ subnets: [{ ...mockSubnets[1], enable_dhcp: undefined }] })
-
-    const v6 = within(screen.getByTestId("network-subnet-row-subnet-v6"))
-    expect(v6.getAllByText("subnet-v6")).toHaveLength(1)
-    expect(v6.getByText("IPv6")).toBeInTheDocument()
-    expect(v6.getAllByText("—")).toHaveLength(2)
-  })
-
-  it("renders Disabled when DHCP is off", () => {
+  it("shows 'No' for DHCP disabled", () => {
     renderTable()
 
-    expect(within(screen.getByTestId("network-subnet-row-subnet-v6")).getByText("Disabled")).toBeInTheDocument()
+    const v6 = within(screen.getByTestId("network-subnet-row-subnet-v6"))
+    expect(v6.getByText("No")).toBeInTheDocument()
+  })
+
+  it("shows copy affordance as the sole element when name is empty", () => {
+    renderTable()
+
+    const v6 = within(screen.getByTestId("network-subnet-row-subnet-v6"))
+    expect(v6.getByRole("button", { name: /copy subnet-v6 to clipboard/i })).toBeInTheDocument()
+    // No separate <span> name element above the copy button when name is empty
+    expect(v6.queryByText("", { selector: "span.break-all" })).not.toBeInTheDocument()
+  })
+
+  it("renders '- -' for absent optional fields", () => {
+    renderTable({
+      subnets: [
+        {
+          id: "subnet-v4",
+          name: "private-v4",
+          cidr: "10.0.0.0/24",
+          ip_version: 4,
+          gateway_ip: null,
+          enable_dhcp: undefined,
+          allocation_pools: [],
+          dns_nameservers: [],
+          host_routes: [],
+        },
+      ],
+    })
+
+    const row = within(screen.getByTestId("network-subnet-row-subnet-v4"))
+    // gateway_ip null, enable_dhcp undefined, empty pools/dns/routes → 5 "- -" values
+    expect(row.getAllByText("- -")).toHaveLength(5)
+  })
+
+  it("host routes always shows '- -' when absent", () => {
+    renderTable({ subnets: [mockSubnets[1]] })
+
+    const v6 = within(screen.getByTestId("network-subnet-row-subnet-v6"))
+    // gateway_ip null, empty pools, dns, host_routes → at least one "- -" per empty field
+    const empties = v6.getAllByText("- -")
+    expect(empties.length).toBeGreaterThanOrEqual(1)
+  })
+
+  it("renders multiple allocation pools", () => {
+    renderTable({
+      subnets: [
+        {
+          ...mockSubnets[0],
+          allocation_pools: [
+            { start: "10.0.0.2", end: "10.0.0.100" },
+            { start: "10.0.0.200", end: "10.0.0.254" },
+          ],
+        },
+      ],
+    })
+
+    expect(screen.getByText("10.0.0.2–10.0.0.100, 10.0.0.200–10.0.0.254")).toBeInTheDocument()
+  })
+
+  it("renders multiple host routes", () => {
+    renderTable({
+      subnets: [
+        {
+          ...mockSubnets[0],
+          host_routes: [
+            { destination: "192.168.1.0/24", nexthop: "10.0.0.100" },
+            { destination: "172.16.0.0/12", nexthop: "10.0.0.200" },
+          ],
+        },
+      ],
+    })
+
+    expect(screen.getByText("192.168.1.0/24 → 10.0.0.100, 172.16.0.0/12 → 10.0.0.200")).toBeInTheDocument()
   })
 
   it("renders the empty state", () => {

@@ -61,8 +61,21 @@ const defaultSubnets = [
     ip_version: 4,
     gateway_ip: "10.0.0.1",
     enable_dhcp: true,
+    allocation_pools: [{ start: "10.0.0.2", end: "10.0.0.254" }],
+    dns_nameservers: ["8.8.8.8", "8.8.4.4"],
+    host_routes: [{ destination: "192.168.1.0/24", nexthop: "10.0.0.100" }],
   },
-  { id: "subnet-v6", name: "private-v6", cidr: "fd00::/64", ip_version: 6, gateway_ip: null, enable_dhcp: false },
+  {
+    id: "subnet-v6",
+    name: "private-v6",
+    cidr: "fd00::/64",
+    ip_version: 6,
+    gateway_ip: null,
+    enable_dhcp: false,
+    allocation_pools: [],
+    dns_nameservers: [],
+    host_routes: [],
+  },
   { id: "subnet-3", name: "corporate-sub", cidr: "10.10.0.0/16", ip_version: 4, gateway_ip: "10.10.0.1" },
 ]
 
@@ -674,7 +687,17 @@ describe("networksRouter.listSubnets", () => {
     const { path, params } = splitUrl(requestedUrls(ctx)[0])
     expect(path).toBe("v2.0/subnets")
     expect(params.get("network_id")).toBe("net-1")
-    expect(params.getAll("fields")).toEqual(["id", "name", "cidr", "ip_version", "gateway_ip", "enable_dhcp"])
+    expect(params.getAll("fields")).toEqual([
+      "id",
+      "name",
+      "cidr",
+      "ip_version",
+      "gateway_ip",
+      "enable_dhcp",
+      "allocation_pools",
+      "dns_nameservers",
+      "host_routes",
+    ])
   })
 
   it("returns [] for a network without subnets", async () => {

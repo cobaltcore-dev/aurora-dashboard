@@ -81,6 +81,15 @@ export const NetworkSubnetSchema = z.object({
   ip_version: z.number(),
   gateway_ip: z.string().nullish(),
   enable_dhcp: z.boolean().optional(),
+  allocation_pools: z
+    .array(z.object({ start: z.string(), end: z.string() }))
+    .optional()
+    .default([]),
+  dns_nameservers: z.array(z.string()).optional().default([]),
+  host_routes: z
+    .array(z.object({ destination: z.string(), nexthop: z.string() }))
+    .optional()
+    .default([]),
 })
 
 export const NetworkSubnetListResponseSchema = z.object({
