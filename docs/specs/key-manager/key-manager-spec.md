@@ -11,6 +11,13 @@ Status: ready-for-engineering
 > initial release. The Key Manager nav entry is shown only when the `key-manager` service type
 > is present in the project's Keystone catalog.
 
+## Terminology
+
+| Term                           | Definition                                                                                                                                                                             |
+| ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Secret Identity URI**        | The `secret_ref` field on a Secret entity — its stable, absolute URI identifier (e.g. `https://barbican.../v1/secrets/abc-123`). Used to derive the Secret's UUID via path extraction. |
+| **Container Secret Reference** | A `{ name, secret_ref }` entry inside a Container's `secret_refs` array — a named pointer from a Container slot to a Secret. Distinct from the Secret's own identity.                  |
+
 ---
 
 ## Epic index
@@ -58,8 +65,7 @@ expose the entire Key Manager scope. No visible UI beyond the nav link. All feat
 
 **Acceptance Criteria**
 
-- [ ] A new `authorization.tsx` layout file exists at `packages/aurora/src/client/routes/_auth/projects/$projectId/authorization.tsx` with a `beforeLoad` that calls `getServiceIndex("key-manager")` and redirects (or hides the scope) when the service is absent from the catalog
-- [ ] A new `key-manager.tsx` layout file exists at `.../authorization/key-manager.tsx` as the sub-scope root
+- [ ] A new `key-manager.tsx` layout file exists at `.../authorization/key-manager.tsx`; its `beforeLoad` calls `getServiceIndex("key-manager")` and throws `redirect({ to: "/projects/$projectId" })` (silent, no toast) when the service is absent from the catalog
 - [ ] Route directory `authorization/key-manager/` is created under `$projectId/`; an `index.tsx` placeholder (renders nothing or a loading skeleton) confirms TanStack Router picks up the route tree
 - [ ] A new "Authorization" section is added to `buildNavSections.ts` (same level as the existing network/compute/storage groups), gated on `getServiceIndex("key-manager")`; a "Key Manager" nav item inside it links to the key-manager index route
 - [ ] A stub `keyManagerRouter` tRPC namespace is registered in `packages/aurora/src/server/routers.ts` via `buildBaseRouter()`; the stub has no procedures yet — its purpose is to confirm the namespace compiles and routes correctly before feature work begins
@@ -69,10 +75,8 @@ expose the entire Key Manager scope. No visible UI beyond the nav link. All feat
 
 - **Pattern A — new built-in scope.** Key Manager is NOT a service extension (`serviceExtensions` prop). It uses file-based TanStack Router routes, exactly like `network/floatingips/`, `network/routers/`, and `network/securitygroups/`.
 - **Authorization category.** The "Authorization" nav category is new — it sits at the same level as "Network", "Compute", "Storage" in `buildNavSections.ts`. Key Manager is the first scope under it; the category is intentionally broader for future credential scopes (HSM, PCA, etc.).
-- **Catalog guard.** The `authorization.tsx` `beforeLoad` mirrors the guard in `network.tsx`: call `getServiceIndex("key-manager")`, throw a redirect or return early if absent. All child routes (key-manager and any future Authorization scopes) inherit this guard automatically.
+- **Catalog guard.** The guard lives in `authorization/key-manager.tsx`'s `beforeLoad` (not a separate `authorization.tsx` layout). It calls `getServiceIndex("key-manager")` and throws `redirect({ to: "/projects/$projectId" })` when absent — a silent redirect, no toast. Future Authorization scopes under this category each implement their own catalog guard.
 - **tRPC namespace.** The stub router lives at `packages/aurora/src/server/KeyManager/keyManagerRouter.ts`. Subresource routers (`secretsRouter`, `containersRouter`, `ordersRouter`) are added in tickets 02–08 and merged into `keyManagerRouter`.
-
-**Open item — resolve before build:** Q-F1: Confirm no existing `key-manager` scope or `authorization` route tree in the Aurora repo before creating these files (Aurora developer).
 
 **BRD Reference** — §3 (Target Surface) · §7 (Service Catalog) · §8 (Auth)
 
@@ -94,8 +98,8 @@ assess the project's secret inventory at a glance.
 
 - [ ] Lists all project secrets via `GET /v1/secrets` (server-side pagination: `offset` + `limit`, default page size 25)
 - [ ] Each row displays: **Name** (top line) + **ID** (second line, with `ClipboardText`) / **Status** / **Secret Type** + **Content Type** (stacked) / **PopupMenu** with "View Details" (navigates to detail route) and — separated by a divider — "Delete" (opens confirmation modal from Ticket 05)
-- [ ] DataGridToolbar Zone 2: `SearchInput` for name (300 ms debounce, server-side `name` param), "Secret Type" select filter (all `secret_type` values + "All"), "Algorithm" select filter (`alg` param + "All"); active filters compose with AND; "Clear filters" resets all
-- [ ] Sort by column header: Name, Status, Secret Type, Created, Expiration, Updated (server-side `sort=<field>:asc|:desc`); active sort direction indicated in the column header
+- [ ] DataGridToolbar Zone 2: `SearchInput` for name (300 ms debounce, server-side `name` param), "Secret Type" select filter (all `secret_type` values + "All"), "Algorithm" select filter (`alg` param) with static options All | AES | RSA | HMAC | 3DES | DSA | EC; active filters compose with AND; "Clear filters" resets all
+- [ ] Sort by column header: Name, Status, Secret Type, Created, Expiration, Updated (server-side `sort=<field>:asc|:desc`); active sort direction indicated in the column header; secrets with `expiration: null` sort last when sorting by Expiration ascending
 - [ ] `Pagination` component (`variant="input"`) below the grid
 - [ ] Empty state via `Status` component when no secrets exist (with a "Create secret" call-to-action)
 - [ ] Loading state scoped to the DataGrid (not full-page) while the request is in flight
@@ -133,7 +137,7 @@ material without CLI access.
 - [ ] Navigating to the detail route shows: Name, ID (`ClipboardText`), Status, Secret Type, Content Type, Algorithm, Bit Length, Mode, Expiration, Created, Updated
 - [ ] **Payload section:** `SecretText` in `readOnly` mode; masked by default; on reveal toggle: calls `GET /v1/secrets/{id}/payload` (with `Accept` header matching `content_type`) and passes the result as the `value` prop; on hide: clears the fetched value from local state
 - [ ] Copy-to-clipboard affordance for the payload (SecretText `copy` prop)
-- [ ] **Download affordance:** button that triggers a file download of the raw payload bytes; filename extension `.pem` for `application/x-pem-file`, `.bin` for other binary types
+- [ ] **Download affordance:** button that triggers a file download of the raw payload bytes; filename extension `.pem` for `application/x-pem-file`, `.txt` for `text/plain`, `.bin` for all other content types
 - [ ] **Metadata labels table** (read-only): key-value rows loaded from `GET /v1/secrets/{id}/metadata`; editing and mutation added in Ticket 06
 - [ ] Loading states scoped to each section while their respective fetches are in flight; inline `Message` (persistent) on failure — both the metadata fetch and the payload fetch report errors separately
 - [ ] If the payload fetch returns 403, the error `Message` specifically notes the role lacks payload access (not a generic error)
@@ -148,9 +152,7 @@ material without CLI access.
   - `keyManager.secrets.getMetadata` — `projectScopedProcedure`; calls `GET /v1/secrets/{id}/metadata`
 - **Payload reveal flow:** `SecretText` is controlled (`readOnly`, `value` from local state). On `onReveal`: fire `trpcReact.keyManager.secrets.getPayload.useQuery` (or imperative `trpcClient.keyManager.secrets.getPayload.query`). On `onHide`: clear the local `value` state.
 - **Juno components:** `SecretText` (from `@cloudoperators/juno-ui-components`), `ClipboardText` (from `@aurora/components`), `Message`, `Button`, `DescriptionList`/`DescriptionTerm`/`DescriptionDefinition` (or equivalent for metadata fields).
-- **Download:** client-side `Blob` + `URL.createObjectURL` + synthetic `<a>` click is acceptable for small PEM payloads. Confirm with Aurora developer whether tRPC SSE streaming (as in `swiftRouter.ts`) is required instead — see Open item below.
-
-**Open item — resolve before build:** Q-F5: For PEM/key payload download — is a client-side Blob download acceptable for small payloads, or is tRPC SSE chunked streaming (as in `swiftRouter.ts`) required? (Aurora developer)
+- **Download:** client-side `Blob` + `URL.createObjectURL` + synthetic `<a>` click. SSE streaming (as in `swiftRouter.ts`) is not required — Barbican payloads are small (typically under 8 KB).
 
 **BRD Reference** — Story 2 §5.1 · API §7 · Auth §8
 
@@ -183,9 +185,6 @@ insecure ad-hoc storage.
 - **Client:** `trpcReact.keyManager.secrets.create.useMutation()`; on success call `utils.keyManager.secrets.list.invalidate()` to refresh the list.
 - **Juno components:** `Modal`, `Form`, `FormRow`, `TextInput`, `Textarea`, `Select`/`SelectOption`, `DateTimePicker`, `Button` (`primary` for submit, `default` for cancel), `Message`.
 - **toast:** call `toast("Secret created successfully")` (imperative, from `@cloudoperators/juno-ui-components`) from the `onSuccess` mutation callback.
-- **DateTimePicker** is in Juno but confirm it is used elsewhere in Aurora before adding.
-
-**Open item — resolve before build:** Confirm `DateTimePicker` usage in Aurora (is it already imported in another scope, or will this be the first use?).
 
 **BRD Reference** — Story 3 §5.1 · API §7 · Auth §8
 
@@ -235,7 +234,8 @@ for easier discovery and governance.
 **Acceptance Criteria**
 
 - [ ] Existing labels are shown as a key-value table (already loaded in Ticket 03)
-- [ ] **Add label:** key + value inputs; on save calls `POST /v1/secrets/{id}/metadata`; new label appears in the table; inline loading indicator while in flight; inline `Message` (persistent) on error with Barbican `title`/`description`
+- [ ] When no labels exist, an empty state is shown ("No labels yet") with an "Add label" call-to-action button
+- [ ] **Add label:** key + value inputs; on save calls `POST /v1/secrets/{id}/metadata`; new label appears in the table; inline loading indicator while in flight; inline `Message` (persistent) on error with Barbican `title`/`description` (Barbican returns 409 for duplicate keys — no client-side pre-check required)
 - [ ] **Edit label:** in-place value edit; on save calls `PUT /v1/secrets/{id}/metadata/{key}`; inline loading; error `Message` on failure
 - [ ] **Delete label:** per-row delete control; calls `DELETE /v1/secrets/{id}/metadata/{key}` after confirmation; inline loading; error `Message` on failure
 - [ ] Each operation's loading and error state is scoped to the affected row (not the full page)
@@ -269,11 +269,14 @@ single unit.
 
 - [ ] Lists all containers via `GET /v1/containers` (server-side pagination: `offset` + `limit`)
 - [ ] Each row: **Name** + **ID** (stacked, `ClipboardText` for ID) / **Status** / **Container Type** / **PopupMenu** ("View Details" first, "Delete" last with divider)
-- [ ] Client-side search by Name (substring match); client-side sort by Name, Status, Container Type, Created over the fetched page
+- [ ] Client-side search by Name (substring match); client-side sort by Name, Status, Container Type, Created over all fetched data
 - [ ] `Pagination` (`variant="input"`) below the grid
-- [ ] **Create container** button opens a `Modal`: Name (`TextInput`), Type (`Select` — generic/rsa/certificate/dh), named secret refs (repeatable key-value rows: ref name + secret URI); required ref validation varies by container type
+- [ ] **Create container** button opens a `Modal`: Name (`TextInput`), Type (`Select` — generic/rsa/certificate); the form shows type-specific named-ref inputs with client-side required-field validation:
+  - **generic:** any number of named refs (free key-value list)
+  - **rsa:** `public_key` (required), `private_key` (required), `private_key_passphrase` (optional)
+  - **certificate:** `certificate` (required), `private_key` (optional), `private_key_passphrase` (optional), `intermediates` (optional)
 - [ ] On create success: Modal closes, list revalidates, `toast` success notification
-- [ ] **Detail page** (full route `/containers/$containerId`): Name, ID (`ClipboardText`), Type, Status, Created, Updated, `secret_refs` list (each ref name + URI, URI with `ClipboardText`)
+- [ ] **Detail page** (full route `/containers/$containerId`): Name, ID (`ClipboardText`), Type, Status, Created, Updated, `secret_refs` list (each Container Secret Reference shown as ref name + Secret Identity URI; the URI links to the referenced Secret's detail page)
 - [ ] **Delete** (from PopupMenu and detail page): `Modal` confirmation, `primary-danger` button, `toast` on success
 - [ ] Empty / loading / error states per Ticket 02 pattern; create and delete errors surface Barbican `title`/`description` in inline `Message`
 
@@ -287,7 +290,7 @@ single unit.
   - `keyManager.containers.get` — `GET /v1/containers/{id}`
   - `keyManager.containers.create` — `POST /v1/containers`
   - `keyManager.containers.delete` — `DELETE /v1/containers/{id}`
-- **Client-side filter/sort:** hold the raw fetched page in React state; apply `Array.filter` (substring name match) and `Array.sort` (by selected field) before rendering. URL search params hold `offset` (pagination); filter/sort state is local (no URL).
+- **Client-side filter/sort:** fetch all pages via `useAllKeyManagerPages`; apply `Array.filter` (substring name match) and `Array.sort` (by selected field) over the full dataset before slicing for display. `offset` in URL search params drives client-side pagination; filter/sort state is local (no URL).
 - **Juno components:** same as secrets list (DataGrid, DataGridToolbar, SearchInput, Pagination, PopupMenu, Message, Status, Modal).
 
 **BRD Reference** — Story 6 §5.1 · API §7 · Auth §8
@@ -311,13 +314,13 @@ without managing key generation locally.
 
 - [ ] Lists all orders via `GET /v1/orders` (server-side pagination: `offset` + `limit`)
 - [ ] Each row: **Name** + **ID** (stacked, `ClipboardText` for ID) / **Status** (with `Spinner` inline when PENDING) / **Order Type** / **PopupMenu** ("View Details" first, "Delete" last with divider)
-- [ ] Client-side search by Name (substring match); client-side sort by Name, Status, Order Type, Created over the fetched page
+- [ ] Client-side search by Name (substring match); client-side sort by Name, Status, Order Type, Created over all fetched data
 - [ ] `Pagination` (`variant="input"`) below the grid
 - [ ] While any row has `status === "PENDING"`: list query uses `refetchInterval: 5000`; once all visible orders are terminal (ACTIVE / ERROR / CANCELLED) the interval is disabled
-- [ ] **Create order** button opens a `Modal`: Type (`Select` — key/asymmetric), Algorithm (`TextInput`), Bit Length (`TextInput`, numeric), Mode (`TextInput`, optional), Name (`TextInput`, optional), Expiration (`DateTimePicker`, optional); `POST /v1/orders`; `toast` on success; inline `Message` on error
+- [ ] **Create order** button opens a `Modal`: Type (`Select` — key/asymmetric), Algorithm (`TextInput`), Bit Length (`TextInput`, numeric), Mode (`TextInput`, optional — hidden when Type is `asymmetric`), Name (`TextInput`, optional), Expiration (`DateTimePicker`, optional); `POST /v1/orders`; `toast` on success; inline `Message` on error
 - [ ] **Detail page** (full route `/orders/$orderId`): Type, Status, `sub_status_message`, Algorithm, Bit Length, Mode, Created, Updated; when ACTIVE — `secret_ref` (for `key` orders) or `container_ref` (for `asymmetric` orders) shown with `ClipboardText` and a link to the generated secret/container detail route
 - [ ] Detail page also auto-refreshes while `status === "PENDING"` (`refetchInterval: 5000`)
-- [ ] **Delete** (from PopupMenu and detail page): `Modal` confirmation, `primary-danger` button, `toast` on success
+- [ ] **Delete** (from PopupMenu and detail page): `Modal` confirmation, `primary-danger` button, `toast` on success; if `order.status === "PENDING"`, the modal body adds: _"This order is still being processed. Deleting it now may leave partial key material in Barbican."_
 - [ ] Empty / loading / error states per Ticket 02 pattern; create and delete errors surface Barbican `title`/`description` in inline `Message`
 
 **Aurora / Juno implementation notes**
@@ -348,13 +351,10 @@ without managing key generation locally.
 
 ## Open items roll-up (resolve before / at build)
 
-| Open item                                                                                                                                         | Ticket | Owner                       |
-| ------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | --------------------------- |
-| Q-F1: Confirm no existing `key-manager` scope or `authorization` route tree in Aurora repo before creating route files                            | 01     | Aurora developer            |
-| Q-F5: PEM/key payload download — client-side Blob acceptable, or tRPC SSE chunked streaming required?                                             | 03     | Aurora developer            |
-| DateTimePicker usage — confirm it is (or introduce it as) an Aurora-sanctioned component before using in the Create Secret and Create Order forms | 04, 08 | Aurora developer            |
-| Q-N1: Barbican rate limits in the target deployment                                                                                               | 02     | Platform/infra team         |
-| Q-N2: Barbican error response shape — confirm `{ title, description, code }` schema and any correlation ID headers                                | 02–08  | Platform/API team           |
-| Q-N3: Dev/QA environment — endpoint URL, region, test project, seed data, credentials                                                             | All    | Platform/DevOps             |
-| Q-N4: Cross-team approvals / security review before shipping a UI that surfaces private keys and certificates                                     | All    | Security/compliance         |
-| Q-N5: Rollout strategy + stakeholder notification                                                                                                 | All    | Stakeholder/release manager |
+| Open item                                                                                                          | Ticket | Owner                       |
+| ------------------------------------------------------------------------------------------------------------------ | ------ | --------------------------- |
+| Q-N1: Barbican rate limits in the target deployment                                                                | 02     | Platform/infra team         |
+| Q-N2: Barbican error response shape — confirm `{ title, description, code }` schema and any correlation ID headers | 02–08  | Platform/API team           |
+| Q-N3: Dev/QA environment — endpoint URL, region, test project, seed data, credentials                              | All    | Platform/DevOps             |
+| Q-N4: Cross-team approvals / security review before shipping a UI that surfaces private keys and certificates      | All    | Security/compliance         |
+| Q-N5: Rollout strategy + stakeholder notification                                                                  | All    | Stakeholder/release manager |
