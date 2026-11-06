@@ -625,7 +625,7 @@ msgstr "Anhängen"
 msgid "Attach Floating IP {floating_ip_address} to the Port"
 msgstr ""
 
-msgid "Attached router information will be available in an upcoming update."
+msgid "Attached Device"
 msgstr ""
 
 msgid "Attaching Floating IP..."
@@ -3028,7 +3028,7 @@ msgstr "Keine Richtlinien entsprechen Ihrer Suche"
 msgid "No Policy Found"
 msgstr ""
 
-msgid "No Port Data"
+msgid "No Ports"
 msgstr ""
 
 msgid "No Ports Found"
@@ -3057,9 +3057,6 @@ msgstr "Keine Projekte verfügbar."
 
 msgid "No projects have access to this image yet. Click \"Add Project Access\" to grant access."
 msgstr "Noch kein Projekt hat Zugriff auf dieses Image. Klicken Sie auf \"Projektzugriff hinzufügen\", um Zugriff zu gewähren."
-
-msgid "No Router Data"
-msgstr ""
 
 msgid "No Routers Found"
 msgstr ""
@@ -3378,9 +3375,6 @@ msgstr "Port Forwarding"
 
 msgid "Port ID"
 msgstr "Port-ID"
-
-msgid "Port information will be available in an upcoming update."
-msgstr ""
 
 msgid "Port Name"
 msgstr "Port-Name"
@@ -4613,6 +4607,9 @@ msgid "This member already has access to this image."
 msgstr "Dieses Mitglied hat bereits Zugriff auf dieses Image."
 
 msgid "This network does not exist or has been deleted."
+msgstr ""
+
+msgid "This network has no ports."
 msgstr ""
 
 msgid "This network has no subnets."

@@ -1,13 +1,15 @@
 import { ReactNode } from "react"
 import { useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Stack, Status, TabNavigation, TabNavigationItem } from "@cloudoperators/juno-ui-components"
+import { Stack, TabNavigation, TabNavigationItem } from "@cloudoperators/juno-ui-components"
 import type { Network } from "@/server/Network/types/network"
 import { useProjectId } from "@/client/hooks"
 import ClipboardText from "@/client/components/ClipboardText"
 import { TwoColumnDescriptionList, type DetailListItem } from "@/client/components/TwoColumnDescriptionList"
 import { NetworkSubnetsTable } from "./NetworkSubnetsTable"
 import { NetworkSegmentationTab } from "./NetworkSegmentationTab"
+import { NetworkPortsTable } from "./NetworkPortsTable"
+import { NetworkRoutersTab } from "./NetworkRoutersTab"
 
 /** Tabs of the network details view, in display order. The first one is the default. */
 export const NETWORK_DETAILS_TABS = ["segmentation", "subnets", "ports", "routers"] as const
@@ -39,6 +41,14 @@ export function NetworkDetailsView({ network, activeTab, onTabChange }: NetworkD
     error: subnetsError,
     refetch: refetchSubnets,
   } = trpcReact.network.networks.listSubnets.useQuery({ project_id: projectId, network_id: network.id })
+
+  const {
+    data: ports = [],
+    isLoading: isLoadingPorts,
+    isError: isPortsError,
+    error: portsError,
+    refetch: refetchPorts,
+  } = trpcReact.network.networks.listPorts.useQuery({ project_id: projectId, network_id: network.id })
 
   const yesNo = (value?: boolean | null): string | undefined =>
     value === undefined || value === null ? undefined : value ? t`Yes` : t`No`
@@ -107,22 +117,24 @@ export function NetworkDetailsView({ network, activeTab, onTabChange }: NetworkD
           />
         )}
 
-        {/* Mount points for #1403 (Subnets is above), #1404 (Ports), and #1405 (Routers) */}
+        {/* Mount point for #1404 (Ports) and #1405 (Routers deep-link) */}
         {activeTab === "ports" && (
-          <Status
-            status="empty"
-            title={t`No Port Data`}
-            body={t`Port information will be available in an upcoming update.`}
-            data-testid="ports-placeholder"
+          <NetworkPortsTable
+            ports={ports}
+            isLoading={isLoadingPorts}
+            isError={isPortsError}
+            error={portsError}
+            onRetry={() => refetchPorts()}
           />
         )}
 
         {activeTab === "routers" && (
-          <Status
-            status="empty"
-            title={t`No Router Data`}
-            body={t`Attached router information will be available in an upcoming update.`}
-            data-testid="routers-placeholder"
+          <NetworkRoutersTab
+            ports={ports}
+            isLoading={isLoadingPorts}
+            isError={isPortsError}
+            error={portsError}
+            onRetry={() => refetchPorts()}
           />
         )}
       </Stack>

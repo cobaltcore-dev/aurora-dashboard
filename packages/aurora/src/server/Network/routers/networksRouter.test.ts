@@ -53,6 +53,39 @@ const defaultSharedNetworks = [
   },
 ]
 
+const defaultPorts = [
+  {
+    id: "port-1",
+    name: "",
+    description: "",
+    network_id: "net-1",
+    mac_address: "fa:16:3e:aa:bb:cc",
+    admin_state_up: true,
+    status: "ACTIVE",
+    device_id: "instance-123",
+    device_owner: "compute:nova",
+    fixed_ips: [{ ip_address: "10.0.0.5", subnet_id: "subnet-v4" }],
+    security_groups: [],
+    allowed_address_pairs: [],
+    project_id: TEST_PROJECT_ID,
+  },
+  {
+    id: "port-2",
+    name: "",
+    description: "",
+    network_id: "net-1",
+    mac_address: "fa:16:3e:dd:ee:ff",
+    admin_state_up: false,
+    status: "DOWN",
+    device_id: "router-456",
+    device_owner: "network:router_interface",
+    fixed_ips: [],
+    security_groups: [],
+    allowed_address_pairs: [],
+    project_id: TEST_PROJECT_ID,
+  },
+]
+
 const defaultSubnets = [
   {
     id: "subnet-v4",
@@ -88,8 +121,10 @@ const createMockContext = (opts?: {
   httpStatus?: number
   statusText?: string
   subnetsFail?: boolean
+  portsFail?: boolean
   mockNetworks?: unknown[]
   mockSharedNetworks?: unknown[]
+  mockPorts?: unknown[]
   /** "throw" (default) mirrors signal-openstack: non-2xx rejects with SignalOpenstackApiError. "response" resolves with ok: false. */
   errorMode?: "throw" | "response"
 }) => {
@@ -100,8 +135,10 @@ const createMockContext = (opts?: {
     httpStatus = 200,
     statusText,
     subnetsFail = false,
+    portsFail = false,
     mockNetworks = defaultNetworks,
     mockSharedNetworks = defaultSharedNetworks,
+    mockPorts: mockPortsList = defaultPorts,
     errorMode = "throw",
   } = opts || {}
 
@@ -121,6 +158,10 @@ const createMockContext = (opts?: {
 
   const networkGetMock = vi.fn().mockImplementation((url: string) => {
     const params = new URLSearchParams(url.split("?")[1])
+    if (url.startsWith("v2.0/ports")) {
+      if (portsFail) return reply({}, { ok: false, status: 500 })
+      return reply({ ports: mockPortsList })
+    }
     if (url.startsWith("v2.0/subnets")) {
       // Lookups honour the `id` and `network_id` filters like Neutron does
       const networkId = params.get("network_id")
@@ -719,6 +760,63 @@ describe("networksRouter.listSubnets", () => {
 
     await expect(caller.networks.listSubnets({ project_id: TEST_PROJECT_ID, network_id: "net-1" })).rejects.toThrow(
       new TRPCError({ code: "PARSE_ERROR", message: "Failed to parse response in networksRouter.listSubnets" })
+    )
+  })
+})
+
+describe("networksRouter.listPorts", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("returns the ports of the network", async () => {
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.networks.listPorts({ project_id: TEST_PROJECT_ID, network_id: "net-1" })
+
+    expect(result.map((port) => port.id)).toEqual(["port-1", "port-2"])
+    expect(result[0]).toMatchObject({
+      mac_address: "fa:16:3e:aa:bb:cc",
+      admin_state_up: true,
+      status: "ACTIVE",
+      device_owner: "compute:nova",
+    })
+  })
+
+  it("requests ports by network_id without a fields param", async () => {
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    await caller.networks.listPorts({ project_id: TEST_PROJECT_ID, network_id: "net-1" })
+
+    const portsUrls = requestedUrls(ctx).filter((url) => url.startsWith("v2.0/ports"))
+    expect(portsUrls).toHaveLength(1)
+    const { path, params } = splitUrl(portsUrls[0])
+    expect(path).toBe("v2.0/ports")
+    expect(params.get("network_id")).toBe("net-1")
+    expect(params.has("fields")).toBe(false)
+  })
+
+  it("returns an empty array when the network has no ports", async () => {
+    const caller = createCaller(createMockContext({ mockPorts: [] }))
+
+    expect(await caller.networks.listPorts({ project_id: TEST_PROJECT_ID, network_id: "net-1" })).toEqual([])
+  })
+
+  it("maps Neutron errors", async () => {
+    const caller = createCaller(createMockContext({ httpStatus: 403, statusText: "Forbidden" }))
+
+    await expect(caller.networks.listPorts({ project_id: TEST_PROJECT_ID, network_id: "net-1" })).rejects.toMatchObject(
+      { code: "FORBIDDEN", message: "Access forbidden to net-1: Forbidden" }
+    )
+  })
+
+  it("throws PARSE_ERROR when response cannot be parsed", async () => {
+    const caller = createCaller(createMockContext({ parseError: true }))
+
+    await expect(caller.networks.listPorts({ project_id: TEST_PROJECT_ID, network_id: "net-1" })).rejects.toThrow(
+      new TRPCError({ code: "PARSE_ERROR", message: "Failed to parse response in networksRouter.listPorts" })
     )
   })
 })

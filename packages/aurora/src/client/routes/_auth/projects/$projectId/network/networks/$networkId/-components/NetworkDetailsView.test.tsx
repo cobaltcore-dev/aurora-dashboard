@@ -8,14 +8,20 @@ import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import type { Network, NetworkSubnet } from "@/server/Network/types/network"
 import { NetworkDetailsView, isNetworkDetailsTab, DEFAULT_NETWORK_DETAILS_TAB } from "./NetworkDetailsView"
 
-const { mockListSubnetsQuery, mockRefetch } = vi.hoisted(() => ({
+const { mockListSubnetsQuery, mockListPortsQuery, mockRefetch } = vi.hoisted(() => ({
   mockListSubnetsQuery: vi.fn(),
+  mockListPortsQuery: vi.fn(),
   mockRefetch: vi.fn(),
 }))
 
 vi.mock("@/client/trpcClient", () => ({
   trpcReact: {
-    network: { networks: { listSubnets: { useQuery: mockListSubnetsQuery } } },
+    network: {
+      networks: {
+        listSubnets: { useQuery: mockListSubnetsQuery },
+        listPorts: { useQuery: mockListPortsQuery },
+      },
+    },
   },
 }))
 
@@ -41,6 +47,38 @@ vi.mock("./NetworkSubnetsTable", () => ({
       {subnets.map((subnet) => subnet.id).join(",")}
       {error?.message}
       <button onClick={onRetry}>Retry subnets</button>
+    </div>
+  ),
+}))
+
+vi.mock("./NetworkPortsTable", () => ({
+  NetworkPortsTable: ({
+    isLoading,
+    isError,
+    onRetry,
+  }: {
+    isLoading: boolean
+    isError: boolean
+    onRetry?: () => void
+  }) => (
+    <div data-testid="network-ports-table" data-loading={isLoading} data-error={isError}>
+      <button onClick={onRetry}>Retry ports</button>
+    </div>
+  ),
+}))
+
+vi.mock("./NetworkRoutersTab", () => ({
+  NetworkRoutersTab: ({
+    isLoading,
+    isError,
+    onRetry,
+  }: {
+    isLoading: boolean
+    isError: boolean
+    onRetry?: () => void
+  }) => (
+    <div data-testid="network-routers-tab" data-loading={isLoading} data-error={isError}>
+      <button onClick={onRetry}>Retry routers</button>
     </div>
   ),
 }))
@@ -88,6 +126,16 @@ const mockSubnetsResult = (overrides: Record<string, unknown> = {}) =>
     ...overrides,
   })
 
+const mockPortsResult = (overrides: Record<string, unknown> = {}) =>
+  mockListPortsQuery.mockReturnValue({
+    data: [],
+    isLoading: false,
+    isError: false,
+    error: null,
+    refetch: mockRefetch,
+    ...overrides,
+  })
+
 describe("NetworkDetailsView", () => {
   beforeAll(async () => {
     await act(async () => {
@@ -103,6 +151,7 @@ describe("NetworkDetailsView", () => {
   describe("Basic information", () => {
     it("renders all field labels", () => {
       mockSubnetsResult()
+      mockPortsResult()
       renderView()
 
       for (const label of [
@@ -128,6 +177,7 @@ describe("NetworkDetailsView", () => {
 
     it("renders the network attributes", () => {
       mockSubnetsResult()
+      mockPortsResult()
       renderView()
 
       expect(screen.getByText("private")).toBeInTheDocument()
@@ -149,6 +199,7 @@ describe("NetworkDetailsView", () => {
 
     it("shows a copy affordance for the network ID", () => {
       mockSubnetsResult()
+      mockPortsResult()
       renderView()
 
       expect(screen.getByRole("button", { name: /copy net-1 to clipboard/i })).toBeInTheDocument()
@@ -156,6 +207,7 @@ describe("NetworkDetailsView", () => {
 
     it("shows the owning project_id with copy affordance in the Shared field when the network is shared (E2)", () => {
       mockSubnetsResult()
+      mockPortsResult()
       renderView({ ...mockNetwork, shared: true })
 
       // E2: copy button for project_id present; no copy button for "proj-1" (useProjectId)
@@ -164,6 +216,7 @@ describe("NetworkDetailsView", () => {
 
     it("shows 'No' in the Shared field when the network is not shared", () => {
       mockSubnetsResult()
+      mockPortsResult()
       renderView()
 
       expect(screen.getByText("No")).toBeInTheDocument()
@@ -172,6 +225,7 @@ describe("NetworkDetailsView", () => {
 
     it("does not render a separate Project ID field", () => {
       mockSubnetsResult()
+      mockPortsResult()
       renderView()
 
       expect(screen.queryByText("Project ID")).not.toBeInTheDocument()
@@ -179,6 +233,7 @@ describe("NetworkDetailsView", () => {
 
     it("renders DOWN and Disabled", () => {
       mockSubnetsResult()
+      mockPortsResult()
       renderView({ ...mockNetwork, admin_state_up: false, port_security_enabled: false })
 
       expect(screen.getByText("DOWN")).toBeInTheDocument()
@@ -187,6 +242,7 @@ describe("NetworkDetailsView", () => {
 
     it("renders '- -' for absent optional fields", () => {
       mockSubnetsResult()
+      mockPortsResult()
       renderView({
         id: "net-1",
         name: "",
@@ -204,6 +260,7 @@ describe("NetworkDetailsView", () => {
 
     it("shows subnet count and segment count in the metadata", () => {
       mockSubnetsResult()
+      mockPortsResult()
       renderView()
 
       // subnets: ["subnet-1", "subnet-2"] → 2; provider:network_type present → 1 segment
@@ -218,6 +275,7 @@ describe("NetworkDetailsView", () => {
   describe("Segmentation tab", () => {
     it("renders the Segmentation tab label", () => {
       mockSubnetsResult()
+      mockPortsResult()
       renderView()
 
       expect(screen.getByText("Segmentation")).toBeInTheDocument()
@@ -227,6 +285,7 @@ describe("NetworkDetailsView", () => {
   describe("Subnets tab", () => {
     it("renders the Subnets tab label", () => {
       mockSubnetsResult()
+      mockPortsResult()
       renderView()
 
       expect(screen.getByText("Subnets")).toBeInTheDocument()
@@ -234,6 +293,7 @@ describe("NetworkDetailsView", () => {
 
     it("queries the subnets of the network", () => {
       mockSubnetsResult()
+      mockPortsResult()
       renderView(mockNetwork, "subnets")
 
       expect(mockListSubnetsQuery).toHaveBeenCalledWith({ project_id: "proj-1", network_id: "net-1" })
@@ -259,6 +319,7 @@ describe("NetworkDetailsView", () => {
     it("retries the subnets query from the table", async () => {
       const user = userEvent.setup()
       mockSubnetsResult()
+      mockPortsResult()
       renderView(mockNetwork, "subnets")
 
       await user.click(screen.getByRole("button", { name: "Retry subnets" }))
@@ -267,35 +328,86 @@ describe("NetworkDetailsView", () => {
     })
   })
 
-  describe("Ports tab (mount point)", () => {
+  describe("Ports tab", () => {
     it("renders the Ports tab label", () => {
       mockSubnetsResult()
+      mockPortsResult()
       renderView()
 
       expect(screen.getByText("Ports")).toBeInTheDocument()
     })
 
-    it("renders a placeholder when the Ports tab is active", () => {
+    it("queries the ports of the network", () => {
       mockSubnetsResult()
+      mockPortsResult()
       renderView(mockNetwork, "ports")
 
-      expect(screen.getByTestId("ports-placeholder")).toBeInTheDocument()
+      expect(mockListPortsQuery).toHaveBeenCalledWith({ project_id: "proj-1", network_id: "net-1" })
+      expect(screen.getByTestId("network-ports-table")).toBeInTheDocument()
+    })
+
+    it("passes the loading state to the ports table", () => {
+      mockSubnetsResult()
+      mockPortsResult({ data: undefined, isLoading: true })
+      renderView(mockNetwork, "ports")
+
+      expect(screen.getByTestId("network-ports-table")).toHaveAttribute("data-loading", "true")
+    })
+
+    it("passes the error state to the ports table", () => {
+      mockSubnetsResult()
+      mockPortsResult({ data: undefined, isError: true, error: { message: "Forbidden" } })
+      renderView(mockNetwork, "ports")
+
+      expect(screen.getByTestId("network-ports-table")).toHaveAttribute("data-error", "true")
+    })
+
+    it("retries the ports query from the table", async () => {
+      const user = userEvent.setup()
+      mockSubnetsResult()
+      mockPortsResult()
+      renderView(mockNetwork, "ports")
+
+      await user.click(screen.getByRole("button", { name: "Retry ports" }))
+
+      expect(mockRefetch).toHaveBeenCalled()
     })
   })
 
-  describe("Routers tab (mount point)", () => {
+  describe("Routers tab", () => {
     it("renders the Routers tab label", () => {
       mockSubnetsResult()
+      mockPortsResult()
       renderView()
 
       expect(screen.getByText("Routers")).toBeInTheDocument()
     })
 
-    it("renders a placeholder when the Routers tab is active", () => {
+    it("renders the routers tab using the same ports query", () => {
       mockSubnetsResult()
+      mockPortsResult()
       renderView(mockNetwork, "routers")
 
-      expect(screen.getByTestId("routers-placeholder")).toBeInTheDocument()
+      expect(screen.getByTestId("network-routers-tab")).toBeInTheDocument()
+    })
+
+    it("passes the loading state to the routers tab", () => {
+      mockSubnetsResult()
+      mockPortsResult({ data: undefined, isLoading: true })
+      renderView(mockNetwork, "routers")
+
+      expect(screen.getByTestId("network-routers-tab")).toHaveAttribute("data-loading", "true")
+    })
+
+    it("retries via the same refetch as the ports tab", async () => {
+      const user = userEvent.setup()
+      mockSubnetsResult()
+      mockPortsResult()
+      renderView(mockNetwork, "routers")
+
+      await user.click(screen.getByRole("button", { name: "Retry routers" }))
+
+      expect(mockRefetch).toHaveBeenCalled()
     })
   })
 
