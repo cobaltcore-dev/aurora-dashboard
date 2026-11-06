@@ -57,6 +57,17 @@ export function buildNavSections(
 
   const networkServices: NavItem[] = serviceIndex["network"]
     ? [
+        ...(isEnabled("networks")
+          ? [
+              {
+                service: "networks",
+                label: t`Networks`,
+                navigate: (nav: NavigateFn) =>
+                  nav({ to: "/projects/$projectId/network/networks", params: { projectId } }),
+                params: { projectId },
+              },
+            ]
+          : []),
         ...(isEnabled("securitygroups")
           ? [
               {

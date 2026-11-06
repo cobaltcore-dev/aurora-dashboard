@@ -178,6 +178,9 @@ msgstr "{filteredCount, plural, one {{filteredCount} von {totalCount} Container}
 msgid "{name} (this group)"
 msgstr ""
 
+msgid "{networkCount} networks"
+msgstr ""
+
 msgid "{numberDeleted} object was permanently deleted."
 msgstr "{numberDeleted} Objekt wurde dauerhaft gelöscht."
 
@@ -194,6 +197,9 @@ msgid "{ruleCount, plural, one {Delete CORS Rule} other {Delete CORS Rules}}"
 msgstr ""
 
 msgid "{ruleCount, plural, one {Delete Lifecycle Rule} other {Delete Lifecycle Rules}}"
+msgstr ""
+
+msgid "{segmentCount} segment"
 msgstr ""
 
 msgid "{selectedCount, plural, one {Delete # Object} other {Delete # Objects}}"
@@ -403,6 +409,9 @@ msgstr "Zugriffsstatus:"
 msgid "Access to S3 Object Storage requires an access key (access key ID + secret access key)."
 msgstr ""
 
+msgid "Access to this network is not permitted."
+msgstr ""
+
 msgid "Access to this router is not permitted."
 msgstr ""
 
@@ -526,6 +535,9 @@ msgstr "Floating IP zuweisen"
 msgid "Allocating Floating IP..."
 msgstr "Floating IP wird zugewiesen..."
 
+msgid "Allocation Pools"
+msgstr ""
+
 msgid "Allowed Headers"
 msgstr ""
 
@@ -613,6 +625,9 @@ msgstr "Anhängen"
 msgid "Attach Floating IP {floating_ip_address} to the Port"
 msgstr ""
 
+msgid "Attached Device"
+msgstr ""
+
 msgid "Attaching Floating IP..."
 msgstr ""
 
@@ -623,6 +638,9 @@ msgid "Authorization"
 msgstr ""
 
 msgid "Auto-generated if not provided. Only alphanumeric, hyphens, underscores, and dots allowed."
+msgstr ""
+
+msgid "Availability Zones"
 msgstr ""
 
 msgid "Back"
@@ -650,6 +668,9 @@ msgid "Back to Images"
 msgstr "Zurück zu Images"
 
 msgid "Back to Key Manager"
+msgstr ""
+
+msgid "Back to Networks"
 msgstr ""
 
 msgid "Back to Ports"
@@ -1432,6 +1453,9 @@ msgstr "Geräte-ID"
 msgid "Device Owner"
 msgstr "Geräteeigentümer"
 
+msgid "DHCP"
+msgstr ""
+
 msgid "Direction"
 msgstr "Richtung"
 
@@ -1461,6 +1485,9 @@ msgstr "DNS-Name"
 
 msgid "DNS name must be at most 63 characters."
 msgstr "Der DNS-Name darf höchstens 63 Zeichen lang sein."
+
+msgid "DNS Nameservers"
+msgstr ""
 
 msgid "Done"
 msgstr ""
@@ -1714,6 +1741,9 @@ msgstr ""
 msgid "Error Loading Image"
 msgstr ""
 
+msgid "Error Loading Network"
+msgstr ""
+
 msgid "Error Loading Port"
 msgstr ""
 
@@ -1763,6 +1793,9 @@ msgid "Expires in {selectedPresetLabel} — at {expiresAtFormatted}"
 msgstr "Läuft ab in {selectedPresetLabel} — um {expiresAtFormatted}"
 
 msgid "Expose Headers"
+msgstr ""
+
+msgid "External"
 msgstr ""
 
 msgid "External Fixed IPs"
@@ -1990,6 +2023,9 @@ msgstr ""
 msgid "Failed to Load Metadata Configuration"
 msgstr ""
 
+msgid "Failed to Load Networks"
+msgstr ""
+
 msgid "Failed to Load Object Metadata"
 msgstr ""
 
@@ -2021,6 +2057,9 @@ msgid "Failed to Load Secrets"
 msgstr ""
 
 msgid "Failed to Load Security Groups"
+msgstr ""
+
+msgid "Failed to Load Subnets"
 msgstr ""
 
 msgid "Failed to Load Versions"
@@ -2266,6 +2305,9 @@ msgstr ""
 msgid "Full path:"
 msgstr ""
 
+msgid "Gateway IP"
+msgstr ""
+
 msgid "General"
 msgstr ""
 
@@ -2322,6 +2364,9 @@ msgstr ""
 
 msgid "Home"
 msgstr "Startseite"
+
+msgid "Host Routes"
+msgstr ""
 
 msgid "How long browsers can cache preflight responses. Common values: 3600 (1 hour), 86400 (1 day), 604800 (1 week)."
 msgstr ""
@@ -2509,6 +2554,9 @@ msgstr "Zuletzt geändert (UTC)"
 msgid "Last updated: {formattedDate}"
 msgstr "Zuletzt aktualisiert: {formattedDate}"
 
+msgid "Last updated: {lastUpdatedText}"
+msgstr ""
+
 msgid "Latest"
 msgstr ""
 
@@ -2608,6 +2656,12 @@ msgstr ""
 msgid "Loading more..."
 msgstr "Weitere werden geladen..."
 
+msgid "Loading Network Details..."
+msgstr ""
+
+msgid "Loading Networks..."
+msgstr ""
+
 msgid "Loading Object Info..."
 msgstr ""
 
@@ -2658,6 +2712,9 @@ msgstr ""
 
 msgid "Loading Security Group Details..."
 msgstr "Security Group-Details werden geladen..."
+
+msgid "Loading Subnets..."
+msgstr ""
 
 msgid "Loading Versions..."
 msgstr ""
@@ -2803,6 +2860,9 @@ msgstr ""
 msgid "Moving..."
 msgstr "Wird verschoben..."
 
+msgid "MTU"
+msgstr ""
+
 msgid "Must be a valid IPv4 or IPv6 address (for example: 172.24.4.228 or 2001:db8::1)."
 msgstr "Muss eine gültige IPv4- oder IPv6-Adresse sein (z. B.: 172.24.4.228 oder 2001:db8::1)."
 
@@ -2843,6 +2903,15 @@ msgid "Network ID"
 msgstr "Netzwerk-ID"
 
 msgid "Network Name"
+msgstr ""
+
+msgid "Network Not Found"
+msgstr ""
+
+msgid "Network Type"
+msgstr ""
+
+msgid "Networks"
 msgstr ""
 
 msgid "Never"
@@ -2926,6 +2995,12 @@ msgstr "Kein Limit"
 msgid "No Metadata Properties Found"
 msgstr ""
 
+msgid "No Networks Found"
+msgstr ""
+
+msgid "No networks match your search or filters. Clear them to view all networks."
+msgstr ""
+
 msgid "No new versions will be created"
 msgstr ""
 
@@ -2951,6 +3026,9 @@ msgid "No policies match your search"
 msgstr "Keine Richtlinien entsprechen Ihrer Suche"
 
 msgid "No Policy Found"
+msgstr ""
+
+msgid "No Ports"
 msgstr ""
 
 msgid "No Ports Found"
@@ -3004,8 +3082,17 @@ msgstr ""
 msgid "No security groups found"
 msgstr "Keine Sicherheitsgruppen gefunden"
 
+msgid "No Segmentation Data"
+msgstr ""
+
+msgid "No segmentation data available."
+msgstr ""
+
 msgid "No services available for this project."
 msgstr "Keine Dienste für dieses Projekt verfügbar."
+
+msgid "No Subnets"
+msgstr ""
 
 msgid "No Suggested Images Found"
 msgstr ""
@@ -3247,6 +3334,9 @@ msgstr ""
 msgid "Pending"
 msgstr "Ausstehend"
 
+msgid "Physical Network"
+msgstr ""
+
 msgid "Please enter a valid number of minutes greater than 0"
 msgstr "Bitte geben Sie eine gültige Anzahl von Minuten größer als 0 ein"
 
@@ -3294,6 +3384,9 @@ msgstr ""
 
 msgid "Port Range"
 msgstr "Port-Bereich"
+
+msgid "Port Security"
+msgstr ""
 
 msgid "Ports"
 msgstr ""
@@ -3640,6 +3733,9 @@ msgstr ""
 msgid "Search by name or ID"
 msgstr ""
 
+msgid "Search by name or ID..."
+msgstr ""
+
 msgid "Search containers..."
 msgstr "Container suchen..."
 
@@ -3753,6 +3849,15 @@ msgstr ""
 
 msgid "Security Groups"
 msgstr "Security Groups"
+
+msgid "Segment count"
+msgstr ""
+
+msgid "Segmentation"
+msgstr ""
+
+msgid "Segmentation ID"
+msgstr ""
 
 msgid "Select"
 msgstr "Auswählen"
@@ -4024,7 +4129,13 @@ msgstr ""
 msgid "Subnet"
 msgstr "Subnet"
 
+msgid "Subnet count"
+msgstr ""
+
 msgid "Subnet ID:"
+msgstr ""
+
+msgid "Subnets"
 msgstr ""
 
 msgid "Successfully activated {successCount} of {totalCount} image(s)"
@@ -4204,6 +4315,12 @@ msgstr ""
 msgid "The name \"default\" is reserved for the default security group."
 msgstr ""
 
+msgid "The network could not be loaded."
+msgstr ""
+
+msgid "The network could not be loaded. Try again."
+msgstr ""
+
 msgid "The object will be copied to this path. Navigate folders above to change the destination."
 msgstr "Das Objekt wird zu diesem Pfad kopiert. Navigieren Sie oben durch die Ordner, um das Ziel zu ändern."
 
@@ -4273,6 +4390,9 @@ msgstr "Die ausgewählten Objekte werden dauerhaft gelöscht. Dies kann nicht r�
 msgid "The service you're looking for doesn't exist or may have moved. Check the URL or return to the project home."
 msgstr ""
 
+msgid "The session has expired. Sign in again to continue."
+msgstr ""
+
 msgid "The specified project does not exist or you don't have permission to share with it."
 msgstr "Das angegebene Projekt existiert nicht oder Sie haben keine Berechtigung, es zu teilen."
 
@@ -4325,6 +4445,9 @@ msgid "There are no items to display."
 msgstr "Es gibt keine Elemente zum Anzeigen."
 
 msgid "There Are No Lifecycle Rules for This Bucket"
+msgstr ""
+
+msgid "There are no networks in this project."
 msgstr ""
 
 msgid "There are no orders in this project. Create one to request secret generation."
@@ -4482,6 +4605,15 @@ msgstr "Dieser Schlüssel ist reserviert und wird separat verwaltet"
 
 msgid "This member already has access to this image."
 msgstr "Dieses Mitglied hat bereits Zugriff auf dieses Image."
+
+msgid "This network does not exist or has been deleted."
+msgstr ""
+
+msgid "This network has no ports."
+msgstr ""
+
+msgid "This network has no subnets."
+msgstr ""
 
 msgid "This object and all its versions will be permanently deleted and cannot be restored."
 msgstr ""
@@ -4886,6 +5018,9 @@ msgid "You do not have the necessary permissions to view this Secret."
 msgstr ""
 
 msgid "You do not have the required permissions to access this port."
+msgstr ""
+
+msgid "You do not have the required permissions to view networks in this project."
 msgstr ""
 
 msgid "You do not have the required permissions to view ports in this project."
