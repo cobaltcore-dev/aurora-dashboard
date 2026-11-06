@@ -51,15 +51,16 @@ const TestWrapper = ({ children }: { children: ReactNode }) => (
   </I18nProvider>
 )
 
-const mockNetwork = {
+const mockNetwork: Network = {
   id: "net-1",
   name: "private",
   description: "App tier",
   status: "ACTIVE",
   admin_state_up: true,
   shared: false,
-  subnets: ["subnet-1"],
-  project_id: "proj-1",
+  subnets: ["subnet-1", "subnet-2"],
+  // Different from useProjectId() "proj-1" so E2 copy affordance is unambiguous when shared=true
+  project_id: "proj-owner",
   mtu: 8950,
   "router:external": true,
   port_security_enabled: true,
@@ -67,10 +68,13 @@ const mockNetwork = {
   tags: ["env:prod", "team:net"],
   created_at: "2025-02-28T14:36:21Z",
   updated_at: "2025-03-01T10:00:00Z",
+  "provider:network_type": "vlan",
+  "provider:physical_network": "physnet1",
+  "provider:segmentation_id": 100,
 } as Network
 
-const renderView = (network: Network = mockNetwork, onTabChange = vi.fn()) =>
-  render(<NetworkDetailsView network={network} activeTab="subnets" onTabChange={onTabChange} />, {
+const renderView = (network: Network = mockNetwork, activeTab = DEFAULT_NETWORK_DETAILS_TAB, onTabChange = vi.fn()) =>
+  render(<NetworkDetailsView network={network} activeTab={activeTab} onTabChange={onTabChange} />, {
     wrapper: TestWrapper,
   })
 
@@ -104,7 +108,6 @@ describe("NetworkDetailsView", () => {
       for (const label of [
         "Name",
         "ID",
-        "Project ID",
         "Description",
         "Status",
         "Admin State",
@@ -116,6 +119,8 @@ describe("NetworkDetailsView", () => {
         "Tags",
         "Created",
         "Updated",
+        "Subnet count",
+        "Segment count",
       ]) {
         expect(screen.getByText(label)).toBeInTheDocument()
       }
@@ -127,24 +132,49 @@ describe("NetworkDetailsView", () => {
 
       expect(screen.getByText("private")).toBeInTheDocument()
       expect(screen.getByText("net-1")).toBeInTheDocument()
-      expect(screen.getByText("proj-1")).toBeInTheDocument()
       expect(screen.getByText("App tier")).toBeInTheDocument()
       expect(screen.getByText("ACTIVE")).toBeInTheDocument()
       expect(screen.getByText("UP")).toBeInTheDocument()
       expect(screen.getByText("8950")).toBeInTheDocument()
+      // shared=false → shows "No"; project_id copy button NOT present
       expect(screen.getByText("No")).toBeInTheDocument()
       expect(screen.getByText("Yes")).toBeInTheDocument()
       expect(screen.getByText("Enabled")).toBeInTheDocument()
       expect(screen.getByText("qa-de-1a, qa-de-1b")).toBeInTheDocument()
       expect(screen.getByText("env:prod, team:net")).toBeInTheDocument()
       expect(screen.getByText(new Date("2025-02-28T14:36:21Z").toLocaleString())).toBeInTheDocument()
+      // subnets count
+      expect(screen.getByText("2")).toBeInTheDocument()
     })
 
-    it("renders copyable IDs", () => {
+    it("shows a copy affordance for the network ID", () => {
       mockSubnetsResult()
       renderView()
 
-      expect(screen.getAllByRole("button", { name: /copy/i }).length).toBeGreaterThanOrEqual(2)
+      expect(screen.getByRole("button", { name: /copy net-1 to clipboard/i })).toBeInTheDocument()
+    })
+
+    it("shows the owning project_id with copy affordance in the Shared field when the network is shared (E2)", () => {
+      mockSubnetsResult()
+      renderView({ ...mockNetwork, shared: true })
+
+      // E2: copy button for project_id present; no copy button for "proj-1" (useProjectId)
+      expect(screen.getByRole("button", { name: /copy proj-owner to clipboard/i })).toBeInTheDocument()
+    })
+
+    it("shows 'No' in the Shared field when the network is not shared", () => {
+      mockSubnetsResult()
+      renderView()
+
+      expect(screen.getByText("No")).toBeInTheDocument()
+      expect(screen.queryByRole("button", { name: /copy proj-owner to clipboard/i })).not.toBeInTheDocument()
+    })
+
+    it("does not render a separate Project ID field", () => {
+      mockSubnetsResult()
+      renderView()
+
+      expect(screen.queryByText("Project ID")).not.toBeInTheDocument()
     })
 
     it("renders DOWN and Disabled", () => {
@@ -155,7 +185,7 @@ describe("NetworkDetailsView", () => {
       expect(screen.getByText("Disabled")).toBeInTheDocument()
     })
 
-    it("renders dashes for missing values", () => {
+    it("renders '- -' for absent optional fields", () => {
       mockSubnetsResult()
       renderView({
         id: "net-1",
@@ -165,16 +195,93 @@ describe("NetworkDetailsView", () => {
         admin_state_up: true,
         shared: false,
         subnets: [],
-        project_id: "proj-1",
-      })
+        project_id: "proj-owner",
+      } as Network)
 
       // name, description, MTU, external, port security, availability zones, tags, created, updated
-      expect(screen.getAllByText("—")).toHaveLength(9)
+      expect(screen.getAllByText("- -")).toHaveLength(9)
+    })
+
+    it("shows subnet count and segment count in the metadata", () => {
+      mockSubnetsResult()
+      renderView()
+
+      // subnets: ["subnet-1", "subnet-2"] → 2; provider:network_type present → 1 segment
+      expect(screen.getByText("Subnet count")).toBeInTheDocument()
+      expect(screen.getByText("Segment count")).toBeInTheDocument()
+      // values: 2 subnets and 1 segment
+      expect(screen.getByText("2")).toBeInTheDocument()
+      expect(screen.getByText("1")).toBeInTheDocument()
+    })
+  })
+
+  describe("Segmentation tab", () => {
+    it("renders the Segmentation tab label", () => {
+      mockSubnetsResult()
+      renderView()
+
+      expect(screen.getByText("Segmentation")).toBeInTheDocument()
+    })
+
+    it("shows a datagrid with segmentation columns when provider data is present", () => {
+      mockSubnetsResult()
+      renderView()
+
+      expect(screen.getByTestId("segmentation-table")).toBeInTheDocument()
+      expect(screen.getByText("Network Type")).toBeInTheDocument()
+      expect(screen.getByText("Physical Network")).toBeInTheDocument()
+      expect(screen.getByText("Segmentation ID")).toBeInTheDocument()
+    })
+
+    it("displays the provider field values in the segmentation row", () => {
+      mockSubnetsResult()
+      renderView()
+
+      expect(screen.getByTestId("segmentation-table")).toHaveTextContent("vlan")
+      expect(screen.getByTestId("segmentation-table")).toHaveTextContent("physnet1")
+      expect(screen.getByTestId("segmentation-table")).toHaveTextContent("100")
+    })
+
+    it("shows segment count above the datagrid", () => {
+      mockSubnetsResult()
+      renderView()
+
+      expect(screen.getByTestId("segment-count")).toHaveTextContent("1 segment")
+      expect(screen.getByTestId("segment-count")).toHaveTextContent("vlan: 1")
+    })
+
+    it("shows 'No segmentation data available' when all provider fields are absent", () => {
+      mockSubnetsResult()
+      renderView({
+        ...mockNetwork,
+        "provider:network_type": null,
+        "provider:physical_network": null,
+        "provider:segmentation_id": null,
+      })
+
+      expect(screen.queryByTestId("segmentation-table")).not.toBeInTheDocument()
+      expect(screen.getByTestId("segmentation-empty")).toBeInTheDocument()
+    })
+
+    it("shows '- -' for a present-but-null provider sub-field", () => {
+      mockSubnetsResult()
+      // network_type present, other fields null
+      renderView({
+        ...mockNetwork,
+        "provider:network_type": "vlan",
+        "provider:physical_network": null,
+        "provider:segmentation_id": null,
+      })
+
+      const table = screen.getByTestId("segmentation-table")
+      expect(table).toHaveTextContent("vlan")
+      // physical network and segmentation ID are null → "- -"
+      expect(table.textContent).toContain("- -")
     })
   })
 
   describe("Subnets tab", () => {
-    it("renders the tab", () => {
+    it("renders the Subnets tab label", () => {
       mockSubnetsResult()
       renderView()
 
@@ -183,7 +290,7 @@ describe("NetworkDetailsView", () => {
 
     it("queries the subnets of the network", () => {
       mockSubnetsResult()
-      renderView()
+      renderView(mockNetwork, "subnets")
 
       expect(mockListSubnetsQuery).toHaveBeenCalledWith({ project_id: "proj-1", network_id: "net-1" })
       expect(screen.getByTestId("network-subnets-table")).toHaveTextContent("subnet-1")
@@ -191,14 +298,14 @@ describe("NetworkDetailsView", () => {
 
     it("passes the loading state to the table", () => {
       mockSubnetsResult({ data: undefined, isLoading: true })
-      renderView()
+      renderView(mockNetwork, "subnets")
 
       expect(screen.getByTestId("network-subnets-table")).toHaveAttribute("data-loading", "true")
     })
 
     it("passes the error state to the table", () => {
       mockSubnetsResult({ data: undefined, isError: true, error: { message: "Access forbidden" } })
-      renderView()
+      renderView(mockNetwork, "subnets")
 
       const table = screen.getByTestId("network-subnets-table")
       expect(table).toHaveAttribute("data-error", "true")
@@ -208,7 +315,7 @@ describe("NetworkDetailsView", () => {
     it("retries the subnets query from the table", async () => {
       const user = userEvent.setup()
       mockSubnetsResult()
-      renderView()
+      renderView(mockNetwork, "subnets")
 
       await user.click(screen.getByRole("button", { name: "Retry subnets" }))
 
@@ -216,15 +323,53 @@ describe("NetworkDetailsView", () => {
     })
   })
 
+  describe("Ports tab (mount point)", () => {
+    it("renders the Ports tab label", () => {
+      mockSubnetsResult()
+      renderView()
+
+      expect(screen.getByText("Ports")).toBeInTheDocument()
+    })
+
+    it("renders a placeholder when the Ports tab is active", () => {
+      mockSubnetsResult()
+      renderView(mockNetwork, "ports")
+
+      expect(screen.getByTestId("ports-placeholder")).toBeInTheDocument()
+    })
+  })
+
+  describe("Routers tab (mount point)", () => {
+    it("renders the Routers tab label", () => {
+      mockSubnetsResult()
+      renderView()
+
+      expect(screen.getByText("Routers")).toBeInTheDocument()
+    })
+
+    it("renders a placeholder when the Routers tab is active", () => {
+      mockSubnetsResult()
+      renderView(mockNetwork, "routers")
+
+      expect(screen.getByTestId("routers-placeholder")).toBeInTheDocument()
+    })
+  })
+
   describe("isNetworkDetailsTab", () => {
-    it("accepts known tabs and rejects others", () => {
+    it("accepts all known tabs", () => {
+      expect(isNetworkDetailsTab("segmentation")).toBe(true)
       expect(isNetworkDetailsTab("subnets")).toBe(true)
-      expect(isNetworkDetailsTab("ports")).toBe(false)
+      expect(isNetworkDetailsTab("ports")).toBe(true)
+      expect(isNetworkDetailsTab("routers")).toBe(true)
+    })
+
+    it("rejects unknown values", () => {
+      expect(isNetworkDetailsTab("floatingips")).toBe(false)
       expect(isNetworkDetailsTab(undefined)).toBe(false)
     })
 
-    it("defaults to the subnets tab", () => {
-      expect(DEFAULT_NETWORK_DETAILS_TAB).toBe("subnets")
+    it("defaults to the segmentation tab", () => {
+      expect(DEFAULT_NETWORK_DETAILS_TAB).toBe("segmentation")
     })
   })
 })

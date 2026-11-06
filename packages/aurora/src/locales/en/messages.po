@@ -199,6 +199,9 @@ msgstr "{ruleCount, plural, one {Delete CORS Rule} other {Delete CORS Rules}}"
 msgid "{ruleCount, plural, one {Delete Lifecycle Rule} other {Delete Lifecycle Rules}}"
 msgstr "{ruleCount, plural, one {Delete Lifecycle Rule} other {Delete Lifecycle Rules}}"
 
+msgid "{segmentCount} segment"
+msgstr "{segmentCount} segment"
+
 msgid "{selectedCount, plural, one {Delete # Object} other {Delete # Objects}}"
 msgstr "{selectedCount, plural, one {Delete # Object} other {Delete # Objects}}"
 
@@ -618,6 +621,9 @@ msgstr "Attach"
 
 msgid "Attach Floating IP {floating_ip_address} to the Port"
 msgstr "Attach Floating IP {floating_ip_address} to the Port"
+
+msgid "Attached router information will be available in an upcoming update."
+msgstr "Attached router information will be available in an upcoming update."
 
 msgid "Attaching Floating IP..."
 msgstr "Attaching Floating IP..."
@@ -2893,6 +2899,9 @@ msgstr "Network Name"
 msgid "Network Not Found"
 msgstr "Network Not Found"
 
+msgid "Network Type"
+msgstr "Network Type"
+
 msgid "Networks"
 msgstr "Networks"
 
@@ -3010,6 +3019,9 @@ msgstr "No policies match your search"
 msgid "No Policy Found"
 msgstr "No Policy Found"
 
+msgid "No Port Data"
+msgstr "No Port Data"
+
 msgid "No Ports Found"
 msgstr "No Ports Found"
 
@@ -3037,6 +3049,9 @@ msgstr "No projects available."
 msgid "No projects have access to this image yet. Click \"Add Project Access\" to grant access."
 msgstr "No projects have access to this image yet. Click \"Add Project Access\" to grant access."
 
+msgid "No Router Data"
+msgstr "No Router Data"
+
 msgid "No Routers Found"
 msgstr "No Routers Found"
 
@@ -3060,6 +3075,12 @@ msgstr "No Secrets Match Your Search"
 
 msgid "No security groups found"
 msgstr "No security groups found"
+
+msgid "No Segmentation Data"
+msgstr "No Segmentation Data"
+
+msgid "No segmentation data available."
+msgstr "No segmentation data available."
 
 msgid "No services available for this project."
 msgstr "No services available for this project."
@@ -3307,6 +3328,9 @@ msgstr "Payload is required"
 msgid "Pending"
 msgstr "Pending"
 
+msgid "Physical Network"
+msgstr "Physical Network"
+
 msgid "Please enter a valid number of minutes greater than 0"
 msgstr "Please enter a valid number of minutes greater than 0"
 
@@ -3345,6 +3369,9 @@ msgstr "Port Forwarding"
 
 msgid "Port ID"
 msgstr "Port ID"
+
+msgid "Port information will be available in an upcoming update."
+msgstr "Port information will be available in an upcoming update."
 
 msgid "Port Name"
 msgstr "Port Name"
@@ -3819,6 +3846,15 @@ msgstr "Security group was successfully shared with project \"{targetTenant}\"."
 
 msgid "Security Groups"
 msgstr "Security Groups"
+
+msgid "Segment count"
+msgstr "Segment count"
+
+msgid "Segmentation"
+msgstr "Segmentation"
+
+msgid "Segmentation ID"
+msgstr "Segmentation ID"
 
 msgid "Select"
 msgstr "Select"

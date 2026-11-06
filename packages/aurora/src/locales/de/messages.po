@@ -199,6 +199,9 @@ msgstr ""
 msgid "{ruleCount, plural, one {Delete Lifecycle Rule} other {Delete Lifecycle Rules}}"
 msgstr ""
 
+msgid "{segmentCount} segment"
+msgstr ""
+
 msgid "{selectedCount, plural, one {Delete # Object} other {Delete # Objects}}"
 msgstr "{selectedCount, plural, one {# Objekt löschen} other {# Objekte löschen}}"
 
@@ -617,6 +620,9 @@ msgid "Attach"
 msgstr "Anhängen"
 
 msgid "Attach Floating IP {floating_ip_address} to the Port"
+msgstr ""
+
+msgid "Attached router information will be available in an upcoming update."
 msgstr ""
 
 msgid "Attaching Floating IP..."
@@ -2893,6 +2899,9 @@ msgstr ""
 msgid "Network Not Found"
 msgstr ""
 
+msgid "Network Type"
+msgstr ""
+
 msgid "Networks"
 msgstr ""
 
@@ -3010,6 +3019,9 @@ msgstr "Keine Richtlinien entsprechen Ihrer Suche"
 msgid "No Policy Found"
 msgstr ""
 
+msgid "No Port Data"
+msgstr ""
+
 msgid "No Ports Found"
 msgstr ""
 
@@ -3037,6 +3049,9 @@ msgstr "Keine Projekte verfügbar."
 msgid "No projects have access to this image yet. Click \"Add Project Access\" to grant access."
 msgstr "Noch kein Projekt hat Zugriff auf dieses Image. Klicken Sie auf \"Projektzugriff hinzufügen\", um Zugriff zu gewähren."
 
+msgid "No Router Data"
+msgstr ""
+
 msgid "No Routers Found"
 msgstr ""
 
@@ -3060,6 +3075,12 @@ msgstr ""
 
 msgid "No security groups found"
 msgstr "Keine Sicherheitsgruppen gefunden"
+
+msgid "No Segmentation Data"
+msgstr ""
+
+msgid "No segmentation data available."
+msgstr ""
 
 msgid "No services available for this project."
 msgstr "Keine Dienste für dieses Projekt verfügbar."
@@ -3307,6 +3328,9 @@ msgstr ""
 msgid "Pending"
 msgstr "Ausstehend"
 
+msgid "Physical Network"
+msgstr ""
+
 msgid "Please enter a valid number of minutes greater than 0"
 msgstr "Bitte geben Sie eine gültige Anzahl von Minuten größer als 0 ein"
 
@@ -3345,6 +3369,9 @@ msgstr "Port Forwarding"
 
 msgid "Port ID"
 msgstr "Port-ID"
+
+msgid "Port information will be available in an upcoming update."
+msgstr ""
 
 msgid "Port Name"
 msgstr "Port-Name"
@@ -3819,6 +3846,15 @@ msgstr ""
 
 msgid "Security Groups"
 msgstr "Security Groups"
+
+msgid "Segment count"
+msgstr ""
+
+msgid "Segmentation"
+msgstr ""
+
+msgid "Segmentation ID"
+msgstr ""
 
 msgid "Select"
 msgstr "Auswählen"
