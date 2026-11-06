@@ -8,6 +8,7 @@ import {
   Stack,
   Status,
 } from "@cloudoperators/juno-ui-components"
+import { Link } from "@tanstack/react-router"
 import type { Port } from "@/server/Network/types/port"
 import ClipboardText from "@/client/components/ClipboardText"
 
@@ -17,6 +18,8 @@ interface NetworkPortsTableProps {
   isError: boolean
   error: { message?: string } | null
   onRetry?: () => void
+  projectId: string
+  routersAvailable: boolean
 }
 
 const DEVICE_OWNER_LABELS: Record<string, string> = {
@@ -30,7 +33,15 @@ function deviceOwnerLabel(deviceOwner: string): string {
   return DEVICE_OWNER_LABELS[deviceOwner] ?? deviceOwner
 }
 
-export function NetworkPortsTable({ ports, isLoading, isError, error, onRetry }: NetworkPortsTableProps) {
+export function NetworkPortsTable({
+  ports,
+  isLoading,
+  isError,
+  error,
+  onRetry,
+  projectId,
+  routersAvailable,
+}: NetworkPortsTableProps) {
   const { t } = useLingui()
 
   if (isLoading) {
@@ -87,7 +98,21 @@ export function NetworkPortsTable({ ports, isLoading, isError, error, onRetry }:
             <DataGridCell>{port.mac_address}</DataGridCell>
             <DataGridCell>{deviceOwnerLabel(port.device_owner)}</DataGridCell>
             <DataGridCell>
-              {port.device_id ? <ClipboardText text={port.device_id} truncateAt={13} /> : "- -"}
+              {port.device_id ? (
+                port.device_owner === "network:router_interface" && routersAvailable ? (
+                  <Link
+                    to="/projects/$projectId/network/routers/$routerId"
+                    params={{ projectId, routerId: port.device_id }}
+                    className="text-theme-link hover:text-theme-default"
+                  >
+                    <ClipboardText text={port.device_id} truncateAt={13} />
+                  </Link>
+                ) : (
+                  <ClipboardText text={port.device_id} truncateAt={13} />
+                )
+              ) : (
+                "- -"
+              )}
             </DataGridCell>
           </DataGridRow>
         ))

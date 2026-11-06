@@ -8,6 +8,27 @@ import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import type { Port } from "@/server/Network/types/port"
 import { NetworkPortsTable } from "./NetworkPortsTable"
 
+vi.mock("@tanstack/react-router", () => ({
+  Link: ({
+    to,
+    params,
+    children,
+    className,
+  }: {
+    to: string
+    params: Record<string, string>
+    children: ReactNode
+    className?: string
+  }) => {
+    const href = Object.entries(params ?? {}).reduce((acc, [k, v]) => acc.replace(`$${k}`, v), to)
+    return (
+      <a href={href} className={className}>
+        {children}
+      </a>
+    )
+  },
+}))
+
 const TestWrapper = ({ children }: { children: ReactNode }) => (
   <I18nProvider i18n={i18n}>
     <PortalProvider>{children}</PortalProvider>
@@ -66,9 +87,18 @@ const mockPorts: Port[] = [
 ]
 
 const renderTable = (props: Partial<React.ComponentProps<typeof NetworkPortsTable>> = {}) =>
-  render(<NetworkPortsTable ports={mockPorts} isLoading={false} isError={false} error={null} {...props} />, {
-    wrapper: TestWrapper,
-  })
+  render(
+    <NetworkPortsTable
+      ports={mockPorts}
+      isLoading={false}
+      isError={false}
+      error={null}
+      projectId="proj-1"
+      routersAvailable={false}
+      {...props}
+    />,
+    { wrapper: TestWrapper }
+  )
 
 describe("NetworkPortsTable", () => {
   beforeAll(async () => {
@@ -211,5 +241,31 @@ describe("NetworkPortsTable", () => {
 
     expect(screen.getByText("Failed to Load Ports")).toBeInTheDocument()
     expect(screen.queryByRole("button", { name: "Try Again" })).not.toBeInTheDocument()
+  })
+
+  describe("router deep-link", () => {
+    it("renders a link for a router_interface port when routersAvailable is true", () => {
+      renderTable({ routersAvailable: true })
+
+      const row2 = within(screen.getByTestId("network-port-row-port-2"))
+      const link = row2.getByRole("link")
+      expect(link).toHaveAttribute("href", expect.stringContaining("router-456"))
+      expect(row2.getByRole("button", { name: /copy router-456 to clipboard/i })).toBeInTheDocument()
+    })
+
+    it("does not render a link for a router_interface port when routersAvailable is false", () => {
+      renderTable({ routersAvailable: false })
+
+      const row2 = within(screen.getByTestId("network-port-row-port-2"))
+      expect(row2.queryByRole("link")).not.toBeInTheDocument()
+      expect(row2.getByRole("button", { name: /copy router-456 to clipboard/i })).toBeInTheDocument()
+    })
+
+    it("does not render a link for a non-router-interface port when routersAvailable is true", () => {
+      renderTable({ routersAvailable: true })
+
+      const row1 = within(screen.getByTestId("network-port-row-port-1"))
+      expect(row1.queryByRole("link")).not.toBeInTheDocument()
+    })
   })
 })

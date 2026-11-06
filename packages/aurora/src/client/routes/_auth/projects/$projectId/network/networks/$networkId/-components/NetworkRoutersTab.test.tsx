@@ -8,6 +8,27 @@ import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import type { Port } from "@/server/Network/types/port"
 import { NetworkRoutersTab } from "./NetworkRoutersTab"
 
+vi.mock("@tanstack/react-router", () => ({
+  Link: ({
+    to,
+    params,
+    children,
+    className,
+  }: {
+    to: string
+    params: Record<string, string>
+    children: ReactNode
+    className?: string
+  }) => {
+    const href = Object.entries(params ?? {}).reduce((acc, [k, v]) => acc.replace(`$${k}`, v), to)
+    return (
+      <a href={href} className={className}>
+        {children}
+      </a>
+    )
+  },
+}))
+
 const TestWrapper = ({ children }: { children: ReactNode }) => (
   <I18nProvider i18n={i18n}>
     <PortalProvider>{children}</PortalProvider>
@@ -31,9 +52,18 @@ const basePort: Port = {
 }
 
 const renderTab = (ports: Port[], props: Partial<React.ComponentProps<typeof NetworkRoutersTab>> = {}) =>
-  render(<NetworkRoutersTab ports={ports} isLoading={false} isError={false} error={null} {...props} />, {
-    wrapper: TestWrapper,
-  })
+  render(
+    <NetworkRoutersTab
+      ports={ports}
+      isLoading={false}
+      isError={false}
+      error={null}
+      projectId="proj-1"
+      routersAvailable={false}
+      {...props}
+    />,
+    { wrapper: TestWrapper }
+  )
 
 describe("NetworkRoutersTab", () => {
   beforeAll(async () => {
@@ -112,5 +142,22 @@ describe("NetworkRoutersTab", () => {
 
     expect(screen.getByText("Failed to Load Routers")).toBeInTheDocument()
     expect(screen.queryByRole("button", { name: "Try Again" })).not.toBeInTheDocument()
+  })
+
+  describe("router deep-link", () => {
+    it("renders a link for each router when routersAvailable is true", () => {
+      renderTab([basePort], { routersAvailable: true })
+
+      const link = screen.getByRole("link")
+      expect(link).toHaveAttribute("href", expect.stringContaining("router-abc"))
+      expect(screen.getByRole("button", { name: /copy router-abc to clipboard/i })).toBeInTheDocument()
+    })
+
+    it("renders plain copy affordance when routersAvailable is false", () => {
+      renderTab([basePort], { routersAvailable: false })
+
+      expect(screen.queryByRole("link")).not.toBeInTheDocument()
+      expect(screen.getByRole("button", { name: /copy router-abc to clipboard/i })).toBeInTheDocument()
+    })
   })
 })

@@ -29,6 +29,14 @@ vi.mock("@/client/hooks", () => ({
   useProjectId: () => "proj-1",
 }))
 
+vi.mock("@tanstack/react-router", () => ({
+  useRouter: () => ({
+    routesByPath: {
+      "/_auth/projects/$projectId/network/routers/$routerId": {},
+    },
+  }),
+}))
+
 vi.mock("./NetworkSubnetsTable", () => ({
   NetworkSubnetsTable: ({
     subnets,
@@ -56,12 +64,22 @@ vi.mock("./NetworkPortsTable", () => ({
     isLoading,
     isError,
     onRetry,
+    routersAvailable,
+    projectId,
   }: {
     isLoading: boolean
     isError: boolean
     onRetry?: () => void
+    routersAvailable: boolean
+    projectId: string
   }) => (
-    <div data-testid="network-ports-table" data-loading={isLoading} data-error={isError}>
+    <div
+      data-testid="network-ports-table"
+      data-loading={isLoading}
+      data-error={isError}
+      data-routers-available={routersAvailable}
+      data-project-id={projectId}
+    >
       <button onClick={onRetry}>Retry ports</button>
     </div>
   ),
@@ -72,12 +90,22 @@ vi.mock("./NetworkRoutersTab", () => ({
     isLoading,
     isError,
     onRetry,
+    routersAvailable,
+    projectId,
   }: {
     isLoading: boolean
     isError: boolean
     onRetry?: () => void
+    routersAvailable: boolean
+    projectId: string
   }) => (
-    <div data-testid="network-routers-tab" data-loading={isLoading} data-error={isError}>
+    <div
+      data-testid="network-routers-tab"
+      data-loading={isLoading}
+      data-error={isError}
+      data-routers-available={routersAvailable}
+      data-project-id={projectId}
+    >
       <button onClick={onRetry}>Retry routers</button>
     </div>
   ),
@@ -372,6 +400,16 @@ describe("NetworkDetailsView", () => {
 
       expect(mockRefetch).toHaveBeenCalled()
     })
+
+    it("passes routersAvailable and projectId to the ports table", () => {
+      mockSubnetsResult()
+      mockPortsResult()
+      renderView(mockNetwork, "ports")
+
+      const table = screen.getByTestId("network-ports-table")
+      expect(table).toHaveAttribute("data-routers-available", "true")
+      expect(table).toHaveAttribute("data-project-id", "proj-1")
+    })
   })
 
   describe("Routers tab", () => {
@@ -408,6 +446,16 @@ describe("NetworkDetailsView", () => {
       await user.click(screen.getByRole("button", { name: "Retry routers" }))
 
       expect(mockRefetch).toHaveBeenCalled()
+    })
+
+    it("passes routersAvailable and projectId to the routers tab", () => {
+      mockSubnetsResult()
+      mockPortsResult()
+      renderView(mockNetwork, "routers")
+
+      const tab = screen.getByTestId("network-routers-tab")
+      expect(tab).toHaveAttribute("data-routers-available", "true")
+      expect(tab).toHaveAttribute("data-project-id", "proj-1")
     })
   })
 

@@ -1,5 +1,6 @@
 import { ReactNode } from "react"
 import { useLingui } from "@lingui/react/macro"
+import { useRouter } from "@tanstack/react-router"
 import { trpcReact } from "@/client/trpcClient"
 import { Stack, TabNavigation, TabNavigationItem } from "@cloudoperators/juno-ui-components"
 import type { Network } from "@/server/Network/types/network"
@@ -33,6 +34,8 @@ const formatDateTime = (value?: string): string | undefined => (value ? new Date
 export function NetworkDetailsView({ network, activeTab, onTabChange }: NetworkDetailsViewProps) {
   const { t } = useLingui()
   const projectId = useProjectId()
+  const tanstackRouter = useRouter()
+  const routersAvailable = "/_auth/projects/$projectId/network/routers/$routerId" in tanstackRouter.routesByPath
 
   const {
     data: subnets = [],
@@ -125,6 +128,8 @@ export function NetworkDetailsView({ network, activeTab, onTabChange }: NetworkD
             isError={isPortsError}
             error={portsError}
             onRetry={() => refetchPorts()}
+            projectId={projectId}
+            routersAvailable={routersAvailable}
           />
         )}
 
@@ -135,6 +140,8 @@ export function NetworkDetailsView({ network, activeTab, onTabChange }: NetworkD
             isError={isPortsError}
             error={portsError}
             onRetry={() => refetchPorts()}
+            projectId={projectId}
+            routersAvailable={routersAvailable}
           />
         )}
       </Stack>
