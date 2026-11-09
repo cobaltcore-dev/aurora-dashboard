@@ -1,6 +1,5 @@
 {
   "context_is_cloud_keymanager_admin": "role:cloud_keymanager_admin",
-  "member": "role:member or role:Member",
   "keymanager_viewer": "role:keymanager_viewer",
   "keymanager_admin": "role:keymanager_admin",
   "context_is_keymanager_admin": "rule:context_is_cloud_keymanager_admin or rule:keymanager_admin",
