@@ -1456,11 +1456,20 @@ msgstr "DNS"
 msgid "DNS Domain"
 msgstr "DNS-Domain"
 
+msgid "DNS domain is required when a DNS name is entered."
+msgstr ""
+
 msgid "DNS Name"
 msgstr "DNS-Name"
 
+msgid "DNS name is required when a DNS domain is selected."
+msgstr ""
+
 msgid "DNS name must be at most 63 characters."
 msgstr "Der DNS-Name darf höchstens 63 Zeichen lang sein."
+
+msgid "DNS name must use only letters, digits, and hyphens, and must start and end with a letter or digit."
+msgstr ""
 
 msgid "Done"
 msgstr ""
@@ -1539,9 +1548,6 @@ msgstr "Beschreibung bearbeiten"
 
 msgid "Edit Details"
 msgstr "Details bearbeiten"
-
-msgid "Edit Floating IP {floating_ip_address} Description"
-msgstr ""
 
 msgid "Edit Group"
 msgstr ""
@@ -1633,9 +1639,6 @@ msgstr "Stellen Sie sicher, dass ACL-Einträge gültig sind — korrekte Projekt
 msgid "Ensure that the Project ID and User ID you enter are correct. The system cannot validate these values — incorrect IDs may apply access to wrong projects and users."
 msgstr "Stellen Sie sicher, dass die eingegebene Projekt-ID und Benutzer-ID korrekt sind. Das System kann diese Werte nicht validieren — falsche IDs können Zugriff auf falsche Projekte und Benutzer gewähren."
 
-msgid "Enter a floating IP"
-msgstr "Floating IP eingeben"
-
 msgid "Enter a floating IP or leave blank to auto-assign one"
 msgstr "Floating IP eingeben oder leer lassen für automatische Zuweisung"
 
@@ -1657,13 +1660,13 @@ msgstr "Geben Sie einen Zeitstempel wie \"YYYY-MM-DD HH:mm:ss\" ein, um die auto
 msgid "Enter a URL and press Enter. Use * to allow all origins."
 msgstr ""
 
-msgid "Enter a valid PQDN or FQDN (max 63 characters) to associate with the floating IP. A and PTR records are created automatically."
-msgstr "Gültige PQDN oder FQDN (max. 63 Zeichen) eingeben, um sie der Floating IP zuzuordnen. A- und PTR-Einträge werden automatisch erstellt."
-
 msgid "Enter a valid project ID: 32 hexadecimal characters, dashes optional."
 msgstr ""
 
 msgid "Enter a whole number of days greater than 0"
+msgstr ""
+
+msgid "Enter an optional description for the floating IP (max 255 characters)."
 msgstr ""
 
 msgid "Enter bucket policy JSON..."
@@ -1680,6 +1683,9 @@ msgstr "Key eingeben"
 
 msgid "Enter project ID"
 msgstr "Projekt-ID eingeben"
+
+msgid "Enter the hostname label only (e.g., webserver01), without the domain. It will be combined with the DNS domain to form the full record (e.g., webserver01.example.com.)"
+msgstr ""
 
 msgid "Enter value"
 msgstr "Value eingeben"
@@ -1707,9 +1713,6 @@ msgstr ""
 
 msgid "Error Loading Flavor"
 msgstr "Fehler beim Laden des Flavors"
-
-msgid "Error Loading Floating IP"
-msgstr ""
 
 msgid "Error Loading Image"
 msgstr ""
@@ -1970,6 +1973,9 @@ msgid "Failed to load flavor details. Please try again."
 msgstr "Flavor-Details konnten nicht geladen werden. Bitte versuchen Sie es erneut."
 
 msgid "Failed to Load Flavors"
+msgstr ""
+
+msgid "Failed to Load Floating IP"
 msgstr ""
 
 msgid "Failed to Load Floating IPs"
@@ -2805,9 +2811,6 @@ msgstr "Wird verschoben..."
 
 msgid "Must be a valid IPv4 or IPv6 address (for example: 172.24.4.228 or 2001:db8::1)."
 msgstr "Muss eine gültige IPv4- oder IPv6-Adresse sein (z. B.: 172.24.4.228 oder 2001:db8::1)."
-
-msgid "Must be a valid PQDN or FQDN (alphanumeric and hyphens only, cannot start or end with hyphen)."
-msgstr "Muss eine gültige PQDN oder FQDN sein (nur alphanumerische Zeichen und Bindestriche, darf nicht mit einem Bindestrich beginnen oder enden)."
 
 msgid "Must be a whole number, 0 or greater"
 msgstr "Muss eine ganze Zahl sein, 0 oder größer"
@@ -3649,9 +3652,6 @@ msgstr ""
 msgid "Search flavors..."
 msgstr "Flavors suchen..."
 
-msgid "Search floating IPs..."
-msgstr ""
-
 msgid "Search lifecycle rules..."
 msgstr ""
 
@@ -3675,6 +3675,9 @@ msgstr ""
 
 msgid "Search..."
 msgstr "Suchen..."
+
+msgid "Search…"
+msgstr ""
 
 msgid "Secret"
 msgstr ""
@@ -3758,6 +3761,9 @@ msgid "Select"
 msgstr "Auswählen"
 
 msgid "Select {displayName}"
+msgstr ""
+
+msgid "Select a DNS domain"
 msgstr ""
 
 msgid "Select a DNS domain."
