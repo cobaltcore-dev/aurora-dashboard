@@ -6,9 +6,9 @@ import type { RouteInfo } from "@/client/routes/routeInfo"
 
 const instancesSearchFields = {
   search: z.string().optional(),
-  sortBy: z.enum(["status", "name", "flavor", "availability_zone", "created"]).optional(),
+  sortBy: z.enum(["power_state", "name", "flavor", "availability_zone", "created"]).optional(),
   sortDirection: z.enum(["asc", "desc"]).optional(),
-  status: z.string().optional(),
+  power_state: z.string().optional(),
   flavor: z.string().optional(),
   image: z.string().optional(),
   az: z.string().optional(),
@@ -38,7 +38,9 @@ export const Route = createFileRoute("/_auth/projects/$projectId/compute/instanc
       sortDirection: instancesSearchFields.sortDirection.safeParse(search.sortDirection).success
         ? search.sortDirection
         : undefined,
-      status: instancesSearchFields.status.safeParse(search.status).success ? search.status : undefined,
+      power_state: instancesSearchFields.power_state.safeParse(search.power_state).success
+        ? search.power_state
+        : undefined,
       flavor: instancesSearchFields.flavor.safeParse(search.flavor).success ? search.flavor : undefined,
       image: instancesSearchFields.image.safeParse(search.image).success ? search.image : undefined,
       az: instancesSearchFields.az.safeParse(search.az).success ? search.az : undefined,

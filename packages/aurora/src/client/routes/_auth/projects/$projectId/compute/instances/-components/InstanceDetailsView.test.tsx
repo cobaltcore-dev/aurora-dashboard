@@ -1,11 +1,28 @@
 import { render, screen } from "@testing-library/react"
-import { describe, it, expect, beforeAll } from "vitest"
+import { describe, it, expect, beforeAll, vi } from "vitest"
 import { ReactNode } from "react"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import type { Server } from "@/server/Compute/types/server"
 import { InstanceDetailsView } from "./InstanceDetailsView"
+
+// ImageNameHover resolves the image name lazily; FlavorHover resolves the flavor
+// id from the project flavor list. Stub both queries + Link here.
+vi.mock("@/client/trpcClient", () => ({
+  trpcReact: {
+    compute: {
+      getImageById: { useQuery: () => ({ data: undefined, status: "pending", error: null }) },
+      getFlavorsByProjectId: { useQuery: () => ({ data: { flavors: [] } }) },
+    },
+  },
+}))
+
+vi.mock("@tanstack/react-router", () => ({
+  Link: ({ children }: { children: ReactNode }) => <a>{children}</a>,
+}))
+
+const PROJECT_ID = "test-project-id"
 
 beforeAll(() => {
   i18n.load({ en: {} })
@@ -35,40 +52,81 @@ describe("InstanceDetailsView", () => {
   it("renders the sections and key fields", () => {
     render(
       <TestingProvider>
-        <InstanceDetailsView instance={makeServer()} />
+        <InstanceDetailsView instance={makeServer()} projectId={PROJECT_ID} />
       </TestingProvider>
     )
     expect(screen.getByText("General Instance Data")).toBeInTheDocument()
     expect(screen.getByText("Compute & State")).toBeInTheDocument()
     expect(screen.getByText("m1.small")).toBeInTheDocument()
-    expect(screen.getByText("Running")).toBeInTheDocument()
+    expect(screen.getByText("RUNNING")).toBeInTheDocument()
     expect(screen.getByText("az-1")).toBeInTheDocument()
     // Status renders as plain text, not a badge.
     expect(screen.getByText("ACTIVE")).toBeInTheDocument()
   })
 
-  it("renders the image id shortened and copyable", () => {
+  it("renders the image id as plain text until the name resolves", () => {
     const server = makeServer({ image: { id: "35ffd44f-6550-4c99-8ca3-f55099fd504a" } })
     render(
       <TestingProvider>
-        <InstanceDetailsView instance={server} />
+        <InstanceDetailsView instance={server} projectId={PROJECT_ID} />
       </TestingProvider>
     )
-    // Shortened for display (first 8 chars + ellipsis), full id copied via the button aria-label.
-    expect(screen.getByText("35ffd44f...")).toBeInTheDocument()
-    expect(
-      screen.getByRole("button", { name: /Copy 35ffd44f-6550-4c99-8ca3-f55099fd504a to clipboard/i })
-    ).toBeInTheDocument()
+    // The mocked query stays pending, so the id shows as plain text (no resolved name/link yet).
+    expect(screen.getByText("35ffd44f-6550-4c99-8ca3-f55099fd504a")).toBeInTheDocument()
   })
 
-  it("shows the empty placeholder for boot-from-volume instances (no image)", () => {
+  it("shows 'Booted from volume' for boot-from-volume instances (empty image)", () => {
     render(
       <TestingProvider>
-        <InstanceDetailsView instance={makeServer({ image: "" })} />
+        <InstanceDetailsView instance={makeServer({ image: "" })} projectId={PROJECT_ID} />
       </TestingProvider>
     )
-    // No image id means no clipboard trigger for it.
+    // Empty image id => boot-from-volume label, and no clipboard trigger for an id.
+    expect(screen.getByText("Booted from volume")).toBeInTheDocument()
     expect(screen.queryByText(/35ffd44f/)).not.toBeInTheDocument()
+  })
+
+  it("renders metadata key/value pairs and tags", () => {
+    const server = makeServer({
+      metadata: { env: "prod", team: "aurora" },
+      tags: ["frontend", "critical"],
+    })
+    render(
+      <TestingProvider>
+        <InstanceDetailsView instance={server} projectId={PROJECT_ID} />
+      </TestingProvider>
+    )
+    // Metadata renders as key/value rows.
+    expect(screen.getByText("env")).toBeInTheDocument()
+    expect(screen.getByText("prod")).toBeInTheDocument()
+    expect(screen.getByText("team")).toBeInTheDocument()
+    expect(screen.getByText("aurora")).toBeInTheDocument()
+    // Tags render as pills in the General section.
+    expect(screen.getByText("frontend")).toBeInTheDocument()
+    expect(screen.getByText("critical")).toBeInTheDocument()
+  })
+
+  it("renders '- -' for a metadata value that is an empty string", () => {
+    render(
+      <TestingProvider>
+        <InstanceDetailsView instance={makeServer({ metadata: { metaKey: "" } })} projectId={PROJECT_ID} />
+      </TestingProvider>
+    )
+    // The metadata key appears as a term; its empty value falls back to the placeholder.
+    expect(screen.getByText("metaKey")).toBeInTheDocument()
+    expect(screen.getAllByText("- -").length).toBeGreaterThanOrEqual(1)
+  })
+
+  it("omits the Metadata section and tags when absent", () => {
+    render(
+      <TestingProvider>
+        <InstanceDetailsView instance={makeServer({ metadata: {}, tags: [] })} projectId={PROJECT_ID} />
+      </TestingProvider>
+    )
+    // Metadata section is not rendered at all when there's no metadata.
+    expect(screen.queryByRole("heading", { name: "Metadata" })).not.toBeInTheDocument()
+    // Tags row renders no pills when there are none.
+    expect(screen.queryByTestId("instance-tags")).not.toBeInTheDocument()
   })
 
   it("groups addresses by network and shows MAC/type", () => {
@@ -79,7 +137,7 @@ describe("InstanceDetailsView", () => {
     })
     render(
       <TestingProvider>
-        <InstanceDetailsView instance={server} />
+        <InstanceDetailsView instance={server} projectId={PROJECT_ID} />
       </TestingProvider>
     )
     expect(screen.getByTestId("instance-addresses-private")).toBeInTheDocument()
@@ -91,7 +149,7 @@ describe("InstanceDetailsView", () => {
   it("shows the No addresses empty state when there are none", () => {
     render(
       <TestingProvider>
-        <InstanceDetailsView instance={makeServer({ addresses: {} })} />
+        <InstanceDetailsView instance={makeServer({ addresses: {} })} projectId={PROJECT_ID} />
       </TestingProvider>
     )
     expect(screen.getByText("No addresses")).toBeInTheDocument()
@@ -100,7 +158,7 @@ describe("InstanceDetailsView", () => {
   it("omits host-level attributes when absent", () => {
     render(
       <TestingProvider>
-        <InstanceDetailsView instance={makeServer()} />
+        <InstanceDetailsView instance={makeServer()} projectId={PROJECT_ID} />
       </TestingProvider>
     )
     expect(screen.queryByText("Host")).not.toBeInTheDocument()
@@ -110,7 +168,7 @@ describe("InstanceDetailsView", () => {
   it("shows host-level attributes when present", () => {
     render(
       <TestingProvider>
-        <InstanceDetailsView instance={makeServer({ "OS-EXT-SRV-ATTR:host": "compute-01" })} />
+        <InstanceDetailsView instance={makeServer({ "OS-EXT-SRV-ATTR:host": "compute-01" })} projectId={PROJECT_ID} />
       </TestingProvider>
     )
     expect(screen.getByRole("heading", { name: "Host" })).toBeInTheDocument()

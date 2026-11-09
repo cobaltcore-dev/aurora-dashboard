@@ -13,8 +13,9 @@ import {
 import { Trans, useLingui } from "@lingui/react/macro"
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "@tanstack/react-router"
-import { flavorName, rawImageId, EMPTY_VALUE } from "../-utils/instanceDisplay"
-import ClipboardText from "@/client/components/ClipboardText"
+import { rawImageId, powerStateLabel, EMPTY_VALUE } from "../-utils/instanceDisplay"
+import { ImageNameHover } from "./ImageNameHover"
+import { FlavorLink } from "./FlavorLink"
 
 const COLUMN_COUNT = 7
 
@@ -59,7 +60,7 @@ export const InstanceListView = ({
       <DataGrid columns={COLUMN_COUNT} minContentColumns={[6]} className="instances" data-testid="instances-table">
         <DataGridRow>
           <DataGridHeadCell>
-            <Trans>Status</Trans>
+            <Trans>Power State</Trans>
           </DataGridHeadCell>
           <DataGridHeadCell>
             <Trans>Name</Trans>
@@ -87,11 +88,17 @@ export const InstanceListView = ({
                 data-testid={`instance-row-${instance.id}`}
                 onClick={() => goToDetail(instance.id)}
               >
-                <DataGridCell>{instance.status || EMPTY_VALUE}</DataGridCell>
+                <DataGridCell>{powerStateLabel(instance["OS-EXT-STS:power_state"]) || EMPTY_VALUE}</DataGridCell>
                 <DataGridCell>{instance.name || instance.id}</DataGridCell>
-                <DataGridCell>{flavorName(instance)}</DataGridCell>
-                <DataGridCell>
-                  {rawImageId(instance) ? <ClipboardText text={rawImageId(instance)} truncateAt={8} /> : EMPTY_VALUE}
+                <DataGridCell onClick={(e) => e.stopPropagation()}>
+                  <FlavorLink instance={instance} projectId={projectId} />
+                </DataGridCell>
+                <DataGridCell onClick={(e) => e.stopPropagation()}>
+                  {rawImageId(instance) ? (
+                    <ImageNameHover imageId={rawImageId(instance)} projectId={projectId} />
+                  ) : (
+                    EMPTY_VALUE
+                  )}
                 </DataGridCell>
                 <DataGridCell>{instance["OS-EXT-AZ:availability_zone"] || EMPTY_VALUE}</DataGridCell>
                 <DataGridCell>{instance.created || EMPTY_VALUE}</DataGridCell>

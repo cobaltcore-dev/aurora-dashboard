@@ -3,7 +3,7 @@ import { TRPCClientError } from "@trpc/client"
 import { Server } from "@/server/Compute/types/server"
 
 export type ServerFilterParams = {
-  status?: string
+  power_state?: string
   availability_zone?: string
   flavor?: string
   image?: string

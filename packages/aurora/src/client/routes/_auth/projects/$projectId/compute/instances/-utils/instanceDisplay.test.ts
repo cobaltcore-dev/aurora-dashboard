@@ -7,10 +7,7 @@ import {
   rawImageId,
   instanceIps,
   availabilityZones,
-  instanceStatuses,
-  flavorFacet,
-  imageFacet,
-  keyNameFacet,
+  powerStateFacet,
   EMPTY_VALUE,
 } from "./instanceDisplay"
 
@@ -24,13 +21,13 @@ const makeServer = (overrides: Partial<Server> = {}): Server =>
 
 describe("powerStateLabel", () => {
   it("maps known power states", () => {
-    expect(powerStateLabel(1)).toBe("Running")
-    expect(powerStateLabel(4)).toBe("Shutdown")
+    expect(powerStateLabel(1)).toBe("RUNNING")
+    expect(powerStateLabel(4)).toBe("SHUTDOWN")
     expect(powerStateLabel(0)).toBe("NOSTATE")
   })
 
   it("handles unknown and missing values", () => {
-    expect(powerStateLabel(99)).toBe("Unknown (99)")
+    expect(powerStateLabel(99)).toBe("UNKNOWN (99)")
     expect(powerStateLabel(undefined)).toBe("")
     expect(powerStateLabel(null)).toBe("")
   })
@@ -73,7 +70,7 @@ describe("facet collection", () => {
   const servers = [
     makeServer({
       id: "a",
-      status: "ACTIVE",
+      "OS-EXT-STS:power_state": 1,
       "OS-EXT-AZ:availability_zone": "az-2",
       flavor: { original_name: "m1.small" },
       image: { id: "img-2" },
@@ -81,7 +78,7 @@ describe("facet collection", () => {
     }),
     makeServer({
       id: "b",
-      status: "ERROR",
+      "OS-EXT-STS:power_state": 4,
       "OS-EXT-AZ:availability_zone": "az-1",
       flavor: { original_name: "m1.large" },
       image: "img-1",
@@ -89,7 +86,7 @@ describe("facet collection", () => {
     }),
     makeServer({
       id: "c",
-      status: "ACTIVE",
+      "OS-EXT-STS:power_state": 1,
       "OS-EXT-AZ:availability_zone": "az-1",
       flavor: { original_name: "m1.small" },
       image: { id: "img-1" },
@@ -101,19 +98,7 @@ describe("facet collection", () => {
     expect(availabilityZones(servers)).toEqual(["az-1", "az-2"])
   })
 
-  it("instanceStatuses returns a unique sorted list", () => {
-    expect(instanceStatuses(servers)).toEqual(["ACTIVE", "ERROR"])
-  })
-
-  it("flavorFacet returns a unique sorted list", () => {
-    expect(flavorFacet(servers)).toEqual(["m1.large", "m1.small"])
-  })
-
-  it("imageFacet handles object and string images", () => {
-    expect(imageFacet(servers)).toEqual(["img-1", "img-2"])
-  })
-
-  it("keyNameFacet returns a unique sorted list", () => {
-    expect(keyNameFacet(servers)).toEqual(["key-a", "key-b"])
+  it("powerStateFacet returns a unique sorted list of labels", () => {
+    expect(powerStateFacet(servers)).toEqual(["RUNNING", "SHUTDOWN"])
   })
 })

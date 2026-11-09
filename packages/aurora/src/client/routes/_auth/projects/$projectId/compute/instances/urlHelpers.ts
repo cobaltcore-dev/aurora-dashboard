@@ -3,14 +3,12 @@ import type { InstancesSearchParams } from "@/client/routes/_auth/projects/$proj
 import type { ServerFilterParams } from "./apiHelpers"
 
 /** URL search param keys that back a filter facet (matches the table columns). */
-export const FILTER_KEYS = ["status", "flavor", "image", "az"] as const
+export const FILTER_KEYS = ["power_state", "az"] as const
 type FilterKey = (typeof FILTER_KEYS)[number]
 
 /** Maps a URL/filter key to the BFF query-param name. */
 const API_PARAM_BY_KEY: Record<FilterKey, keyof ServerFilterParams> = {
-  status: "status",
-  flavor: "flavor",
-  image: "image",
+  power_state: "power_state",
   az: "availability_zone",
 }
 

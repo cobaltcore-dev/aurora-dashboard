@@ -14,48 +14,66 @@ const servers = [
   makeServer({
     id: "id-aaa",
     name: "alpha",
-    status: "ACTIVE",
+    "OS-EXT-STS:power_state": 1,
+    created: "2026-01-01T00:00:00Z",
     "OS-EXT-AZ:availability_zone": "az-1",
     flavor: { original_name: "m1.small" },
     image: { id: "img-1" },
     key_name: "key-a",
     locked: false,
+    addresses: { private: [{ addr: "10.0.0.5", version: 4 }] },
   }),
   makeServer({
     id: "id-bbb",
     name: "bravo",
-    status: "ERROR",
+    "OS-EXT-STS:power_state": 4,
+    created: "2026-02-02T00:00:00Z",
     "OS-EXT-AZ:availability_zone": "az-2",
     flavor: { original_name: "m1.large" },
     image: "img-2",
     key_name: "key-b",
     locked: true,
+    addresses: { private: [{ addr: "10.0.0.6", version: 4 }] },
   }),
   makeServer({
     id: "id-ccc",
     name: "charlie",
-    status: "SHUTOFF",
+    "OS-EXT-STS:power_state": 7,
+    created: "2026-03-03T00:00:00Z",
     "OS-EXT-AZ:availability_zone": "az-1",
     flavor: { original_name: "m1.small" },
     image: { id: "img-1" },
     key_name: "key-a",
     locked: false,
+    addresses: { private: [{ addr: "10.0.0.7", version: 4 }] },
   }),
 ]
 
 describe("filterServers", () => {
-  it("searches by name and id (substring)", () => {
+  it("searches across name, id, flavor, image, created and IP (everything but power state/az)", () => {
     expect(filterServers(servers, { name: "bravo" }).map((s) => s.id)).toEqual(["id-bbb"])
     expect(filterServers(servers, { name: "id-ccc" }).map((s) => s.id)).toEqual(["id-ccc"])
+    // Flavor name.
+    expect(filterServers(servers, { name: "large" }).map((s) => s.id)).toEqual(["id-bbb"])
+    // Image id, whether returned as an object or a bare string.
+    expect(filterServers(servers, { name: "img-1" }).map((s) => s.id)).toEqual(["id-aaa", "id-ccc"])
+    expect(filterServers(servers, { name: "img-2" }).map((s) => s.id)).toEqual(["id-bbb"])
+    // IP address.
+    expect(filterServers(servers, { name: "10.0.0.6" }).map((s) => s.id)).toEqual(["id-bbb"])
+    // Created timestamp.
+    expect(filterServers(servers, { name: "2026-03" }).map((s) => s.id)).toEqual(["id-ccc"])
   })
 
-  it("filters by single-value status and az", () => {
-    expect(filterServers(servers, { status: "ACTIVE" }).map((s) => s.id)).toEqual(["id-aaa"])
+  it("filters by single-value power state and az", () => {
+    expect(filterServers(servers, { power_state: "RUNNING" }).map((s) => s.id)).toEqual(["id-aaa"])
     expect(filterServers(servers, { availability_zone: "az-1" }).map((s) => s.id)).toEqual(["id-aaa", "id-ccc"])
   })
 
-  it("supports multi-value 'in:' status", () => {
-    expect(filterServers(servers, { status: "in:ACTIVE,ERROR" }).map((s) => s.id)).toEqual(["id-aaa", "id-bbb"])
+  it("supports multi-value 'in:' power state", () => {
+    expect(filterServers(servers, { power_state: "in:RUNNING,SHUTDOWN" }).map((s) => s.id)).toEqual([
+      "id-aaa",
+      "id-bbb",
+    ])
   })
 
   it("filters by flavor, image (object or string), and key name", () => {
@@ -72,9 +90,11 @@ describe("filterServers", () => {
 
   it("combines filters (AND)", () => {
     expect(
-      filterServers(servers, { status: "in:ACTIVE,SHUTOFF", flavor: "m1.small", availability_zone: "az-1" }).map(
-        (s) => s.id
-      )
+      filterServers(servers, {
+        power_state: "in:RUNNING,SUSPENDED",
+        flavor: "m1.small",
+        availability_zone: "az-1",
+      }).map((s) => s.id)
     ).toEqual(["id-aaa", "id-ccc"])
   })
 })

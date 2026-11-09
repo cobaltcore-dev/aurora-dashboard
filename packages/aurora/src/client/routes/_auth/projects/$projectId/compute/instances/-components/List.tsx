@@ -9,7 +9,7 @@ import { FiltersInput } from "@/client/components/ListToolbar/FiltersInput"
 import { SelectedFilters } from "@/client/components/ListToolbar/SelectedFilters"
 import { SortSettings, SelectedFilter, Filter } from "@/client/components/ListToolbar/types"
 import { InstanceListView } from "./InstanceListView"
-import { availabilityZones, instanceStatuses, flavorFacet, imageFacet } from "../-utils/instanceDisplay"
+import { availabilityZones, powerStateFacet } from "../-utils/instanceDisplay"
 import { createInstancesPromise, createPermissionsPromise, type InstancesResult } from "../apiHelpers"
 import { parseFiltersFromUrl, buildFilterParams, buildUrlFilterParams, applyFilterSelection } from "../urlHelpers"
 import type { InstancesSearchParams } from "@/client/routes/_auth/projects/$projectId/compute/instances"
@@ -28,17 +28,20 @@ type RequiredSortSettings = {
 }
 
 // Filter facet definitions. Labels and order match the table columns
-// (Status, Flavor, Image ID, Availability Zone); Name is handled by search and
-// IP/Created are not facetable. Facet values are derived from the data.
+// (Power State, Availability Zone); Name/Flavor/Image are reached via free-text
+// search and IP/Created are not facetable. Facet values are derived from the data.
 // Multi-value facets encode as "in:a,b" in the URL and BFF query, mirroring Images.
 // `labels` are passed in already translated: the Lingui `t` macro only resolves
 // correctly against the `useLingui()` hook in component scope, not a forwarded t.
-type FilterLabels = { status: string; flavor: string; image: string; az: string }
+type FilterLabels = { power_state: string; az: string }
 
 const buildFilters = (servers: InstancesResult["servers"], labels: FilterLabels): Filter[] => [
-  { displayName: labels.status, filterName: "status", values: instanceStatuses(servers), supportsMultiValue: true },
-  { displayName: labels.flavor, filterName: "flavor", values: flavorFacet(servers), supportsMultiValue: true },
-  { displayName: labels.image, filterName: "image", values: imageFacet(servers), supportsMultiValue: true },
+  {
+    displayName: labels.power_state,
+    filterName: "power_state",
+    values: powerStateFacet(servers),
+    supportsMultiValue: true,
+  },
   { displayName: labels.az, filterName: "az", values: availabilityZones(servers) },
 ]
 
@@ -91,7 +94,7 @@ function InstancesContent({
 
   // Facet values are built from the broadest result we've seen so the dropdown
   // options don't collapse to only what the current filter already matches.
-  const filterLabels = { status: t`Status`, flavor: t`Flavor`, image: t`Image ID`, az: t`Availability Zone` }
+  const filterLabels = { power_state: t`Power State`, az: t`Availability Zone` }
   const filters = buildFilters(allServers.length >= servers.length ? allServers : servers, filterLabels)
 
   const totalPages = Math.max(1, Math.ceil(servers.length / PAGE_SIZE))
@@ -173,7 +176,7 @@ export const Instances = ({ client, project }: InstancesProps) => {
 
   // Labels and order match the table columns (sortable ones).
   const sortOptions = [
-    { label: t`Status`, value: "status" },
+    { label: t`Power State`, value: "power_state" },
     { label: t`Name`, value: "name" },
     { label: t`Flavor`, value: "flavor" },
     { label: t`Availability Zone`, value: "availability_zone" },
@@ -192,9 +195,7 @@ export const Instances = ({ client, project }: InstancesProps) => {
   // Only filterName/supportsMultiValue matter here (used to build URL/BFF params),
   // but pass real labels for consistency.
   const filterDefs = buildFilters([], {
-    status: t`Status`,
-    flavor: t`Flavor`,
-    image: t`Image ID`,
+    power_state: t`Power State`,
     az: t`Availability Zone`,
   })
   const selectedFilters = parseFiltersFromUrl(searchParams)

@@ -1,12 +1,12 @@
 import { Server } from "../types/server"
-import { filterBySearchParams } from "@/server/helpers/filterBySearchParams"
 import { parseMultiValue } from "./imageHelpers"
+import { powerStateLabel } from "./serverHelpers"
 
 export interface ServerFilters {
   /** Substring match over name and id. */
   name?: string
-  /** Supports multi-value "in:ACTIVE,ERROR". */
-  status?: string
+  /** Power-state label (e.g. "RUNNING"); supports multi-value "in:RUNNING,SHUTDOWN". */
+  power_state?: string
   /** Supports multi-value. */
   availability_zone?: string
   /** Flavor original_name; supports multi-value. */
@@ -19,7 +19,7 @@ export interface ServerFilters {
   locked?: string
 }
 
-export type ServerSortKey = "name" | "status" | "created" | "updated" | "flavor" | "availability_zone"
+export type ServerSortKey = "name" | "power_state" | "created" | "updated" | "flavor" | "availability_zone"
 
 function imageIdOf(server: Server): string {
   const image = server.image
@@ -27,20 +27,49 @@ function imageIdOf(server: Server): string {
   return typeof image === "string" ? image : (image.id ?? "")
 }
 
+/** All IP addresses across the server's networks. */
+function ipsOf(server: Server): string[] {
+  if (!server.addresses) return []
+  return Object.values(server.addresses)
+    .flat()
+    .map((a) => a.addr ?? "")
+    .filter(Boolean)
+}
+
+/**
+ * Case-insensitive substring match over every list-visible field except the
+ * ones with their own filter (Status, AZ): name, id, flavor name, image id,
+ * created, and IP addresses.
+ */
+function matchesSearch(server: Server, term: string): boolean {
+  const haystack = [
+    server.name ?? "",
+    server.id,
+    server.flavor?.original_name ?? "",
+    imageIdOf(server),
+    server.created ?? "",
+    ...ipsOf(server),
+  ]
+  const needle = term.toLowerCase()
+  return haystack.some((field) => field.toLowerCase().includes(needle))
+}
+
 /**
  * Applies BFF-side filtering to a servers array. Mirrors filterImages:
- * single- and multi-value ("in:…") filters plus substring name/id search.
+ * single- and multi-value ("in:…") filters plus a free-text search over every
+ * list-visible field except Status/AZ (name, id, flavor, image, created, IPs).
  */
 export function filterServers(servers: Server[], filters: ServerFilters): Server[] {
   let filtered = servers
 
   if (filters.name && filters.name.trim()) {
-    filtered = filterBySearchParams(filtered, filters.name, ["id", "name"])
+    const term = filters.name.trim()
+    filtered = filtered.filter((s) => matchesSearch(s, term))
   }
 
-  if (filters.status) {
-    const values = parseMultiValue(filters.status)
-    filtered = filtered.filter((s) => values.includes(s.status ?? ""))
+  if (filters.power_state) {
+    const values = parseMultiValue(filters.power_state)
+    filtered = filtered.filter((s) => values.includes(powerStateLabel(s["OS-EXT-STS:power_state"])))
   }
 
   if (filters.availability_zone) {
@@ -73,8 +102,8 @@ export function filterServers(servers: Server[], filters: ServerFilters): Server
 
 function sortValue(server: Server, key: ServerSortKey): string {
   switch (key) {
-    case "status":
-      return server.status ?? ""
+    case "power_state":
+      return powerStateLabel(server["OS-EXT-STS:power_state"])
     case "created":
       return server.created ?? ""
     case "updated":

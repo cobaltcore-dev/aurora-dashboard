@@ -646,6 +646,9 @@ msgstr "Boot RAM"
 msgid "Boot size"
 msgstr "Boot size"
 
+msgid "Booted from volume"
+msgstr "Booted from volume"
+
 msgid "Bucket \"{bucketName}\" was already empty."
 msgstr "Bucket \"{bucketName}\" was already empty."
 
@@ -1047,6 +1050,9 @@ msgstr "Could not move \"{objectName}\": {errorMessage}"
 
 msgid "Could not remove access for project \"{projectId}\": {errorMessage}"
 msgstr "Could not remove access for project \"{projectId}\": {errorMessage}"
+
+msgid "Could not resolve image name"
+msgstr "Could not resolve image name"
 
 msgid "Could not restore \"{displayName}\": {errorMessage}"
 msgstr "Could not restore \"{displayName}\": {errorMessage}"
@@ -2317,6 +2323,9 @@ msgstr "Image name is required"
 msgid "Image name must be at most 255 characters"
 msgstr "Image name must be at most 255 characters"
 
+msgid "Image not accessible in this project"
+msgstr "Image not accessible in this project"
+
 msgid "Image Visibility"
 msgstr "Image Visibility"
 
@@ -3312,6 +3321,12 @@ msgstr "Removing..."
 
 msgid "Reserved keys: web-index, web-listings, quota-count, quota-bytes"
 msgstr "Reserved keys: web-index, web-listings, quota-count, quota-bytes"
+
+msgid "Resolve image name"
+msgstr "Resolve image name"
+
+msgid "Resolving name…"
+msgstr "Resolving name…"
 
 msgid "Resource Not Found"
 msgstr "Resource Not Found"

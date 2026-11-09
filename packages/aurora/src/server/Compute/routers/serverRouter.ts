@@ -9,7 +9,7 @@ export const serversInputSchema = projectScopedInputSchema.extend({
   name: z.string().optional(),
   /** "key:dir", e.g. "name:asc". */
   sort: z.string().optional(),
-  status: z.string().optional(),
+  power_state: z.string().optional(),
   availability_zone: z.string().optional(),
   flavor: z.string().optional(),
   image: z.string().optional(),
@@ -38,7 +38,7 @@ export const serverRouter = {
         // Filter and sort BFF-side, mirroring the Glance images router.
         const filtered = filterServers(servers, {
           name: input.name,
-          status: input.status,
+          power_state: input.power_state,
           availability_zone: input.availability_zone,
           flavor: input.flavor,
           image: input.image,

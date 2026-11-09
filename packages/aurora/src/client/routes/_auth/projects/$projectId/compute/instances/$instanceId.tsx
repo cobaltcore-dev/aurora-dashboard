@@ -134,7 +134,7 @@ function RouteComponent() {
     <>
       <ContentHeader title={instanceTitle} projectId={projectId} />
       <Stack direction="vertical">
-        <InstanceDetailsView instance={instance} />
+        <InstanceDetailsView instance={instance} projectId={projectId} />
       </Stack>
     </>
   )

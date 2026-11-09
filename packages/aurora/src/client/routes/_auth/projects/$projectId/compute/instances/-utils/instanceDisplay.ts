@@ -1,24 +1,11 @@
 import type { Server } from "@/server/Compute/types/server"
 import { EMPTY_VALUE } from "@/client/components/TwoColumnDescriptionList"
+import { powerStateLabel } from "@/server/Compute/helpers/serverHelpers"
 
 export { EMPTY_VALUE }
-
-/**
- * Nova power_state integer -> label, matching the Nova API reference.
- */
-const POWER_STATE_LABELS: Record<number, string> = {
-  0: "NOSTATE",
-  1: "Running",
-  3: "Paused",
-  4: "Shutdown",
-  6: "Crashed",
-  7: "Suspended",
-}
-
-export function powerStateLabel(state: number | undefined | null): string {
-  if (state === undefined || state === null) return ""
-  return POWER_STATE_LABELS[state] ?? `Unknown (${state})`
-}
+// One source of truth for the integer -> label mapping (shared with the BFF so
+// the Power State column, filter and sort all use identical strings).
+export { powerStateLabel }
 
 /** Flavor display name for the list/detail (original_name, else "- -"). */
 export function flavorName(server: Server): string {
@@ -74,21 +61,7 @@ export function instanceStatuses(servers: Server[]): string[] {
   return facet(servers, (s) => s.status)
 }
 
-/** Unique, sorted list of flavor names present across the instances. */
-export function flavorFacet(servers: Server[]): string[] {
-  return facet(servers, (s) => s.flavor?.original_name)
-}
-
-/** Unique, sorted list of image ids present across the instances. */
-export function imageFacet(servers: Server[]): string[] {
-  return facet(servers, (s) => {
-    const image = s.image
-    if (!image) return undefined
-    return typeof image === "string" ? image : image.id
-  })
-}
-
-/** Unique, sorted list of key names present across the instances. */
-export function keyNameFacet(servers: Server[]): string[] {
-  return facet(servers, (s) => s.key_name)
+/** Unique, sorted list of power-state labels present across the instances. */
+export function powerStateFacet(servers: Server[]): string[] {
+  return facet(servers, (s) => powerStateLabel(s["OS-EXT-STS:power_state"]) || undefined)
 }

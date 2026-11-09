@@ -65,6 +65,15 @@ test.describe("Project Navigation", () => {
     await expectNoJavaScriptErrors(pageErrors, page)
 
     await expect(page.locator('[data-testid="instances-table"]')).toBeVisible()
+
+    // If the project has at least one instance, open its detail and confirm it renders.
+    const firstRow = page.locator('[data-testid^="instance-row-"]').first()
+    if (await firstRow.count()) {
+      await firstRow.click()
+      await expectPageLoaded(page)
+      await expectNoJavaScriptErrors(pageErrors, page)
+      await expect(page.getByRole("heading", { name: "General Instance Data" })).toBeVisible()
+    }
   })
 
   test("Security Groups page loads without errors", async ({ page }) => {
