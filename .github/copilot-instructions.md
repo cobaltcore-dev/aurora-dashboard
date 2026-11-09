@@ -127,7 +127,7 @@ Use Juno UI components for UI primitives; use the application components listed 
 | Loading spinner               | `Spinner` (`variant="primary"`)                                                |
 | Context menus                 | `PopupMenu`, `PopupMenuToggle`, `PopupMenuOptions`, `PopupMenuItem`            |
 | Action buttons in a row       | `ButtonRow`                                                                    |
-| Tab navigation                | `TabNavigation`, `TabNavigationItem`                                           |
+| Tab navigation                | `TabBar`, `TabBarItem`                                                         |
 | Toast notifications           | `toast` imperative API (`toast.success`, `toast.error`, `toast.warning`)       |
 | Copyable text                 | `ClipboardText` from `@/client/components/ClipboardText`                       |
 | Sort control                  | `SortInput` from `@/client/components/ListToolbar/SortInput`                   |

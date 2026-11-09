@@ -21,6 +21,8 @@ export const getRuleFormErrors = (values: AddRuleFormValues): AddRuleFieldErrors
 /**
  * Error to show under a field. Like the other network forms, a field's error appears once the user leaves it
  * (or submits) and is hidden again while they edit it. Visibility is tracked with the field's `isBlurred` meta.
+ * The description field is the exception: it marks itself as shown on change (#1426). All other sections keep
+ * calling `hideRuleFieldError` from their `onChange`.
  */
 export const useRuleFieldError = (form: AddRuleFormApi, field: AddRuleFormField): string | undefined =>
   useStore(form.store, (state) =>

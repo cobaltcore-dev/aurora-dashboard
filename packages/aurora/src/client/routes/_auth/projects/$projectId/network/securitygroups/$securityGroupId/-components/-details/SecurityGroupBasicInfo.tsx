@@ -10,13 +10,14 @@ interface SecurityGroupBasicInfoProps {
 export function SecurityGroupBasicInfo({ securityGroup }: SecurityGroupBasicInfoProps) {
   const { t } = useLingui()
 
+  // Empty values are left empty: TwoColumnDescriptionList shows its EMPTY_VALUE placeholder ("- -")
   const securityGroupItems = [
-    { label: t`Name`, value: securityGroup.name || t`—` },
-    { label: t`Description`, value: securityGroup.description || t`—` },
+    { label: t`Name`, value: securityGroup.name },
+    { label: t`Description`, value: securityGroup.description },
     { label: t`ID`, value: securityGroup.id },
-    { label: t`Tags`, value: securityGroup.tags?.join(", ") || t`—` },
+    { label: t`Tags`, value: securityGroup.tags?.join(", ") },
     { label: t`Stateful`, value: (securityGroup.stateful ?? true) ? t`Yes` : t`No` },
-    { label: t`Owning Project ID`, value: securityGroup.project_id || t`—` },
+    { label: t`Owning Project ID`, value: securityGroup.project_id },
     { label: t`Shared`, value: securityGroup.shared ? t`Yes` : t`No` },
   ]
 

@@ -1,7 +1,16 @@
-import { FormRow, TextInput, Select, SelectOption, RadioGroup, Radio } from "@cloudoperators/juno-ui-components"
+import {
+  FormRow,
+  FormSection,
+  TextInput,
+  Select,
+  SelectOption,
+  RadioGroup,
+  Radio,
+} from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
 import type { AddRuleFormApi } from "../AddRuleModal"
 import { useRuleFieldError, hideRuleFieldError } from "../validation/fieldErrors"
+import { EthertypeSection } from "./DirectionEthertypeSection"
 
 interface RemoteSourceSectionProps {
   form: AddRuleFormApi
@@ -15,14 +24,16 @@ export function RemoteSourceSection({ form, disabled = false, availableSecurityG
   const remoteSecurityGroupError = useRuleFieldError(form, "remoteSecurityGroupId")
 
   return (
-    <>
+    // #1426: designers asked for Remote and its dependent fields to read as one titled section
+    <FormSection title={t`Remote`}>
       {/* Remote Source Type Toggle */}
       <form.Field name="remoteSourceType" mode="value">
         {(remoteSourceTypeField) => (
           <FormRow>
             <RadioGroup
               name="remoteSourceType"
-              label={t`Remote`}
+              // The FormSection title "Remote" is the group's visible label
+              aria-label={t`Remote type`}
               selected={remoteSourceTypeField.state.value}
               onChange={(value) => remoteSourceTypeField.handleChange(String(value) as "cidr" | "security_group")}
               disabled={disabled}
@@ -65,35 +76,38 @@ export function RemoteSourceSection({ form, disabled = false, availableSecurityG
         }
       </form.Field>
 
-      {/* Remote Security Group (conditional) */}
+      {/* Remote Security Group + IP Version (conditional) */}
       <form.Field name="remoteSourceType">
         {(remoteSourceTypeField) =>
           remoteSourceTypeField.state.value === "security_group" ? (
-            <form.Field name="remoteSecurityGroupId">
-              {(remoteSecurityGroupIdField) => (
-                <FormRow>
-                  <Select
-                    id="remoteSecurityGroupId"
-                    label={t`Remote Security Group`}
-                    value={remoteSecurityGroupIdField.state.value}
-                    onChange={(value) => remoteSecurityGroupIdField.handleChange(String(value))}
-                    onBlur={remoteSecurityGroupIdField.handleBlur}
-                    placeholder={t`Select a security group...`}
-                    required
-                    errortext={remoteSecurityGroupError}
-                    helptext={t`Applies to traffic to or from any instance in the selected group.`}
-                    disabled={disabled}
-                  >
-                    {availableSecurityGroups.map((sg) => (
-                      <SelectOption key={sg.id} value={sg.id} label={sg.name || sg.id} />
-                    ))}
-                  </Select>
-                </FormRow>
-              )}
-            </form.Field>
+            <>
+              <form.Field name="remoteSecurityGroupId">
+                {(remoteSecurityGroupIdField) => (
+                  <FormRow>
+                    <Select
+                      id="remoteSecurityGroupId"
+                      label={t`Remote Security Group`}
+                      value={remoteSecurityGroupIdField.state.value}
+                      onChange={(value) => remoteSecurityGroupIdField.handleChange(String(value))}
+                      onBlur={remoteSecurityGroupIdField.handleBlur}
+                      placeholder={t`Select a security group...`}
+                      required
+                      errortext={remoteSecurityGroupError}
+                      helptext={t`Applies to traffic to or from any instance in the selected group.`}
+                      disabled={disabled}
+                    >
+                      {availableSecurityGroups.map((sg) => (
+                        <SelectOption key={sg.id} value={sg.id} label={sg.name || sg.id} />
+                      ))}
+                    </Select>
+                  </FormRow>
+                )}
+              </form.Field>
+              <EthertypeSection form={form} disabled={disabled} />
+            </>
           ) : null
         }
       </form.Field>
-    </>
+    </FormSection>
   )
 }
