@@ -60,8 +60,12 @@ export const NetworkSchema = z.object({
   updated_at: ISO8601TimestampSchema.optional(),
 })
 
+/** Neutron pagination links; the `next` href drives the BFF's full-list fetch across pages. */
+const PaginationLinksSchema = z.array(z.object({ rel: z.string(), href: z.string() })).optional()
+
 export const NetworkListResponseSchema = z.object({
   networks: z.array(NetworkSchema),
+  networks_links: PaginationLinksSchema,
 })
 
 export const NetworkResponseSchema = z.object({
@@ -94,6 +98,7 @@ export const NetworkSubnetSchema = z.object({
 
 export const NetworkSubnetListResponseSchema = z.object({
   subnets: z.array(NetworkSubnetSchema),
+  subnets_links: PaginationLinksSchema,
 })
 
 /* -------------------------------------------------------------------------- */

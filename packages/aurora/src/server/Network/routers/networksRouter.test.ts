@@ -127,6 +127,8 @@ const createMockContext = (opts?: {
   mockPorts?: unknown[]
   /** "throw" (default) mirrors signal-openstack: non-2xx rejects with SignalOpenstackApiError. "response" resolves with ok: false. */
   errorMode?: "throw" | "response"
+  /** Replaces the default network.get implementation entirely, e.g. to drive multi-page `*_links` responses. */
+  getImpl?: (url: string) => Promise<unknown>
 }) => {
   const {
     noNetworkService = false,
@@ -140,6 +142,7 @@ const createMockContext = (opts?: {
     mockSharedNetworks = defaultSharedNetworks,
     mockPorts: mockPortsList = defaultPorts,
     errorMode = "throw",
+    getImpl,
   } = opts || {}
 
   const ok = httpStatus >= 200 && httpStatus < 300
@@ -156,24 +159,27 @@ const createMockContext = (opts?: {
     return Promise.resolve(res)
   }
 
-  const networkGetMock = vi.fn().mockImplementation((url: string) => {
-    const params = new URLSearchParams(url.split("?")[1])
-    if (url.startsWith("v2.0/ports")) {
-      if (portsFail) return reply({}, { ok: false, status: 500 })
-      return reply({ ports: mockPortsList })
-    }
-    if (url.startsWith("v2.0/subnets")) {
-      // Lookups honour the `id` and `network_id` filters like Neutron does
-      const networkId = params.get("network_id")
-      if (networkId)
-        return reply({ subnets: defaultSubnets.filter((subnet) => subnetNetworkIds[subnet.id] === networkId) })
-      if (subnetsFail) return reply({}, { ok: false, status: 500 })
-      const ids = params.getAll("id")
-      return reply({ subnets: defaultSubnets.filter((subnet) => ids.includes(subnet.id)) }, { ok: true })
-    }
-    if (url.startsWith("v2.0/networks/")) return reply({ network: mockNetworks[0] })
-    return reply({ networks: params.get("shared") === "true" ? mockSharedNetworks : mockNetworks })
-  })
+  const networkGetMock = vi.fn().mockImplementation(
+    getImpl ??
+      ((url: string) => {
+        const params = new URLSearchParams(url.split("?")[1])
+        if (url.startsWith("v2.0/ports")) {
+          if (portsFail) return reply({}, { ok: false, status: 500 })
+          return reply({ ports: mockPortsList })
+        }
+        if (url.startsWith("v2.0/subnets")) {
+          // Lookups honour the `id` and `network_id` filters like Neutron does
+          const networkId = params.get("network_id")
+          if (networkId)
+            return reply({ subnets: defaultSubnets.filter((subnet) => subnetNetworkIds[subnet.id] === networkId) })
+          if (subnetsFail) return reply({}, { ok: false, status: 500 })
+          const ids = params.getAll("id")
+          return reply({ subnets: defaultSubnets.filter((subnet) => ids.includes(subnet.id)) }, { ok: true })
+        }
+        if (url.startsWith("v2.0/networks/")) return reply({ network: mockNetworks[0] })
+        return reply({ networks: params.get("shared") === "true" ? mockSharedNetworks : mockNetworks })
+      })
+  )
 
   const networkPostMock = vi.fn().mockImplementation(() => reply({ network: mockNetworks[0] }))
   const networkPutMock = vi
@@ -241,6 +247,10 @@ const networkListUrls = (ctx: ReturnType<typeof createMockContext>) =>
     .filter((url) => url.startsWith("v2.0/networks"))
     .map(splitUrl)
 
+/** A resolved Neutron 200 response carrying `body`, for custom `getImpl` pagination mocks. */
+const okJson = (body: unknown) =>
+  Promise.resolve({ ok: true, status: 200, statusText: "OK", json: () => Promise.resolve(body) })
+
 describe("networksRouter.list", () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -252,6 +262,31 @@ describe("networksRouter.list", () => {
     const result = await caller.networks.list({ project_id: TEST_PROJECT_ID })
 
     expect(result.map((network) => network.id)).toEqual(["net-1", "net-2", "net-3"])
+  })
+
+  it("follows the `next` link so a paginated own scope returns every page", async () => {
+    const ctx = createMockContext({
+      getImpl: (url) => {
+        const params = new URLSearchParams(url.split("?")[1])
+        if (params.get("shared") === "true") return okJson({ networks: [defaultSharedNetworks[1]] })
+        // Own scope: first page carries a `next` link, the second (marker) page has none
+        if (params.has("marker")) return okJson({ networks: [defaultNetworks[1]] })
+        return okJson({
+          networks: [defaultNetworks[0]],
+          networks_links: [{ rel: "next", href: "http://neutron/v2.0/networks?marker=net-1" }],
+        })
+      },
+    })
+    const caller = createCaller(ctx)
+
+    const result = await caller.networks.list({ project_id: TEST_PROJECT_ID })
+
+    // net-1 (own page 1) + net-2 (own page 2) + net-3 (shared), merged/deduped
+    expect(result.map((network) => network.id)).toEqual(["net-1", "net-2", "net-3"])
+    // own scope fetched twice (page 1 + the `next` page), shared scope once
+    const ownPages = networkListUrls(ctx).filter(({ params }) => params.get("shared") !== "true")
+    expect(ownPages).toHaveLength(2)
+    expect(ownPages[1].params.get("marker")).toBe("net-1")
   })
 
   it("requests own networks by project_id and shared networks by shared=true", async () => {
@@ -634,6 +669,24 @@ describe("networksRouter.listSubnets", () => {
     ])
   })
 
+  it("follows the `next` link so paginated subnets return every page", async () => {
+    const ctx = createMockContext({
+      getImpl: (url) => {
+        const params = new URLSearchParams(url.split("?")[1])
+        if (params.has("marker")) return okJson({ subnets: [defaultSubnets[1]] })
+        return okJson({
+          subnets: [defaultSubnets[0]],
+          subnets_links: [{ rel: "next", href: "http://neutron/v2.0/subnets?marker=subnet-v4" }],
+        })
+      },
+    })
+    const caller = createCaller(ctx)
+
+    const result = await caller.networks.listSubnets({ project_id: TEST_PROJECT_ID, network_id: "net-1" })
+
+    expect(result.map((subnet) => subnet.id)).toEqual(["subnet-v4", "subnet-v6"])
+  })
+
   it("returns [] for a network without subnets", async () => {
     const caller = createCaller(createMockContext())
 
@@ -689,6 +742,24 @@ describe("networksRouter.listPorts", () => {
     expect(path).toBe("v2.0/ports")
     expect(params.get("network_id")).toBe("net-1")
     expect(params.has("fields")).toBe(false)
+  })
+
+  it("follows the `next` link so paginated ports return every page", async () => {
+    const ctx = createMockContext({
+      getImpl: (url) => {
+        const params = new URLSearchParams(url.split("?")[1])
+        if (params.has("marker")) return okJson({ ports: [defaultPorts[1]] })
+        return okJson({
+          ports: [defaultPorts[0]],
+          ports_links: [{ rel: "next", href: "http://neutron/v2.0/ports?marker=port-1" }],
+        })
+      },
+    })
+    const caller = createCaller(ctx)
+
+    const result = await caller.networks.listPorts({ project_id: TEST_PROJECT_ID, network_id: "net-1" })
+
+    expect(result.map((port) => port.id)).toEqual(["port-1", "port-2"])
   })
 
   it("returns an empty array when the network has no ports", async () => {

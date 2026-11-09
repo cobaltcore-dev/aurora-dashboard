@@ -27,7 +27,7 @@ import {
   applySubnetNames,
 } from "../helpers/networkHelpers"
 import { getNetworkService, parseOrThrow } from "../helpers/index"
-import { requestOrThrow, withQuery } from "../helpers/requestHelpers"
+import { requestOrThrow, withQuery, nextPageUrl } from "../helpers/requestHelpers"
 
 const NETWORKS_BASE_URL = "v2.0/networks"
 const SUBNETS_BASE_URL = "v2.0/subnets"
@@ -36,6 +36,29 @@ const PORTS_BASE_URL = "v2.0/ports"
 const networkUrl = (networkId: string, subresource?: "tags"): string => {
   const encodedId = validateAndEncodeResourceId(networkId, "Network")
   return subresource ? `${NETWORKS_BASE_URL}/${encodedId}/${subresource}` : `${NETWORKS_BASE_URL}/${encodedId}`
+}
+
+/**
+ * Follows Neutron's `next` link (from `<collection>_links`) and returns every page's items concatenated.
+ * Neutron caps a list at `pagination_max_limit`; without this the BFF would return only the first page and
+ * the client-side search/sort/filter would silently operate on a partial list. `visited` guards against a
+ * non-advancing `next` (a server bug) looping forever; a healthy list ends when there is no `next`.
+ */
+async function collectPages<Item>(
+  baseUrl: string,
+  firstUrl: string,
+  fetchPage: (url: string) => Promise<{ items: Item[]; links?: Array<{ rel: string; href: string }> }>
+): Promise<Item[]> {
+  const items: Item[] = []
+  const visited = new Set<string>()
+  let nextUrl: string | undefined = firstUrl
+  while (nextUrl && !visited.has(nextUrl)) {
+    visited.add(nextUrl)
+    const { items: pageItems, links } = await fetchPage(nextUrl)
+    items.push(...pageItems)
+    nextUrl = nextPageUrl(baseUrl, links)
+  }
+  return items
 }
 
 /**
@@ -62,16 +85,20 @@ export const networksRouter = {
 
         // Neutron's project_id filter hides shared networks owned by other projects, which the project can
         // still use, so own networks (project_id) and shared networks (shared=true) are requested and merged.
+        // Each scope follows Neutron's `next` link so the full list is returned under a pagination_max_limit.
         // Search, filter and sort run client-side over this response (E5), so no query/sort params are sent.
-        const requests = getNetworkListScopes(undefined).map(async (scope) => {
+        const requests = getNetworkListScopes(undefined).map((scope) => {
           const scopeFilters = scope === "own" ? { project_id } : { shared: true }
-          const queryParams = appendQueryParamsFromObject(scopeFilters)
-          const response = await requestOrThrow(
-            () => network.get(withQuery(NETWORKS_BASE_URL, queryParams)),
-            NetworkErrorHandlers.list
-          )
-          const data = await response.json()
-          return parseOrThrow(NetworkListResponseSchema, data, "networksRouter.list").networks
+          const firstUrl = withQuery(NETWORKS_BASE_URL, appendQueryParamsFromObject(scopeFilters))
+          return collectPages<Network>(NETWORKS_BASE_URL, firstUrl, async (url) => {
+            const response = await requestOrThrow(() => network.get(url), NetworkErrorHandlers.list)
+            const { networks, networks_links } = parseOrThrow(
+              NetworkListResponseSchema,
+              await response.json(),
+              "networksRouter.list"
+            )
+            return { items: networks, links: networks_links }
+          })
         })
 
         // Subnet count is derived client-side from each network's embedded `subnets` array; no subnets lookup.
@@ -191,14 +218,15 @@ export const networksRouter = {
             "host_routes",
           ],
         })
-        const response = await requestOrThrow(
-          () => network.get(withQuery(SUBNETS_BASE_URL, params)),
-          NetworkErrorHandlers.listSubnets,
-          network_id
-        )
-
-        const data = await response.json()
-        return parseOrThrow(NetworkSubnetListResponseSchema, data, "networksRouter.listSubnets").subnets
+        return collectPages<NetworkSubnet>(SUBNETS_BASE_URL, withQuery(SUBNETS_BASE_URL, params), async (url) => {
+          const response = await requestOrThrow(() => network.get(url), NetworkErrorHandlers.listSubnets, network_id)
+          const { subnets, subnets_links } = parseOrThrow(
+            NetworkSubnetListResponseSchema,
+            await response.json(),
+            "networksRouter.listSubnets"
+          )
+          return { items: subnets, links: subnets_links }
+        })
       }, "list network subnets")
     }),
 
@@ -211,14 +239,15 @@ export const networksRouter = {
       validateAndEncodeResourceId(network_id, "Network")
 
       const params = appendQueryParamsFromObject({ network_id })
-      const response = await requestOrThrow(
-        () => network.get(withQuery(PORTS_BASE_URL, params)),
-        NetworkErrorHandlers.listPorts,
-        network_id
-      )
-
-      const data = await response.json()
-      return parseOrThrow(PortListResponseSchema, data, "networksRouter.listPorts").ports
+      return collectPages<Port>(PORTS_BASE_URL, withQuery(PORTS_BASE_URL, params), async (url) => {
+        const response = await requestOrThrow(() => network.get(url), NetworkErrorHandlers.listPorts, network_id)
+        const { ports, ports_links } = parseOrThrow(
+          PortListResponseSchema,
+          await response.json(),
+          "networksRouter.listPorts"
+        )
+        return { items: ports, links: ports_links }
+      })
     }, "list network ports")
   }),
 }
