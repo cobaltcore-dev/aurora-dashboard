@@ -44,7 +44,6 @@ Focus review effort on **semantics, structure, and consistency** that no compile
 - [ ] Custom `modalFooter` without explicit `disableCloseButton` on the `Modal` itself
 - [ ] Destructive modal without `confirmButtonVariant="primary-danger"`
 - [ ] Destructive modal with alarmist/vague title (`"Danger!"`, `"Are You Sure?"`)
-- [ ] `PopupMenu` without `PopupMenuToggle` as trigger
 - [ ] "Delete" action not the last item in its menu group, or a single-entity menu missing the divider before it (multi-entity menus need no extra divider — group dividers suffice)
 - [ ] URL-worthy state held in `useState` instead of search params
 - [ ] User-facing string not wrapped in `<Trans>` or `` t`...` `` (skip in `packages/aurora` — enforced by `eslint-plugin-lingui`)
@@ -453,7 +452,6 @@ All imports **must** use `@/` path aliases. No relative `../../` traversal beyon
 - All user-facing strings **must** be wrapped in `<Trans>` (JSX) or `` t`...` `` (strings) from `@lingui/react/macro` / `@lingui/core/macro`. In `packages/aurora` this is already enforced by `eslint-plugin-lingui` — only review it manually in `packages/signal-openstack`, `packages/policy-engine`, and `apps/dashboard`.
 - Error messages **must** use `role="alert"` and `aria-live="assertive"`. Non-urgent status updates use `role="status"`.
 - `DataGrid` header cells must use `DataGridHeadCell`, never plain `<th>`.
-- Context menus **must** use `<PopupMenuToggle as="div"><Button icon="moreVert" /></PopupMenuToggle>` as the trigger.
 - **Icon-only buttons** must carry `aria-label` describing the action (e.g. `aria-label="Delete item"`).
 - **Form inputs with help text or error messages** must link them via `aria-describedby`. Juno's `TextInput` handles this automatically when `helptext`/`errortext` props are used — always use the component API, never place adjacent `<p>` text manually.
 - **Do not suppress focus rings.** Juno provides focus ring styles; never override them with `outline-none` without replacement.
