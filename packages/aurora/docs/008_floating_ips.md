@@ -515,6 +515,8 @@ The Allocate button (`disableConfirmButton`) is disabled when **any** of the fol
 - Any field has a validation error (`!canSubmit` via `useStore(form.store, s => s.canSubmit)`)
 - A server error is present from a previous attempt (`createFloatingIpMutation.isError`)
 
+A server error is **not** a permanent block: a form-level `listeners.onChange` resets the mutation as soon as the user edits any field, which clears both the `isError` blocker and the stale error banner. This lets the user correct their input and retry in place without closing the modal and losing what they typed.
+
 ---
 
 ## List Page Features
@@ -591,7 +593,7 @@ All procedures share a unified error handler (`withErrorHandling`) that maps Neu
 UI handling patterns:
 
 - Query failures: inline fallback messages in table/detail views; non-blocking banner when cached data is available
-- Mutation failures: inline form errors; optimistic rollback on `update`; Allocate button stays disabled while `isError` is true
+- Mutation failures: inline form errors; optimistic rollback on `update`; the Allocate button stays disabled while `isError` is true, and the error clears when the user next edits a field
 - Retry behavior: default React Query retry policy
 
 ---

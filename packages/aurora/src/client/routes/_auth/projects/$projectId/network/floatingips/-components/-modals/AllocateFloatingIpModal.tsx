@@ -94,6 +94,13 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
     validators: {
       onSubmit: formSchema,
     },
+    listeners: {
+      // A failed allocation keeps Allocate button disabled via isError. Editing any field clears that
+      // stale server error so the user can correct their input and retry without reopening the modal.
+      onChange: () => {
+        if (createFloatingIpMutation.isError) createFloatingIpMutation.reset()
+      },
+    },
     onSubmit: async ({ value }) => {
       if (isPending) return
 
@@ -144,7 +151,8 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
       cancelButtonLabel={t`Cancel`}
       confirmButtonLabel={t`Allocate`}
       onConfirm={form.handleSubmit}
-      // if submitting, required field is not selected or until the client or server side error side is fixed, keep the btn disabled
+      // Disabled while submitting, until the required network is selected, or while any client/server
+      // error is present. A server error clears as soon as the user edits a field.
       disableConfirmButton={isPending || !currentFloatingNetworkId || !canSubmit || createFloatingIpMutation.isError}
       disableCancelButton={isPending}
       disableCloseButton={isPending}

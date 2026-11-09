@@ -555,19 +555,29 @@ describe("AllocateFloatingIpModal", () => {
       })
     })
 
-    it("keeps Allocate disabled while a server (mutation) error is present", async () => {
+    it("clears the server error on edit so a failed allocation can be corrected and retried", async () => {
       const user = userEvent.setup()
+      const reset = vi.fn()
       vi.mocked(trpcReact.network.floatingIp.create.useMutation).mockReturnValue(
-        createMockCreateMutationResult({ isError: true, error: { message: "Bad floatingip request" } })
+        createMockCreateMutationResult({ isError: true, error: { message: "Bad floatingip request" }, reset })
       )
 
       render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, { wrapper: createWrapper() })
 
-      // Select the required network so the server error is the only remaining blocker.
+      // Failed allocation: the error is visible and Allocate is blocked.
+      expect(screen.getByText("Bad floatingip request")).toBeInTheDocument()
+
       await user.click(screen.getByLabelText("External Network"))
       await user.click(screen.getByRole("option", { name: /Public Network \(net-1\)/i }))
 
       expect(screen.getByRole("button", { name: /Allocate/i })).toBeDisabled()
+
+      // Correcting any field resets the mutation, clearing the stale server error so the user can retry.
+      fireEvent.change(screen.getByLabelText("DNS Name"), { target: { value: "webserver01" } })
+
+      await waitFor(() => {
+        expect(reset).toHaveBeenCalled()
+      })
     })
 
     it("redirects to the created floating IP details page", async () => {
