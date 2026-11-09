@@ -114,7 +114,6 @@ Use Juno UI components for UI primitives; use the application components listed 
 | Key-value detail views        | `DescriptionList`, `DescriptionTerm`, `DescriptionDefinition`                  |
 | Two-column key-value (modal)  | `TwoColumnDescriptionList` from `@/client/components/TwoColumnDescriptionList` |
 | Section headings in detail    | `ContentHeading`                                                               |
-| Status indicators             | `Badge`                                                                        |
 | Loading / empty / error state | `Status`                                                                       |
 | Inline banner messages        | `Message`                                                                      |
 | Pagination                    | `Pagination` (`variant="input"`)                                               |
