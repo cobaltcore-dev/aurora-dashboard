@@ -23,7 +23,7 @@ import {
   AvailablePortsQuerySchema,
   AvailablePortsResponseSchema,
 } from "../types/floatingIp"
-import { FloatingIpErrorHandlers } from "../helpers/floatingIpHelpers"
+import { FloatingIpErrorHandlers, rethrowFloatingIpCreateError } from "../helpers/floatingIpHelpers"
 import { getNetworkService, parseOrThrow } from "../helpers/index"
 
 const FLOATING_IPS_BASE_URL = "v2.0/floatingips"
@@ -108,7 +108,13 @@ export const floatingIpRouter = {
             ...(input.qos_policy_id !== undefined && { qos_policy_id: input.qos_policy_id }),
           },
         }
-        const response = await network.post(FLOATING_IPS_BASE_URL, requestBody)
+        let response
+        try {
+          response = await network.post(FLOATING_IPS_BASE_URL, requestBody)
+        } catch (error) {
+          // The OpenStack client throws on non-2xx; surface Neutron's reason for a 400.
+          rethrowFloatingIpCreateError(error)
+        }
         if (!response.ok) {
           throw FloatingIpErrorHandlers.create(response)
         }
