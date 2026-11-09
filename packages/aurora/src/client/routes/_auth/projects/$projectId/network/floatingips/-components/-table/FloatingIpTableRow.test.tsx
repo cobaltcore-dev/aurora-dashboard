@@ -79,15 +79,15 @@ describe("FloatingIpTableRow", () => {
       expect(screen.getByText("Web server FIP")).toHaveClass("truncate")
     })
 
-    it("renders raw API status text in the status cell", async () => {
+    it("renders the status in title case in the status cell", async () => {
       renderComponent()
 
       await waitFor(() => {
-        expect(screen.getByText("ACTIVE")).toBeInTheDocument()
+        expect(screen.getByText("Active")).toBeInTheDocument()
       })
 
       const row = screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)
-      expect(row.textContent).toContain("ACTIVE")
+      expect(row.textContent).toContain("Active")
     })
 
     it("renders empty state placeholder when fixed IP is missing", async () => {
@@ -130,10 +130,14 @@ describe("FloatingIpTableRow", () => {
       })
     })
 
-    it("renders different status values as raw API text", async () => {
-      const statuses: Array<typeof mockFloatingIp.status> = ["ACTIVE", "DOWN", "ERROR"]
+    it("renders different status values in title case", async () => {
+      const statuses: Array<{ status: typeof mockFloatingIp.status; expected: string }> = [
+        { status: "ACTIVE", expected: "Active" },
+        { status: "DOWN", expected: "Down" },
+        { status: "ERROR", expected: "Error" },
+      ]
 
-      for (const status of statuses) {
+      for (const { status, expected } of statuses) {
         const { unmount } = render(
           <I18nProvider i18n={i18n}>
             <PortalProvider>
@@ -143,7 +147,7 @@ describe("FloatingIpTableRow", () => {
         )
 
         await waitFor(() => {
-          expect(screen.getByText(status)).toBeInTheDocument()
+          expect(screen.getByText(expected)).toBeInTheDocument()
         })
 
         unmount()

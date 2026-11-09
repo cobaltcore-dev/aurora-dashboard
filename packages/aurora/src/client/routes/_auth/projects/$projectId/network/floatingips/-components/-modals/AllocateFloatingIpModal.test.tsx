@@ -41,6 +41,7 @@ const createMockCreateMutationResult = (
     mutateAsync: () => Promise<unknown>
     reset: () => void
     isPending: boolean
+    isError: boolean
     error: { message?: string } | null
   }> = {}
 ) =>
@@ -48,6 +49,7 @@ const createMockCreateMutationResult = (
     mutateAsync: vi.fn().mockResolvedValue({ floating_ip_address: "203.0.113.50", id: "fip-new" }),
     reset: vi.fn(),
     isPending: false,
+    isError: false,
     error: null,
     ...overrides,
   }) as unknown as CreateMutationResult
@@ -443,20 +445,59 @@ describe("AllocateFloatingIpModal", () => {
       })
     })
 
-    it("does not validate DNS Name format on change (format is deferred to submit)", async () => {
+    it("renders the DNS Name helptext", () => {
       render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, { wrapper: createWrapper() })
 
-      // Invalid format but within the length limit: no error should appear while typing.
+      expect(
+        screen.getByText(
+          "Enter the hostname label only (e.g., webserver01), without the domain. It will be combined with the DNS domain to form the full record (e.g., webserver01.example.com.)"
+        )
+      ).toBeInTheDocument()
+    })
+
+    it("validates DNS Name format live on change", async () => {
+      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, { wrapper: createWrapper() })
+
+      // Within the length limit but invalid format (leading/trailing hyphen) — error shows while typing.
       fireEvent.change(screen.getByLabelText("DNS Name"), { target: { value: "-invalid-" } })
 
       await waitFor(() => {
-        expect(screen.getByLabelText("DNS Name")).toHaveValue("-invalid-")
+        expect(
+          screen.getByText(
+            "DNS name must use only letters, digits, and hyphens, and must start and end with a letter or digit."
+          )
+        ).toBeInTheDocument()
       })
-      expect(
-        screen.queryByText(
-          "Must be a valid PQDN or FQDN (alphanumeric and hyphens only, cannot start or end with hyphen)."
-        )
-      ).not.toBeInTheDocument()
+    })
+
+    it("errors the DNS Name when a DNS Domain is selected but the name is empty", async () => {
+      const user = userEvent.setup()
+      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, { wrapper: createWrapper() })
+
+      await user.click(screen.getByLabelText("DNS Domain"))
+      await user.click(screen.getByRole("option", { name: "example.com" }))
+
+      await waitFor(() => {
+        expect(screen.getByText("DNS name is required when a DNS domain is selected.")).toBeInTheDocument()
+      })
+    })
+
+    it("errors the DNS Domain when a DNS Name is entered but no domain is selected", async () => {
+      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, { wrapper: createWrapper() })
+
+      fireEvent.change(screen.getByLabelText("DNS Name"), { target: { value: "webserver01" } })
+
+      await waitFor(() => {
+        expect(screen.getByText("DNS domain is required when a DNS name is entered.")).toBeInTheDocument()
+      })
+    })
+
+    it("renders a None option to clear the DNS Domain selection", async () => {
+      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, { wrapper: createWrapper() })
+
+      await waitFor(() => {
+        expect(screen.getByText("None")).toBeInTheDocument()
+      })
     })
 
     it("validates Description length live on change", async () => {
@@ -497,6 +538,36 @@ describe("AllocateFloatingIpModal", () => {
 
       const allocateButton = screen.getByRole("button", { name: /Allocate/i })
       expect(allocateButton).toBeDisabled()
+    })
+
+    it("keeps Allocate disabled when a field has a validation error even if the required network is set", async () => {
+      const user = userEvent.setup()
+      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, { wrapper: createWrapper() })
+
+      await user.click(screen.getByLabelText("External Network"))
+      await user.click(screen.getByRole("option", { name: /Public Network \(net-1\)/i }))
+
+      // A client-side validation error must keep the button disabled (via canSubmit).
+      fireEvent.change(screen.getByLabelText("DNS Name"), { target: { value: "a".repeat(64) } })
+
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: /Allocate/i })).toBeDisabled()
+      })
+    })
+
+    it("keeps Allocate disabled while a server (mutation) error is present", async () => {
+      const user = userEvent.setup()
+      vi.mocked(trpcReact.network.floatingIp.create.useMutation).mockReturnValue(
+        createMockCreateMutationResult({ isError: true, error: { message: "Bad floatingip request" } })
+      )
+
+      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, { wrapper: createWrapper() })
+
+      // Select the required network so the server error is the only remaining blocker.
+      await user.click(screen.getByLabelText("External Network"))
+      await user.click(screen.getByRole("option", { name: /Public Network \(net-1\)/i }))
+
+      expect(screen.getByRole("button", { name: /Allocate/i })).toBeDisabled()
     })
 
     it("redirects to the created floating IP details page", async () => {

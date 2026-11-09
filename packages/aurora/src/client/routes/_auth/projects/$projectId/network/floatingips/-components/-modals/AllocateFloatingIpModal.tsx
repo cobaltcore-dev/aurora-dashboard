@@ -25,7 +25,11 @@ const ipv4Regex = /^(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|
 const ipv6Regex =
   /^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|(([0-9a-fA-F]{1,4}:){1,7}:)|(([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4})|(([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2})|(([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3})|(([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4})|(([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5})|([0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6}))|(:((:[0-9a-fA-F]{1,4}){1,7}|:))|(::([fF]{4}(:0{1,4})?:)?((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|(([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})))$/
 const isValidIpAddress = (value: string) => ipv4Regex.test(value) || ipv6Regex.test(value)
-const dnsNameRegex = /^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)*[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$/
+
+// DNS Name is a single hostname label (no domain): letters, digits and hyphens, not first/last.
+const dnsNameLabelRegex = /^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$/
+// Value for the DNS Domain "None" option so the placeholder shows when nothing is selected; selecting it will reset the field to ""
+const DNS_DOMAIN_NONE_VALUE = "__none__"
 
 export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpModalProps) => {
   const { t } = useLingui()
@@ -65,14 +69,7 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
   const formSchema = z.object({
     floating_network_id: z.string(),
     dns_domain: z.string(),
-    // DNS name length is validated live on the field (onChange); format stays on submit.
-    dns_name: z
-      .string()
-      .trim()
-      .refine((value) => value === "" || dnsNameRegex.test(value), {
-        message: t`Must be a valid PQDN or FQDN (alphanumeric and hyphens only, cannot start or end with hyphen).`,
-      }),
-    // Description length is validated live on the field (onChange), not here.
+    dns_name: z.string(),
     description: z.string(),
     floating_ip_address: z
       .string()
@@ -128,6 +125,8 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
 
   const currentPortId = useStore(form.store, (state) => state.values.port_id)
   const currentFloatingNetworkId = useStore(form.store, (state) => state.values.floating_network_id)
+  // False when any field (required or optional) has a validation error
+  const canSubmit = useStore(form.store, (state) => state.canSubmit)
   const selectedPort = availablePorts.find((port) => port.id === currentPortId)
   const portFixedIps = selectedPort?.fixed_ips ?? []
 
@@ -145,7 +144,8 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
       cancelButtonLabel={t`Cancel`}
       confirmButtonLabel={t`Allocate`}
       onConfirm={form.handleSubmit}
-      disableConfirmButton={isPending || !currentFloatingNetworkId}
+      // if submitting, required field is not selected or until the client or server side error side is fixed, keep the btn disabled
+      disableConfirmButton={isPending || !currentFloatingNetworkId || !canSubmit || createFloatingIpMutation.isError}
       disableCancelButton={isPending}
       disableCloseButton={isPending}
     >
@@ -192,17 +192,31 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
           <FormSection className="mb-4">
             <form.Field
               name="dns_domain"
+              // DNS Domain and Name are interdependent: providing one requires the other field.
+              validators={{
+                onChangeListenTo: ["dns_name"],
+                onChange: ({ value, fieldApi }) =>
+                  fieldApi.form.getFieldValue("dns_name").trim() && !value
+                    ? t`DNS domain is required when a DNS name is entered.`
+                    : undefined,
+              }}
               children={(field) => (
                 <Select
                   id={field.name}
                   name={field.name}
                   value={field.state.value}
-                  onChange={(value) => field.handleChange(typeof value === "string" ? value : "")}
+                  onChange={(value) =>
+                    field.handleChange(typeof value === "string" && value !== DNS_DOMAIN_NONE_VALUE ? value : "")
+                  }
                   label={t`DNS Domain`}
                   helptext={t`Select a DNS domain.`}
+                  placeholder={t`Select a DNS domain`}
+                  errortext={field.state.meta.errors.map((e) => (typeof e === "string" ? e : e?.message)).join(", ")}
                   disabled={isPending || isDnsDomainsLoading}
                   loading={isDnsDomainsLoading}
                 >
+                  {/* Allows clearing the optional DNS Domain selection; resets the field to "". */}
+                  <SelectOption value={DNS_DOMAIN_NONE_VALUE} label={t`None`} />
                   {dnsDomains.map(({ id, name }) => (
                     <SelectOption key={id} value={name} label={name} />
                   ))}
@@ -213,9 +227,17 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
           <FormSection className="mb-4">
             <form.Field
               name="dns_name"
+              // DNS Name and Domain are interdependent: providing one requires the other field.
               validators={{
-                onChange: ({ value }) =>
-                  value.trim().length > 63 ? t`DNS name must be at most 63 characters.` : undefined,
+                onChangeListenTo: ["dns_domain"],
+                onChange: ({ value, fieldApi }) => {
+                  if (value.trim().length > 63) return t`DNS name must be at most 63 characters.`
+                  if (fieldApi.form.getFieldValue("dns_domain") && !value.trim())
+                    return t`DNS name is required when a DNS domain is selected.`
+                  if (value.trim() && !dnsNameLabelRegex.test(value.trim()))
+                    return t`DNS name must use only letters, digits, and hyphens, and must start and end with a letter or digit.`
+                  return undefined
+                },
               }}
               children={(field) => (
                 <TextInput
@@ -226,7 +248,7 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
                   onChange={(e) => field.handleChange(e.target.value)}
                   label={t`DNS Name`}
                   placeholder={t`Enter DNS name`}
-                  helptext={t`Enter a valid PQDN or FQDN (max 63 characters) to associate with the floating IP. A and PTR records are created automatically.`}
+                  helptext={t`Enter the hostname label only (e.g., webserver01), without the domain. It will be combined with the DNS domain to form the full record (e.g., webserver01.example.com.)`}
                   errortext={field.state.meta.errors.map((e) => (typeof e === "string" ? e : e?.message)).join(", ")}
                   disabled={isPending}
                 />
@@ -267,7 +289,6 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
                     onBlur={field.handleBlur}
                     onChange={(e) => field.handleChange(e.target.value)}
                     label={t`Floating IP Address`}
-                    placeholder={t`Enter a floating IP`}
                     helptext={t`Enter a floating IP or leave blank to auto-assign one`}
                     errortext={field.state.meta.errors.map((e) => e?.message).join(", ")}
                     disabled={isPending}

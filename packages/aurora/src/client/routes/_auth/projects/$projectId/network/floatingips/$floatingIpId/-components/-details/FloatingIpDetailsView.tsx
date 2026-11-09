@@ -8,13 +8,13 @@ import {
   PopupMenuOptions,
 } from "@cloudoperators/juno-ui-components"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
-import { formatFloatingIpStatus } from "@/client/utils/formatFloatingIpStatus"
 import type { DetailListItem } from "@/client/components/TwoColumnDescriptionList"
 import { TwoColumnDescriptionList } from "@/client/components/TwoColumnDescriptionList"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks"
 import { FloatingIpActionModals } from "../../../-components/-modals/FloatingIpActionModals"
+import { formatFloatingIpStatus } from "../../../-utils/formatFloatingIpStatus"
 
 interface FloatingIpDetailsViewProps {
   floatingIp: FloatingIp

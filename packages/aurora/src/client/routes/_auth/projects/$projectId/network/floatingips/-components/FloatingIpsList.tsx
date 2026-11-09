@@ -13,7 +13,12 @@ import { useModal } from "@/client/utils/useModal"
 import { useProjectId } from "@/client/hooks"
 import { FloatingIpListContainer } from "./-table/FloatingIpListContainer"
 import { AllocateFloatingIpModal } from "./-modals/AllocateFloatingIpModal"
-import { parseFiltersFromUrl, buildFilterParams, buildUrlSearchParams, applyFilterSelection } from "../urlHelpers"
+import {
+  parseFiltersFromUrl,
+  buildFilterParams,
+  buildUrlSearchParams,
+  applyFilterSelection,
+} from "../-utils/urlHelpers"
 
 const DEFAULT_SORT_KEY = "status"
 const DEFAULT_SORT_DIR = "asc"
