@@ -2,6 +2,7 @@ import { use, Suspense, useState, useRef, useEffect, useMemo, useDeferredValue }
 import { useSearch, useNavigate } from "@tanstack/react-router"
 import { ErrorBoundary } from "react-error-boundary"
 import { Trans, useLingui } from "@lingui/react/macro"
+import { i18n } from "@lingui/core"
 import { TRPCClientError } from "@trpc/client"
 import { trpcClient, TrpcClient } from "@/client/trpcClient"
 import { Button, Message, Stack, DataGridToolbar, SearchInput, Status } from "@cloudoperators/juno-ui-components"
@@ -69,11 +70,11 @@ function applyClientSort(
   return [...networks].sort((a, b) => direction * a.name.localeCompare(b.name))
 }
 
-/** Client-side search (E5): matches id, name and description, case-insensitive. */
+/** Client-side search (E5): matches id and name, case-insensitive. */
 function matchesSearch(network: NetworkListItem, searchTerm: string): boolean {
   const term = searchTerm.trim().toLowerCase()
   if (!term) return true
-  return [network.id, network.name, network.description].some((field) => (field ?? "").toLowerCase().includes(term))
+  return [network.id, network.name].some((field) => (field ?? "").toLowerCase().includes(term))
 }
 
 /** Client-side search + filters over the single list response (E5), before sorting. */
@@ -91,11 +92,13 @@ function filterNetworks(
   })
 }
 
-function formatRelativeTime(timestamp: number): string {
+/** Locale-aware relative "last updated" label via Intl.RelativeTimeFormat (I16). */
+function formatRelativeTime(timestamp: number, locale: string): string {
   const diffSeconds = Math.floor((Date.now() - timestamp) / 1000)
-  if (diffSeconds < 60) return "just now"
-  if (diffSeconds < 3600) return `${Math.floor(diffSeconds / 60)} min ago`
-  return `${Math.floor(diffSeconds / 3600)} h ago`
+  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: "auto" })
+  if (diffSeconds < 60) return rtf.format(-diffSeconds, "second")
+  if (diffSeconds < 3600) return rtf.format(-Math.floor(diffSeconds / 60), "minute")
+  return rtf.format(-Math.floor(diffSeconds / 3600), "hour")
 }
 
 /** Fetches every network visible to the project once (own + shared). Search/filter/sort are applied client-side. */
@@ -210,8 +213,9 @@ function NetworksContent({
   }
 
   const isFiltered = Boolean(searchTerm.trim()) || selectedFilters.length > 0
-  const networkCount = visibleNetworks.length
-  const lastUpdatedText = resolvedAt && !isStale ? formatRelativeTime(resolvedAt) : null
+  const matchingCount = visibleNetworks.length
+  const totalCount = networks.length
+  const lastUpdatedText = resolvedAt && !isStale ? formatRelativeTime(resolvedAt, i18n.locale) : null
 
   return (
     <>
@@ -267,9 +271,15 @@ function NetworksContent({
       </DataGridToolbar>
 
       {/* Zone 3 — item count + last-updated; no refresh button (E1) */}
-      <Stack distribution="between" alignment="center" className="text-theme-light py-1 text-sm">
+      <Stack distribution="between" alignment="center" className="text-theme-light text-sm">
         <span>
-          <Trans>{networkCount} networks</Trans>
+          {isFiltered ? (
+            <Trans>
+              {matchingCount} of {totalCount} networks
+            </Trans>
+          ) : (
+            <Trans>{matchingCount} networks</Trans>
+          )}
         </span>
         {lastUpdatedText && (
           <span>
@@ -301,7 +311,7 @@ export const Networks = ({ client, project }: NetworksProps) => {
     options: [
       { label: t`Name`, value: "name" },
       { label: t`Status`, value: "status" },
-      { label: t`Subnet count`, value: "subnet_count" },
+      { label: t`Subnet Count`, value: "subnet_count" },
     ],
     sortBy,
     sortDirection,

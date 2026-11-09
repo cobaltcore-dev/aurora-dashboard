@@ -84,7 +84,7 @@ describe("NetworkTableRow", () => {
 
       const [, status, adminState, subnets, , external] = cells()
       expect(status).toHaveTextContent("ACTIVE")
-      expect(adminState).toHaveTextContent("UP")
+      expect(adminState).toHaveTextContent("Up")
       expect(subnets).toHaveTextContent("2")
       expect(external).toHaveTextContent("No")
     })
@@ -109,7 +109,7 @@ describe("NetworkTableRow", () => {
       renderComponent({ ...mockNetwork, admin_state_up: false, "router:external": true })
 
       const [, , adminState, , , external] = cells()
-      expect(adminState).toHaveTextContent("DOWN")
+      expect(adminState).toHaveTextContent("Down")
       expect(external).toHaveTextContent("Yes")
     })
 
@@ -127,7 +127,7 @@ describe("NetworkTableRow", () => {
 
       const [, , , subnets, , external] = cells()
       expect(subnets).toHaveTextContent("0")
-      expect(external).toHaveTextContent("–")
+      expect(external).toHaveTextContent("- -")
     })
 
     it("does not render an MTU column", () => {
@@ -160,7 +160,7 @@ describe("NetworkTableRow", () => {
       // The overflow menu button is the last button in the row (ClipboardText buttons precede it)
       const buttons = screen.getByTestId("network-row-net-123").querySelectorAll("button")
       await user.click(buttons[buttons.length - 1])
-      await user.click(await screen.findByText("Show Details"))
+      await user.click(await screen.findByText("View Details"))
 
       expect(mockNavigate).toHaveBeenCalledWith(expectedNavigation)
     })

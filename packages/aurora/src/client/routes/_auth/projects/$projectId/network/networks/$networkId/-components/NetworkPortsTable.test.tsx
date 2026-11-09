@@ -149,11 +149,12 @@ describe("NetworkPortsTable", () => {
 
     const row1 = within(screen.getByTestId("network-port-row-port-1"))
     expect(row1.getByText("ACTIVE")).toBeInTheDocument()
-    expect(row1.getByText("UP")).toBeInTheDocument()
+    expect(row1.getByText("Up")).toBeInTheDocument()
 
     const row2 = within(screen.getByTestId("network-port-row-port-2"))
-    // status=DOWN + admin_state_up=false → both cells show "DOWN"
-    expect(row2.getAllByText("DOWN")).toHaveLength(2)
+    // status=DOWN (raw Neutron value) + admin_state_up=false → status cell "DOWN", admin cell "Down"
+    expect(row2.getByText("DOWN")).toBeInTheDocument()
+    expect(row2.getByText("Down")).toBeInTheDocument()
   })
 
   it("renders fixed IPs with subnet IDs", () => {

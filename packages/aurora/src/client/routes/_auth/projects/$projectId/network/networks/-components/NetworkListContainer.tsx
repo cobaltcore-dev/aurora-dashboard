@@ -54,11 +54,7 @@ export const NetworkListContainer = ({ networks, isFiltered = false }: NetworkLi
               <Status
                 status="empty"
                 title={t`No Networks Found`}
-                body={
-                  isFiltered
-                    ? t`No networks match your search or filters. Clear them to view all networks.`
-                    : t`There are no networks in this project.`
-                }
+                body={isFiltered ? t`No networks match your filters` : t`No networks in this project`}
               />
             </DataGridCell>
           </DataGridRow>

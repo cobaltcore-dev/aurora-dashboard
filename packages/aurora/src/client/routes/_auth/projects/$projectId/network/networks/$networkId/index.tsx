@@ -133,21 +133,11 @@ export const Route = createFileRoute("/_auth/projects/$projectId/network/network
   validateSearch: (search: Record<string, unknown>): NetworkDetailsSearchParams => ({
     tab: isNetworkDetailsTab(search.tab) ? search.tab : undefined,
   }),
-  // Only resolves the page title. Failures are rendered by the component's query,
-  // which knows the actual tRPC error code and supports retry.
-  loader: async ({ context, params }) => {
-    try {
-      const network = await context.trpcClient?.network.networks.getById.query({
-        project_id: params.projectId,
-        network_id: params.networkId,
-      })
-      return { networkName: network?.name || null }
-    } catch {
-      return { networkName: null }
-    }
-  },
-  head: ({ loaderData }) => ({
-    meta: [{ title: loaderData?.networkName ?? "Network Details" }],
+  // No loader fetch: the component's query is the single source for the network, and the breadcrumb and
+  // ContentHeader already show its name. A loader query would double every request (loader uses the
+  // vanilla client, the component uses React Query — the two don't share a cache).
+  head: () => ({
+    meta: [{ title: "Network Details" }],
   }),
   component: RouteComponent,
   errorComponent: NetworkErrorComponent,

@@ -101,24 +101,23 @@ describe("NetworkRoutersTab", () => {
     expect(screen.getByRole("button", { name: /copy router-def to clipboard/i })).toBeInTheDocument()
   })
 
-  it("renders '- -' when no router_interface ports exist", () => {
+  it("renders an empty state when no router_interface ports exist", () => {
     renderTab([{ ...basePort, device_owner: "compute:nova" }])
 
-    expect(screen.getByTestId("routers-empty")).toBeInTheDocument()
-    expect(screen.getByText("- -")).toBeInTheDocument()
+    expect(screen.getByText("No Routers Attached")).toBeInTheDocument()
     expect(screen.queryByTestId("routers-list")).not.toBeInTheDocument()
   })
 
-  it("renders '- -' for an empty ports list", () => {
+  it("renders an empty state for an empty ports list", () => {
     renderTab([])
 
-    expect(screen.getByText("- -")).toBeInTheDocument()
+    expect(screen.getByText("No Routers Attached")).toBeInTheDocument()
   })
 
   it("ignores ports with empty device_id", () => {
     renderTab([{ ...basePort, device_id: "" }])
 
-    expect(screen.getByText("- -")).toBeInTheDocument()
+    expect(screen.getByText("No Routers Attached")).toBeInTheDocument()
   })
 
   it("renders the loading state", () => {

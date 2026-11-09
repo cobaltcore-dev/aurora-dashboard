@@ -207,8 +207,8 @@ describe("NetworkDetailsView", () => {
         "Tags",
         "Created",
         "Updated",
-        "Subnet count",
-        "Segment count",
+        "Subnet Count",
+        "Segment Count",
       ]) {
         expect(screen.getByText(label)).toBeInTheDocument()
       }
@@ -223,7 +223,7 @@ describe("NetworkDetailsView", () => {
       expect(screen.getByText("net-1")).toBeInTheDocument()
       expect(screen.getByText("App tier")).toBeInTheDocument()
       expect(screen.getByText("ACTIVE")).toBeInTheDocument()
-      expect(screen.getByText("UP")).toBeInTheDocument()
+      expect(screen.getByText("Up")).toBeInTheDocument()
       expect(screen.getByText("8950")).toBeInTheDocument()
       // shared=false → shows "No"; project_id copy button NOT present
       expect(screen.getByText("No")).toBeInTheDocument()
@@ -275,7 +275,7 @@ describe("NetworkDetailsView", () => {
       mockPortsResult()
       renderView({ ...mockNetwork, admin_state_up: false, port_security_enabled: false })
 
-      expect(screen.getByText("DOWN")).toBeInTheDocument()
+      expect(screen.getByText("Down")).toBeInTheDocument()
       expect(screen.getByText("Disabled")).toBeInTheDocument()
     })
 
@@ -303,8 +303,8 @@ describe("NetworkDetailsView", () => {
       renderView()
 
       // subnets: ["subnet-1", "subnet-2"] → 2; provider:network_type present → 1 segment
-      expect(screen.getByText("Subnet count")).toBeInTheDocument()
-      expect(screen.getByText("Segment count")).toBeInTheDocument()
+      expect(screen.getByText("Subnet Count")).toBeInTheDocument()
+      expect(screen.getByText("Segment Count")).toBeInTheDocument()
       // values: 2 subnets and 1 segment
       expect(screen.getByText("2")).toBeInTheDocument()
       expect(screen.getByText("1")).toBeInTheDocument()

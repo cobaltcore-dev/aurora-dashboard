@@ -99,15 +99,13 @@ describe("NetworkListContainer", () => {
       render(<NetworkListContainer networks={[]} />, { wrapper: TestWrapper })
 
       expect(screen.getByText("No Networks Found")).toBeInTheDocument()
-      expect(screen.getByText("There are no networks in this project.")).toBeInTheDocument()
+      expect(screen.getByText("No networks in this project")).toBeInTheDocument()
     })
 
     it("suggests clearing search and filters when they are applied", () => {
       render(<NetworkListContainer networks={[]} isFiltered />, { wrapper: TestWrapper })
 
-      expect(
-        screen.getByText("No networks match your search or filters. Clear them to view all networks.")
-      ).toBeInTheDocument()
+      expect(screen.getByText("No networks match your filters")).toBeInTheDocument()
     })
 
     it("renders the empty state when networks are undefined", () => {

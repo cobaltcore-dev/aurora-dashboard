@@ -1,7 +1,6 @@
-import { useLingui } from "@lingui/react/macro"
-import { Button, Stack, Status } from "@cloudoperators/juno-ui-components"
-import { Trans } from "@lingui/react/macro"
 import { Link } from "@tanstack/react-router"
+import { Trans, useLingui } from "@lingui/react/macro"
+import { Button, Stack, Status } from "@cloudoperators/juno-ui-components"
 import type { Port } from "@/server/Network/types/port"
 import ClipboardText from "@/client/components/ClipboardText"
 
@@ -53,7 +52,7 @@ export function NetworkRoutersTab({
   ].filter(Boolean)
 
   if (routerIds.length === 0) {
-    return <span data-testid="routers-empty">{"- -"}</span>
+    return <Status status="empty" title={t`No Routers Attached`} body={t`No routers are attached to this network.`} />
   }
 
   return (

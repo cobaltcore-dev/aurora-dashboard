@@ -46,18 +46,18 @@ export const NetworkTableRow = ({ network }: NetworkTableRowProps) => {
         </Stack>
       </DataGridCell>
       <DataGridCell>{network.status}</DataGridCell>
-      <DataGridCell>{network.admin_state_up ? t`UP` : t`DOWN`}</DataGridCell>
+      <DataGridCell>{network.admin_state_up ? t`Up` : t`Down`}</DataGridCell>
       {/* Subnet count — derived from subnets.length; no extra API call (spec AC) */}
       <DataGridCell>{network.subnets.length}</DataGridCell>
       {/* Shared — show owning project_id with copy when shared, "No" otherwise (E2) */}
       <DataGridCell>
         {network.shared ? <ClipboardText text={network.project_id} truncateAt={13} /> : t`No`}
       </DataGridCell>
-      <DataGridCell>{external === undefined || external === null ? "–" : external ? t`Yes` : t`No`}</DataGridCell>
+      <DataGridCell>{external === undefined || external === null ? "- -" : external ? t`Yes` : t`No`}</DataGridCell>
       <DataGridCell onClick={(e) => e.stopPropagation()}>
         <PopupMenu>
           <PopupMenuOptions>
-            <PopupMenuItem label={t`Show Details`} onClick={navigateToDetailsPage} />
+            <PopupMenuItem label={t`View Details`} onClick={navigateToDetailsPage} />
           </PopupMenuOptions>
         </PopupMenu>
       </DataGridCell>

@@ -1,9 +1,9 @@
 import { ReactNode } from "react"
-import { useLingui } from "@lingui/react/macro"
 import { useLoaderData, useRouteContext } from "@tanstack/react-router"
-import { getServiceIndex } from "@/server/Authentication/helpers"
+import { useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { Stack, TabNavigation, TabNavigationItem } from "@cloudoperators/juno-ui-components"
+import { getServiceIndex } from "@/server/Authentication/helpers"
 import type { Network } from "@/server/Network/types/network"
 import { useProjectId } from "@/client/hooks"
 import ClipboardText from "@/client/components/ClipboardText"
@@ -77,14 +77,14 @@ export function NetworkDetailsView({ network, activeTab, onTabChange }: NetworkD
     { label: t`Name`, value: network.name },
     { label: t`ID`, value: <ClipboardText text={network.id} /> },
     { label: t`Status`, value: network.status },
-    { label: t`Admin State`, value: network.admin_state_up ? t`UP` : t`DOWN` },
+    { label: t`Admin State`, value: network.admin_state_up ? t`Up` : t`Down` },
     // E2: when shared, shows the owning project_id with copy affordance
     { label: t`Shared`, value: network.shared ? <ClipboardText text={network.project_id} /> : t`No` },
     { label: t`External`, value: yesNo(network["router:external"]) },
     { label: t`MTU`, value: network.mtu },
     { label: t`Port Security`, value: enabledDisabled(network.port_security_enabled) },
-    { label: t`Subnet count`, value: network.subnets.length },
-    { label: t`Segment count`, value: segmentCount },
+    { label: t`Subnet Count`, value: network.subnets.length },
+    { label: t`Segment Count`, value: segmentCount },
     { label: t`Availability Zones`, value: network.availability_zones?.join(", ") },
     { label: t`Description`, value: network.description },
     { label: t`Tags`, value: network.tags?.join(", ") },

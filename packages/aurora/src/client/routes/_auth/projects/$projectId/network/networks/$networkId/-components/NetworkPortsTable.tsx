@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router"
 import { Trans, useLingui } from "@lingui/react/macro"
 import {
   Button,
@@ -8,7 +9,6 @@ import {
   Stack,
   Status,
 } from "@cloudoperators/juno-ui-components"
-import { Link } from "@tanstack/react-router"
 import type { Port } from "@/server/Network/types/port"
 import ClipboardText from "@/client/components/ClipboardText"
 
@@ -22,17 +22,6 @@ interface NetworkPortsTableProps {
   routersAvailable: boolean
 }
 
-const DEVICE_OWNER_LABELS: Record<string, string> = {
-  "compute:nova": "Instance",
-  "network:router_interface": "Router interface",
-  "network:dhcp": "DHCP agent",
-  "network:floatingip": "Floating IP",
-}
-
-function deviceOwnerLabel(deviceOwner: string): string {
-  return DEVICE_OWNER_LABELS[deviceOwner] ?? deviceOwner
-}
-
 export function NetworkPortsTable({
   ports,
   isLoading,
@@ -43,6 +32,15 @@ export function NetworkPortsTable({
   routersAvailable,
 }: NetworkPortsTableProps) {
   const { t } = useLingui()
+
+  // Human-friendly device-owner labels (i18n); unrecognized owners fall back to the raw string.
+  const deviceOwnerLabels: Record<string, string> = {
+    "compute:nova": t`Instance`,
+    "network:router_interface": t`Router interface`,
+    "network:dhcp": t`DHCP agent`,
+    "network:floatingip": t`Floating IP`,
+  }
+  const deviceOwnerLabel = (deviceOwner: string): string => deviceOwnerLabels[deviceOwner] ?? deviceOwner
 
   if (isLoading) {
     return <Status status="progress" title={t`Loading Ports...`} />
@@ -80,7 +78,7 @@ export function NetworkPortsTable({
               <ClipboardText text={port.id} truncateAt={13} />
             </DataGridCell>
             <DataGridCell>{port.status}</DataGridCell>
-            <DataGridCell>{port.admin_state_up ? t`UP` : t`DOWN`}</DataGridCell>
+            <DataGridCell>{port.admin_state_up ? t`Up` : t`Down`}</DataGridCell>
             <DataGridCell>
               {port.fixed_ips.length > 0 ? (
                 <Stack direction="vertical" gap="0.5">
