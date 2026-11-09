@@ -462,30 +462,15 @@ All imports **must** use `@/` path aliases. No relative `../../` traversal beyon
 
 **Reject** any hardcoded English string in JSX (outside `packages/aurora`, where lingui lint already covers it), any error element without appropriate ARIA attributes, or any icon-only button without `aria-label`.
 
-### B.15 [CRITICAL] DataGrid Column Structure & Row Interaction
+### B.15 [CRITICAL] DataGrid composition
 
-**Column ordering:**
+Authoritative rules: the `datagrid` skill in `@cloudoperators/juno-ui-components` (loaded via Intent — see `AGENTS.md`). Load it and review against its Decision Trees and Invariants, citing rule IDs. The summary below is a review aid only; if it and the skill ever differ, **the skill wins**.
 
-- Leftmost: checkbox column (bulk select) — no header label needed
-- Second: most identifying attribute (name, ID) — bold text recommended
-- Status/state columns: near the left (users scan for status first)
-- Remaining attributes: ordered by relevance
-- Rightmost: action column (overflow menu / `PopupMenu`)
-
-**Action column:** Use an overflow `PopupMenu` even for a single action — avoids row clutter. Set a `min-width` on the action cell to prevent the column from collapsing.
-
-**Clickable rows:** When a row navigates or triggers an action, the entire row must be clickable with visible hover feedback. Every nested interactive element (button, link, `PopupMenu`) inside that row **must** call `event.stopPropagation()` on its click handler.
-
-**Permission-based rendering:**
-
-- Do not render bulk-action controls (checkboxes + bulk menu) when the user has no permission for any bulk action.
-- Do not render per-row checkboxes when the user has no bulk action permissions.
-- Do not render "Create" button when the user has no create permission.
-
-**Bulk selection behavior:**
-
-- Bulk action controls must be **disabled until at least one item is selected**.
-- The select-all checkbox is **tri-state**: unchecked (none selected), indeterminate (some selected), checked (all selected). Clicking while unchecked/indeterminate selects all; clicking while checked deselects all.
+- Column order: checkbox (select) → primary identifier → status → remaining → actions (DT-1).
+- Overflow `PopupMenu` even for a single action (DT-8).
+- Clickable row: every nested interactive element calls `event.stopPropagation()` on its own handler (INV-9).
+- Permission-gated controls (bulk actions, per-row checkboxes, Create) are conditionally rendered, never merely disabled (INV-14).
+- Select-all is tri-state and bulk actions stay disabled until at least one item is selected (DT-9).
 
 **Reject** any DataGrid that renders bulk-action or create UI without checking permissions, any nested interactive element in a clickable row without `stopPropagation()`, bulk actions enabled with nothing selected, or a select-all checkbox that is not tri-state.
 
