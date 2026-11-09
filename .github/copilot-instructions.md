@@ -259,11 +259,6 @@ All modals **must** follow this skeleton:
   <Status status="error" code={...} title={...} body={...} action={<ButtonRow>...</ButtonRow>} />
 </Container>
 
-// Empty state in table cell
-<DataGridCell colSpan={N}>
-  <Status status="empty" title={...} body={...} />
-</DataGridCell>
-
 // Inline banner error (dismissible)
 <Message variant="error" text={...} className="mb-4" onDismiss={...} />
 
@@ -271,8 +266,9 @@ All modals **must** follow this skeleton:
 <p className="text-theme-error" role="alert" aria-live="assertive">{error}</p>
 ```
 
+- **DataGrid loading / empty / error rows** defer to the `datagrid` skill (its state-row fragments, correctly wrapped in `DataGridRow`; see B.15). The rest of this section covers non-DataGrid states.
 - Use `Status` as the default for any error, loading, or empty state not covered by a more specific pattern. Its `status` prop is a typed union — do not review which values are valid (TypeScript enforces that); review only whether the chosen state fits the situation.
-- Distinguish empty reasons: "no data" → suggest creating; "no filter results" → suggest clearing filters. This is about the `title`/`body` _wording_, not the `status` value.
+- Distinguish empty reasons: "no data" → suggest creating; "no filter results" → suggest clearing filters.
 - Scope loading states to the affected component, not the whole page. Prefer the tightest sensible boundary, but do not multiply spinners — one busy indicator per busy scope (e.g. one on the DataGrid, not one per row).
 - Keep tight error boundaries and render as much of the page as possible; never show a blank screen. Always communicate the state and a possible course of action (retry link where feasible).
 
