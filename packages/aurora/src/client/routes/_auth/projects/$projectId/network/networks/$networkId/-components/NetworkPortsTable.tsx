@@ -103,9 +103,9 @@ export function NetworkPortsTable({
                   <Link
                     to="/projects/$projectId/network/routers/$routerId"
                     params={{ projectId, routerId: port.device_id }}
-                    className="text-theme-link hover:text-theme-default"
+                    className="text-theme-link hover:text-theme-default block truncate"
                   >
-                    <ClipboardText text={port.device_id} truncateAt={13} />
+                    {port.device_id}
                   </Link>
                 ) : (
                   <ClipboardText text={port.device_id} truncateAt={13} />

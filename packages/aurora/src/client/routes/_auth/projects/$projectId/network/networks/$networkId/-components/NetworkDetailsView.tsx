@@ -35,7 +35,7 @@ export function NetworkDetailsView({ network, activeTab, onTabChange }: NetworkD
   const { t } = useLingui()
   const projectId = useProjectId()
   const tanstackRouter = useRouter()
-  const routersAvailable = "/_auth/projects/$projectId/network/routers/$routerId" in tanstackRouter.routesByPath
+  const routersAvailable = "/projects/$projectId/network/routers/$routerId" in tanstackRouter.routesByPath
 
   const {
     data: subnets = [],

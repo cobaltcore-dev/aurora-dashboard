@@ -65,8 +65,9 @@ export function NetworkRoutersTab({
             to="/projects/$projectId/network/routers/$routerId"
             params={{ projectId, routerId: id }}
             className="text-theme-link hover:text-theme-default"
+            data-testid={`router-item-${id}`}
           >
-            <ClipboardText text={id} data-testid={`router-item-${id}`} />
+            {id}
           </Link>
         ) : (
           <ClipboardText key={id} text={id} data-testid={`router-item-${id}`} />

@@ -250,7 +250,7 @@ describe("NetworkPortsTable", () => {
       const row2 = within(screen.getByTestId("network-port-row-port-2"))
       const link = row2.getByRole("link")
       expect(link).toHaveAttribute("href", expect.stringContaining("router-456"))
-      expect(row2.getByRole("button", { name: /copy router-456 to clipboard/i })).toBeInTheDocument()
+      expect(link).toHaveTextContent("router-456")
     })
 
     it("does not render a link for a router_interface port when routersAvailable is false", () => {

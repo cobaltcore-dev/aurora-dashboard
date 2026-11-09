@@ -32,7 +32,7 @@ vi.mock("@/client/hooks", () => ({
 vi.mock("@tanstack/react-router", () => ({
   useRouter: () => ({
     routesByPath: {
-      "/_auth/projects/$projectId/network/routers/$routerId": {},
+      "/projects/$projectId/network/routers/$routerId": {},
     },
   }),
 }))
