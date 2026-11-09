@@ -77,8 +77,8 @@ describe("InstanceListView", () => {
       )
     })
     expect(screen.getByText("web-1")).toBeInTheDocument()
-    // Image id is shown as the (link) label until the name resolves.
-    expect(screen.getByText("35ffd44f-6550-4c99-8ca3-f55099fd504a")).toBeInTheDocument()
+    // Image shows the id (truncated, copyable) until the name resolves.
+    expect(screen.getByText("35ffd44f...")).toBeInTheDocument()
     // Power State column renders the label (RUNNING = power_state 1).
     expect(screen.getAllByText("RUNNING").length).toBeGreaterThanOrEqual(1)
     // The boot-from-volume row (image "") renders the empty placeholder.

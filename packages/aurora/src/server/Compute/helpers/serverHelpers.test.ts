@@ -78,8 +78,22 @@ describe("fetchAllServers", () => {
     expect(detailCall?.[1]?.headers?.["OpenStack-API-Version"]).toMatch(/^compute \d+\.\d+$/)
   })
 
-  it("returns undefined on schema parse failure", async () => {
+  it("requests 2.47 when the deployment supports it (Nova does not clamp over-max)", async () => {
+    const compute = mockCompute([{ servers: [{ id: "srv-1" }] }], "2.90")
+    await fetchAllServers(compute)
+    const detailCall = (compute.get as ReturnType<typeof vi.fn>).mock.calls.find((c) => c[0] === "servers/detail")
+    expect(detailCall?.[1]?.headers?.["OpenStack-API-Version"]).toBe("compute 2.47")
+  })
+
+  it("never requests above the deployment max (uses the max when below 2.47)", async () => {
+    const compute = mockCompute([{ servers: [{ id: "srv-1" }] }], "2.20")
+    await fetchAllServers(compute)
+    const detailCall = (compute.get as ReturnType<typeof vi.fn>).mock.calls.find((c) => c[0] === "servers/detail")
+    expect(detailCall?.[1]?.headers?.["OpenStack-API-Version"]).toBe("compute 2.20")
+  })
+
+  it("throws on schema parse failure (so the error isn't swallowed as empty)", async () => {
     const compute = mockCompute([{ servers: [{ name: "missing-id" }] }])
-    expect(await fetchAllServers(compute)).toBeUndefined()
+    await expect(fetchAllServers(compute)).rejects.toThrow()
   })
 })

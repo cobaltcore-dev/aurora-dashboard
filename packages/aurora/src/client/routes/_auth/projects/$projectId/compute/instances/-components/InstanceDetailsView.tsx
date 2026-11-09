@@ -30,7 +30,7 @@ function imageValue(instance: Server, projectId: string, bootedFromVolume: strin
   const id = instance.image
   if (typeof id === "string" ? id : id?.id) {
     const imageId = typeof id === "string" ? id : (id?.id ?? "")
-    return <ImageNameHover imageId={imageId} projectId={projectId} eager showIdAsLabel />
+    return <ImageNameHover imageId={imageId} projectId={projectId} />
   }
   // image === "" means boot-from-volume; undefined/null means simply unknown.
   if (instance.image === "") return bootedFromVolume

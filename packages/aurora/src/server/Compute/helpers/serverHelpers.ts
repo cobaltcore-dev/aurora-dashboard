@@ -54,12 +54,14 @@ function compareMicroversion(a: string, b: string): number {
 }
 
 /**
- * Pick the microversion to send: the server's max if it is at least 2.47,
- * otherwise 2.47 (Nova clamps to its own max when the header exceeds it).
+ * Pick the microversion to send. Nova does NOT clamp an over-max request — it
+ * answers 406 — so we must never request above the deployment's max. If the max
+ * is ≥ 2.47 we use it (full embedded flavor); otherwise we use the deployment's
+ * max and accept degraded flavor fields rather than failing every request.
  */
 export async function resolveServerMicroversion(compute: SignalOpenstackServiceType): Promise<string> {
   const maxVersion = await getMaxMicroversion(compute)
-  return compareMicroversion(maxVersion, MIN_ADDRESS_MICROVERSION) >= 0 ? maxVersion : MIN_ADDRESS_MICROVERSION
+  return compareMicroversion(maxVersion, MIN_ADDRESS_MICROVERSION) >= 0 ? MIN_ADDRESS_MICROVERSION : maxVersion
 }
 
 /**
@@ -97,9 +99,11 @@ function markerFromNextLink(href: string | null | undefined): string | undefined
 /**
  * Fetch all servers for the current (already project-scoped) compute service,
  * following Nova pagination (servers_links rel="next") and normalizing
- * addresses. Returns undefined if the response fails schema validation.
+ * addresses. Throws on schema-validation failure or when the pagination safety
+ * cap is hit with more pages remaining (so a partial inventory is never
+ * returned as if complete). Nova fetch errors propagate to the caller.
  */
-export async function fetchAllServers(compute: SignalOpenstackServiceType): Promise<Server[] | undefined> {
+export async function fetchAllServers(compute: SignalOpenstackServiceType): Promise<Server[]> {
   const microversion = await resolveServerMicroversion(compute)
   const headers = { "OpenStack-API-Version": `compute ${microversion}` }
 
@@ -119,7 +123,7 @@ export async function fetchAllServers(compute: SignalOpenstackServiceType): Prom
       parsedData.error.issues.forEach((err) => {
         console.error(`Error at path ${err.path.join(".")}: ${err.message}`)
       })
-      return undefined
+      throw new Error("Failed to parse servers/detail response")
     }
 
     allServers.push(...parsedData.data.servers)
@@ -128,6 +132,12 @@ export async function fetchAllServers(compute: SignalOpenstackServiceType): Prom
     const nextLink = parsedData.data.servers_links?.find((link) => link.rel === "next")
     marker = markerFromNextLink(nextLink?.href)
     if (!marker) break
+  }
+
+  // A remaining marker means we stopped at the safety cap with pages left —
+  // don't pass off a truncated list as the full inventory.
+  if (marker) {
+    throw new Error(`Unable to load all instances: Nova pagination exceeded the ${MAX_SERVER_PAGES}-page limit.`)
   }
 
   return allServers.map(normalizeServerAddresses)

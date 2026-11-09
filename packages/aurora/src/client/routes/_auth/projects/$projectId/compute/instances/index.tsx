@@ -24,7 +24,8 @@ function RouteComponent() {
   return (
     <>
       <ContentHeader title={t`Instances`} projectId={projectId} />
-      <Instances project={projectId} client={trpcClient!} />
+      {/* key by projectId: reset the list's promises, facets and local state at the project boundary */}
+      <Instances key={projectId} project={projectId} client={trpcClient!} />
     </>
   )
 }

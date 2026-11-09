@@ -1111,9 +1111,6 @@ msgstr "\"{objectName}\" konnte nicht verschoben werden: {errorMessage}"
 msgid "Could not remove access for project \"{projectId}\": {errorMessage}"
 msgstr ""
 
-msgid "Could not resolve image name"
-msgstr ""
-
 msgid "Could not restore \"{displayName}\": {errorMessage}"
 msgstr ""
 
@@ -2437,9 +2434,6 @@ msgstr "Image-Name ist erforderlich"
 msgid "Image name must be at most 255 characters"
 msgstr ""
 
-msgid "Image not accessible in this project"
-msgstr ""
-
 msgid "Image Visibility"
 msgstr "Image-Sichtbarkeit"
 
@@ -3591,12 +3585,6 @@ msgstr "Wird entfernt..."
 
 msgid "Reserved keys: web-index, web-listings, quota-count, quota-bytes"
 msgstr "Reservierte Schlüssel: web-index, web-listings, quota-count, quota-bytes"
-
-msgid "Resolve image name"
-msgstr ""
-
-msgid "Resolving name…"
-msgstr ""
 
 msgid "Resource Not Found"
 msgstr ""

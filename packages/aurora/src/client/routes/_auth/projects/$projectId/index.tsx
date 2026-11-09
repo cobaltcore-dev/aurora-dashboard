@@ -69,6 +69,8 @@ function RouteComponent() {
     cards.push({ group: t`Compute`, label: t`Images`, to: `${base}/compute/images`, service: "images" })
   if (serviceIndex["compute"]?.["nova"] && isEnabled("flavors"))
     cards.push({ group: t`Compute`, label: t`Flavors`, to: `${base}/compute/flavors`, service: "flavors" })
+  if (serviceIndex["compute"]?.["nova"] && isEnabled("instances"))
+    cards.push({ group: t`Compute`, label: t`Instances`, to: `${base}/compute/instances`, service: "instances" })
   if (serviceIndex["network"]) {
     if (isEnabled("securitygroups"))
       cards.push({

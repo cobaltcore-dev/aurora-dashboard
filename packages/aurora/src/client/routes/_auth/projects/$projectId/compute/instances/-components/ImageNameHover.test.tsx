@@ -4,26 +4,15 @@ import { ReactNode } from "react"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
-import { TRPCClientError } from "@trpc/client"
 import { ImageNameHover } from "./ImageNameHover"
 
-// Mutable query result + a spy that records the `enabled` option per render.
-let queryResult: { data: unknown; status: string; error: unknown } = {
-  data: undefined,
-  status: "pending",
-  error: null,
-}
-const useQuerySpy = vi.fn()
+// Mutable query result returned by the mocked getImageById query.
+let queryResult: { data: unknown; status: string } = { data: undefined, status: "pending" }
 
 vi.mock("@/client/trpcClient", () => ({
   trpcReact: {
     compute: {
-      getImageById: {
-        useQuery: (input: unknown, opts: { enabled?: boolean }) => {
-          useQuerySpy(opts?.enabled)
-          return queryResult
-        },
-      },
+      getImageById: { useQuery: () => queryResult },
     },
   },
 }))
@@ -38,8 +27,7 @@ const TestingProvider = ({ children }: { children: ReactNode }) => (
   </I18nProvider>
 )
 
-const render1 = (eager = false, open?: boolean) =>
-  render(<ImageNameHover imageId="img-123" projectId="p1" eager={eager} open={open} />, { wrapper: TestingProvider })
+const renderIt = () => render(<ImageNameHover imageId="img-123" projectId="p1" />, { wrapper: TestingProvider })
 
 describe("ImageNameHover", () => {
   beforeAll(() => {
@@ -49,64 +37,30 @@ describe("ImageNameHover", () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    queryResult = { data: undefined, status: "pending", error: null }
+    queryResult = { data: undefined, status: "pending" }
   })
 
-  it("shows the id as plain text (no link) before the name resolves", () => {
-    render1()
+  it("shows the id with a copy control while the name is still loading", () => {
+    renderIt()
     expect(screen.getByText("img-123")).toBeInTheDocument()
     expect(screen.queryByTestId("image-link")).not.toBeInTheDocument()
+    // ClipboardText exposes a copy button labelled with the full id.
+    expect(screen.getByRole("button", { name: /Copy img-123 to clipboard/i })).toBeInTheDocument()
   })
 
-  it("does not enable the query until hovered (lazy mode)", () => {
-    render1(false)
-    expect(useQuerySpy).toHaveBeenCalled()
-    expect(useQuerySpy.mock.calls.every(([enabled]) => enabled === false)).toBe(true)
-  })
-
-  it("enables the query immediately in eager mode", () => {
-    render1(true)
-    expect(useQuerySpy.mock.calls.some(([enabled]) => enabled === true)).toBe(true)
-  })
-
-  it("links to the image only once the name resolves", () => {
-    queryResult = { data: { id: "img-123", name: "ubuntu-22.04" }, status: "success", error: null }
-    render1(true, true)
+  it("links the resolved name once the image resolves", () => {
+    queryResult = { data: { id: "img-123", name: "ubuntu-22.04" }, status: "success" }
+    renderIt()
     expect(screen.getByTestId("image-link")).toHaveTextContent("ubuntu-22.04")
+    // No copy control on the resolved (link) path.
+    expect(screen.queryByRole("button", { name: /Copy/i })).not.toBeInTheDocument()
   })
 
-  it("shows the id as plain text (no link) when the image is not accessible (404)", () => {
-    queryResult = {
-      data: undefined,
-      status: "error",
-      error: new TRPCClientError("not found", { result: { error: { data: { code: "NOT_FOUND" } } } } as never),
-    }
-    render1(true, true)
-    expect(screen.getByText("Image not accessible in this project")).toBeInTheDocument()
-    expect(screen.queryByTestId("image-link")).not.toBeInTheDocument()
-    // The raw id is still shown as plain text.
-    expect(screen.getByText("img-123")).toBeInTheDocument()
-  })
-
-  it("showIdAsLabel: links the id (no name, no icon) once reachable", () => {
-    queryResult = { data: { id: "img-123", name: "ubuntu-22.04" }, status: "success", error: null }
-    render(<ImageNameHover imageId="img-123" projectId="p1" eager showIdAsLabel />, { wrapper: TestingProvider })
-    const link = screen.getByTestId("image-link")
-    // Label is the id, not the resolved name.
-    expect(link).toHaveTextContent("img-123")
-    expect(screen.queryByText("ubuntu-22.04")).not.toBeInTheDocument()
-    // No info icon in this mode.
-    expect(screen.queryByLabelText("Resolve image name")).not.toBeInTheDocument()
-  })
-
-  it("showIdAsLabel: plain id (no link) when not reachable", () => {
-    queryResult = {
-      data: undefined,
-      status: "error",
-      error: new TRPCClientError("not found", { result: { error: { data: { code: "NOT_FOUND" } } } } as never),
-    }
-    render(<ImageNameHover imageId="img-123" projectId="p1" eager showIdAsLabel />, { wrapper: TestingProvider })
+  it("shows the id with a copy control (no link) when the image is not accessible", () => {
+    queryResult = { data: undefined, status: "error" }
+    renderIt()
     expect(screen.getByText("img-123")).toBeInTheDocument()
     expect(screen.queryByTestId("image-link")).not.toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /Copy img-123 to clipboard/i })).toBeInTheDocument()
   })
 })
