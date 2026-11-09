@@ -19,6 +19,11 @@ Do **not** flag anything the toolchain already enforces. These are caught before
 
 Focus review effort on **semantics, structure, and consistency** that no compiler or linter can verify: correct pattern/zone usage, permission fail-closed behavior, security boundaries, `error`/`danger` intent, empty-state reasoning, ARIA presence, import ordering, and UX writing — none of which are enforced by tooling in this repo.
 
+> [!NOTE]
+> **Some rules below defer to Intent-loaded skills.** DataGrid and Status guidance (B.15, B.2, B.6, and parts of B.1) is owned by the `datagrid` / `status` skills shipped in `@cloudoperators/juno-ui-components` and loaded via Intent (see `AGENTS.md`). Those skills are the authoritative source; the summaries here are review aids that cite skill rule IDs (e.g. `DT-2`, `INV-4`), and on any conflict **the skill wins**.
+>
+> **If you cannot load the skills** (e.g. a PR-review environment with no `node_modules` and no Intent), you will see rule-ID citations you cannot resolve. That is expected, not a defect: treat the summaries here as the best available guidance, do not flag an unresolvable citation as an error, and leave verification of skill-specific details to a human or a skill-capable agent. These summaries are kept deliberately thin to avoid duplicating — and drifting from — the skills; closing this gap (making skill content readable by non-tool agents) is tracked separately.
+
 **Review in three passes — report all findings from all passes before submitting:**
 
 1. **Security & Data** — B.7 (Data Fetching), B.8 (Permissions/RBAC), B.15 (DataGrid/Row Interaction)
