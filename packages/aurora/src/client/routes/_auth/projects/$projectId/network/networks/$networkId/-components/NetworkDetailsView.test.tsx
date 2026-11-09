@@ -1,6 +1,6 @@
 import { cleanup, render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { describe, it, expect, vi, beforeAll, afterEach } from "vitest"
+import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from "vitest"
 import { act, ReactNode } from "react"
 import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
@@ -8,10 +8,12 @@ import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import type { Network, NetworkSubnet } from "@/server/Network/types/network"
 import { NetworkDetailsView, isNetworkDetailsTab, DEFAULT_NETWORK_DETAILS_TAB } from "./NetworkDetailsView"
 
-const { mockListSubnetsQuery, mockListPortsQuery, mockRefetch } = vi.hoisted(() => ({
+const { mockListSubnetsQuery, mockListPortsQuery, mockRefetch, mockLoaderData, mockRouteContext } = vi.hoisted(() => ({
   mockListSubnetsQuery: vi.fn(),
   mockListPortsQuery: vi.fn(),
   mockRefetch: vi.fn(),
+  mockLoaderData: vi.fn(),
+  mockRouteContext: vi.fn(),
 }))
 
 vi.mock("@/client/trpcClient", () => ({
@@ -30,11 +32,14 @@ vi.mock("@/client/hooks", () => ({
 }))
 
 vi.mock("@tanstack/react-router", () => ({
-  useRouter: () => ({
-    routesByPath: {
-      "/projects/$projectId/network/routers/$routerId": {},
-    },
-  }),
+  useLoaderData: () => mockLoaderData(),
+  useRouteContext: () => mockRouteContext(),
+}))
+
+// Catalog index keyed by service type, so routersAvailable depends on the "network" type being present.
+vi.mock("@/server/Authentication/helpers", () => ({
+  getServiceIndex: (services: Array<{ type: string }>) =>
+    services.reduce((acc: Record<string, object>, service) => ({ ...acc, [service.type]: {} }), {}),
 }))
 
 vi.mock("./NetworkSubnetsTable", () => ({
@@ -169,6 +174,12 @@ describe("NetworkDetailsView", () => {
     await act(async () => {
       i18n.activate("en")
     })
+  })
+
+  beforeEach(() => {
+    // Default: network service in the catalog + routers enabled → routersAvailable = true
+    mockLoaderData.mockReturnValue({ availableServices: [{ type: "network" }] })
+    mockRouteContext.mockReturnValue({ enabledServices: undefined, deniedServices: undefined })
   })
 
   afterEach(() => {
@@ -456,6 +467,38 @@ describe("NetworkDetailsView", () => {
       const tab = screen.getByTestId("network-routers-tab")
       expect(tab).toHaveAttribute("data-routers-available", "true")
       expect(tab).toHaveAttribute("data-project-id", "proj-1")
+    })
+  })
+
+  describe("routers availability (I13)", () => {
+    it("marks routers available when the network service is in the catalog and routers is enabled", () => {
+      mockLoaderData.mockReturnValue({ availableServices: [{ type: "network" }] })
+      mockRouteContext.mockReturnValue({ enabledServices: ["networks", "routers"], deniedServices: undefined })
+      mockSubnetsResult()
+      mockPortsResult()
+      renderView(mockNetwork, "ports")
+
+      expect(screen.getByTestId("network-ports-table")).toHaveAttribute("data-routers-available", "true")
+    })
+
+    it("marks routers unavailable when the Routers scope is disabled", () => {
+      mockLoaderData.mockReturnValue({ availableServices: [{ type: "network" }] })
+      mockRouteContext.mockReturnValue({ enabledServices: ["networks"], deniedServices: undefined })
+      mockSubnetsResult()
+      mockPortsResult()
+      renderView(mockNetwork, "ports")
+
+      expect(screen.getByTestId("network-ports-table")).toHaveAttribute("data-routers-available", "false")
+    })
+
+    it("marks routers unavailable when the network service is absent from the catalog", () => {
+      mockLoaderData.mockReturnValue({ availableServices: [] })
+      mockRouteContext.mockReturnValue({ enabledServices: undefined, deniedServices: undefined })
+      mockSubnetsResult()
+      mockPortsResult()
+      renderView(mockNetwork, "routers")
+
+      expect(screen.getByTestId("network-routers-tab")).toHaveAttribute("data-routers-available", "false")
     })
   })
 

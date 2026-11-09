@@ -151,6 +151,8 @@ describe("NetworkRoutersTab", () => {
       const link = screen.getByRole("link")
       expect(link).toHaveAttribute("href", expect.stringContaining("router-abc"))
       expect(link).toHaveTextContent("router-abc")
+      // Copy affordance sits beside the link (I12)
+      expect(screen.getByRole("button", { name: /copy router-abc to clipboard/i })).toBeInTheDocument()
     })
 
     it("renders plain copy affordance when routersAvailable is false", () => {

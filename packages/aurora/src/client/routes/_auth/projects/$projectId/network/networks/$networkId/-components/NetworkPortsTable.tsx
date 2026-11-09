@@ -100,13 +100,17 @@ export function NetworkPortsTable({
             <DataGridCell>
               {port.device_id ? (
                 port.device_owner === "network:router_interface" && routersAvailable ? (
-                  <Link
-                    to="/projects/$projectId/network/routers/$routerId"
-                    params={{ projectId, routerId: port.device_id }}
-                    className="text-theme-link hover:text-theme-default block truncate"
-                  >
-                    {port.device_id}
-                  </Link>
+                  // Copy affordance sits beside the link, not inside the anchor (I12)
+                  <Stack direction="horizontal" gap="1" className="min-w-0 items-center">
+                    <Link
+                      to="/projects/$projectId/network/routers/$routerId"
+                      params={{ projectId, routerId: port.device_id }}
+                      className="text-theme-link hover:text-theme-default"
+                    >
+                      {port.device_id.length > 13 ? `${port.device_id.slice(0, 13)}...` : port.device_id}
+                    </Link>
+                    <ClipboardText text={port.device_id} iconOnly />
+                  </Stack>
                 ) : (
                   <ClipboardText text={port.device_id} truncateAt={13} />
                 )

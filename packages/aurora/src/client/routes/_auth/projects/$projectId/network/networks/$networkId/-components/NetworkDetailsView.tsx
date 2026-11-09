@@ -1,6 +1,7 @@
 import { ReactNode } from "react"
 import { useLingui } from "@lingui/react/macro"
-import { useRouter } from "@tanstack/react-router"
+import { useLoaderData, useRouteContext } from "@tanstack/react-router"
+import { getServiceIndex } from "@/server/Authentication/helpers"
 import { trpcReact } from "@/client/trpcClient"
 import { Stack, TabNavigation, TabNavigationItem } from "@cloudoperators/juno-ui-components"
 import type { Network } from "@/server/Network/types/network"
@@ -34,8 +35,14 @@ const formatDateTime = (value?: string): string | undefined => (value ? new Date
 export function NetworkDetailsView({ network, activeTab, onTabChange }: NetworkDetailsViewProps) {
   const { t } = useLingui()
   const projectId = useProjectId()
-  const tanstackRouter = useRouter()
-  const routersAvailable = "/projects/$projectId/network/routers/$routerId" in tanstackRouter.routesByPath
+  // Routers deep-link degrades gracefully: only link when the network service is in the catalog and
+  // the Routers scope is enabled (I13) — not merely because the route exists in the build.
+  const { availableServices } = useLoaderData({ from: "/_auth/projects/$projectId" })
+  const { enabledServices, deniedServices } = useRouteContext({ strict: false })
+  const isEnabled = (service: string) =>
+    (!enabledServices || enabledServices.includes(service)) && !deniedServices?.includes(service)
+  const serviceIndex = getServiceIndex(availableServices ?? [])
+  const routersAvailable = Boolean(serviceIndex["network"]) && isEnabled("routers")
 
   const {
     data: subnets = [],
