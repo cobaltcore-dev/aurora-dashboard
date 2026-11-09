@@ -13,6 +13,9 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+msgid "-- None --"
+msgstr "-- None --"
+
 msgid "—"
 msgstr "—"
 
@@ -59,6 +62,9 @@ msgstr "\"{objectName}\" was successfully moved to {destination}."
 msgid "\"{objectName}\" was successfully uploaded."
 msgstr "\"{objectName}\" was successfully uploaded."
 
+msgid "(base64-encoded)"
+msgstr "(base64-encoded)"
+
 #. placeholder {0}: selectedIndices.length
 msgid "{0, plural, one {Delete # Lifecycle Rule} other {Delete # Lifecycle Rules}}"
 msgstr "{0, plural, one {Delete # Lifecycle Rule} other {Delete # Lifecycle Rules}}"
@@ -92,6 +98,9 @@ msgstr "{activeCount, plural, one {Deactivate # Image} other {Deactivate # Image
 
 msgid "{activeCount, plural, one {Image to deactivate (#)} other {Images to deactivate (#)}}"
 msgstr "{activeCount, plural, one {Image to deactivate (#)} other {Images to deactivate (#)}}"
+
+msgid "{b} bits"
+msgstr "{b} bits"
 
 msgid "{count, plural, one {# object} other {# objects}}"
 msgstr "{count, plural, one {# object} other {# objects}}"
@@ -283,6 +292,9 @@ msgstr "7 days"
 msgid "A bucket with this name already exists"
 msgstr "A bucket with this name already exists"
 
+msgid "A certificate container is used for storing the following secrets that are relevant to certificates: certificate, private_key (optional), private_key_passphrase (optional), intermediates (optional)"
+msgstr "A certificate container is used for storing the following secrets that are relevant to certificates: certificate, private_key (optional), private_key_passphrase (optional), intermediates (optional)"
+
 msgid "A container with this name already exists"
 msgstr "A container with this name already exists"
 
@@ -291,6 +303,9 @@ msgstr "A flavor with this ID or name already exists. Please use different value
 
 msgid "A folder with this name already exists"
 msgstr "A folder with this name already exists"
+
+msgid "A generic container is used for any type of container that a user may wish to create. There are no restrictions on the type or amount of secrets that can be held within a container"
+msgstr "A generic container is used for any type of container that a user may wish to create. There are no restrictions on the type or amount of secrets that can be held within a container"
 
 msgid "A pre-signed URL can be valid for at most 7 days ({MAX_EXPIRY_MINUTES} minutes)"
 msgstr "A pre-signed URL can be valid for at most 7 days ({MAX_EXPIRY_MINUTES} minutes)"
@@ -469,11 +484,20 @@ msgstr "Addresses"
 msgid "Admin State"
 msgstr "Admin State"
 
+msgid "AES supports 128, 192, or 256 bits."
+msgstr "AES supports 128, 192, or 256 bits."
+
 msgid "After {abortDays} days"
 msgstr "After {abortDays} days"
 
 msgid "After restoring, this version's content will become the new latest version."
 msgstr "After restoring, this version's content will become the new latest version."
+
+msgid "Algorithm"
+msgstr "Algorithm"
+
+msgid "Algorithm is required."
+msgstr "Algorithm is required."
 
 msgid "All"
 msgstr "All"
@@ -522,6 +546,9 @@ msgstr "An access key stops working the moment it is deleted. Any S3 client stil
 
 msgid "An object with this name already exists at the destination and will be overwritten."
 msgstr "An object with this name already exists at the destination and will be overwritten."
+
+msgid "An RSA container is used for storing RSA public keys, private keys, and private key pass phrases"
+msgstr "An RSA container is used for storing RSA public keys, private keys, and private key pass phrases"
 
 msgid "An unexpected error occurred."
 msgstr "An unexpected error occurred."
@@ -595,6 +622,9 @@ msgstr "Attaching Floating IP..."
 msgid "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 msgstr "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 
+msgid "Authorization"
+msgstr "Authorization"
+
 msgid "Auto-generated if not provided. Only alphanumeric, hyphens, underscores, and dots allowed."
 msgstr "Auto-generated if not provided. Only alphanumeric, hyphens, underscores, and dots allowed."
 
@@ -628,6 +658,9 @@ msgstr "Back to Images"
 msgid "Back to Instances"
 msgstr "Back to Instances"
 
+msgid "Back to Key Manager"
+msgstr "Back to Key Manager"
+
 msgid "Back to Ports"
 msgstr "Back to Ports"
 
@@ -639,6 +672,9 @@ msgstr "Back to Security Groups"
 
 msgid "Basic Info"
 msgstr "Basic Info"
+
+msgid "Bit Length"
+msgstr "Bit Length"
 
 msgid "Boot RAM"
 msgstr "Boot RAM"
@@ -763,6 +799,15 @@ msgstr "Cannot move to the same location. Please select a different bucket, fold
 msgid "Capabilities"
 msgstr "Capabilities"
 
+msgid "Certificate"
+msgstr "Certificate"
+
+msgid "certificate — Used for storing cryptographic certificates such as X.509 certificates"
+msgstr "certificate — Used for storing cryptographic certificates such as X.509 certificates"
+
+msgid "Certificate is required for certificate containers"
+msgstr "Certificate is required for certificate containers"
+
 msgid "Change the name, destination container, or folder to move this object."
 msgstr "Change the name, destination container, or folder to move this object."
 
@@ -844,6 +889,12 @@ msgstr "Container \"{containerName}\" was successfully emptied. {deletedCount} o
 msgid "Container \"{containerName}\" was successfully emptied. {deletedCount} objects deleted."
 msgstr "Container \"{containerName}\" was successfully emptied. {deletedCount} objects deleted."
 
+msgid "Container \"{name}\" was successfully created."
+msgstr "Container \"{name}\" was successfully created."
+
+msgid "Container \"{name}\" was successfully deleted."
+msgstr "Container \"{name}\" was successfully deleted."
+
 msgid "Container actions"
 msgstr "Container actions"
 
@@ -855,6 +906,9 @@ msgstr "Container Created with Warnings"
 
 msgid "Container Deleted"
 msgstr "Container Deleted"
+
+msgid "Container Details"
+msgstr "Container Details"
 
 msgid "Container Emptied"
 msgstr "Container Emptied"
@@ -898,6 +952,9 @@ msgstr "Container Updated"
 msgid "Container:"
 msgstr "Container:"
 
+msgid "Containers"
+msgstr "Containers"
+
 msgid "Containers Emptied"
 msgstr "Containers Emptied"
 
@@ -909,6 +966,9 @@ msgstr "Containers to be emptied:"
 
 msgid "Content type"
 msgstr "Content type"
+
+msgid "Content Types"
+msgstr "Content Types"
 
 msgid "Copied to clipboard!"
 msgstr "Copied to clipboard!"
@@ -1138,6 +1198,12 @@ msgstr "Create new folder here"
 msgid "Create New Image"
 msgstr "Create New Image"
 
+msgid "Create Order"
+msgstr "Create Order"
+
+msgid "Create Secret"
+msgstr "Create Secret"
+
 msgid "Create Security Group"
 msgstr "Create Security Group"
 
@@ -1161,6 +1227,9 @@ msgstr "Creating Security Group..."
 
 msgid "Creating..."
 msgstr "Creating..."
+
+msgid "Creator ID"
+msgstr "Creator ID"
 
 msgid "Current location:"
 msgstr "Current location:"
@@ -1294,6 +1363,9 @@ msgstr "Delete object:"
 msgid "Delete Objects"
 msgstr "Delete Objects"
 
+msgid "Delete Order"
+msgstr "Delete Order"
+
 msgid "Delete Policy"
 msgstr "Delete Policy"
 
@@ -1305,6 +1377,9 @@ msgstr "Delete Results"
 
 msgid "Delete Rule"
 msgstr "Delete Rule"
+
+msgid "Delete Secret"
+msgstr "Delete Secret"
 
 msgid "Delete Security Group \"{securityGroupName}\""
 msgstr "Delete Security Group \"{securityGroupName}\""
@@ -1399,11 +1474,20 @@ msgstr "DNS"
 msgid "DNS Domain"
 msgstr "DNS Domain"
 
+msgid "DNS domain is required when a DNS name is entered."
+msgstr "DNS domain is required when a DNS name is entered."
+
 msgid "DNS Name"
 msgstr "DNS Name"
 
+msgid "DNS name is required when a DNS domain is selected."
+msgstr "DNS name is required when a DNS domain is selected."
+
 msgid "DNS name must be at most 63 characters."
 msgstr "DNS name must be at most 63 characters."
+
+msgid "DNS name must use only letters, digits, and hyphens, and must start and end with a letter or digit."
+msgstr "DNS name must use only letters, digits, and hyphens, and must start and end with a letter or digit."
 
 msgid "Done"
 msgstr "Done"
@@ -1483,9 +1567,6 @@ msgstr "Edit Description"
 msgid "Edit Details"
 msgstr "Edit Details"
 
-msgid "Edit Floating IP {floating_ip_address} Description"
-msgstr "Edit Floating IP {floating_ip_address} Description"
-
 msgid "Edit Group"
 msgstr "Edit Group"
 
@@ -1561,6 +1642,9 @@ msgstr "Enable Versioning"
 msgid "Enabled"
 msgstr "Enabled"
 
+msgid "Encode the payload according to the content encoding below."
+msgstr "Encode the payload according to the content encoding below."
+
 msgid "End of the range. Leave empty for a single port."
 msgstr "End of the range. Leave empty for a single port."
 
@@ -1572,9 +1656,6 @@ msgstr "Ensure ACL entries are valid — correct project IDs, user IDs, and form
 
 msgid "Ensure that the Project ID and User ID you enter are correct. The system cannot validate these values — incorrect IDs may apply access to wrong projects and users."
 msgstr "Ensure that the Project ID and User ID you enter are correct. The system cannot validate these values — incorrect IDs may apply access to wrong projects and users."
-
-msgid "Enter a floating IP"
-msgstr "Enter a floating IP"
 
 msgid "Enter a floating IP or leave blank to auto-assign one"
 msgstr "Enter a floating IP or leave blank to auto-assign one"
@@ -1597,14 +1678,14 @@ msgstr "Enter a timestamp like \"YYYY-MM-DD HH:mm:ss\" to schedule automatic del
 msgid "Enter a URL and press Enter. Use * to allow all origins."
 msgstr "Enter a URL and press Enter. Use * to allow all origins."
 
-msgid "Enter a valid PQDN or FQDN (max 63 characters) to associate with the floating IP. A and PTR records are created automatically."
-msgstr "Enter a valid PQDN or FQDN (max 63 characters) to associate with the floating IP. A and PTR records are created automatically."
-
 msgid "Enter a valid project ID: 32 hexadecimal characters, dashes optional."
 msgstr "Enter a valid project ID: 32 hexadecimal characters, dashes optional."
 
 msgid "Enter a whole number of days greater than 0"
 msgstr "Enter a whole number of days greater than 0"
+
+msgid "Enter an optional description for the floating IP (max 255 characters)."
+msgstr "Enter an optional description for the floating IP (max 255 characters)."
 
 msgid "Enter bucket policy JSON..."
 msgstr "Enter bucket policy JSON..."
@@ -1620,6 +1701,9 @@ msgstr "Enter key"
 
 msgid "Enter project ID"
 msgstr "Enter project ID"
+
+msgid "Enter the hostname label only (e.g., webserver01), without the domain. It will be combined with the DNS domain to form the full record (e.g., webserver01.example.com.)"
+msgstr "Enter the hostname label only (e.g., webserver01), without the domain. It will be combined with the DNS domain to form the full record (e.g., webserver01.example.com.)"
 
 msgid "Enter value"
 msgstr "Enter value"
@@ -1647,9 +1731,6 @@ msgstr "Error Loading Containers"
 
 msgid "Error Loading Flavor"
 msgstr "Error Loading Flavor"
-
-msgid "Error Loading Floating IP"
-msgstr "Error Loading Floating IP"
 
 msgid "Error Loading Image"
 msgstr "Error Loading Image"
@@ -1683,6 +1764,12 @@ msgstr "Expected format: YYYY-MM-DD HH:mm:ss"
 
 msgid "Expiration"
 msgstr "Expiration"
+
+msgid "Expiration date must be in the future."
+msgstr "Expiration date must be in the future."
+
+msgid "Expiration must be in the future"
+msgstr "Expiration must be in the future"
 
 msgid "Expire non-current versions"
 msgstr "Expire non-current versions"
@@ -1873,6 +1960,9 @@ msgstr "Failed to Load Access"
 msgid "Failed to Load Buckets"
 msgstr "Failed to Load Buckets"
 
+msgid "Failed to Load Container"
+msgstr "Failed to Load Container"
+
 msgid "Failed to Load Container ACLs"
 msgstr "Failed to Load Container ACLs"
 
@@ -1888,6 +1978,9 @@ msgstr "Failed to Load Container Properties"
 msgid "Failed to Load Container Properties: {errorMessage}"
 msgstr "Failed to Load Container Properties: {errorMessage}"
 
+msgid "Failed to Load Containers"
+msgstr "Failed to Load Containers"
+
 msgid "Failed to Load CORS Configuration"
 msgstr "Failed to Load CORS Configuration"
 
@@ -1902,6 +1995,9 @@ msgstr "Failed to load flavor details. Please try again."
 
 msgid "Failed to Load Flavors"
 msgstr "Failed to Load Flavors"
+
+msgid "Failed to Load Floating IP"
+msgstr "Failed to Load Floating IP"
 
 msgid "Failed to Load Floating IPs"
 msgstr "Failed to Load Floating IPs"
@@ -1930,6 +2026,15 @@ msgstr "Failed to Load Object Metadata"
 msgid "Failed to Load Objects"
 msgstr "Failed to Load Objects"
 
+msgid "Failed to Load Order"
+msgstr "Failed to Load Order"
+
+msgid "Failed to Load Orders"
+msgstr "Failed to Load Orders"
+
+msgid "Failed to load payload."
+msgstr "Failed to load payload."
+
 msgid "Failed to Load Policy"
 msgstr "Failed to Load Policy"
 
@@ -1938,6 +2043,12 @@ msgstr "Failed to Load Ports"
 
 msgid "Failed to Load Routers"
 msgstr "Failed to Load Routers"
+
+msgid "Failed to Load Secret"
+msgstr "Failed to Load Secret"
+
+msgid "Failed to Load Secrets"
+msgstr "Failed to Load Secrets"
 
 msgid "Failed to Load Security Groups"
 msgstr "Failed to Load Security Groups"
@@ -2242,6 +2353,9 @@ msgstr "Hide"
 msgid "Hide ACLs Preview"
 msgstr "Hide ACLs Preview"
 
+msgid "Hide info about secret types"
+msgstr "Hide info about secret types"
+
 msgid "Home"
 msgstr "Home"
 
@@ -2362,6 +2476,9 @@ msgstr "Instances"
 msgid "Insufficient Permissions"
 msgstr "Insufficient Permissions"
 
+msgid "Intermediates"
+msgstr "Intermediates"
+
 msgid "Internal Networks"
 msgstr "Internal Networks"
 
@@ -2421,6 +2538,18 @@ msgstr "Key Features"
 
 msgid "Key is required"
 msgstr "Key is required"
+
+msgid "Key Manager"
+msgstr "Key Manager"
+
+msgid "Key Manager Containers"
+msgstr "Key Manager Containers"
+
+msgid "Key Manager Orders"
+msgstr "Key Manager Orders"
+
+msgid "Key Manager Secrets"
+msgstr "Key Manager Secrets"
 
 msgid "Key must contain at least one alphanumeric character"
 msgstr "Key must contain at least one alphanumeric character"
@@ -2494,6 +2623,9 @@ msgstr "Loading Buckets..."
 msgid "Loading Container Properties..."
 msgstr "Loading Container Properties..."
 
+msgid "Loading Container..."
+msgstr "Loading Container..."
+
 msgid "Loading Containers..."
 msgstr "Loading Containers..."
 
@@ -2551,6 +2683,15 @@ msgstr "Loading Object Properties..."
 msgid "Loading Objects..."
 msgstr "Loading Objects..."
 
+msgid "Loading Order..."
+msgstr "Loading Order..."
+
+msgid "Loading Orders..."
+msgstr "Loading Orders..."
+
+msgid "Loading Payload..."
+msgstr "Loading Payload..."
+
 msgid "Loading Permissions..."
 msgstr "Loading Permissions..."
 
@@ -2574,6 +2715,12 @@ msgstr "Loading Router Details..."
 
 msgid "Loading Routers..."
 msgstr "Loading Routers..."
+
+msgid "Loading Secret..."
+msgstr "Loading Secret..."
+
+msgid "Loading Secrets..."
+msgstr "Loading Secrets..."
 
 msgid "Loading Security Group Details..."
 msgstr "Loading Security Group Details..."
@@ -2659,6 +2806,12 @@ msgstr "Member \"{trimmedMemberId}\" has been added successfully."
 msgid "Metadata"
 msgstr "Metadata"
 
+msgid "Metadata for informational purposes."
+msgstr "Metadata for informational purposes."
+
+msgid "Metadata for informational purposes. Value must be greater than zero."
+msgstr "Metadata for informational purposes. Value must be greater than zero."
+
 msgid "Metadata size exceeds the 2KB limit. Please remove or shorten some entries before saving."
 msgstr "Metadata size exceeds the 2KB limit. Please remove or shorten some entries before saving."
 
@@ -2695,6 +2848,9 @@ msgstr "Minimum RAM must be 0 or greater"
 msgid "Minimum RAM required to boot this image"
 msgstr "Minimum RAM required to boot this image"
 
+msgid "Mode"
+msgstr "Mode"
+
 msgid "More Actions"
 msgstr "More Actions"
 
@@ -2716,9 +2872,6 @@ msgstr "Moving..."
 msgid "Must be a valid IPv4 or IPv6 address (for example: 172.24.4.228 or 2001:db8::1)."
 msgstr "Must be a valid IPv4 or IPv6 address (for example: 172.24.4.228 or 2001:db8::1)."
 
-msgid "Must be a valid PQDN or FQDN (alphanumeric and hyphens only, cannot start or end with hyphen)."
-msgstr "Must be a valid PQDN or FQDN (alphanumeric and hyphens only, cannot start or end with hyphen)."
-
 msgid "Must be a whole number, 0 or greater"
 msgstr "Must be a whole number, 0 or greater"
 
@@ -2733,6 +2886,9 @@ msgstr "Name"
 
 msgid "Name / ID"
 msgstr "Name / ID"
+
+msgid "Name is required"
+msgstr "Name is required"
 
 msgid "Name must be 2-50 characters long."
 msgstr "Name must be 2-50 characters long."
@@ -2751,6 +2907,9 @@ msgstr "Network ID"
 
 msgid "Network Name"
 msgstr "Network Name"
+
+msgid "Never"
+msgstr "Never"
 
 msgid "New Folder"
 msgstr "New Folder"
@@ -2781,6 +2940,12 @@ msgstr "No buckets found"
 
 msgid "No containers found"
 msgstr "No containers found"
+
+msgid "No Containers Found"
+msgstr "No Containers Found"
+
+msgid "No Containers Match Your Search"
+msgstr "No Containers Match Your Search"
 
 msgid "No CORS rules found"
 msgstr "No CORS rules found"
@@ -2845,6 +3010,12 @@ msgstr "No objects match your search. Try adjusting your search term."
 msgid "No objects were deleted: {errorMessage}"
 msgstr "No objects were deleted: {errorMessage}"
 
+msgid "No Orders Found"
+msgstr "No Orders Found"
+
+msgid "No Orders Match Your Search"
+msgstr "No Orders Match Your Search"
+
 msgid "No policies match your search"
 msgstr "No policies match your search"
 
@@ -2889,6 +3060,15 @@ msgstr "No routers match your search. Clear the search to view all routers."
 
 msgid "No Rules Found"
 msgstr "No Rules Found"
+
+msgid "No Secrets Found"
+msgstr "No Secrets Found"
+
+msgid "No Secrets in This Container"
+msgstr "No Secrets in This Container"
+
+msgid "No Secrets Match Your Search"
+msgstr "No Secrets Match Your Search"
 
 msgid "No security groups found"
 msgstr "No security groups found"
@@ -3025,11 +3205,17 @@ msgstr "One or more objects could not be deleted:"
 msgid "Only the folder itself will be restored. Objects inside this folder will remain deleted and must be restored individually."
 msgstr "Only the folder itself will be restored. Objects inside this folder will remain deleted and must be restored individually."
 
+msgid "opaque — Used for backwards compatibility with previous versions of the API without typed secrets"
+msgstr "opaque — Used for backwards compatibility with previous versions of the API without typed secrets"
+
 msgid "Open {displayName}"
 msgstr "Open {displayName}"
 
 msgid "Open in new tab"
 msgstr "Open in new tab"
+
+msgid "optional"
+msgstr "optional"
 
 msgid "Optional identifier for this rule (max 255 characters)."
 msgstr "Optional identifier for this rule (max 255 characters)."
@@ -3037,11 +3223,47 @@ msgstr "Optional identifier for this rule (max 255 characters)."
 msgid "Optional unique identifier for the rule (max 255 characters)"
 msgstr "Optional unique identifier for the rule (max 255 characters)"
 
+msgid "Optional. A friendly name for the container."
+msgstr "Optional. A friendly name for the container."
+
+msgid "Optional. If set, the generated secret will not be available after this UTC timestamp."
+msgstr "Optional. If set, the generated secret will not be available after this UTC timestamp."
+
+msgid "Optional. If set, the secret will not be available after this UTC timestamp."
+msgstr "Optional. If set, the secret will not be available after this UTC timestamp."
+
+msgid "Optional. Names the secret this order generates."
+msgstr "Optional. Names the secret this order generates."
+
 msgid "Optional. Up to 255 characters."
 msgstr "Optional. Up to 255 characters."
 
 msgid "or drag and drop"
 msgstr "or drag and drop"
+
+msgid "Order \"{name}\" was successfully created."
+msgstr "Order \"{name}\" was successfully created."
+
+msgid "Order \"{name}\" was successfully deleted."
+msgstr "Order \"{name}\" was successfully deleted."
+
+msgid "Order actions"
+msgstr "Order actions"
+
+msgid "Order Created"
+msgstr "Order Created"
+
+msgid "Order Deleted"
+msgstr "Order Deleted"
+
+msgid "Order Details"
+msgstr "Order Details"
+
+msgid "Order Not Found"
+msgstr "Order Not Found"
+
+msgid "Orders"
+msgstr "Orders"
 
 msgid "Other Actions"
 msgstr "Other Actions"
@@ -3072,6 +3294,24 @@ msgstr "Partial Deactivation Success"
 
 msgid "Partial Delete Success"
 msgstr "Partial Delete Success"
+
+msgid "passphrase — Used for storing plain text passphrases"
+msgstr "passphrase — Used for storing plain text passphrases"
+
+msgid "Payload"
+msgstr "Payload"
+
+msgid "Payload Content Encoding"
+msgstr "Payload Content Encoding"
+
+msgid "Payload Content Type"
+msgstr "Payload Content Type"
+
+msgid "Payload content type is required"
+msgstr "Payload content type is required"
+
+msgid "Payload is required"
+msgstr "Payload is required"
 
 msgid "Pending"
 msgstr "Pending"
@@ -3157,8 +3397,23 @@ msgstr "Preview and Edit metadata"
 msgid "Private"
 msgstr "Private"
 
+msgid "private — Used for storing the private key of an asymmetric keypair"
+msgstr "private — Used for storing the private key of an asymmetric keypair"
+
 msgid "Private flavors could not be loaded. You may be seeing an incomplete list."
 msgstr "Private flavors could not be loaded. You may be seeing an incomplete list."
+
+msgid "Private Key"
+msgstr "Private Key"
+
+msgid "Private Key is required for RSA containers"
+msgstr "Private Key is required for RSA containers"
+
+msgid "Private Key Passphrase"
+msgstr "Private Key Passphrase"
+
+msgid "Private Key Passphrase is required for RSA containers"
+msgstr "Private Key Passphrase is required for RSA containers"
 
 msgid "Private Network"
 msgstr "Private Network"
@@ -3235,8 +3490,17 @@ msgstr "Protocol name (e.g. tcp, udp, icmp, gre) or IP protocol number 0-255."
 msgid "Public"
 msgstr "Public"
 
+msgid "public — Used for storing the public key of an asymmetric keypair"
+msgstr "public — Used for storing the public key of an asymmetric keypair"
+
 msgid "Public Flavor"
 msgstr "Public Flavor"
+
+msgid "Public Key"
+msgstr "Public Key"
+
+msgid "Public Key is required for RSA containers"
+msgstr "Public Key is required for RSA containers"
 
 msgid "Public Read"
 msgstr "Public Read"
@@ -3274,6 +3538,9 @@ msgstr "Read ACLs"
 msgid "Read ACLs — Preview"
 msgstr "Read ACLs — Preview"
 
+msgid "Reference"
+msgstr "Reference"
+
 msgid "Region"
 msgstr "Region"
 
@@ -3306,6 +3573,9 @@ msgstr "Remote Security Group"
 
 msgid "Remove"
 msgstr "Remove"
+
+msgid "Remove {secretLabel}"
+msgstr "Remove {secretLabel}"
 
 msgid "Remove access for {memberIdDisplay}"
 msgstr "Remove access for {memberIdDisplay}"
@@ -3343,6 +3613,9 @@ msgstr "Retry"
 msgid "Reveal"
 msgstr "Reveal"
 
+msgid "Reveal Payload"
+msgstr "Reveal Payload"
+
 msgid "Root"
 msgstr "Root"
 
@@ -3366,6 +3639,9 @@ msgstr "Router Not Found"
 
 msgid "Routers"
 msgstr "Routers"
+
+msgid "RSA requires at least 1024 bits."
+msgstr "RSA requires at least 1024 bits."
 
 msgid "rule"
 msgstr "rule"
@@ -3439,6 +3715,12 @@ msgstr "Scope"
 msgid "Search buckets..."
 msgstr "Search buckets..."
 
+msgid "Search by name"
+msgstr "Search by name"
+
+msgid "Search by name or ID"
+msgstr "Search by name or ID"
+
 msgid "Search containers..."
 msgstr "Search containers..."
 
@@ -3447,9 +3729,6 @@ msgstr "Search CORS rules..."
 
 msgid "Search flavors..."
 msgstr "Search flavors..."
-
-msgid "Search floating IPs..."
-msgstr "Search floating IPs..."
 
 msgid "Search instances..."
 msgstr "Search instances..."
@@ -3478,11 +3757,47 @@ msgstr "Search security groups..."
 msgid "Search..."
 msgstr "Search..."
 
+msgid "Search…"
+msgstr "Search…"
+
+msgid "Secret"
+msgstr "Secret"
+
+msgid "Secret \"{name}\" was successfully created."
+msgstr "Secret \"{name}\" was successfully created."
+
+msgid "Secret \"{name}\" was successfully deleted."
+msgstr "Secret \"{name}\" was successfully deleted."
+
 msgid "Secret access key"
 msgstr "Secret access key"
 
 msgid "Secret Access Key"
 msgstr "Secret Access Key"
+
+msgid "Secret actions"
+msgstr "Secret actions"
+
+msgid "Secret Created"
+msgstr "Secret Created"
+
+msgid "Secret Deleted"
+msgstr "Secret Deleted"
+
+msgid "Secret Details"
+msgstr "Secret Details"
+
+msgid "Secret Not Found"
+msgstr "Secret Not Found"
+
+msgid "Secret Type"
+msgstr "Secret Type"
+
+msgid "Secret type is required"
+msgstr "Secret type is required"
+
+msgid "Secrets"
+msgstr "Secrets"
 
 msgid "Security"
 msgstr "Security"
@@ -3529,6 +3844,9 @@ msgstr "Select"
 msgid "Select {displayName}"
 msgstr "Select {displayName}"
 
+msgid "Select a DNS domain"
+msgstr "Select a DNS domain"
+
 msgid "Select a DNS domain."
 msgstr "Select a DNS domain."
 
@@ -3540,6 +3858,12 @@ msgstr "Select a port to attach to"
 
 msgid "Select a rule type..."
 msgstr "Select a rule type..."
+
+msgid "Select a secret type first"
+msgstr "Select a secret type first"
+
+msgid "Select a secret..."
+msgstr "Select a secret..."
 
 msgid "Select a security group..."
 msgstr "Select a security group..."
@@ -3576,6 +3900,9 @@ msgstr "Select port to associate"
 
 msgid "Select rule {ruleLabel}"
 msgstr "Select rule {ruleLabel}"
+
+msgid "Select..."
+msgstr "Select..."
 
 msgid "Serve objects as index when file name is:"
 msgstr "Serve objects as index when file name is:"
@@ -3676,6 +4003,9 @@ msgstr "Show Details"
 msgid "Show Metadata"
 msgstr "Show Metadata"
 
+msgid "Show more info about secret types"
+msgstr "Show more info about secret types"
+
 msgid "Showing {filteredCount} of {totalCount} {itemName}"
 msgstr "Showing {filteredCount} of {totalCount} {itemName}"
 
@@ -3775,6 +4105,9 @@ msgstr "Stored as x-amz-meta-* headers. Keys are case-insensitive."
 msgid "Stored as X-Object-Meta-* headers. Keys are case-insensitive."
 msgstr "Stored as X-Object-Meta-* headers. Keys are case-insensitive."
 
+msgid "Sub Status"
+msgstr "Sub Status"
+
 msgid "Subnet"
 msgstr "Subnet"
 
@@ -3832,6 +4165,9 @@ msgstr "Swap Disk must be an integer ≥ 0."
 msgid "Symlinks"
 msgstr "Symlinks"
 
+msgid "symmetric — Used for storing byte arrays such as keys suitable for symmetric encryption"
+msgstr "symmetric — Used for storing byte arrays such as keys suitable for symmetric encryption"
+
 msgid "Tags"
 msgstr "Tags"
 
@@ -3871,6 +4207,9 @@ msgstr "The bucket could not be created. Try again or choose a different name."
 msgid "The compute service is currently unavailable for this project. Please try again later."
 msgstr "The compute service is currently unavailable for this project. Please try again later."
 
+msgid "The container \"{containerName}\" will be permanently deleted. This action cannot be undone."
+msgstr "The container \"{containerName}\" will be permanently deleted. This action cannot be undone."
+
 msgid "The container cannot be deleted as it contains objects. Empty the container first."
 msgstr "The container cannot be deleted as it contains objects. Empty the container first."
 
@@ -3880,6 +4219,9 @@ msgstr "The container could not be created. Try again or choose a different name
 msgid "The container metadata reports objects but none were listed. This may be a temporary synchronization delay — please wait a moment and try again."
 msgstr "The container metadata reports objects but none were listed. This may be a temporary synchronization delay — please wait a moment and try again."
 
+msgid "The container was successfully created."
+msgstr "The container was successfully created."
+
 msgid "The container will be deleted. This action is permanent and cannot be undone."
 msgstr "The container will be deleted. This action is permanent and cannot be undone."
 
@@ -3888,6 +4230,9 @@ msgstr "The container's settings could not be applied."
 
 msgid "The CORS configuration has changed. Please refresh and try again."
 msgstr "The CORS configuration has changed. Please refresh and try again."
+
+msgid "The encoding used for the payload. Currently only base64 is supported."
+msgstr "The encoding used for the payload. Currently only base64 is supported."
 
 msgid "The extra spec could not be found. It may have already been deleted."
 msgstr "The extra spec could not be found. It may have already been deleted."
@@ -3955,6 +4300,12 @@ msgstr "The object will be copied to this path. Navigate folders above to change
 msgid "The object will be moved to this path. Navigate folders above to change the destination."
 msgstr "The object will be moved to this path. Navigate folders above to change the destination."
 
+msgid "The order \"{orderName}\" will be permanently deleted. This action cannot be undone."
+msgstr "The order \"{orderName}\" will be permanently deleted. This action cannot be undone."
+
+msgid "The order was successfully created."
+msgstr "The order was successfully created."
+
 msgid "The other end of the traffic: where it comes from (ingress) or where it goes to (egress). CIDR is recommended."
 msgstr "The other end of the traffic: where it comes from (ingress) or where it goes to (egress). CIDR is recommended."
 
@@ -3990,6 +4341,15 @@ msgstr "The router could not be loaded. Try again."
 
 msgid "The scan did not reach the end of the bucket, so non-current versions may remain. Run Delete Versions again."
 msgstr "The scan did not reach the end of the bucket, so non-current versions may remain. Run Delete Versions again."
+
+msgid "The secret \"{secretName}\" will be permanently deleted. This action cannot be undone."
+msgstr "The secret \"{secretName}\" will be permanently deleted. This action cannot be undone."
+
+msgid "The secret was successfully created."
+msgstr "The secret was successfully created."
+
+msgid "The secret's data to be stored."
+msgstr "The secret's data to be stored."
 
 msgid "The selected images will be permanently deleted. This action cannot be undone."
 msgstr "The selected images will be permanently deleted. This action cannot be undone."
@@ -4039,6 +4399,9 @@ msgstr "There are no buckets available with the current search criteria. Try adj
 msgid "There are no containers available with the current search criteria. Try adjusting your search term."
 msgstr "There are no containers available with the current search criteria. Try adjusting your search term."
 
+msgid "There are no containers in this project. Create one to group your secrets."
+msgstr "There are no containers in this project. Create one to group your secrets."
+
 msgid "There Are No CORS Rules for This Bucket"
 msgstr "There Are No CORS Rules for This Bucket"
 
@@ -4060,6 +4423,9 @@ msgstr "There are no items to display."
 msgid "There Are No Lifecycle Rules for This Bucket"
 msgstr "There Are No Lifecycle Rules for This Bucket"
 
+msgid "There are no orders in this project. Create one to request secret generation."
+msgstr "There are no orders in this project. Create one to request secret generation."
+
 msgid "There are no pending shared images for this project with the current filters applied."
 msgstr "There are no pending shared images for this project with the current filters applied."
 
@@ -4077,6 +4443,9 @@ msgstr "There are no routers in this project."
 
 msgid "There are no rules for this security group"
 msgstr "There are no rules for this security group"
+
+msgid "There are no secrets in this project. Create one to get started."
+msgstr "There are no secrets in this project. Create one to get started."
 
 msgid "There are no security groups available for this project with the current filters applied. Try adjusting your filter criteria or create a new security group to get started."
 msgstr "There are no security groups available for this project with the current filters applied. Try adjusting your filter criteria or create a new security group to get started."
@@ -4291,6 +4660,9 @@ msgstr "Total size quota"
 msgid "True"
 msgstr "True"
 
+msgid "Try a different name or clear the search."
+msgstr "Try a different name or clear the search."
+
 msgid "Try adjusting your filter criteria or check the All Images tab."
 msgstr "Try adjusting your filter criteria or check the All Images tab."
 
@@ -4372,6 +4744,9 @@ msgstr "Unknown domain"
 msgid "Unknown Error"
 msgstr "Unknown Error"
 
+msgid "unnamed"
+msgstr "unnamed"
+
 msgid "UP"
 msgstr "UP"
 
@@ -4440,6 +4815,9 @@ msgstr "User {userId} (any project)"
 
 msgid "User {userId} from project {projectId}"
 msgstr "User {userId} from project {projectId}"
+
+msgid "Valid bit length is required."
+msgstr "Valid bit length is required."
 
 msgid "valid token required: false"
 msgstr "valid token required: false"
@@ -4599,6 +4977,24 @@ msgstr "You can rename the object by changing the name here."
 
 msgid "You do not have permission to view security groups"
 msgstr "You do not have permission to view security groups"
+
+msgid "You do not have the necessary permissions to view Containers."
+msgstr "You do not have the necessary permissions to view Containers."
+
+msgid "You do not have the necessary permissions to view Orders."
+msgstr "You do not have the necessary permissions to view Orders."
+
+msgid "You do not have the necessary permissions to view Secrets."
+msgstr "You do not have the necessary permissions to view Secrets."
+
+msgid "You do not have the necessary permissions to view this Container."
+msgstr "You do not have the necessary permissions to view this Container."
+
+msgid "You do not have the necessary permissions to view this Order."
+msgstr "You do not have the necessary permissions to view this Order."
+
+msgid "You do not have the necessary permissions to view this Secret."
+msgstr "You do not have the necessary permissions to view this Secret."
 
 msgid "You do not have the required permissions to access this port."
 msgstr "You do not have the required permissions to access this port."

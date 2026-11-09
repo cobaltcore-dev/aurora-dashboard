@@ -2,7 +2,6 @@ import { useLingui } from "@lingui/react/macro"
 import { DataGrid, DataGridHeadCell, DataGridRow, DataGridCell, Status } from "@cloudoperators/juno-ui-components"
 import { FloatingIp } from "@/server/Network/types/floatingIp"
 import { FloatingIpTableRow } from "./FloatingIpTableRow"
-import { TABLE_COLUMNS } from "./constants"
 
 interface FloatingIpListContainerProps {
   floatingIps: FloatingIp[]
@@ -13,8 +12,16 @@ interface FloatingIpListContainerProps {
 
 export const FloatingIpListContainer = ({ floatingIps, isLoading, isError, error }: FloatingIpListContainerProps) => {
   const { t } = useLingui()
-  const columns = TABLE_COLUMNS()
-  const columnCount = columns.length
+
+  const TABLE_COLUMNS = [
+    t`Status`,
+    t`Floating IP Address`,
+    t`Fixed IP Address`,
+    t`Subnet`,
+    t`Description`,
+    "", // empty column for item-actions with context menu containing "Show Details", "Edit Description", "Attach", "Detach" and "Release"
+  ] as const
+  const columnCount = TABLE_COLUMNS.length
 
   if (isLoading) {
     return <Status status="progress" title={t`Loading Floating IPs...`} />
@@ -27,7 +34,7 @@ export const FloatingIpListContainer = ({ floatingIps, isLoading, isError, error
   return (
     <DataGrid columns={columnCount} minContentColumns={[columnCount - 1]}>
       <DataGridRow>
-        {columns.map((label) => (
+        {TABLE_COLUMNS.map((label) => (
           <DataGridHeadCell key={label}>{label}</DataGridHeadCell>
         ))}
       </DataGridRow>

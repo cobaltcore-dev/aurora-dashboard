@@ -13,6 +13,9 @@ msgstr ""
 "Language: \n"
 "Language-Team: \n"
 
+msgid "-- None --"
+msgstr ""
+
 msgid "—"
 msgstr "—"
 
@@ -59,6 +62,9 @@ msgstr "\"{objectName}\" wurde erfolgreich nach {destination} verschoben."
 msgid "\"{objectName}\" was successfully uploaded."
 msgstr "\"{objectName}\" wurde erfolgreich hochgeladen."
 
+msgid "(base64-encoded)"
+msgstr ""
+
 #. placeholder {0}: selectedIndices.length
 msgid "{0, plural, one {Delete # Lifecycle Rule} other {Delete # Lifecycle Rules}}"
 msgstr ""
@@ -91,6 +97,9 @@ msgid "{activeCount, plural, one {Deactivate # Image} other {Deactivate # Images
 msgstr ""
 
 msgid "{activeCount, plural, one {Image to deactivate (#)} other {Images to deactivate (#)}}"
+msgstr ""
+
+msgid "{b} bits"
 msgstr ""
 
 msgid "{count, plural, one {# object} other {# objects}}"
@@ -283,6 +292,9 @@ msgstr "7 Tage"
 msgid "A bucket with this name already exists"
 msgstr ""
 
+msgid "A certificate container is used for storing the following secrets that are relevant to certificates: certificate, private_key (optional), private_key_passphrase (optional), intermediates (optional)"
+msgstr ""
+
 msgid "A container with this name already exists"
 msgstr ""
 
@@ -291,6 +303,9 @@ msgstr "Ein Flavor mit dieser ID oder diesem Namen existiert bereits. Bitte verw
 
 msgid "A folder with this name already exists"
 msgstr "Ein Ordner mit diesem Namen existiert bereits"
+
+msgid "A generic container is used for any type of container that a user may wish to create. There are no restrictions on the type or amount of secrets that can be held within a container"
+msgstr ""
 
 msgid "A pre-signed URL can be valid for at most 7 days ({MAX_EXPIRY_MINUTES} minutes)"
 msgstr "Eine vorsignierte URL kann höchstens 7 Tage ({MAX_EXPIRY_MINUTES} Minuten) gültig sein"
@@ -469,10 +484,19 @@ msgstr ""
 msgid "Admin State"
 msgstr ""
 
+msgid "AES supports 128, 192, or 256 bits."
+msgstr ""
+
 msgid "After {abortDays} days"
 msgstr ""
 
 msgid "After restoring, this version's content will become the new latest version."
+msgstr ""
+
+msgid "Algorithm"
+msgstr ""
+
+msgid "Algorithm is required."
 msgstr ""
 
 msgid "All"
@@ -521,6 +545,9 @@ msgid "An access key stops working the moment it is deleted. Any S3 client still
 msgstr ""
 
 msgid "An object with this name already exists at the destination and will be overwritten."
+msgstr ""
+
+msgid "An RSA container is used for storing RSA public keys, private keys, and private key pass phrases"
 msgstr ""
 
 msgid "An unexpected error occurred."
@@ -595,6 +622,9 @@ msgstr ""
 msgid "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 msgstr "Das Aurora-Dashboard ist mehr als nur ein Werkzeug – es ist Ihr Partner bei der Navigation in der Cloud. Egal, ob Sie ein kleines Startup oder ein globales Unternehmen sind, Aurora bietet Ihnen die Flexibilität, Leistung und Einfachheit, die Sie benötigen, um Ihre Ziele zu erreichen."
 
+msgid "Authorization"
+msgstr ""
+
 msgid "Auto-generated if not provided. Only alphanumeric, hyphens, underscores, and dots allowed."
 msgstr ""
 
@@ -628,6 +658,9 @@ msgstr "Zurück zu Images"
 msgid "Back to Instances"
 msgstr ""
 
+msgid "Back to Key Manager"
+msgstr ""
+
 msgid "Back to Ports"
 msgstr ""
 
@@ -639,6 +672,9 @@ msgstr "Zurück zu Security Groups"
 
 msgid "Basic Info"
 msgstr "Grundlegende Informationen"
+
+msgid "Bit Length"
+msgstr ""
 
 msgid "Boot RAM"
 msgstr "Boot-RAM"
@@ -763,6 +799,15 @@ msgstr "Cannot move to the same location. Please select a different bucket, fold
 msgid "Capabilities"
 msgstr "Capabilities"
 
+msgid "Certificate"
+msgstr ""
+
+msgid "certificate — Used for storing cryptographic certificates such as X.509 certificates"
+msgstr ""
+
+msgid "Certificate is required for certificate containers"
+msgstr ""
+
 msgid "Change the name, destination container, or folder to move this object."
 msgstr "Ändern Sie den Namen, den Ziel-Container oder den Ordner, um dieses Objekt zu verschieben."
 
@@ -844,6 +889,12 @@ msgstr "Container \"{containerName}\" wurde erfolgreich geleert. {deletedCount} 
 msgid "Container \"{containerName}\" was successfully emptied. {deletedCount} objects deleted."
 msgstr "Container \"{containerName}\" wurde erfolgreich geleert. {deletedCount} Objekte gelöscht."
 
+msgid "Container \"{name}\" was successfully created."
+msgstr ""
+
+msgid "Container \"{name}\" was successfully deleted."
+msgstr ""
+
 msgid "Container actions"
 msgstr ""
 
@@ -855,6 +906,9 @@ msgstr ""
 
 msgid "Container Deleted"
 msgstr "Container gelöscht"
+
+msgid "Container Details"
+msgstr ""
 
 msgid "Container Emptied"
 msgstr "Container geleert"
@@ -898,6 +952,9 @@ msgstr "Container aktualisiert"
 msgid "Container:"
 msgstr "Container:"
 
+msgid "Containers"
+msgstr ""
+
 msgid "Containers Emptied"
 msgstr "Container geleert"
 
@@ -909,6 +966,9 @@ msgstr ""
 
 msgid "Content type"
 msgstr "Content type"
+
+msgid "Content Types"
+msgstr ""
 
 msgid "Copied to clipboard!"
 msgstr "In die Zwischenablage kopiert!"
@@ -1138,6 +1198,12 @@ msgstr "Neuen Ordner hier erstellen"
 msgid "Create New Image"
 msgstr "Neues Image erstellen"
 
+msgid "Create Order"
+msgstr ""
+
+msgid "Create Secret"
+msgstr ""
+
 msgid "Create Security Group"
 msgstr "Security Group erstellen"
 
@@ -1160,6 +1226,9 @@ msgid "Creating Security Group..."
 msgstr ""
 
 msgid "Creating..."
+msgstr ""
+
+msgid "Creator ID"
 msgstr ""
 
 msgid "Current location:"
@@ -1294,6 +1363,9 @@ msgstr "Objekt löschen:"
 msgid "Delete Objects"
 msgstr ""
 
+msgid "Delete Order"
+msgstr ""
+
 msgid "Delete Policy"
 msgstr ""
 
@@ -1305,6 +1377,9 @@ msgstr ""
 
 msgid "Delete Rule"
 msgstr "Regel löschen"
+
+msgid "Delete Secret"
+msgstr ""
 
 msgid "Delete Security Group \"{securityGroupName}\""
 msgstr "Security Group \"{securityGroupName}\" löschen"
@@ -1399,11 +1474,20 @@ msgstr "DNS"
 msgid "DNS Domain"
 msgstr "DNS-Domain"
 
+msgid "DNS domain is required when a DNS name is entered."
+msgstr ""
+
 msgid "DNS Name"
 msgstr "DNS-Name"
 
+msgid "DNS name is required when a DNS domain is selected."
+msgstr ""
+
 msgid "DNS name must be at most 63 characters."
 msgstr "Der DNS-Name darf höchstens 63 Zeichen lang sein."
+
+msgid "DNS name must use only letters, digits, and hyphens, and must start and end with a letter or digit."
+msgstr ""
 
 msgid "Done"
 msgstr ""
@@ -1483,9 +1567,6 @@ msgstr "Beschreibung bearbeiten"
 msgid "Edit Details"
 msgstr "Details bearbeiten"
 
-msgid "Edit Floating IP {floating_ip_address} Description"
-msgstr ""
-
 msgid "Edit Group"
 msgstr ""
 
@@ -1561,6 +1642,9 @@ msgstr ""
 msgid "Enabled"
 msgstr ""
 
+msgid "Encode the payload according to the content encoding below."
+msgstr ""
+
 msgid "End of the range. Leave empty for a single port."
 msgstr ""
 
@@ -1572,9 +1656,6 @@ msgstr "Stellen Sie sicher, dass ACL-Einträge gültig sind — korrekte Projekt
 
 msgid "Ensure that the Project ID and User ID you enter are correct. The system cannot validate these values — incorrect IDs may apply access to wrong projects and users."
 msgstr "Stellen Sie sicher, dass die eingegebene Projekt-ID und Benutzer-ID korrekt sind. Das System kann diese Werte nicht validieren — falsche IDs können Zugriff auf falsche Projekte und Benutzer gewähren."
-
-msgid "Enter a floating IP"
-msgstr "Floating IP eingeben"
 
 msgid "Enter a floating IP or leave blank to auto-assign one"
 msgstr "Floating IP eingeben oder leer lassen für automatische Zuweisung"
@@ -1597,13 +1678,13 @@ msgstr "Geben Sie einen Zeitstempel wie \"YYYY-MM-DD HH:mm:ss\" ein, um die auto
 msgid "Enter a URL and press Enter. Use * to allow all origins."
 msgstr ""
 
-msgid "Enter a valid PQDN or FQDN (max 63 characters) to associate with the floating IP. A and PTR records are created automatically."
-msgstr "Gültige PQDN oder FQDN (max. 63 Zeichen) eingeben, um sie der Floating IP zuzuordnen. A- und PTR-Einträge werden automatisch erstellt."
-
 msgid "Enter a valid project ID: 32 hexadecimal characters, dashes optional."
 msgstr ""
 
 msgid "Enter a whole number of days greater than 0"
+msgstr ""
+
+msgid "Enter an optional description for the floating IP (max 255 characters)."
 msgstr ""
 
 msgid "Enter bucket policy JSON..."
@@ -1620,6 +1701,9 @@ msgstr "Key eingeben"
 
 msgid "Enter project ID"
 msgstr "Projekt-ID eingeben"
+
+msgid "Enter the hostname label only (e.g., webserver01), without the domain. It will be combined with the DNS domain to form the full record (e.g., webserver01.example.com.)"
+msgstr ""
 
 msgid "Enter value"
 msgstr "Value eingeben"
@@ -1647,9 +1731,6 @@ msgstr ""
 
 msgid "Error Loading Flavor"
 msgstr "Fehler beim Laden des Flavors"
-
-msgid "Error Loading Floating IP"
-msgstr ""
 
 msgid "Error Loading Image"
 msgstr ""
@@ -1682,6 +1763,12 @@ msgid "Expected format: YYYY-MM-DD HH:mm:ss"
 msgstr "Erwartetes Format: JJJJ-MM-TT HH:mm:ss"
 
 msgid "Expiration"
+msgstr ""
+
+msgid "Expiration date must be in the future."
+msgstr ""
+
+msgid "Expiration must be in the future"
 msgstr ""
 
 msgid "Expire non-current versions"
@@ -1873,6 +1960,9 @@ msgstr ""
 msgid "Failed to Load Buckets"
 msgstr ""
 
+msgid "Failed to Load Container"
+msgstr ""
+
 msgid "Failed to Load Container ACLs"
 msgstr ""
 
@@ -1888,6 +1978,9 @@ msgstr ""
 msgid "Failed to Load Container Properties: {errorMessage}"
 msgstr ""
 
+msgid "Failed to Load Containers"
+msgstr ""
+
 msgid "Failed to Load CORS Configuration"
 msgstr ""
 
@@ -1901,6 +1994,9 @@ msgid "Failed to load flavor details. Please try again."
 msgstr "Flavor-Details konnten nicht geladen werden. Bitte versuchen Sie es erneut."
 
 msgid "Failed to Load Flavors"
+msgstr ""
+
+msgid "Failed to Load Floating IP"
 msgstr ""
 
 msgid "Failed to Load Floating IPs"
@@ -1930,6 +2026,15 @@ msgstr ""
 msgid "Failed to Load Objects"
 msgstr ""
 
+msgid "Failed to Load Order"
+msgstr ""
+
+msgid "Failed to Load Orders"
+msgstr ""
+
+msgid "Failed to load payload."
+msgstr ""
+
 msgid "Failed to Load Policy"
 msgstr ""
 
@@ -1937,6 +2042,12 @@ msgid "Failed to Load Ports"
 msgstr ""
 
 msgid "Failed to Load Routers"
+msgstr ""
+
+msgid "Failed to Load Secret"
+msgstr ""
+
+msgid "Failed to Load Secrets"
 msgstr ""
 
 msgid "Failed to Load Security Groups"
@@ -2242,6 +2353,9 @@ msgstr ""
 msgid "Hide ACLs Preview"
 msgstr "ACLs-Vorschau ausblenden"
 
+msgid "Hide info about secret types"
+msgstr ""
+
 msgid "Home"
 msgstr "Startseite"
 
@@ -2362,6 +2476,9 @@ msgstr ""
 msgid "Insufficient Permissions"
 msgstr ""
 
+msgid "Intermediates"
+msgstr ""
+
 msgid "Internal Networks"
 msgstr ""
 
@@ -2421,6 +2538,18 @@ msgstr "Hauptmerkmale"
 
 msgid "Key is required"
 msgstr "Schlüssel ist erforderlich"
+
+msgid "Key Manager"
+msgstr ""
+
+msgid "Key Manager Containers"
+msgstr ""
+
+msgid "Key Manager Orders"
+msgstr ""
+
+msgid "Key Manager Secrets"
+msgstr ""
 
 msgid "Key must contain at least one alphanumeric character"
 msgstr "Schlüssel muss mindestens ein alphanumerisches Zeichen enthalten"
@@ -2494,6 +2623,9 @@ msgstr ""
 msgid "Loading Container Properties..."
 msgstr ""
 
+msgid "Loading Container..."
+msgstr ""
+
 msgid "Loading Containers..."
 msgstr "Container werden geladen..."
 
@@ -2551,6 +2683,15 @@ msgstr ""
 msgid "Loading Objects..."
 msgstr "Objekte werden geladen..."
 
+msgid "Loading Order..."
+msgstr ""
+
+msgid "Loading Orders..."
+msgstr ""
+
+msgid "Loading Payload..."
+msgstr ""
+
 msgid "Loading Permissions..."
 msgstr ""
 
@@ -2573,6 +2714,12 @@ msgid "Loading Router Details..."
 msgstr ""
 
 msgid "Loading Routers..."
+msgstr ""
+
+msgid "Loading Secret..."
+msgstr ""
+
+msgid "Loading Secrets..."
 msgstr ""
 
 msgid "Loading Security Group Details..."
@@ -2659,6 +2806,12 @@ msgstr "Mitglied \"{trimmedMemberId}\" wurde erfolgreich hinzugefügt."
 msgid "Metadata"
 msgstr "Metadata"
 
+msgid "Metadata for informational purposes."
+msgstr ""
+
+msgid "Metadata for informational purposes. Value must be greater than zero."
+msgstr ""
+
 msgid "Metadata size exceeds the 2KB limit. Please remove or shorten some entries before saving."
 msgstr ""
 
@@ -2695,6 +2848,9 @@ msgstr "Minimaler RAM muss 0 oder größer sein"
 msgid "Minimum RAM required to boot this image"
 msgstr "Minimaler RAM, der zum Booten dieses Images erforderlich ist"
 
+msgid "Mode"
+msgstr ""
+
 msgid "More Actions"
 msgstr "Weitere Aktionen"
 
@@ -2716,9 +2872,6 @@ msgstr "Wird verschoben..."
 msgid "Must be a valid IPv4 or IPv6 address (for example: 172.24.4.228 or 2001:db8::1)."
 msgstr "Muss eine gültige IPv4- oder IPv6-Adresse sein (z. B.: 172.24.4.228 oder 2001:db8::1)."
 
-msgid "Must be a valid PQDN or FQDN (alphanumeric and hyphens only, cannot start or end with hyphen)."
-msgstr "Muss eine gültige PQDN oder FQDN sein (nur alphanumerische Zeichen und Bindestriche, darf nicht mit einem Bindestrich beginnen oder enden)."
-
 msgid "Must be a whole number, 0 or greater"
 msgstr "Muss eine ganze Zahl sein, 0 oder größer"
 
@@ -2732,6 +2885,9 @@ msgid "Name"
 msgstr "Name"
 
 msgid "Name / ID"
+msgstr ""
+
+msgid "Name is required"
 msgstr ""
 
 msgid "Name must be 2-50 characters long."
@@ -2750,6 +2906,9 @@ msgid "Network ID"
 msgstr "Netzwerk-ID"
 
 msgid "Network Name"
+msgstr ""
+
+msgid "Never"
 msgstr ""
 
 msgid "New Folder"
@@ -2781,6 +2940,12 @@ msgstr ""
 
 msgid "No containers found"
 msgstr "Keine Container gefunden"
+
+msgid "No Containers Found"
+msgstr ""
+
+msgid "No Containers Match Your Search"
+msgstr ""
 
 msgid "No CORS rules found"
 msgstr ""
@@ -2845,6 +3010,12 @@ msgstr "Keine Objekte entsprechen Ihrer Suche. Versuchen Sie, Ihren Suchbegriff 
 msgid "No objects were deleted: {errorMessage}"
 msgstr ""
 
+msgid "No Orders Found"
+msgstr ""
+
+msgid "No Orders Match Your Search"
+msgstr ""
+
 msgid "No policies match your search"
 msgstr "Keine Richtlinien entsprechen Ihrer Suche"
 
@@ -2888,6 +3059,15 @@ msgid "No routers match your search. Clear the search to view all routers."
 msgstr ""
 
 msgid "No Rules Found"
+msgstr ""
+
+msgid "No Secrets Found"
+msgstr ""
+
+msgid "No Secrets in This Container"
+msgstr ""
+
+msgid "No Secrets Match Your Search"
 msgstr ""
 
 msgid "No security groups found"
@@ -3025,11 +3205,17 @@ msgstr "Ein oder mehrere Objekte konnten nicht gelöscht werden:"
 msgid "Only the folder itself will be restored. Objects inside this folder will remain deleted and must be restored individually."
 msgstr ""
 
+msgid "opaque — Used for backwards compatibility with previous versions of the API without typed secrets"
+msgstr ""
+
 msgid "Open {displayName}"
 msgstr "{displayName} öffnen"
 
 msgid "Open in new tab"
 msgstr "In neuem Tab öffnen"
+
+msgid "optional"
+msgstr ""
 
 msgid "Optional identifier for this rule (max 255 characters)."
 msgstr ""
@@ -3037,11 +3223,47 @@ msgstr ""
 msgid "Optional unique identifier for the rule (max 255 characters)"
 msgstr ""
 
+msgid "Optional. A friendly name for the container."
+msgstr ""
+
+msgid "Optional. If set, the generated secret will not be available after this UTC timestamp."
+msgstr ""
+
+msgid "Optional. If set, the secret will not be available after this UTC timestamp."
+msgstr ""
+
+msgid "Optional. Names the secret this order generates."
+msgstr ""
+
 msgid "Optional. Up to 255 characters."
 msgstr ""
 
 msgid "or drag and drop"
 msgstr "oder per Drag & Drop"
+
+msgid "Order \"{name}\" was successfully created."
+msgstr ""
+
+msgid "Order \"{name}\" was successfully deleted."
+msgstr ""
+
+msgid "Order actions"
+msgstr ""
+
+msgid "Order Created"
+msgstr ""
+
+msgid "Order Deleted"
+msgstr ""
+
+msgid "Order Details"
+msgstr ""
+
+msgid "Order Not Found"
+msgstr ""
+
+msgid "Orders"
+msgstr ""
 
 msgid "Other Actions"
 msgstr ""
@@ -3072,6 +3294,24 @@ msgstr "Teilweise erfolgreich deaktiviert"
 
 msgid "Partial Delete Success"
 msgstr "Teilweise erfolgreich gelöscht"
+
+msgid "passphrase — Used for storing plain text passphrases"
+msgstr ""
+
+msgid "Payload"
+msgstr ""
+
+msgid "Payload Content Encoding"
+msgstr ""
+
+msgid "Payload Content Type"
+msgstr ""
+
+msgid "Payload content type is required"
+msgstr ""
+
+msgid "Payload is required"
+msgstr ""
 
 msgid "Pending"
 msgstr "Ausstehend"
@@ -3157,8 +3397,23 @@ msgstr "Vorschau und Metadaten bearbeiten"
 msgid "Private"
 msgstr "Privat"
 
+msgid "private — Used for storing the private key of an asymmetric keypair"
+msgstr ""
+
 msgid "Private flavors could not be loaded. You may be seeing an incomplete list."
 msgstr "Private Flavors konnten nicht geladen werden. Die angezeigte Liste ist möglicherweise unvollständig."
+
+msgid "Private Key"
+msgstr ""
+
+msgid "Private Key is required for RSA containers"
+msgstr ""
+
+msgid "Private Key Passphrase"
+msgstr ""
+
+msgid "Private Key Passphrase is required for RSA containers"
+msgstr ""
 
 msgid "Private Network"
 msgstr ""
@@ -3235,8 +3490,17 @@ msgstr ""
 msgid "Public"
 msgstr "Öffentlich"
 
+msgid "public — Used for storing the public key of an asymmetric keypair"
+msgstr ""
+
 msgid "Public Flavor"
 msgstr "Öffentlicher Flavor"
+
+msgid "Public Key"
+msgstr ""
+
+msgid "Public Key is required for RSA containers"
+msgstr ""
 
 msgid "Public Read"
 msgstr ""
@@ -3274,6 +3538,9 @@ msgstr "Lese-ACLs"
 msgid "Read ACLs — Preview"
 msgstr "Lese-ACLs — Vorschau"
 
+msgid "Reference"
+msgstr ""
+
 msgid "Region"
 msgstr ""
 
@@ -3306,6 +3573,9 @@ msgstr "Entfernte Sicherheitsgruppe"
 
 msgid "Remove"
 msgstr "Entfernen"
+
+msgid "Remove {secretLabel}"
+msgstr ""
 
 msgid "Remove access for {memberIdDisplay}"
 msgstr "Zugriff für {memberIdDisplay} entfernen"
@@ -3343,6 +3613,9 @@ msgstr ""
 msgid "Reveal"
 msgstr ""
 
+msgid "Reveal Payload"
+msgstr ""
+
 msgid "Root"
 msgstr "Root"
 
@@ -3365,6 +3638,9 @@ msgid "Router Not Found"
 msgstr ""
 
 msgid "Routers"
+msgstr ""
+
+msgid "RSA requires at least 1024 bits."
 msgstr ""
 
 msgid "rule"
@@ -3439,6 +3715,12 @@ msgstr ""
 msgid "Search buckets..."
 msgstr "Buckets suchen..."
 
+msgid "Search by name"
+msgstr ""
+
+msgid "Search by name or ID"
+msgstr ""
+
 msgid "Search containers..."
 msgstr "Container suchen..."
 
@@ -3447,9 +3729,6 @@ msgstr ""
 
 msgid "Search flavors..."
 msgstr "Flavors suchen..."
-
-msgid "Search floating IPs..."
-msgstr ""
 
 msgid "Search instances..."
 msgstr ""
@@ -3478,10 +3757,46 @@ msgstr ""
 msgid "Search..."
 msgstr "Suchen..."
 
+msgid "Search…"
+msgstr ""
+
+msgid "Secret"
+msgstr ""
+
+msgid "Secret \"{name}\" was successfully created."
+msgstr ""
+
+msgid "Secret \"{name}\" was successfully deleted."
+msgstr ""
+
 msgid "Secret access key"
 msgstr ""
 
 msgid "Secret Access Key"
+msgstr ""
+
+msgid "Secret actions"
+msgstr ""
+
+msgid "Secret Created"
+msgstr ""
+
+msgid "Secret Deleted"
+msgstr ""
+
+msgid "Secret Details"
+msgstr ""
+
+msgid "Secret Not Found"
+msgstr ""
+
+msgid "Secret Type"
+msgstr ""
+
+msgid "Secret type is required"
+msgstr ""
+
+msgid "Secrets"
 msgstr ""
 
 msgid "Security"
@@ -3529,6 +3844,9 @@ msgstr "Auswählen"
 msgid "Select {displayName}"
 msgstr ""
 
+msgid "Select a DNS domain"
+msgstr ""
+
 msgid "Select a DNS domain."
 msgstr "DNS-Domain auswählen."
 
@@ -3540,6 +3858,12 @@ msgstr ""
 
 msgid "Select a rule type..."
 msgstr "Regeltyp auswählen..."
+
+msgid "Select a secret type first"
+msgstr ""
+
+msgid "Select a secret..."
+msgstr ""
 
 msgid "Select a security group..."
 msgstr "Security Group auswählen..."
@@ -3575,6 +3899,9 @@ msgid "Select port to associate"
 msgstr "Port zur Zuordnung auswählen"
 
 msgid "Select rule {ruleLabel}"
+msgstr ""
+
+msgid "Select..."
 msgstr ""
 
 msgid "Serve objects as index when file name is:"
@@ -3676,6 +4003,9 @@ msgstr "Details anzeigen"
 msgid "Show Metadata"
 msgstr ""
 
+msgid "Show more info about secret types"
+msgstr ""
+
 msgid "Showing {filteredCount} of {totalCount} {itemName}"
 msgstr "Zeige {filteredCount} von {totalCount} {itemName}"
 
@@ -3775,6 +4105,9 @@ msgstr ""
 msgid "Stored as X-Object-Meta-* headers. Keys are case-insensitive."
 msgstr "Gespeichert als X-Object-Meta-*-Header. Schlüssel sind nicht zwischen Groß- und Kleinschreibung unterscheidend."
 
+msgid "Sub Status"
+msgstr ""
+
 msgid "Subnet"
 msgstr "Subnet"
 
@@ -3832,6 +4165,9 @@ msgstr "Swap-Disk muss eine ganze Zahl ≥ 0 sein."
 msgid "Symlinks"
 msgstr "Symlinks"
 
+msgid "symmetric — Used for storing byte arrays such as keys suitable for symmetric encryption"
+msgstr ""
+
 msgid "Tags"
 msgstr "Tags"
 
@@ -3871,6 +4207,9 @@ msgstr ""
 msgid "The compute service is currently unavailable for this project. Please try again later."
 msgstr "Der Compute-Dienst ist für dieses Projekt derzeit nicht verfügbar. Bitte versuchen Sie es später erneut."
 
+msgid "The container \"{containerName}\" will be permanently deleted. This action cannot be undone."
+msgstr ""
+
 msgid "The container cannot be deleted as it contains objects. Empty the container first."
 msgstr "Der Container kann nicht gelöscht werden, da er Objekte enthält. Leeren Sie den Container zuerst."
 
@@ -3880,6 +4219,9 @@ msgstr ""
 msgid "The container metadata reports objects but none were listed. This may be a temporary synchronization delay — please wait a moment and try again."
 msgstr "Die Container-Metadaten melden Objekte, aber keine wurden aufgelistet. Dies kann eine vorübergehende Synchronisierungsverzögerung sein — bitte warten Sie einen Moment und versuchen Sie es erneut."
 
+msgid "The container was successfully created."
+msgstr ""
+
 msgid "The container will be deleted. This action is permanent and cannot be undone."
 msgstr "Der Container wird gelöscht. Diese Aktion ist dauerhaft und kann nicht rückgängig gemacht werden."
 
@@ -3887,6 +4229,9 @@ msgid "The container's settings could not be applied."
 msgstr ""
 
 msgid "The CORS configuration has changed. Please refresh and try again."
+msgstr ""
+
+msgid "The encoding used for the payload. Currently only base64 is supported."
 msgstr ""
 
 msgid "The extra spec could not be found. It may have already been deleted."
@@ -3955,6 +4300,12 @@ msgstr "Das Objekt wird zu diesem Pfad kopiert. Navigieren Sie oben durch die Or
 msgid "The object will be moved to this path. Navigate folders above to change the destination."
 msgstr "Das Objekt wird zu diesem Pfad verschoben. Navigieren Sie oben durch die Ordner, um das Ziel zu ändern."
 
+msgid "The order \"{orderName}\" will be permanently deleted. This action cannot be undone."
+msgstr ""
+
+msgid "The order was successfully created."
+msgstr ""
+
 msgid "The other end of the traffic: where it comes from (ingress) or where it goes to (egress). CIDR is recommended."
 msgstr ""
 
@@ -3989,6 +4340,15 @@ msgid "The router could not be loaded. Try again."
 msgstr ""
 
 msgid "The scan did not reach the end of the bucket, so non-current versions may remain. Run Delete Versions again."
+msgstr ""
+
+msgid "The secret \"{secretName}\" will be permanently deleted. This action cannot be undone."
+msgstr ""
+
+msgid "The secret was successfully created."
+msgstr ""
+
+msgid "The secret's data to be stored."
 msgstr ""
 
 msgid "The selected images will be permanently deleted. This action cannot be undone."
@@ -4039,6 +4399,9 @@ msgstr ""
 msgid "There are no containers available with the current search criteria. Try adjusting your search term."
 msgstr "Mit den aktuellen Suchkriterien sind keine Container verfügbar. Versuchen Sie, Ihren Suchbegriff anzupassen."
 
+msgid "There are no containers in this project. Create one to group your secrets."
+msgstr ""
+
 msgid "There Are No CORS Rules for This Bucket"
 msgstr ""
 
@@ -4060,6 +4423,9 @@ msgstr "Es gibt keine Elemente zum Anzeigen."
 msgid "There Are No Lifecycle Rules for This Bucket"
 msgstr ""
 
+msgid "There are no orders in this project. Create one to request secret generation."
+msgstr ""
+
 msgid "There are no pending shared images for this project with the current filters applied."
 msgstr ""
 
@@ -4077,6 +4443,9 @@ msgstr ""
 
 msgid "There are no rules for this security group"
 msgstr "Es gibt keine Regeln für diese Sicherheitsgruppe"
+
+msgid "There are no secrets in this project. Create one to get started."
+msgstr ""
 
 msgid "There are no security groups available for this project with the current filters applied. Try adjusting your filter criteria or create a new security group to get started."
 msgstr "Für dieses Projekt sind mit den aktuellen Filtern keine Sicherheitsgruppen verfügbar. Passen Sie Ihre Filterkriterien an oder erstellen Sie eine neue Sicherheitsgruppe."
@@ -4291,6 +4660,9 @@ msgstr "Gesamtspeicher-Quota"
 msgid "True"
 msgstr "True"
 
+msgid "Try a different name or clear the search."
+msgstr ""
+
 msgid "Try adjusting your filter criteria or check the All Images tab."
 msgstr ""
 
@@ -4372,6 +4744,9 @@ msgstr ""
 msgid "Unknown Error"
 msgstr ""
 
+msgid "unnamed"
+msgstr ""
+
 msgid "UP"
 msgstr ""
 
@@ -4440,6 +4815,9 @@ msgstr "Benutzer {userId} (beliebiges Projekt)"
 
 msgid "User {userId} from project {projectId}"
 msgstr "Benutzer {userId} aus Projekt {projectId}"
+
+msgid "Valid bit length is required."
+msgstr ""
 
 msgid "valid token required: false"
 msgstr "gültiges Token erforderlich: false"
@@ -4598,6 +4976,24 @@ msgid "You can rename the object by changing the name here."
 msgstr "Sie können das Objekt umbenennen, indem Sie den Namen hier ändern."
 
 msgid "You do not have permission to view security groups"
+msgstr ""
+
+msgid "You do not have the necessary permissions to view Containers."
+msgstr ""
+
+msgid "You do not have the necessary permissions to view Orders."
+msgstr ""
+
+msgid "You do not have the necessary permissions to view Secrets."
+msgstr ""
+
+msgid "You do not have the necessary permissions to view this Container."
+msgstr ""
+
+msgid "You do not have the necessary permissions to view this Order."
+msgstr ""
+
+msgid "You do not have the necessary permissions to view this Secret."
 msgstr ""
 
 msgid "You do not have the required permissions to access this port."

@@ -6,8 +6,31 @@ import { I18nProvider } from "@lingui/react"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
+import { trpcReact } from "@/client/trpcClient"
 import { FloatingIpDetailsView } from "./FloatingIpDetailsView"
 import { FloatingIpActionModalTriggers } from "../../../-components/-modals/FloatingIpActionModals"
+
+vi.mock("@/client/hooks", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/client/hooks")>()
+  return {
+    ...actual,
+    useProjectId: vi.fn(() => "proj-1"),
+  }
+})
+
+vi.mock("@/client/trpcClient", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/client/trpcClient")>()
+  return {
+    ...actual,
+    trpcReact: {
+      network: {
+        canUser: {
+          useQuery: vi.fn(),
+        },
+      },
+    },
+  }
+})
 
 vi.mock("../../../-components/-modals/FloatingIpActionModals", () => ({
   FloatingIpActionModals: ({ children }: { children: (triggers: FloatingIpActionModalTriggers) => ReactElement }) =>
@@ -66,6 +89,10 @@ describe("FloatingIpDetailsView", () => {
 
   beforeEach(() => {
     i18n.activate("en")
+    // Default: user is allowed to perform every action. Individual tests override this to assert gating.
+    vi.mocked(trpcReact.network.canUser.useQuery).mockReturnValue({
+      data: { canUpdate: true, canDisassociate: true, canDelete: true, canAssociate: true },
+    } as ReturnType<typeof trpcReact.network.canUser.useQuery>)
   })
 
   afterEach(() => {
@@ -98,13 +125,76 @@ describe("FloatingIpDetailsView", () => {
       expect(screen.getByText("Detach")).toBeInTheDocument()
       expect(screen.getByText("Release")).toBeInTheDocument()
     })
+
+    it("disables Edit Description when the user lacks update permission", async () => {
+      vi.mocked(trpcReact.network.canUser.useQuery).mockReturnValue({
+        data: { canUpdate: false, canDisassociate: true, canDelete: true, canAssociate: true },
+      } as ReturnType<typeof trpcReact.network.canUser.useQuery>)
+      const user = userEvent.setup()
+      render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
+
+      await user.click(screen.getByRole("button", { name: "Floating IP actions" }))
+
+      expect(screen.getByRole("menuitem", { name: "Edit Description" })).toHaveAttribute("aria-disabled", "true")
+    })
+
+    it("disables Detach when the user lacks disassociate permission", async () => {
+      vi.mocked(trpcReact.network.canUser.useQuery).mockReturnValue({
+        data: { canUpdate: true, canDisassociate: false, canDelete: true, canAssociate: true },
+      } as ReturnType<typeof trpcReact.network.canUser.useQuery>)
+      const user = userEvent.setup()
+      render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
+
+      await user.click(screen.getByRole("button", { name: "Floating IP actions" }))
+
+      expect(screen.getByRole("menuitem", { name: "Detach" })).toHaveAttribute("aria-disabled", "true")
+    })
+
+    it("disables Release when the user lacks delete permission", async () => {
+      vi.mocked(trpcReact.network.canUser.useQuery).mockReturnValue({
+        data: { canUpdate: true, canDisassociate: true, canDelete: false, canAssociate: true },
+      } as ReturnType<typeof trpcReact.network.canUser.useQuery>)
+      const user = userEvent.setup()
+      render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
+
+      await user.click(screen.getByRole("button", { name: "Floating IP actions" }))
+
+      expect(screen.getByRole("menuitem", { name: "Release" })).toHaveAttribute("aria-disabled", "true")
+    })
+
+    it("hides Attach when the user lacks associate permission", () => {
+      vi.mocked(trpcReact.network.canUser.useQuery).mockReturnValue({
+        data: { canUpdate: true, canDisassociate: true, canDelete: true, canAssociate: false },
+      } as ReturnType<typeof trpcReact.network.canUser.useQuery>)
+      render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
+
+      expect(screen.queryByText("Attach")).not.toBeInTheDocument()
+    })
+
+    it("keeps the kebab menu available but disables every option for a viewer", async () => {
+      vi.mocked(trpcReact.network.canUser.useQuery).mockReturnValue({
+        data: { canUpdate: false, canDisassociate: false, canDelete: false, canAssociate: false },
+      } as ReturnType<typeof trpcReact.network.canUser.useQuery>)
+      const user = userEvent.setup()
+      render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
+
+      const menuButton = screen.getByRole("button", { name: "Floating IP actions" })
+      expect(menuButton).toBeInTheDocument()
+
+      await user.click(menuButton)
+
+      expect(screen.getByRole("menuitem", { name: "Edit Description" })).toHaveAttribute("aria-disabled", "true")
+      expect(screen.getByRole("menuitem", { name: "Detach" })).toHaveAttribute("aria-disabled", "true")
+      expect(screen.getByRole("menuitem", { name: "Release" })).toHaveAttribute("aria-disabled", "true")
+      expect(screen.queryByText("Attach")).not.toBeInTheDocument()
+    })
   })
 
   describe("Basic Info section", () => {
     it("displays basic info heading", () => {
       render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
 
-      expect(screen.getByText("Basic Info")).toBeInTheDocument()
+      expect(screen.getByRole("heading", { level: 2, name: "Basic Info" })).toBeInTheDocument()
     })
 
     it("displays floating IP ID", () => {
@@ -119,12 +209,12 @@ describe("FloatingIpDetailsView", () => {
       expect(screen.getByText("Web server FIP")).toBeInTheDocument()
     })
 
-    it("displays em dash for description when absent", () => {
+    it("displays empty state placeholder for description when absent", () => {
       const fipWithoutDescription = { ...mockFloatingIp, description: null }
       render(<FloatingIpDetailsView floatingIp={fipWithoutDescription} />, { wrapper: TestWrapper })
 
       expect(screen.getByText("Description")).toBeInTheDocument()
-      expect(screen.getByText("—")).toBeInTheDocument()
+      expect(screen.getByText("- -")).toBeInTheDocument()
       expect(screen.queryByText("Web server FIP")).not.toBeInTheDocument()
     })
 
@@ -153,11 +243,11 @@ describe("FloatingIpDetailsView", () => {
       expect(screen.getByText("production, web")).toBeInTheDocument()
     })
 
-    it("displays em dash when no tags", () => {
+    it("displays empty state placeholder when no tags", () => {
       const fipWithoutTags = { ...mockFloatingIp, tags: [] }
       render(<FloatingIpDetailsView floatingIp={fipWithoutTags} />, { wrapper: TestWrapper })
 
-      const tags = screen.getAllByText("—")
+      const tags = screen.getAllByText("- -")
       expect(tags.length).toBeGreaterThan(0)
     })
 
@@ -183,7 +273,7 @@ describe("FloatingIpDetailsView", () => {
     it("displays network & routing heading", () => {
       render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
 
-      expect(screen.getByText("Network & Routing")).toBeInTheDocument()
+      expect(screen.getByRole("heading", { level: 2, name: "Network & Routing" })).toBeInTheDocument()
     })
 
     it("displays floating IP address and network", () => {
@@ -238,7 +328,7 @@ describe("FloatingIpDetailsView", () => {
     it("displays DNS heading", () => {
       render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
 
-      expect(screen.getByText("DNS")).toBeInTheDocument()
+      expect(screen.getByRole("heading", { level: 2, name: "DNS" })).toBeInTheDocument()
     })
 
     it("displays DNS domain and name when present", () => {
@@ -248,20 +338,20 @@ describe("FloatingIpDetailsView", () => {
       expect(screen.getByText("fip-1")).toBeInTheDocument()
     })
 
-    it("displays em dash when DNS domain is missing", () => {
+    it("displays empty state placeholder when DNS domain is missing", () => {
       const fipWithoutDnsDomain = { ...mockFloatingIp, dns_domain: undefined }
       render(<FloatingIpDetailsView floatingIp={fipWithoutDnsDomain} />, { wrapper: TestWrapper })
 
-      const emDashes = screen.getAllByText("—")
-      expect(emDashes.length).toBeGreaterThan(0)
+      const placeholders = screen.getAllByText("- -")
+      expect(placeholders.length).toBeGreaterThan(0)
     })
 
-    it("displays em dash when DNS name is missing", () => {
+    it("displays empty state placeholder when DNS name is missing", () => {
       const fipWithoutDnsName = { ...mockFloatingIp, dns_name: undefined }
       render(<FloatingIpDetailsView floatingIp={fipWithoutDnsName} />, { wrapper: TestWrapper })
 
-      const emDashes = screen.getAllByText("—")
-      expect(emDashes.length).toBeGreaterThan(0)
+      const placeholders = screen.getAllByText("- -")
+      expect(placeholders.length).toBeGreaterThan(0)
     })
   })
 
