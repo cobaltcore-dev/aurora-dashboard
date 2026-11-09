@@ -252,7 +252,7 @@ All modals **must** follow this skeleton:
 
 ```tsx
 // Full-page loading
-<Status status="progress" title={t`Loading...`} />
+<Status status="progress" title={t`Loading…`} />
 
 // Full-page error
 <Container className="py-8">
