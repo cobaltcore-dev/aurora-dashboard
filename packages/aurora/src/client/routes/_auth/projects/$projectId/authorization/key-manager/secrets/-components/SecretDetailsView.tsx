@@ -69,6 +69,34 @@ export function SecretDetailsView({ projectId, secretId }: SecretDetailsViewProp
     setShowPayload(true)
   }
 
+  const handleDownload = () => {
+    if (!payloadData) return
+    const contentType = payloadData.contentType
+    const isBase64 = payloadData.encoding === "base64"
+    let blobPart: BlobPart
+    if (isBase64) {
+      const binary = atob(payloadData.payload)
+      const bytes = new Uint8Array(binary.length)
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i)
+      blobPart = bytes
+    } else {
+      blobPart = payloadData.payload
+    }
+    const ext =
+      contentType === "text/plain"
+        ? "txt"
+        : contentType === "application/x-pem-file" || contentType === "application/pkix-cert"
+          ? "pem"
+          : "bin"
+    const blob = new Blob([blobPart], { type: contentType })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = `${secretId}.${ext}`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   const contentTypes = secret.content_types
     ? Object.entries(secret.content_types)
         .map(([k, v]) => `${k}: ${v}`)
@@ -129,6 +157,7 @@ export function SecretDetailsView({ projectId, secretId }: SecretDetailsViewProp
                     onClick={() => void navigator.clipboard.writeText(payloadData.payload)}
                     label={t`Copy`}
                   />
+                  <Button size="small" variant="subdued" onClick={handleDownload} label={t`Download`} />
                   <Button size="small" variant="subdued" onClick={() => setShowPayload(false)} label={t`Hide`} />
                 </Stack>
               </Stack>

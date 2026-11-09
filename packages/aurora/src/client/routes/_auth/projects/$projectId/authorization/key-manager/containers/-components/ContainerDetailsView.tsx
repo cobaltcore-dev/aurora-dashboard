@@ -100,7 +100,11 @@ export function ContainerDetailsView({ projectId, containerId }: ContainerDetail
               container.secret_refs.map((ref) => {
                 const secretId = uuidFromRef(ref.secret_ref)
                 return (
-                  <DataGridRow key={ref.secret_ref}>
+                  <DataGridRow
+                    key={ref.secret_ref}
+                    onClick={() => showSecretDetails(secretId)}
+                    className="cursor-pointer"
+                  >
                     <DataGridCell>
                       <div>{ref.name || <em>{t`unnamed`}</em>}</div>
                       <div className="text-xs opacity-60">

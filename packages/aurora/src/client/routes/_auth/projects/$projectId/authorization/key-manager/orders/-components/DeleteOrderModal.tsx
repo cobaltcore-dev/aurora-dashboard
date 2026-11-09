@@ -46,6 +46,12 @@ export function DeleteOrderModal({
     >
       <Stack direction="vertical" gap="4">
         {deleteMutation.error && <Message variant="error" text={deleteMutation.error.message} />}
+        {order.status === "PENDING" && (
+          <Message
+            variant="warning"
+            text={t`This order is still being processed. Deleting it now may leave an orphaned resource in Barbican.`}
+          />
+        )}
         <p className="text-theme-default">
           {t`The order "${orderName}" will be permanently deleted. This action cannot be undone.`}
         </p>
