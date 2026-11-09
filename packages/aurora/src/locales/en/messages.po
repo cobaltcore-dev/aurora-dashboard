@@ -1456,11 +1456,20 @@ msgstr "DNS"
 msgid "DNS Domain"
 msgstr "DNS Domain"
 
+msgid "DNS domain is required when a DNS name is entered."
+msgstr "DNS domain is required when a DNS name is entered."
+
 msgid "DNS Name"
 msgstr "DNS Name"
 
+msgid "DNS name is required when a DNS domain is selected."
+msgstr "DNS name is required when a DNS domain is selected."
+
 msgid "DNS name must be at most 63 characters."
 msgstr "DNS name must be at most 63 characters."
+
+msgid "DNS name must use only letters, digits, and hyphens, and must start and end with a letter or digit."
+msgstr "DNS name must use only letters, digits, and hyphens, and must start and end with a letter or digit."
 
 msgid "Done"
 msgstr "Done"
@@ -1542,9 +1551,6 @@ msgstr "Edit Description"
 
 msgid "Edit Details"
 msgstr "Edit Details"
-
-msgid "Edit Floating IP {floating_ip_address} Description"
-msgstr "Edit Floating IP {floating_ip_address} Description"
 
 msgid "Edit Group"
 msgstr "Edit Group"
@@ -1636,9 +1642,6 @@ msgstr "Ensure ACL entries are valid — correct project IDs, user IDs, and form
 msgid "Ensure that the Project ID and User ID you enter are correct. The system cannot validate these values — incorrect IDs may apply access to wrong projects and users."
 msgstr "Ensure that the Project ID and User ID you enter are correct. The system cannot validate these values — incorrect IDs may apply access to wrong projects and users."
 
-msgid "Enter a floating IP"
-msgstr "Enter a floating IP"
-
 msgid "Enter a floating IP or leave blank to auto-assign one"
 msgstr "Enter a floating IP or leave blank to auto-assign one"
 
@@ -1660,14 +1663,14 @@ msgstr "Enter a timestamp like \"YYYY-MM-DD HH:mm:ss\" to schedule automatic del
 msgid "Enter a URL and press Enter. Use * to allow all origins."
 msgstr "Enter a URL and press Enter. Use * to allow all origins."
 
-msgid "Enter a valid PQDN or FQDN (max 63 characters) to associate with the floating IP. A and PTR records are created automatically."
-msgstr "Enter a valid PQDN or FQDN (max 63 characters) to associate with the floating IP. A and PTR records are created automatically."
-
 msgid "Enter a valid project ID: 32 hexadecimal characters, dashes optional."
 msgstr "Enter a valid project ID: 32 hexadecimal characters, dashes optional."
 
 msgid "Enter a whole number of days greater than 0"
 msgstr "Enter a whole number of days greater than 0"
+
+msgid "Enter an optional description for the floating IP (max 255 characters)."
+msgstr "Enter an optional description for the floating IP (max 255 characters)."
 
 msgid "Enter bucket policy JSON..."
 msgstr "Enter bucket policy JSON..."
@@ -1683,6 +1686,9 @@ msgstr "Enter key"
 
 msgid "Enter project ID"
 msgstr "Enter project ID"
+
+msgid "Enter the hostname label only (e.g., webserver01), without the domain. It will be combined with the DNS domain to form the full record (e.g., webserver01.example.com.)"
+msgstr "Enter the hostname label only (e.g., webserver01), without the domain. It will be combined with the DNS domain to form the full record (e.g., webserver01.example.com.)"
 
 msgid "Enter value"
 msgstr "Enter value"
@@ -1710,9 +1716,6 @@ msgstr "Error Loading Containers"
 
 msgid "Error Loading Flavor"
 msgstr "Error Loading Flavor"
-
-msgid "Error Loading Floating IP"
-msgstr "Error Loading Floating IP"
 
 msgid "Error Loading Image"
 msgstr "Error Loading Image"
@@ -1974,6 +1977,9 @@ msgstr "Failed to load flavor details. Please try again."
 
 msgid "Failed to Load Flavors"
 msgstr "Failed to Load Flavors"
+
+msgid "Failed to Load Floating IP"
+msgstr "Failed to Load Floating IP"
 
 msgid "Failed to Load Floating IPs"
 msgstr "Failed to Load Floating IPs"
@@ -2808,9 +2814,6 @@ msgstr "Moving..."
 
 msgid "Must be a valid IPv4 or IPv6 address (for example: 172.24.4.228 or 2001:db8::1)."
 msgstr "Must be a valid IPv4 or IPv6 address (for example: 172.24.4.228 or 2001:db8::1)."
-
-msgid "Must be a valid PQDN or FQDN (alphanumeric and hyphens only, cannot start or end with hyphen)."
-msgstr "Must be a valid PQDN or FQDN (alphanumeric and hyphens only, cannot start or end with hyphen)."
 
 msgid "Must be a whole number, 0 or greater"
 msgstr "Must be a whole number, 0 or greater"
@@ -3649,9 +3652,6 @@ msgstr "Search CORS rules..."
 msgid "Search flavors..."
 msgstr "Search flavors..."
 
-msgid "Search floating IPs..."
-msgstr "Search floating IPs..."
-
 msgid "Search lifecycle rules..."
 msgstr "Search lifecycle rules..."
 
@@ -3675,6 +3675,9 @@ msgstr "Search security groups..."
 
 msgid "Search..."
 msgstr "Search..."
+
+msgid "Search…"
+msgstr "Search…"
 
 msgid "Secret"
 msgstr "Secret"
@@ -3759,6 +3762,9 @@ msgstr "Select"
 
 msgid "Select {displayName}"
 msgstr "Select {displayName}"
+
+msgid "Select a DNS domain"
+msgstr "Select a DNS domain"
 
 msgid "Select a DNS domain."
 msgstr "Select a DNS domain."

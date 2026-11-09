@@ -26,8 +26,9 @@ export const EditFloatingIpModal = ({
 }: EditFloatingIpModalProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
-  const { description, floating_ip_address } = floatingIp
+  const { description } = floatingIp
 
+  // Description only has length constraints, so validate live on change.
   const formSchema = z.object({
     description: z
       .string()
@@ -41,7 +42,7 @@ export const EditFloatingIpModal = ({
       description: description ?? "",
     },
     validators: {
-      onSubmit: formSchema,
+      onChange: formSchema,
     },
     onSubmit: async ({ value }) => {
       if (isLoading) return
@@ -62,8 +63,9 @@ export const EditFloatingIpModal = ({
     onClose()
   }
 
-  // creates a reactive subscription so the component re-renders, which allows the confirm button to be enabled once the user edit description field.
-  const enableConfirmButton = useStore(form.store, (state) => state.isSubmitting || !state.isDirty)
+  // Reactive subscription so the Save button re-evaluates as the user edits.
+  // Disabled while submitting, when unchanged, or when validation fails (e.g. description over 255 chars).
+  const disableSaveButton = useStore(form.store, (state) => state.isSubmitting || !state.isDirty || !state.canSubmit)
 
   return (
     <Modal
@@ -71,11 +73,11 @@ export const EditFloatingIpModal = ({
       key={floatingIp.id}
       open={open}
       size="large"
-      title={t`Edit Floating IP ${floating_ip_address} Description`}
+      title={t`Edit Description`}
       onCancel={handleClose}
       cancelButtonLabel={t`Cancel`}
       confirmButtonLabel={t`Save`}
-      disableConfirmButton={isLoading || enableConfirmButton}
+      disableConfirmButton={isLoading || disableSaveButton}
       disableCancelButton={isLoading}
       disableCloseButton={isLoading}
       onConfirm={form.handleSubmit}

@@ -1,19 +1,20 @@
-import { Trans, useLingui } from "@lingui/react/macro"
+import { useLingui } from "@lingui/react/macro"
 import {
   Stack,
   Button,
-  ContentHeading,
   PopupMenu,
   PopupMenuToggle,
   PopupMenuItem,
   PopupMenuOptions,
 } from "@cloudoperators/juno-ui-components"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
-import { formatFloatingIpStatus } from "@/client/utils/formatFloatingIpStatus"
 import type { DetailListItem } from "@/client/components/TwoColumnDescriptionList"
 import { TwoColumnDescriptionList } from "@/client/components/TwoColumnDescriptionList"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
+import { trpcReact } from "@/client/trpcClient"
+import { useProjectId } from "@/client/hooks"
 import { FloatingIpActionModals } from "../../../-components/-modals/FloatingIpActionModals"
+import { formatFloatingIpStatus } from "../../../-utils/formatFloatingIpStatus"
 
 interface FloatingIpDetailsViewProps {
   floatingIp: FloatingIp
@@ -21,35 +22,56 @@ interface FloatingIpDetailsViewProps {
 
 export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps) => {
   const { t } = useLingui()
+  const projectId = useProjectId()
+
+  const { data: permissions } = trpcReact.network.canUser.useQuery(
+    {
+      project_id: projectId,
+      permission: [
+        "network:floatingips:update",
+        "network:floatingips:disassociate",
+        "network:floatingips:delete",
+        "network:floatingips:associate",
+      ],
+    },
+    {
+      select: ([canUpdate, canDisassociate, canDelete, canAssociate]) => ({
+        canUpdate,
+        canDisassociate,
+        canDelete,
+        canAssociate,
+      }),
+    }
+  )
 
   const basicInfoItems: DetailListItem[] = [
     { label: t`ID`, value: floatingIp.id },
-    { label: t`Description`, value: floatingIp.description || `—` },
-    { label: t`Project ID`, value: floatingIp.project_id || `—` },
+    { label: t`Description`, value: floatingIp.description || `- -` },
+    { label: t`Project ID`, value: floatingIp.project_id || `- -` },
     { label: t`Status`, value: formatFloatingIpStatus(floatingIp.status) },
-    { label: t`Created At`, value: floatingIp.created_at ? new Date(floatingIp.created_at).toLocaleString() : `—` },
-    { label: t`Updated At`, value: floatingIp.updated_at ? new Date(floatingIp.updated_at).toLocaleString() : `—` },
-    { label: t`Tags`, value: floatingIp.tags?.join(", ") || `—` },
+    { label: t`Created At`, value: floatingIp.created_at ? new Date(floatingIp.created_at).toLocaleString() : `- -` },
+    { label: t`Updated At`, value: floatingIp.updated_at ? new Date(floatingIp.updated_at).toLocaleString() : `- -` },
+    { label: t`Tags`, value: floatingIp.tags?.join(", ") || `- -` },
   ]
 
   const networkRoutingItems: DetailListItem[] = [
-    { label: t`Floating IP Address`, value: floatingIp.floating_ip_address || `—` },
-    { label: t`Floating Network`, value: floatingIp.floating_network_id || `—` },
-    { label: t`Fixed IP Address`, value: floatingIp.fixed_ip_address || `—` },
-    { label: t`Port Name`, value: floatingIp.port_details?.name || `—` },
-    { label: t`MAC Address`, value: floatingIp.port_details?.mac_address || `—` },
-    { label: t`Network ID`, value: floatingIp.port_details?.network_id || `—` },
-    { label: t`Device Owner`, value: floatingIp.port_details?.device_owner || `—` },
-    { label: t`Device ID`, value: floatingIp.port_details?.device_id || `—` },
-    { label: t`Router ID`, value: floatingIp.router_id || `—` },
-    { label: t`Port ID`, value: floatingIp.port_id || `—` },
-    { label: t`QoS Policy ID`, value: floatingIp.qos_policy_id || `—` },
-    { label: t`Port Forwarding`, value: floatingIp.port_forwardings?.map((port) => port.id).join(", ") || `—` },
+    { label: t`Floating IP Address`, value: floatingIp.floating_ip_address || `- -` },
+    { label: t`Floating Network`, value: floatingIp.floating_network_id || `- -` },
+    { label: t`Fixed IP Address`, value: floatingIp.fixed_ip_address || `- -` },
+    { label: t`Port Name`, value: floatingIp.port_details?.name || `- -` },
+    { label: t`MAC Address`, value: floatingIp.port_details?.mac_address || `- -` },
+    { label: t`Network ID`, value: floatingIp.port_details?.network_id || `- -` },
+    { label: t`Device Owner`, value: floatingIp.port_details?.device_owner || `- -` },
+    { label: t`Device ID`, value: floatingIp.port_details?.device_id || `- -` },
+    { label: t`Router ID`, value: floatingIp.router_id || `- -` },
+    { label: t`Port ID`, value: floatingIp.port_id || `- -` },
+    { label: t`QoS Policy ID`, value: floatingIp.qos_policy_id || `- -` },
+    { label: t`Port Forwarding`, value: floatingIp.port_forwardings?.map((port) => port.id).join(", ") || `- -` },
   ]
 
   const dnsItems: DetailListItem[] = [
-    { label: t`DNS Domain`, value: floatingIp.dns_domain || `—` },
-    { label: t`DNS Name`, value: floatingIp.dns_name || `—` },
+    { label: t`DNS Domain`, value: floatingIp.dns_domain || `- -` },
+    { label: t`DNS Name`, value: floatingIp.dns_name || `- -` },
   ]
 
   return (
@@ -66,14 +88,24 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
                     <Button icon="moreVert" title={t`Floating IP actions`} />
                   </PopupMenuToggle>
                   <PopupMenuOptions>
-                    <PopupMenuItem label={t`Edit Description`} onClick={toggleEditModal} />
-                    <PopupMenuItem label={t`Detach`} onClick={toggleDetachModal} />
-                    <PopupMenuItem label={t`Release`} onClick={toggleReleaseModal} />
+                    <PopupMenuItem
+                      label={t`Edit Description`}
+                      onClick={toggleEditModal}
+                      disabled={!permissions?.canUpdate}
+                    />
+                    <PopupMenuItem
+                      label={t`Detach`}
+                      onClick={toggleDetachModal}
+                      disabled={!permissions?.canDisassociate}
+                    />
+                    <PopupMenuItem label={t`Release`} onClick={toggleReleaseModal} disabled={!permissions?.canDelete} />
                   </PopupMenuOptions>
                 </PopupMenu>
-                <Button variant="primary" className="whitespace-nowrap" onClick={toggleAttachModal}>
-                  {t`Attach`}
-                </Button>
+                {permissions?.canAssociate && (
+                  <Button variant="primary" className="whitespace-nowrap" onClick={toggleAttachModal}>
+                    {t`Attach`}
+                  </Button>
+                )}
               </Stack>
             )}
           </FloatingIpActionModals>
@@ -82,23 +114,17 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
 
       <Stack direction="vertical" gap="6" className="my-6">
         <Stack direction="vertical" gap="2">
-          <ContentHeading>
-            <Trans>Basic Info</Trans>
-          </ContentHeading>
+          <h2>{t`Basic Info`}</h2>
           <TwoColumnDescriptionList items={basicInfoItems} />
         </Stack>
 
         <Stack direction="vertical" gap="2">
-          <ContentHeading>
-            <Trans>Network & Routing</Trans>
-          </ContentHeading>
+          <h2>{t`Network & Routing`}</h2>
           <TwoColumnDescriptionList items={networkRoutingItems} />
         </Stack>
 
         <Stack direction="vertical" gap="2">
-          <ContentHeading>
-            <Trans>DNS</Trans>
-          </ContentHeading>
+          <h2>{t`DNS`}</h2>
           <TwoColumnDescriptionList items={dnsItems} />
         </Stack>
       </Stack>
