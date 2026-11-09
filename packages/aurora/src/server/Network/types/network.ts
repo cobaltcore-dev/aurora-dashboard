@@ -1,6 +1,6 @@
 import { z } from "zod"
 import { projectScopedInputSchema } from "../../trpc"
-import { ISO8601TimestampSchema, SortDirSchema } from "./index"
+import { ISO8601TimestampSchema } from "./index"
 
 /* -------------------------------------------------------------------------- */
 /*                                 Primitives                                 */
@@ -112,26 +112,11 @@ export const NetworkSortKeySchema = z.enum([
   "tenant_id",
 ])
 
-export const NetworkQueryParametersSchema = projectScopedInputSchema.extend({
-  // Passed through to Neutron
-  name: z.string().optional(),
-  description: z.string().optional(),
-  status: z.string().optional(),
-  admin_state_up: z.boolean().optional(),
-  // Controls which requests are sent (own and/or shared networks), see networksRouter.list
-  shared: z.boolean().optional(),
-  "router:external": z.boolean().optional(),
-  mtu: z.number().int().optional(),
-  sort_key: NetworkSortKeySchema.optional(),
-  sort_dir: SortDirSchema.optional(),
-  // Comma-separated tag lists, as Neutron expects
-  tags: z.string().optional(),
-  tags_any: z.string().optional(),
-  not_tags: z.string().optional(),
-  not_tags_any: z.string().optional(),
-  // Applied BFF-side
-  searchTerm: z.string().trim().optional(),
-})
+/**
+ * Input for `list`. The list returns every network visible to the project (own + shared); search, filter
+ * and sort are applied client-side over that single response (E5), so no query/sort/search params are sent.
+ */
+export const NetworkQueryParametersSchema = projectScopedInputSchema
 
 export const NetworkIdInputSchema = projectScopedInputSchema.extend({
   network_id: resourceIdSchema,
@@ -189,6 +174,8 @@ export type NetworkListItem = Network & {
 }
 
 export type NetworkQueryParameters = z.infer<typeof NetworkQueryParametersSchema>
+/** Neutron network sort key, used when re-sorting a merged list server-side. */
+export type NetworkNeutronSortKey = z.infer<typeof NetworkSortKeySchema>
 export type NetworkCreateRequest = z.infer<typeof NetworkCreateRequestSchema>
 export type NetworkUpdateRequest = z.infer<typeof NetworkUpdateRequestSchema>
 export type NetworkSetTagsRequest = z.infer<typeof NetworkSetTagsRequestSchema>

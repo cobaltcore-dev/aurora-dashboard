@@ -269,80 +269,33 @@ describe("networksRouter.list", () => {
     expect(shared.params.has("project_id")).toBe(false)
   })
 
-  it("only requests shared networks when shared=true", async () => {
+  it("does not send search, filter or sort params to Neutron (applied client-side, E5)", async () => {
     const ctx = createMockContext()
     const caller = createCaller(ctx)
 
-    const result = await caller.networks.list({ project_id: TEST_PROJECT_ID, shared: true })
-
-    const urls = networkListUrls(ctx)
-    expect(urls).toHaveLength(1)
-    expect(urls[0].params.get("shared")).toBe("true")
-    expect(result.map((network) => network.id)).toEqual(["net-2", "net-3"])
-  })
-
-  it("only requests own unshared networks when shared=false", async () => {
-    const ctx = createMockContext()
-    const caller = createCaller(ctx)
-
-    await caller.networks.list({ project_id: TEST_PROJECT_ID, shared: false })
-
-    const urls = networkListUrls(ctx)
-    expect(urls).toHaveLength(1)
-    expect(urls[0].params.get("project_id")).toBe(TEST_PROJECT_ID)
-    expect(urls[0].params.get("shared")).toBe("false")
-  })
-
-  it("forwards Neutron filters to both requests and maps tag keys, but not the search term", async () => {
-    const ctx = createMockContext()
-    const caller = createCaller(ctx)
-
-    await caller.networks.list({
-      project_id: TEST_PROJECT_ID,
-      name: "private",
-      status: "ACTIVE",
-      admin_state_up: true,
-      "router:external": false,
-      mtu: 1500,
-      sort_key: "name",
-      sort_dir: "desc",
-      tags_any: "prod",
-      not_tags: "old",
-      searchTerm: "net",
-    })
+    await caller.networks.list({ project_id: TEST_PROJECT_ID })
 
     for (const { params } of networkListUrls(ctx)) {
-      expect(params.get("name")).toBe("private")
-      expect(params.get("status")).toBe("ACTIVE")
-      expect(params.get("admin_state_up")).toBe("true")
-      expect(params.get("router:external")).toBe("false")
-      expect(params.get("mtu")).toBe("1500")
-      expect(params.get("sort_key")).toBe("name")
-      expect(params.get("sort_dir")).toBe("desc")
-      expect(params.get("tags-any")).toBe("prod")
-      expect(params.get("not-tags")).toBe("old")
-      expect(params.has("tags_any")).toBe(false)
-      expect(params.has("searchTerm")).toBe(false)
+      for (const key of ["name", "status", "sort_key", "sort_dir", "searchTerm", "router:external", "mtu"]) {
+        expect(params.has(key)).toBe(false)
+      }
     }
   })
 
-  it("re-sorts the merged list by the sort key", async () => {
-    const caller = createCaller(createMockContext())
+  it("enriches each network with its subnet IDs without a subnets lookup", async () => {
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
 
-    const result = await caller.networks.list({ project_id: TEST_PROJECT_ID, sort_key: "name", sort_dir: "asc" })
+    const [net1, net2, net3] = await caller.networks.list({ project_id: TEST_PROJECT_ID })
 
-    expect(result.map((network) => network.name)).toEqual(["corporate", "db", "private"])
-  })
-
-  it("filters by search term on ID, name and description", async () => {
-    const caller = createCaller(createMockContext())
-
-    expect((await caller.networks.list({ project_id: TEST_PROJECT_ID, searchTerm: "APP" })).map((n) => n.id)).toEqual([
-      "net-1",
+    // Subnet count comes from the embedded `subnets` array; names are not resolved (no extra API call).
+    expect(net1.subnet_details).toEqual([
+      { id: "subnet-v4", name: undefined },
+      { id: "subnet-v6", name: undefined },
     ])
-    expect((await caller.networks.list({ project_id: TEST_PROJECT_ID, searchTerm: "net-3" })).map((n) => n.id)).toEqual(
-      ["net-3"]
-    )
+    expect(net2.subnet_details).toEqual([])
+    expect(net3.subnet_details).toEqual([{ id: "subnet-3", name: undefined }])
+    expect(requestedUrls(ctx).some((url) => url.startsWith("v2.0/subnets"))).toBe(false)
   })
 
   it("returns an empty array without lookups when no networks exist", async () => {
@@ -351,55 +304,6 @@ describe("networksRouter.list", () => {
 
     expect(await caller.networks.list({ project_id: TEST_PROJECT_ID })).toEqual([])
     expect(requestedUrls(ctx).some((url) => url.startsWith("v2.0/subnets"))).toBe(false)
-  })
-
-  describe("subnet enrichment", () => {
-    it("adds subnet names", async () => {
-      const caller = createCaller(createMockContext())
-
-      const [net1, net2, net3] = await caller.networks.list({ project_id: TEST_PROJECT_ID })
-
-      expect(net1.subnet_details).toEqual([
-        { id: "subnet-v4", name: "private-v4" },
-        { id: "subnet-v6", name: "private-v6" },
-      ])
-      expect(net2.subnet_details).toEqual([])
-      expect(net3.subnet_details).toEqual([{ id: "subnet-3", name: "corporate-sub" }])
-    })
-
-    it("resolves names with one batched subnets request", async () => {
-      const ctx = createMockContext()
-      const caller = createCaller(ctx)
-
-      await caller.networks.list({ project_id: TEST_PROJECT_ID })
-
-      const subnetUrls = requestedUrls(ctx).filter((url) => url.startsWith("v2.0/subnets"))
-      expect(subnetUrls).toHaveLength(1)
-      const { params } = splitUrl(subnetUrls[0])
-      expect(params.getAll("id")).toEqual(["subnet-v4", "subnet-v6", "subnet-3"])
-      expect(params.getAll("fields")).toEqual(["id", "name"])
-    })
-
-    it("only looks up subnets of networks matching the search term", async () => {
-      const ctx = createMockContext()
-      const caller = createCaller(ctx)
-
-      await caller.networks.list({ project_id: TEST_PROJECT_ID, searchTerm: "corporate" })
-
-      const subnetUrl = requestedUrls(ctx).find((url) => url.startsWith("v2.0/subnets"))!
-      expect(splitUrl(subnetUrl).params.getAll("id")).toEqual(["subnet-3"])
-    })
-
-    it("falls back to subnet IDs when the lookup fails", async () => {
-      const caller = createCaller(createMockContext({ subnetsFail: true }))
-
-      const [net1] = await caller.networks.list({ project_id: TEST_PROJECT_ID })
-
-      expect(net1.subnet_details).toEqual([
-        { id: "subnet-v4", name: undefined },
-        { id: "subnet-v6", name: undefined },
-      ])
-    })
   })
 
   it("throws UNAUTHORIZED when session is invalid", async () => {
@@ -433,17 +337,6 @@ describe("networksRouter.list", () => {
       code: "FORBIDDEN",
       message: "Access forbidden to Network: Forbidden",
     })
-  })
-
-  it("rejects an unsupported sort key before calling Neutron", async () => {
-    const ctx = createMockContext()
-    const caller = createCaller(ctx)
-
-    await expect(
-      // @ts-expect-error invalid sort key
-      caller.networks.list({ project_id: TEST_PROJECT_ID, sort_key: "subnets" })
-    ).rejects.toMatchObject({ code: "BAD_REQUEST" })
-    expect(ctx.__networkGetMock).not.toHaveBeenCalled()
   })
 })
 

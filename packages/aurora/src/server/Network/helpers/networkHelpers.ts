@@ -8,7 +8,7 @@ import type {
   NetworkListItem,
   NetworkCreateRequest,
   NetworkUpdateRequest,
-  NetworkQueryParameters,
+  NetworkNeutronSortKey,
 } from "../types/network"
 
 type ErrorResponse = { status?: number; statusText?: string }
@@ -136,7 +136,7 @@ const compareValues = (a: unknown, b: unknown): number => {
  */
 export const sortNetworks = (
   networks: Network[],
-  sortKey: NetworkQueryParameters["sort_key"],
+  sortKey: NetworkNeutronSortKey | undefined,
   sortDir: SortDir = "asc"
 ): Network[] => {
   if (!sortKey) return networks

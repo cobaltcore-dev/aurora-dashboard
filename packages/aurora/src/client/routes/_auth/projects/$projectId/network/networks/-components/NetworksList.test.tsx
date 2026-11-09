@@ -92,7 +92,7 @@ vi.mock("@/client/components/ListToolbar/SelectedFilters", () => ({
   ),
 }))
 
-const makeNetwork = (id: string, name = id): NetworkListItem => ({
+const makeNetwork = (id: string, name = id, overrides: Partial<NetworkListItem> = {}): NetworkListItem => ({
   id,
   name,
   description: "",
@@ -102,18 +102,17 @@ const makeNetwork = (id: string, name = id): NetworkListItem => ({
   subnets: [],
   subnet_details: [],
   project_id: "proj-1",
+  ...overrides,
 })
 
-const mockNetworks = [makeNetwork("net-1", "private"), makeNetwork("net-2", "db")]
+// net-1 ACTIVE, own, internal, 2 subnets · net-2 DOWN, shared, internal, 0 subnets · net-3 ACTIVE, own, external, 1 subnet
+const mockNetworks = [
+  makeNetwork("net-1", "private", { status: "ACTIVE", shared: false, "router:external": false, subnets: ["a", "b"] }),
+  makeNetwork("net-2", "db", { status: "DOWN", shared: true, "router:external": false, subnets: [] }),
+  makeNetwork("net-3", "corp", { status: "ACTIVE", shared: false, "router:external": true, subnets: ["c"] }),
+]
 
-const defaultQuery = {
-  project_id: "proj-1",
-  sort_key: "name",
-  sort_dir: "asc",
-  searchTerm: undefined,
-  status: undefined,
-  shared: undefined,
-}
+const LIST_ONLY_QUERY = { project_id: "proj-1" }
 
 const createMockClient = (query: ReturnType<typeof vi.fn>) =>
   ({ network: { networks: { list: { query } } } }) as unknown as TrpcClient
@@ -149,6 +148,9 @@ const lastNavigateSearch = (prev: Record<string, unknown> = {}) => {
   return opts.search(prev)
 }
 
+/** IDs of the rows the (mocked) container renders, in DOM order. */
+const visibleNetworkIds = () => screen.getAllByTestId(/^network-net-/).map((el) => el.getAttribute("data-testid"))
+
 describe("Networks", () => {
   beforeEach(() => {
     i18n.activate("en")
@@ -173,45 +175,27 @@ describe("Networks", () => {
 
       expect(await screen.findByTestId("network-net-1")).toHaveTextContent("private")
       expect(screen.getByTestId("network-net-2")).toHaveTextContent("db")
+      expect(screen.getByTestId("network-net-3")).toHaveTextContent("corp")
     })
 
-    it("queries networks for the project with default sort (name asc) and no filters", async () => {
+    it("fetches the list once with only the project_id (no search/filter/sort params)", async () => {
       const { query } = await renderList()
 
       await screen.findByTestId("network-list-container")
 
-      expect(query).toHaveBeenCalledWith(defaultQuery)
+      expect(query).toHaveBeenCalledTimes(1)
+      expect(query).toHaveBeenCalledWith(LIST_ONLY_QUERY)
     })
 
-    it("uses search, sort and filters from the URL for the initial query (name sort passes to BFF)", async () => {
-      searchStore.params = { search: "priv", sortBy: "name", sortDirection: "desc", status: "DOWN", shared: "false" }
+    it("does not refetch when search, filter or sort change (client-side, E5)", async () => {
+      const user = userEvent.setup()
       const { query } = await renderList()
-
       await screen.findByTestId("network-list-container")
 
-      expect(query).toHaveBeenCalledWith({
-        project_id: "proj-1",
-        sort_key: "name",
-        sort_dir: "desc",
-        searchTerm: "priv",
-        status: "DOWN",
-        shared: false,
-      })
-      expect(screen.getByRole("searchbox")).toHaveValue("priv")
-    })
+      await user.click(screen.getByRole("button", { name: "Select status DOWN" }))
+      await act(async () => setUrlSearch({ status: "DOWN", sortBy: "subnet_count", search: "db" }))
 
-    it("does not pass sort params to BFF for client-side sorts (status, subnet_count)", async () => {
-      searchStore.params = { sortBy: "status", sortDirection: "desc" }
-      const { query } = await renderList()
-
-      await screen.findByTestId("network-list-container")
-
-      expect(query).toHaveBeenCalledWith({
-        project_id: "proj-1",
-        searchTerm: undefined,
-        status: undefined,
-        shared: undefined,
-      })
+      expect(query).toHaveBeenCalledTimes(1)
     })
 
     it("does not render a create action (read-only)", async () => {
@@ -227,7 +211,7 @@ describe("Networks", () => {
 
       await screen.findByTestId("network-list-container")
 
-      expect(screen.getByText("2 networks")).toBeInTheDocument()
+      expect(screen.getByText("3 networks")).toBeInTheDocument()
     })
   })
 
@@ -257,25 +241,33 @@ describe("Networks", () => {
 
       expect(await screen.findByTestId("network-net-1")).toBeInTheDocument()
       expect(query).toHaveBeenCalledTimes(2)
-      expect(query).toHaveBeenLastCalledWith(defaultQuery)
+      expect(query).toHaveBeenLastCalledWith(LIST_ONLY_QUERY)
 
       consoleError.mockRestore()
     })
   })
 
   describe("Search", () => {
-    it("refetches with the search term and updates the URL on submit", async () => {
+    it("filters client-side by the search term and updates the URL on submit", async () => {
       const user = userEvent.setup()
       const { query } = await renderList()
 
       await screen.findByTestId("network-list-container")
       await user.type(screen.getByRole("searchbox"), "db{enter}")
 
-      await waitFor(() => {
-        expect(query).toHaveBeenLastCalledWith(expect.objectContaining({ searchTerm: "db" }))
-      })
+      await waitFor(() => expect(visibleNetworkIds()).toEqual(["network-net-2"]))
+      expect(query).toHaveBeenCalledTimes(1)
       expect(mockNavigate).toHaveBeenLastCalledWith(expect.objectContaining({ replace: true }))
       expect(lastNavigateSearch()).toEqual({ search: "db" })
+    })
+
+    it("updates the shown count to the filtered total", async () => {
+      searchStore.params = { search: "db" }
+      await renderList()
+
+      await screen.findByTestId("network-list-container")
+
+      expect(screen.getByText("1 networks")).toBeInTheDocument()
     })
   })
 
@@ -286,56 +278,48 @@ describe("Networks", () => {
       expect(await screen.findByTestId("filters-input")).toHaveAttribute("data-filters", "status,shared,external")
     })
 
-    it("sets the status filter in the URL and refetches", async () => {
+    it("sets the status filter in the URL and filters client-side", async () => {
       const user = userEvent.setup()
-      const { query } = await renderList()
+      await renderList()
       await screen.findByTestId("network-list-container")
 
       await user.click(screen.getByRole("button", { name: "Select status DOWN" }))
 
       expect(searchStore.params).toEqual({ status: "DOWN" })
-      await waitFor(() => {
-        expect(query).toHaveBeenLastCalledWith({ ...defaultQuery, status: "DOWN" })
-      })
+      await waitFor(() => expect(visibleNetworkIds()).toEqual(["network-net-2"]))
     })
 
-    it("maps the shared filter to a boolean", async () => {
+    it("filters by the shared flag", async () => {
       const user = userEvent.setup()
-      const { query } = await renderList()
+      await renderList()
       await screen.findByTestId("network-list-container")
 
       await user.click(screen.getByRole("button", { name: "Select shared true" }))
 
       expect(searchStore.params).toEqual({ shared: "true" })
-      await waitFor(() => {
-        expect(query).toHaveBeenLastCalledWith({ ...defaultQuery, shared: true })
-      })
+      await waitFor(() => expect(visibleNetworkIds()).toEqual(["network-net-2"]))
     })
 
-    it("sets the external filter in the URL and passes router:external boolean to the BFF", async () => {
+    it("filters by external=true", async () => {
       const user = userEvent.setup()
-      const { query } = await renderList()
+      await renderList()
       await screen.findByTestId("network-list-container")
 
       await user.click(screen.getByRole("button", { name: "Select external true" }))
 
       expect(searchStore.params).toEqual({ external: "true" })
-      await waitFor(() => {
-        expect(query).toHaveBeenLastCalledWith({ ...defaultQuery, "router:external": true })
-      })
+      await waitFor(() => expect(visibleNetworkIds()).toEqual(["network-net-3"]))
     })
 
-    it("sets external=false filter and passes boolean false to the BFF", async () => {
+    it("filters by external=false", async () => {
       const user = userEvent.setup()
-      const { query } = await renderList()
+      await renderList()
       await screen.findByTestId("network-list-container")
 
       await user.click(screen.getByRole("button", { name: "Select external false" }))
 
       expect(searchStore.params).toEqual({ external: "false" })
-      await waitFor(() => {
-        expect(query).toHaveBeenLastCalledWith({ ...defaultQuery, "router:external": false })
-      })
+      await waitFor(() => expect([...visibleNetworkIds()].sort()).toEqual(["network-net-1", "network-net-2"]))
     })
 
     it("ignores unknown filter values", async () => {
@@ -383,6 +367,38 @@ describe("Networks", () => {
     })
   })
 
+  describe("Sorting", () => {
+    it("sorts by name descending client-side", async () => {
+      searchStore.params = { sortBy: "name", sortDirection: "desc" }
+      await renderList()
+
+      await screen.findByTestId("network-list-container")
+
+      // names: corp, db, private → desc → private, db, corp
+      expect(visibleNetworkIds()).toEqual(["network-net-1", "network-net-2", "network-net-3"])
+    })
+
+    it("sorts by subnet count descending client-side", async () => {
+      searchStore.params = { sortBy: "subnet_count", sortDirection: "desc" }
+      await renderList()
+
+      await screen.findByTestId("network-list-container")
+
+      // subnet counts: net-1=2, net-3=1, net-2=0
+      expect(visibleNetworkIds()).toEqual(["network-net-1", "network-net-3", "network-net-2"])
+    })
+
+    it("sorts by status in attention-first order (E3)", async () => {
+      searchStore.params = { sortBy: "status", sortDirection: "asc" }
+      await renderList()
+
+      await screen.findByTestId("network-list-container")
+
+      // status order ERROR→BUILD→DOWN→ACTIVE: net-2 (DOWN) before the ACTIVE ones (stable)
+      expect(visibleNetworkIds()).toEqual(["network-net-2", "network-net-1", "network-net-3"])
+    })
+  })
+
   describe("Empty state", () => {
     it.each([
       [{ search: "nomatch" }, "true"],
@@ -398,40 +414,17 @@ describe("Networks", () => {
   })
 
   describe("URL changes", () => {
-    it("refetches and updates the search input when the URL search params change (e.g. back/forward)", async () => {
+    it("re-filters and updates the search input when the URL search params change (e.g. back/forward)", async () => {
       const { query } = await renderList()
       await screen.findByTestId("network-list-container")
 
       await act(async () => {
-        setUrlSearch({ search: "backend", sortBy: "name", sortDirection: "desc" })
+        setUrlSearch({ search: "corp" })
       })
 
-      await waitFor(() => {
-        expect(query).toHaveBeenLastCalledWith({
-          ...defaultQuery,
-          sort_dir: "desc",
-          searchTerm: "backend",
-        })
-      })
-      expect(screen.getByRole("searchbox")).toHaveValue("backend")
-    })
-
-    it("does not pass sort params to BFF when sort changes to subnet_count", async () => {
-      const { query } = await renderList()
-      await screen.findByTestId("network-list-container")
-
-      await act(async () => {
-        setUrlSearch({ sortBy: "subnet_count", sortDirection: "desc" })
-      })
-
-      await waitFor(() => {
-        expect(query).toHaveBeenLastCalledWith({
-          project_id: "proj-1",
-          searchTerm: undefined,
-          status: undefined,
-          shared: undefined,
-        })
-      })
+      await waitFor(() => expect(visibleNetworkIds()).toEqual(["network-net-3"]))
+      expect(screen.getByRole("searchbox")).toHaveValue("corp")
+      expect(query).toHaveBeenCalledTimes(1)
     })
   })
 })

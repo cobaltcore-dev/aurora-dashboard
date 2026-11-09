@@ -1,7 +1,6 @@
 import { TRPCError } from "@trpc/server"
 import { projectScopedProcedure } from "@/server/trpc"
 import { withErrorHandling } from "@/server/helpers/errorHandling"
-import { filterBySearchParams } from "@/server/helpers/filterBySearchParams"
 import { appendQueryParamsFromObject } from "@/server/helpers/queryParams"
 import { omit } from "@/server/helpers/object"
 import { validateAndEncodeResourceId } from "@cobaltcore-dev/signal-openstack"
@@ -25,23 +24,14 @@ import {
   buildNetworkBody,
   getNetworkListScopes,
   mergeNetworks,
-  sortNetworks,
-  collectSubnetIds,
   applySubnetNames,
 } from "../helpers/networkHelpers"
 import { getNetworkService, parseOrThrow } from "../helpers/index"
 import { requestOrThrow, withQuery } from "../helpers/requestHelpers"
-import { fetchSubnetSummaries } from "../helpers/lookupHelpers"
 
 const NETWORKS_BASE_URL = "v2.0/networks"
 const SUBNETS_BASE_URL = "v2.0/subnets"
 const PORTS_BASE_URL = "v2.0/ports"
-
-const LIST_NETWORKS_QUERY_KEY_MAP: Record<string, string> = {
-  tags_any: "tags-any",
-  not_tags: "not-tags",
-  not_tags_any: "not-tags-any",
-}
 
 const networkUrl = (networkId: string, subresource?: "tags"): string => {
   const encodedId = validateAndEncodeResourceId(networkId, "Network")
@@ -53,8 +43,7 @@ const networkUrl = (networkId: string, subresource?: "tags"): string => {
  *
  * Currently exposes:
  * - list: GET /v2.0/networks List the project's own networks (project_id) and the shared networks it can use
- *   (shared=true), merged by ID, with sorting and Neutron filters; BFF-side search.
- *   Resolves subnet names (GET /v2.0/subnets).
+ *   (shared=true), merged by ID. Search, filter and sort are applied client-side (E5), so no extra calls.
  * - getById: GET /v2.0/networks/{network_id} Show network details.
  * - create: POST /v2.0/networks Create network.
  * - update: PUT /v2.0/networks/{network_id} Update name, description, admin state, MTU, port security, etc.
@@ -68,17 +57,15 @@ export const networksRouter = {
     .input(NetworkQueryParametersSchema)
     .query(async ({ input, ctx }): Promise<NetworkListItem[]> => {
       return withErrorHandling(async () => {
-        const { searchTerm, shared, project_id, ...openstackFilters } = input
+        const { project_id } = input
         const network = getNetworkService(ctx)
 
-        // Own networks are filtered by project_id, so admin roles also only see the current project's networks here.
-        // Shared networks of other projects are requested separately, because the project can use them too.
-        const requests = getNetworkListScopes(shared).map(async (scope) => {
-          const scopeFilters =
-            scope === "own"
-              ? { ...openstackFilters, project_id, ...(shared === false && { shared: false }) }
-              : { ...openstackFilters, shared: true }
-          const queryParams = appendQueryParamsFromObject(scopeFilters, { keyMap: LIST_NETWORKS_QUERY_KEY_MAP })
+        // Neutron's project_id filter hides shared networks owned by other projects, which the project can
+        // still use, so own networks (project_id) and shared networks (shared=true) are requested and merged.
+        // Search, filter and sort run client-side over this response (E5), so no query/sort params are sent.
+        const requests = getNetworkListScopes(undefined).map(async (scope) => {
+          const scopeFilters = scope === "own" ? { project_id } : { shared: true }
+          const queryParams = appendQueryParamsFromObject(scopeFilters)
           const response = await requestOrThrow(
             () => network.get(withQuery(NETWORKS_BASE_URL, queryParams)),
             NetworkErrorHandlers.list
@@ -87,18 +74,8 @@ export const networksRouter = {
           return parseOrThrow(NetworkListResponseSchema, data, "networksRouter.list").networks
         })
 
-        const networks = sortNetworks(mergeNetworks(...(await Promise.all(requests))), input.sort_key, input.sort_dir)
-        const filteredNetworks = filterBySearchParams(networks, searchTerm, ["id", "name", "description"])
-
-        // Subnet names are resolved in one batched, best-effort lookup for the whole list
-        const subnets = await fetchSubnetSummaries(
-          network,
-          collectSubnetIds(filteredNetworks),
-          ["id", "name"],
-          "networksRouter.list.subnets"
-        )
-
-        return applySubnetNames(filteredNetworks, subnets)
+        // Subnet count is derived client-side from each network's embedded `subnets` array; no subnets lookup.
+        return applySubnetNames(mergeNetworks(...(await Promise.all(requests))))
       }, "list networks")
     }),
 

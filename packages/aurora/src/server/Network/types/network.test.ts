@@ -125,35 +125,8 @@ describe("NetworkSubnetSchema", () => {
 })
 
 describe("NetworkQueryParametersSchema", () => {
-  it("accepts project_id only", () => {
+  it("accepts project_id (search/filter/sort are applied client-side, E5)", () => {
     expect(NetworkQueryParametersSchema.safeParse({ project_id: "proj-1" }).success).toBe(true)
-  })
-
-  it("accepts all filters", () => {
-    const result = NetworkQueryParametersSchema.safeParse({
-      project_id: "proj-1",
-      name: "private",
-      description: "app",
-      status: "ACTIVE",
-      admin_state_up: true,
-      shared: false,
-      "router:external": false,
-      mtu: 1500,
-      sort_key: "name",
-      sort_dir: "desc",
-      tags: "a,b",
-      tags_any: "c",
-      not_tags: "d",
-      not_tags_any: "e",
-      searchTerm: " web ",
-    })
-
-    expect(result.success).toBe(true)
-    expect(result.data?.searchTerm).toBe("web")
-  })
-
-  it("rejects an unsupported sort key", () => {
-    expect(NetworkQueryParametersSchema.safeParse({ project_id: "proj-1", sort_key: "subnets" }).success).toBe(false)
   })
 
   it("requires project_id", () => {

@@ -5,7 +5,7 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { TRPCClientError } from "@trpc/client"
 import { trpcClient, TrpcClient } from "@/client/trpcClient"
 import { Button, Message, Stack, DataGridToolbar, SearchInput, Status } from "@cloudoperators/juno-ui-components"
-import type { NetworkListItem, NetworkQueryParameters } from "@/server/Network/types/network"
+import type { NetworkListItem } from "@/server/Network/types/network"
 import { SortInput } from "@/client/components/ListToolbar/SortInput"
 import { FiltersInput } from "@/client/components/ListToolbar/FiltersInput"
 import { SelectedFilters } from "@/client/components/ListToolbar/SelectedFilters"
@@ -45,25 +45,49 @@ type NetworksResult = { networks: NetworkListItem[]; forbidden?: boolean; unauth
 /** Attention-first status order (E3): ERROR → BUILD → DOWN → ACTIVE. Unknown statuses sort last. */
 const STATUS_ORDER: Record<string, number> = { ERROR: 0, BUILD: 1, DOWN: 2, ACTIVE: 3 }
 
+/** Client-side sort over the single list response (E5): name, status (E3) and subnet count. */
 function applyClientSort(
   networks: NetworkListItem[],
   sortBy: NetworkSortKey,
   sortDirection: "asc" | "desc"
 ): NetworkListItem[] {
-  if (sortBy === "name") return networks // BFF already sorted by name via Neutron
+  const direction = sortDirection === "desc" ? -1 : 1
 
   if (sortBy === "status") {
     return [...networks].sort((a, b) => {
       const ao = STATUS_ORDER[a.status] ?? 4
       const bo = STATUS_ORDER[b.status] ?? 4
-      return sortDirection === "desc" ? bo - ao : ao - bo
+      return direction * (ao - bo)
     })
   }
 
-  // subnet_count
-  return [...networks].sort((a, b) => {
-    const diff = a.subnets.length - b.subnets.length
-    return sortDirection === "desc" ? -diff : diff
+  if (sortBy === "subnet_count") {
+    return [...networks].sort((a, b) => direction * (a.subnets.length - b.subnets.length))
+  }
+
+  // name
+  return [...networks].sort((a, b) => direction * a.name.localeCompare(b.name))
+}
+
+/** Client-side search (E5): matches id, name and description, case-insensitive. */
+function matchesSearch(network: NetworkListItem, searchTerm: string): boolean {
+  const term = searchTerm.trim().toLowerCase()
+  if (!term) return true
+  return [network.id, network.name, network.description].some((field) => (field ?? "").toLowerCase().includes(term))
+}
+
+/** Client-side search + filters over the single list response (E5), before sorting. */
+function filterNetworks(
+  networks: NetworkListItem[],
+  searchTerm: string,
+  { status, shared, external }: NetworkFilters
+): NetworkListItem[] {
+  return networks.filter((network) => {
+    if (!matchesSearch(network, searchTerm)) return false
+    if (status && network.status !== status) return false
+    if (shared !== undefined && network.shared !== (shared === "true")) return false
+    if (external !== undefined && network["router:external"] !== (external === "true")) return false
+    return true
   })
 }
 
@@ -74,30 +98,11 @@ function formatRelativeTime(timestamp: number): string {
   return `${Math.floor(diffSeconds / 3600)} h ago`
 }
 
-const createNetworksPromise = (
-  client: TrpcClient,
-  project: string,
-  sortBy: NetworkSortKey,
-  sortDirection: "asc" | "desc",
-  searchTerm: string,
-  { status, shared, external }: NetworkFilters
-): Promise<NetworksResult> => {
-  const query: NetworkQueryParameters = {
-    project_id: project,
-    // Only pass sort params to the BFF for Neutron-native name sort; status and subnet_count are client-side
-    ...(sortBy === "name" && { sort_key: "name", sort_dir: sortDirection }),
-    searchTerm: searchTerm || undefined,
-    status,
-    shared: shared === undefined ? undefined : shared === "true",
-    ...(external !== undefined && { "router:external": external === "true" }),
-  }
-
+/** Fetches every network visible to the project once (own + shared). Search/filter/sort are applied client-side. */
+const createNetworksPromise = (client: TrpcClient, project: string): Promise<NetworksResult> => {
   return client.network.networks.list
-    .query(query)
-    .then((networks) => ({
-      networks: applyClientSort(networks, sortBy, sortDirection),
-      resolvedAt: Date.now(),
-    }))
+    .query({ project_id: project })
+    .then((networks) => ({ networks, resolvedAt: Date.now() }))
     .catch((err: unknown) => {
       // 403: no access — render as an info message, not an error boundary (B.6)
       if (err instanceof TRPCClientError && err.data?.code === "FORBIDDEN") {
@@ -144,6 +149,7 @@ function NetworksContent({
   sortSettings,
   handleSortChange,
   filterDefinitions,
+  filters,
   selectedFilters,
   onFilterSelect,
   onFilterRemove,
@@ -156,6 +162,7 @@ function NetworksContent({
   sortSettings: RequiredSortSettings
   handleSortChange: (settings: SortSettings) => void
   filterDefinitions: Filter[]
+  filters: NetworkFilters
   selectedFilters: SelectedFilter[]
   onFilterSelect: (filter: SelectedFilter) => void
   onFilterRemove: (filter: SelectedFilter) => void
@@ -185,6 +192,13 @@ function NetworksContent({
     setLocalSearchTerm(searchTerm)
   }, [searchTerm])
 
+  // Search, filters and sort all run client-side over the single list response (E5), with no refetch.
+  const visibleNetworks = useMemo(
+    () =>
+      applyClientSort(filterNetworks(networks, searchTerm, filters), sortSettings.sortBy, sortSettings.sortDirection),
+    [networks, searchTerm, filters, sortSettings.sortBy, sortSettings.sortDirection]
+  )
+
   if (unauthorized) return <UnauthorizedRedirect />
 
   if (forbidden) {
@@ -196,7 +210,7 @@ function NetworksContent({
   }
 
   const isFiltered = Boolean(searchTerm.trim()) || selectedFilters.length > 0
-  const networkCount = networks.length
+  const networkCount = visibleNetworks.length
   const lastUpdatedText = resolvedAt && !isStale ? formatRelativeTime(resolvedAt) : null
 
   return (
@@ -264,7 +278,7 @@ function NetworksContent({
         )}
       </Stack>
 
-      <NetworkListContainer networks={networks} isFiltered={isFiltered} />
+      <NetworkListContainer networks={visibleNetworks} isFiltered={isFiltered} />
     </>
   )
 }
@@ -274,8 +288,8 @@ export const Networks = ({ client, project }: NetworksProps) => {
   const navigate = useNavigate()
   const searchParams = useSearch({ strict: false }) as NetworksSearchParams
 
-  // The URL is the single source of truth for search, filters, sort and page, so back/forward navigation
-  // and links with different search params update the controls and the query.
+  // The URL is the single source of truth for search, filters and sort, so back/forward navigation
+  // and links with different search params update the controls and the client-side view.
   const searchTerm = searchParams.search ?? ""
   const sortBy: NetworkSortKey = searchParams.sortBy || "name"
   const sortDirection = searchParams.sortDirection || "asc"
@@ -319,21 +333,19 @@ export const Networks = ({ client, project }: NetworksProps) => {
     ...(externalFilter ? [{ name: "external", value: externalFilter }] : []),
   ]
 
-  // Bumped by "Try Again" to create a fresh query with the same parameters
+  const filters: NetworkFilters = { status: statusFilter, shared: sharedFilter, external: externalFilter }
+
+  // Bumped by "Try Again" to create a fresh query
   const [retryCount, setRetryCount] = useState(0)
 
+  // The list is fetched once per project; search, filter and sort changes do NOT refetch (E5).
   const networksPromise = useMemo(
-    () =>
-      createNetworksPromise(client, project, sortBy, sortDirection, searchTerm, {
-        status: statusFilter,
-        shared: sharedFilter,
-        external: externalFilter,
-      }),
+    () => createNetworksPromise(client, project),
     // retryCount is not used in the factory, it only forces a new promise on "Try Again"
-    [client, project, sortBy, sortDirection, searchTerm, statusFilter, sharedFilter, externalFilter, retryCount]
+    [client, project, retryCount]
   )
-  // Keeps the current list (and the search input) on screen while the next query loads,
-  // instead of falling back to the Suspense loading state on every search, filter or sort change
+  // Keeps the current list (and the search input) on screen while a fresh query loads (retry / project change),
+  // instead of falling back to the Suspense loading state
   const deferredNetworksPromise = useDeferredValue(networksPromise)
   const isStale = deferredNetworksPromise !== networksPromise
 
@@ -372,9 +384,8 @@ export const Networks = ({ client, project }: NetworksProps) => {
   return (
     <div className="relative">
       <ErrorBoundary
-        // Resets the boundary whenever the query changes: on "Try Again" and when the URL
-        // (project, search, filters, sort) changes. Keyed on the deferred promise, so the reset happens
-        // together with the render that uses the new query instead of re-throwing the failed one.
+        // Resets the boundary whenever the query changes: on "Try Again" and when the project changes.
+        // Keyed on the deferred promise, so the reset happens together with the render that uses the new query.
         resetKeys={[deferredNetworksPromise]}
         fallbackRender={({ error }) => (
           <Status
@@ -397,6 +408,7 @@ export const Networks = ({ client, project }: NetworksProps) => {
             sortSettings={sortSettings}
             handleSortChange={handleSortChange}
             filterDefinitions={filterDefinitions}
+            filters={filters}
             selectedFilters={selectedFilters}
             onFilterSelect={handleFilterSelect}
             onFilterRemove={handleFilterRemove}
