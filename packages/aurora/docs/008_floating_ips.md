@@ -451,11 +451,22 @@ All floating IP views check permissions via `network.canUser.useQuery`, which ma
 | Key                                      | Neutron rule                            | Used by                                                                  |
 | ---------------------------------------- | --------------------------------------- | ------------------------------------------------------------------------ |
 | `network:floatingips:create`             | `create_floatingip`                     | "Allocate Floating IP" button gate                                       |
-| `network:floatingips:update`             | `update_floatingip`                     | "Edit Description" action gate                                           |
-| `network:floatingips:delete`             | `delete_floatingip`                     | "Release" action gate                                                    |
-| `network:floatingips:associate`          | `update_floatingip`                     | "Attach" button gate (detail page)                                       |
-| `network:floatingips:disassociate`       | `update_floatingip`                     | "Detach" action gate                                                     |
+| `network:floatingips:update`             | `update_floatingip`                     | "Edit Description" action gate (table row + detail page)                 |
+| `network:floatingips:delete`             | `delete_floatingip`                     | "Release" action gate (table row + detail page)                          |
+| `network:floatingips:associate`          | `update_floatingip`                     | "Attach" action gate (table row + detail page)                           |
+| `network:floatingips:disassociate`       | `update_floatingip`                     | "Detach" action gate (table row + detail page)                           |
 | `network:floatingips:specify_ip_address` | `create_floatingip:floating_ip_address` | Shows/hides the Floating IP Address field in Allocate modal (admin-only) |
+
+### Action Gating by Surface
+
+Both the list-row kebab menu (`FloatingIpTableRow.tsx`) and the detail-page action menu (`FloatingIpDetailsView.tsx`) query the same four permission keys (`update`, `disassociate`, `delete`, `associate`) and gate each action. The two surfaces differ in how they present a denied action:
+
+| Surface             | Unpermitted action behavior                                                                    |
+| ------------------- | ---------------------------------------------------------------------------------------------- |
+| List-row kebab menu | **Hidden.** In the worst case (no permissions), only **Show Details** remains.                 |
+| Detail-page menu    | Edit Description / Detach / Release are **disabled** (shown greyed out); Attach is **hidden**. |
+
+The list row's **Show Details** entry is a pure navigation action and is always present regardless of permissions.
 
 ---
 
