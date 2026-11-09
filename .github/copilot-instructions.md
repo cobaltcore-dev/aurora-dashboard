@@ -134,28 +134,14 @@ Use Juno UI components for UI primitives; use the application components listed 
 
 ### B.2 [STANDARD] List Page Zone Structure
 
-Every list page **must** follow this four-zone pattern:
+The DataGrid header zone structure is owned by the `datagrid` skill (loaded via Intent — see `AGENTS.md`). Load it and review against its Decision Trees and Invariants, citing rule IDs. The summary below is a review aid only; if it and the skill ever differ, **the skill wins**.
 
-```
-Zone 1  [Stack, className="pb-2"]
-        Sort controls (SortInput)  +  primary action Button (create/add)
-        distribution="between"
+- Three header zones, rendered only when their contents exist (DT-2): Zone 1 = predefined filter tabs + sorting + overflow menu + primary action (DT-3); Zone 2 = filter inputs + search + active filter pills (DT-4); Zone 3 = bulk actions + item count + last-update/refresh (DT-5).
+- Zone 1 is a bare `Stack`, never wrapped in `DataGridToolbar` (INV-3). Zones 2 and 3 each get **their own** `DataGridToolbar` — they are never merged into one (INV-4).
 
-Zone 2  [DataGridToolbar]
-        SearchInput → distribution="end"
+**Aurora-specific (not covered by the skill):** for navigation-style DataGrids that browse a hierarchy (folder/file), render a breadcrumb / prefix-navigation row above the toolbar. The skill scopes navigation out, so this is an Aurora app pattern — do not number it as a DataGrid header zone.
 
-Zone 3  [DataGridToolbar, optional]
-        Breadcrumb / prefix navigation
-        Only rendered when hierarchical navigation exists
-
-Zone 4  [DataGridToolbar, optional]
-        Checkbox (select-all, indeterminate)  +  PopupMenu (bulk actions)  +  item count
-        Only rendered when bulk-select feature exists
-```
-
-- Zone 1 is outside `DataGridToolbar`; zones 2–4 are inside.
-- Each zone is a `Stack` with `direction="horizontal"`.
-- **Reject** any structure that mixes zones or skips Zone 2 when search is available.
+**Reject** any header that merges Zones 2 and 3 into a single `DataGridToolbar`, wraps Zone 1 in a `DataGridToolbar`, or skips Zone 2 when search is available.
 
 ### B.3 [STYLE] Spacing Rules
 
@@ -163,13 +149,13 @@ Use only these spacing values. Do not invent arbitrary padding or margin classes
 
 **Padding**
 
-| Context                         | Class              |
-| ------------------------------- | ------------------ |
-| Toolbar background bar          | `p-2` or `p-4`     |
-| Zone 1 bottom (sort+create row) | `pb-2`             |
-| Pagination wrapper              | `py-4`             |
-| Full-page loading/empty center  | `py-8`             |
-| Inline empty paragraph in table | `py-8 text-center` |
+| Context                              | Class              |
+| ------------------------------------ | ------------------ |
+| Toolbar background bar               | `p-2` or `p-4`     |
+| Zone 1 bottom (tabs/sort/action row) | `pb-2`             |
+| Pagination wrapper                   | `py-4`             |
+| Full-page loading/empty center       | `py-8`             |
+| Inline empty paragraph in table      | `py-8 text-center` |
 
 **Margin**
 
