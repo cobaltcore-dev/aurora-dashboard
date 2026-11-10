@@ -34,7 +34,7 @@ describe("buildNavSections", () => {
     const sections = buildNavSections("proj-1", ALL_SERVICES)
 
     const compute = sections.find((s) => s.section === "compute")
-    expect(compute?.services.map((s) => s.service)).toEqual(["images", "flavors"])
+    expect(compute?.services.map((s) => s.service)).toEqual(["images", "flavors", "instances"])
 
     const network = sections.find((s) => s.section === "network")
     expect(network?.services.map((s) => s.service)).toEqual([
@@ -62,6 +62,25 @@ describe("buildNavSections", () => {
     const withoutNetwork = ALL_SERVICES.filter((s) => s.type !== "network")
     const sections = buildNavSections("proj-1", withoutNetwork)
     expect(sections.map((s) => s.section)).not.toContain("network")
+  })
+
+  it("includes instances in compute only when nova is available", () => {
+    const withoutNova = ALL_SERVICES.filter((s) => s.name !== "nova")
+    const sections = buildNavSections("proj-1", withoutNova)
+    const compute = sections.find((s) => s.section === "compute")
+    expect(compute?.services.map((s) => s.service)).not.toContain("instances")
+  })
+
+  it("respects enabledServices filter for instances", () => {
+    const sections = buildNavSections("proj-1", ALL_SERVICES, ["instances"])
+    const compute = sections.find((s) => s.section === "compute")
+    expect(compute?.services.map((s) => s.service)).toEqual(["instances"])
+  })
+
+  it("omits instances when denied even if nova is available", () => {
+    const sections = buildNavSections("proj-1", ALL_SERVICES, undefined, undefined, ["instances"])
+    const compute = sections.find((s) => s.section === "compute")
+    expect(compute?.services.map((s) => s.service)).not.toContain("instances")
   })
 
   it("respects enabledServices filter for routers", () => {
