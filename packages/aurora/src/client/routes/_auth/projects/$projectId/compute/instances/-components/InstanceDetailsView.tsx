@@ -12,9 +12,10 @@ import { useLingui } from "@lingui/react/macro"
 import type { Server } from "@/server/Compute/types/server"
 import ClipboardText from "@/client/components/ClipboardText"
 import { TwoColumnDescriptionList } from "@/client/components/TwoColumnDescriptionList"
-import { powerStateLabel, EMPTY_VALUE } from "../-utils/instanceDisplay"
-import { ImageNameHover } from "./ImageNameHover"
+import { powerStateLabel, EMPTY_VALUE, rawImageId } from "../-utils/instanceDisplay"
+import { ImageNameLink } from "./ImageNameLink"
 import { FlavorLink } from "./FlavorLink"
+import { StatusLabel } from "@/client/components/StatusLabel"
 
 interface InstanceDetailsViewProps {
   instance: Server
@@ -22,34 +23,36 @@ interface InstanceDetailsViewProps {
 }
 
 /**
- * Image ID cell: the copyable id with a name-resolving info icon, or
- * "Booted from volume" when Nova returns an empty image (volume-booted), or
- * "- -" when the field is absent entirely.
+ * Image Name cell: the resolved name linking to the image, "Booted from volume"
+ * when Nova returns an empty image (volume-booted), or "- -" when the field is
+ * absent or the image isn't accessible in this project.
  */
-function imageValue(instance: Server, projectId: string, bootedFromVolume: string) {
-  const id = instance.image
-  if (typeof id === "string" ? id : id?.id) {
-    const imageId = typeof id === "string" ? id : (id?.id ?? "")
-    return <ImageNameHover imageId={imageId} projectId={projectId} />
-  }
+function imageNameValue(instance: Server, projectId: string, bootedFromVolume: string) {
+  const id = rawImageId(instance)
+  if (id) return <ImageNameLink imageId={id} projectId={projectId} />
   // image === "" means boot-from-volume; undefined/null means simply unknown.
   if (instance.image === "") return bootedFromVolume
-  return ""
+  return undefined
 }
 
 function OverviewSection({ instance, projectId }: { instance: Server; projectId: string }) {
   const { t } = useLingui()
   const tags = (instance.tags ?? []).filter((tag) => tag.trim() !== "")
+  const imageId = rawImageId(instance)
   const items = [
     { label: t`ID`, value: <ClipboardText text={instance.id} /> },
     { label: t`Name`, value: instance.name },
     { label: t`Status`, value: instance.status },
     { label: t`Availability Zone`, value: instance["OS-EXT-AZ:availability_zone"] },
-    { label: t`Flavor`, value: <FlavorLink instance={instance} projectId={projectId} /> },
+    {
+      label: t`Image Name`,
+      value: imageNameValue(instance, projectId, t`Booted from volume`),
+    },
     {
       label: t`Image ID`,
-      value: imageValue(instance, projectId, t`Booted from volume`),
+      value: imageId ? <ClipboardText text={imageId} /> : undefined,
     },
+    { label: t`Flavor`, value: <FlavorLink instance={instance} projectId={projectId} /> },
     { label: t`Key Name`, value: instance.key_name },
     { label: t`Created`, value: instance.created },
     { label: t`Updated`, value: instance.updated },
@@ -77,7 +80,7 @@ function OverviewSection({ instance, projectId }: { instance: Server; projectId:
 function StateSection({ instance }: { instance: Server }) {
   const { t } = useLingui()
   const items = [
-    { label: t`Power State`, value: powerStateLabel(instance["OS-EXT-STS:power_state"]) },
+    { label: t`Power State`, value: <StatusLabel value={powerStateLabel(instance["OS-EXT-STS:power_state"])} /> },
     { label: t`VM State`, value: instance["OS-EXT-STS:vm_state"] },
     { label: t`Task State`, value: instance["OS-EXT-STS:task_state"] },
     { label: t`vCPUs`, value: instance.flavor?.vcpus },

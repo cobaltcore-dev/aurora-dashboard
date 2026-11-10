@@ -1528,6 +1528,9 @@ msgstr "Down"
 msgid "DOWN"
 msgstr "DOWN"
 
+msgid "Download"
+msgstr "Download"
+
 msgid "Download {rowDisplayName}"
 msgstr "Download {rowDisplayName}"
 
@@ -3541,9 +3544,6 @@ msgstr "Private Key is required for RSA containers"
 msgid "Private Key Passphrase"
 msgstr "Private Key Passphrase"
 
-msgid "Private Key Passphrase is required for RSA containers"
-msgstr "Private Key Passphrase is required for RSA containers"
-
 msgid "Private Network"
 msgstr "Private Network"
 
@@ -4746,6 +4746,9 @@ msgstr "This object and all its versions will be permanently deleted and cannot 
 
 msgid "This object storage service does not exist or is not available for this project."
 msgstr "This object storage service does not exist or is not available for this project."
+
+msgid "This order is still being processed. Deleting it now may leave an orphaned resource in Barbican."
+msgstr "This order is still being processed. Deleting it now may leave an orphaned resource in Barbican."
 
 msgid "This port does not exist or has been deleted."
 msgstr "This port does not exist or has been deleted."

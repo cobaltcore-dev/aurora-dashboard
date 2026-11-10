@@ -269,7 +269,7 @@ export function CreateOrderModal({
               />
             )}
           </FormRow>
-          {algorithm === "aes" && (
+          {algorithm === "aes" && orderType !== "asymmetric" && (
             <FormRow>
               <Select id="mode" label={t`Mode`} value={mode} onChange={(v) => setMode(typeof v === "string" ? v : "")}>
                 {AES_MODES.map((m) => (

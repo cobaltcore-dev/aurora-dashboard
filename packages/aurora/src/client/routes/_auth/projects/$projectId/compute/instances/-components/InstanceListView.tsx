@@ -14,8 +14,9 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "@tanstack/react-router"
 import { rawImageId, powerStateLabel, EMPTY_VALUE } from "../-utils/instanceDisplay"
-import { ImageNameHover } from "./ImageNameHover"
+import { ImageNameLink } from "./ImageNameLink"
 import { FlavorLink } from "./FlavorLink"
+import { StatusLabel } from "@/client/components/StatusLabel"
 
 const COLUMN_COUNT = 7
 
@@ -88,14 +89,16 @@ export const InstanceListView = ({
                 data-testid={`instance-row-${instance.id}`}
                 onClick={() => goToDetail(instance.id)}
               >
-                <DataGridCell>{powerStateLabel(instance["OS-EXT-STS:power_state"]) || EMPTY_VALUE}</DataGridCell>
+                <DataGridCell>
+                  <StatusLabel value={powerStateLabel(instance["OS-EXT-STS:power_state"])} />
+                </DataGridCell>
                 <DataGridCell>{instance.name || instance.id}</DataGridCell>
                 <DataGridCell onClick={(e) => e.stopPropagation()}>
                   <FlavorLink instance={instance} projectId={projectId} />
                 </DataGridCell>
                 <DataGridCell onClick={(e) => e.stopPropagation()}>
                   {rawImageId(instance) ? (
-                    <ImageNameHover imageId={rawImageId(instance)} projectId={projectId} />
+                    <ImageNameLink imageId={rawImageId(instance)} projectId={projectId} />
                   ) : (
                     EMPTY_VALUE
                   )}
