@@ -478,6 +478,9 @@ msgstr "Add Security Group Rule"
 msgid "Address group: {id}"
 msgstr "Address group: {id}"
 
+msgid "Addresses"
+msgstr "Addresses"
+
 msgid "Admin State"
 msgstr "Admin State"
 
@@ -625,6 +628,9 @@ msgstr "Authorization"
 msgid "Auto-generated if not provided. Only alphanumeric, hyphens, underscores, and dots allowed."
 msgstr "Auto-generated if not provided. Only alphanumeric, hyphens, underscores, and dots allowed."
 
+msgid "Availability Zone"
+msgstr "Availability Zone"
+
 msgid "Back"
 msgstr "Back"
 
@@ -649,6 +655,9 @@ msgstr "Back to Floating IPs"
 msgid "Back to Images"
 msgstr "Back to Images"
 
+msgid "Back to Instances"
+msgstr "Back to Instances"
+
 msgid "Back to Key Manager"
 msgstr "Back to Key Manager"
 
@@ -672,6 +681,9 @@ msgstr "Boot RAM"
 
 msgid "Boot size"
 msgstr "Boot size"
+
+msgid "Booted from volume"
+msgstr "Booted from volume"
 
 msgid "Bucket \"{bucketName}\" was already empty."
 msgstr "Bucket \"{bucketName}\" was already empty."
@@ -831,6 +843,9 @@ msgstr "Community"
 
 msgid "Compute"
 msgstr "Compute"
+
+msgid "Compute & State"
+msgstr "Compute & State"
 
 msgid "Configuration Unavailable"
 msgstr "Configuration Unavailable"
@@ -1720,6 +1735,9 @@ msgstr "Error Loading Flavor"
 msgid "Error Loading Image"
 msgstr "Error Loading Image"
 
+msgid "Error Loading Instance"
+msgstr "Error Loading Instance"
+
 msgid "Error Loading Port"
 msgstr "Error Loading Port"
 
@@ -1987,6 +2005,9 @@ msgstr "Failed to Load Floating IPs"
 msgid "Failed to Load Images"
 msgstr "Failed to Load Images"
 
+msgid "Failed to Load Instances"
+msgstr "Failed to Load Instances"
+
 msgid "Failed to Load Internal Networks"
 msgstr "Failed to Load Internal Networks"
 
@@ -2133,6 +2154,9 @@ msgstr "Fixed IP Address"
 
 msgid "Fixed IPs"
 msgstr "Fixed IPs"
+
+msgid "Flavor"
+msgstr "Flavor"
 
 msgid "Flavor \"{name}\" was successfully created."
 msgstr "Flavor \"{name}\" was successfully created."
@@ -2284,6 +2308,9 @@ msgstr "General Image Data"
 msgid "General Information"
 msgstr "General Information"
 
+msgid "General Instance Data"
+msgstr "General Instance Data"
+
 msgid "Generate URL"
 msgstr "Generate URL"
 
@@ -2332,8 +2359,14 @@ msgstr "Hide info about secret types"
 msgid "Home"
 msgstr "Home"
 
+msgid "Host"
+msgstr "Host"
+
 msgid "How long browsers can cache preflight responses. Common values: 3600 (1 hour), 86400 (1 day), 604800 (1 week)."
 msgstr "How long browsers can cache preflight responses. Common values: 3600 (1 hour), 86400 (1 day), 604800 (1 week)."
+
+msgid "Hypervisor"
+msgstr "Hypervisor"
 
 msgid "I confirm that all existing versions will also be deleted"
 msgstr "I confirm that all existing versions will also be deleted"
@@ -2428,6 +2461,15 @@ msgstr "Ingress: traffic coming in to the instances. Egress: traffic going out o
 msgid "Inside a project, objects are stored in containers. Containers are where you define access permissions and quotas."
 msgstr "Inside a project, objects are stored in containers. Containers are where you define access permissions and quotas."
 
+msgid "Instance Name"
+msgstr "Instance Name"
+
+msgid "Instance Not Found"
+msgstr "Instance Not Found"
+
+msgid "Instances"
+msgstr "Instances"
+
 msgid "Insufficient Permissions"
 msgstr "Insufficient Permissions"
 
@@ -2448,6 +2490,9 @@ msgstr "Invalid JSON format"
 
 msgid "Invalid value for public flavor setting."
 msgstr "Invalid value for public flavor setting."
+
+msgid "IP Address"
+msgstr "IP Address"
 
 msgid "IP Restricted"
 msgstr "IP Restricted"
@@ -2505,6 +2550,9 @@ msgstr "Key Manager Secrets"
 
 msgid "Key must contain at least one alphanumeric character"
 msgstr "Key must contain at least one alphanumeric character"
+
+msgid "Key Name"
+msgstr "Key Name"
 
 msgid "Last modified"
 msgstr "Last modified"
@@ -2601,6 +2649,12 @@ msgstr "Loading Image Details..."
 
 msgid "Loading Images..."
 msgstr "Loading Images..."
+
+msgid "Loading Instance Details..."
+msgstr "Loading Instance Details..."
+
+msgid "Loading Instances..."
+msgstr "Loading Instances..."
 
 msgid "Loading Internal Networks..."
 msgstr "Loading Internal Networks..."
@@ -2875,6 +2929,9 @@ msgstr "No Accepted Images Found"
 msgid "No Access Keys"
 msgstr "No Access Keys"
 
+msgid "No addresses"
+msgstr "No addresses"
+
 msgid "No buckets found"
 msgstr "No buckets found"
 
@@ -2919,6 +2976,9 @@ msgstr "No Floating IPs Found"
 
 msgid "No Images Found"
 msgstr "No Images Found"
+
+msgid "No instances found"
+msgstr "No instances found"
 
 msgid "No Internal Networks"
 msgstr "No Internal Networks"
@@ -3304,6 +3364,9 @@ msgstr "Port Range"
 msgid "Ports"
 msgstr "Ports"
 
+msgid "Power State"
+msgstr "Power State"
+
 msgid "Pre-signed URL"
 msgstr "Pre-signed URL"
 
@@ -3532,6 +3595,9 @@ msgstr "Restore Folder"
 msgid "Restore Version"
 msgstr "Restore Version"
 
+msgid "Retry"
+msgstr "Retry"
+
 msgid "Reveal"
 msgstr "Reveal"
 
@@ -3651,6 +3717,9 @@ msgstr "Search CORS rules..."
 
 msgid "Search flavors..."
 msgstr "Search flavors..."
+
+msgid "Search instances..."
+msgstr "Search instances..."
 
 msgid "Search lifecycle rules..."
 msgstr "Search lifecycle rules..."
@@ -4105,6 +4174,9 @@ msgstr "Target Project ID"
 msgid "Target project ID is required"
 msgstr "Target project ID is required"
 
+msgid "Task State"
+msgstr "Task State"
+
 msgid "Temporary URL"
 msgstr "Temporary URL"
 
@@ -4243,6 +4315,9 @@ msgstr "The project you are looking for doesn't exist or you don't have access t
 msgid "The requested flavor could not be found. It may have been deleted or you may not have access to it."
 msgstr "The requested flavor could not be found. It may have been deleted or you may not have access to it."
 
+msgid "The requested instance could not be found. It may have been deleted or you may not have access to it."
+msgstr "The requested instance could not be found. It may have been deleted or you may not have access to it."
+
 msgid "The Resource you are looking for does not exist or is not accessible."
 msgstr "The Resource you are looking for does not exist or is not accessible."
 
@@ -4326,6 +4401,9 @@ msgstr "There are no Floating IPs available for this project. Floating IPs allow
 
 msgid "There are no images available for this project with the current filters applied."
 msgstr "There are no images available for this project with the current filters applied."
+
+msgid "There are no instances in this project with the current filters applied. Try adjusting your search or filter criteria."
+msgstr "There are no instances in this project with the current filters applied. Try adjusting your search or filter criteria."
 
 msgid "There are no items to display."
 msgstr "There are no items to display."
@@ -4461,6 +4539,9 @@ msgstr "This folder is empty."
 
 msgid "This image was shared with you by <0>{ownerProject}</0> on {sharedAt}."
 msgstr "This image was shared with you by <0>{ownerProject}</0> on {sharedAt}."
+
+msgid "This instance has no network addresses."
+msgstr "This instance has no network addresses."
 
 msgid "This is a <0>dynamic large object (DLO)</0> manifest. Metadata changes apply to the manifest only — segment objects are not affected."
 msgstr "This is a <0>dynamic large object (DLO)</0> manifest. Metadata changes apply to the manifest only — segment objects are not affected."
@@ -4747,11 +4828,17 @@ msgstr "Value is required"
 msgid "vCPU"
 msgstr "vCPU"
 
+msgid "vCPUs"
+msgstr "vCPUs"
+
 msgid "VCPUs"
 msgstr "VCPUs"
 
 msgid "VCPUs must be an integer ≥ 1."
 msgstr "VCPUs must be an integer ≥ 1."
+
+msgid "Version"
+msgstr "Version"
 
 msgid "Version {shortVersionId}... deleted successfully"
 msgstr "Version {shortVersionId}... deleted successfully"
@@ -4804,11 +4891,17 @@ msgstr "Versions Partially Deleted"
 msgid "Versions to delete:"
 msgstr "Versions to delete:"
 
+msgid "View details"
+msgstr "View details"
+
 msgid "View Versions"
 msgstr "View Versions"
 
 msgid "Visibility"
 msgstr "Visibility"
+
+msgid "VM State"
+msgstr "VM State"
 
 msgid "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
 msgstr "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
@@ -4947,6 +5040,9 @@ msgstr "You don't have permission to view extra specs for this flavor."
 
 msgid "You don't have permission to view images in this project. Contact your administrator to grant you the necessary permissions."
 msgstr "You don't have permission to view images in this project. Contact your administrator to grant you the necessary permissions."
+
+msgid "You don't have permission to view instances in this project. Contact your administrator to grant you the necessary permissions."
+msgstr "You don't have permission to view instances in this project. Contact your administrator to grant you the necessary permissions."
 
 msgid "You don't have permission to view this flavor's details."
 msgstr "You don't have permission to view this flavor's details."

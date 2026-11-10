@@ -69,6 +69,8 @@ function RouteComponent() {
     cards.push({ group: t`Compute`, label: t`Images`, to: `${base}/compute/images`, service: "images" })
   if (serviceIndex["compute"]?.["nova"] && isEnabled("flavors"))
     cards.push({ group: t`Compute`, label: t`Flavors`, to: `${base}/compute/flavors`, service: "flavors" })
+  if (serviceIndex["compute"]?.["nova"] && isEnabled("instances"))
+    cards.push({ group: t`Compute`, label: t`Instances`, to: `${base}/compute/instances`, service: "instances" })
   if (serviceIndex["network"]) {
     if (isEnabled("securitygroups"))
       cards.push({
@@ -112,6 +114,14 @@ function RouteComponent() {
       label: t`Object Storage (Ceph)`,
       to: `${base}/storage/${STORAGE_PROVIDER.CEPH}/${STORAGE_TYPE_BY_PROVIDER[STORAGE_PROVIDER.CEPH]}`,
       service: "ceph-containers",
+    })
+
+  if (serviceIndex["key-manager"]?.["barbican"] && isEnabled("key-manager"))
+    cards.push({
+      group: t`Authorization`,
+      label: t`Key Manager`,
+      to: `${base}/authorization/key-manager/secrets`,
+      service: "key-manager",
     })
 
   for (const extension of serviceExtensions ?? []) {
