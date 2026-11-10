@@ -13,6 +13,7 @@ import {
 import { useLingui } from "@lingui/react/macro"
 import { GlanceImage, ImageVisibility, MemberStatus } from "@/server/Compute/types/image"
 import { SizeDisplay } from "./SizeDisplay"
+import { StatusLabel } from "@/client/components/StatusLabel"
 import { IMAGE_STATUSES, IMAGE_VISIBILITY, MEMBER_STATUSES } from "../../-constants/filters"
 import { trpcReact } from "@/client/trpcClient"
 import { TRPCClientError } from "@trpc/client"
@@ -119,7 +120,9 @@ export function ImageTableRow({
         </DataGridCell>
       )}
 
-      <DataGridCell>{status}</DataGridCell>
+      <DataGridCell>
+        <StatusLabel value={status} />
+      </DataGridCell>
       <DataGridCell textContain="truncate-end" title={name || id}>
         {name || id}
       </DataGridCell>
