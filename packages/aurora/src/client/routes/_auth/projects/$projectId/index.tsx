@@ -116,6 +116,14 @@ function RouteComponent() {
       service: "ceph-containers",
     })
 
+  if (serviceIndex["key-manager"]?.["barbican"] && isEnabled("key-manager"))
+    cards.push({
+      group: t`Authorization`,
+      label: t`Key Manager`,
+      to: `${base}/authorization/key-manager/secrets`,
+      service: "key-manager",
+    })
+
   for (const extension of serviceExtensions ?? []) {
     // if the extension's service is in the catalog and enabled, display a card for it
     if (
