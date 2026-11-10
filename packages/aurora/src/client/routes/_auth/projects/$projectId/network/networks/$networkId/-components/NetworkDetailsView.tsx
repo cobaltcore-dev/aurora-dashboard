@@ -1,8 +1,7 @@
-import { ReactNode } from "react"
 import { useLoaderData, useRouteContext } from "@tanstack/react-router"
 import { useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Stack, TabNavigation, TabNavigationItem } from "@cloudoperators/juno-ui-components"
+import { Stack, TabBar, TabBarItem } from "@cloudoperators/juno-ui-components"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import type { Network } from "@/server/Network/types/network"
 import { useProjectId } from "@/client/hooks"
@@ -104,16 +103,17 @@ export function NetworkDetailsView({ network, activeTab, onTabChange }: NetworkD
       <TwoColumnDescriptionList items={basicInfoItems} />
 
       <Stack direction="vertical" gap="4">
-        {/* TabNavigation keeps its own active item once a tab is clicked, so activeItem keeps it in sync with
+        {/* TabBar keeps its own active item once a tab is clicked, so activeItem keeps it in sync with
             the URL. `active` only covers the first render, before activeItem is applied. */}
-        <TabNavigation
+        <TabBar
+          ariaLabel={t`Network detail sections`}
           activeItem={activeTab}
-          onActiveItemChange={(value: ReactNode) => isNetworkDetailsTab(value) && onTabChange(value)}
+          onActiveItemChange={(value) => isNetworkDetailsTab(value) && onTabChange(value)}
         >
           {NETWORK_DETAILS_TABS.map((tab) => (
-            <TabNavigationItem key={tab} label={tabLabels[tab]} value={tab} active={activeTab === tab} />
+            <TabBarItem key={tab} label={tabLabels[tab]} value={tab} active={activeTab === tab} />
           ))}
-        </TabNavigation>
+        </TabBar>
 
         {activeTab === "segmentation" && <NetworkSegmentationTab network={network} />}
 

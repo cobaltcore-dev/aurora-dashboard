@@ -2977,6 +2977,9 @@ msgstr "Netzwerk"
 msgid "Network & Routing"
 msgstr "Netzwerk & Routing"
 
+msgid "Network detail sections"
+msgstr ""
+
 msgid "Network ID"
 msgstr "Netzwerk-ID"
 
