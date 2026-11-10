@@ -15,7 +15,7 @@ vi.mock("@tanstack/react-router", () => ({
   Link: ({ children }: { children: ReactNode }) => <a>{children}</a>,
 }))
 
-// Rows render ImageNameHover + FlavorLink, which query getImageById /
+// Rows render ImageNameLink + FlavorLink, which query getImageById /
 // getFlavorsByProjectId; stub both.
 vi.mock("@/client/trpcClient", () => ({
   trpcReact: {
@@ -62,7 +62,7 @@ describe("InstanceListView", () => {
 
   beforeEach(() => vi.clearAllMocks())
 
-  it("renders a row per instance, with the image id linked and '- -' when absent", async () => {
+  it("renders a row per instance, showing '- -' in the image column until the name resolves", async () => {
     await act(async () => {
       render(
         <InstanceListView
@@ -77,12 +77,12 @@ describe("InstanceListView", () => {
       )
     })
     expect(screen.getByText("web-1")).toBeInTheDocument()
-    // Image shows the id (truncated, copyable) until the name resolves.
-    expect(screen.getByText("35ffd44f...")).toBeInTheDocument()
+    // Image column shows "- -" while the name query is pending (and for the
+    // boot-from-volume row with image ""); the raw id is never surfaced here.
+    expect(screen.queryByText(/35ffd44f/)).not.toBeInTheDocument()
+    expect(screen.getAllByText("- -").length).toBeGreaterThanOrEqual(2)
     // Power State column renders the label (RUNNING = power_state 1).
     expect(screen.getAllByText("RUNNING").length).toBeGreaterThanOrEqual(1)
-    // The boot-from-volume row (image "") renders the empty placeholder.
-    expect(screen.getByText("- -")).toBeInTheDocument()
   })
 
   it("renders the empty state when there are no instances", async () => {

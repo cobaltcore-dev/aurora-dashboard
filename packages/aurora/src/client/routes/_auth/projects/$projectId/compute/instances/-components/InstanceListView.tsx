@@ -14,7 +14,7 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "@tanstack/react-router"
 import { rawImageId, powerStateLabel, EMPTY_VALUE } from "../-utils/instanceDisplay"
-import { ImageNameHover } from "./ImageNameHover"
+import { ImageNameLink } from "./ImageNameLink"
 import { FlavorLink } from "./FlavorLink"
 
 const COLUMN_COUNT = 7
@@ -95,7 +95,7 @@ export const InstanceListView = ({
                 </DataGridCell>
                 <DataGridCell onClick={(e) => e.stopPropagation()}>
                   {rawImageId(instance) ? (
-                    <ImageNameHover imageId={rawImageId(instance)} projectId={projectId} />
+                    <ImageNameLink imageId={rawImageId(instance)} projectId={projectId} />
                   ) : (
                     EMPTY_VALUE
                   )}

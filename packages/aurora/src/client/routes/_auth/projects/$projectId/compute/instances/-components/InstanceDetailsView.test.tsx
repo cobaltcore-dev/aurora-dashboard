@@ -7,7 +7,7 @@ import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import type { Server } from "@/server/Compute/types/server"
 import { InstanceDetailsView } from "./InstanceDetailsView"
 
-// ImageNameHover resolves the image name lazily; FlavorHover resolves the flavor
+// ImageNameLink resolves the image name lazily; FlavorLink resolves the flavor
 // id from the project flavor list. Stub both queries + Link here.
 vi.mock("@/client/trpcClient", () => ({
   trpcReact: {
@@ -64,18 +64,20 @@ describe("InstanceDetailsView", () => {
     expect(screen.getByText("ACTIVE")).toBeInTheDocument()
   })
 
-  it("renders the image id (copyable) until the name resolves", () => {
+  it("shows the Image ID as a copyable control and the name as '- -' until it resolves", () => {
     const server = makeServer({ image: { id: "35ffd44f-6550-4c99-8ca3-f55099fd504a" } })
     render(
       <TestingProvider>
         <InstanceDetailsView instance={server} projectId={PROJECT_ID} />
       </TestingProvider>
     )
-    // The mocked query stays pending, so the id shows (truncated) with a copy control, no link.
-    expect(screen.getByText("35ffd44f...")).toBeInTheDocument()
+    // Image ID row: the raw id with a copy control, always shown.
+    expect(screen.getByText("35ffd44f-6550-4c99-8ca3-f55099fd504a")).toBeInTheDocument()
     expect(
       screen.getByRole("button", { name: /Copy 35ffd44f-6550-4c99-8ca3-f55099fd504a to clipboard/i })
     ).toBeInTheDocument()
+    // Image Name row: query is pending, so it shows the placeholder, not a link.
+    expect(screen.getByText("Image Name")).toBeInTheDocument()
   })
 
   it("shows 'Booted from volume' for boot-from-volume instances (empty image)", () => {
@@ -84,9 +86,10 @@ describe("InstanceDetailsView", () => {
         <InstanceDetailsView instance={makeServer({ image: "" })} projectId={PROJECT_ID} />
       </TestingProvider>
     )
-    // Empty image id => boot-from-volume label, and no clipboard trigger for an id.
+    // Empty image id => boot-from-volume name, and no image-id clipboard control.
     expect(screen.getByText("Booted from volume")).toBeInTheDocument()
     expect(screen.queryByText(/35ffd44f/)).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: /35ffd44f.*to clipboard/i })).not.toBeInTheDocument()
   })
 
   it("renders metadata key/value pairs and tags", () => {
