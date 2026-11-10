@@ -5,14 +5,12 @@
 | Field                           | Details                                                                                                            |
 | ------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | **Feature/Requirement Name**    | Key Manager UI — Create, view, and delete browser for OpenStack Barbican secrets, containers, and orders in Aurora |
-| **Submitted By**                | <!-- fill in -->                                                                                                   |
-| **Team**                        | <!-- fill in -->                                                                                                   |
+| **Submitted By**                | Hoda Noori                                                                                                         |
+| **Team**                        | Team 2 – Specs and BRDs (hackathon)                                                                                |
 | **Date**                        | 2026-11-06                                                                                                         |
 | **Priority**                    | [ ] Critical &nbsp;&nbsp; [ ] High &nbsp;&nbsp; [ ] Medium &nbsp;&nbsp; [ ] Low                                    |
-| **Target Release Date/Quarter** | <!-- fill in -->                                                                                                   |
+| **Target Release Date/Quarter** | (Q-N4)<                                                                                                            |
 | **Status**                      | [x] Draft &nbsp;&nbsp; [ ] Review &nbsp;&nbsp; [ ] Approved &nbsp;&nbsp; [ ] Rejected &nbsp;&nbsp; [ ] Implemented |
-
-> ⚠️ **Still needed**: Submitter name, team, priority, and target release date (Q-N5 not answered).
 
 ---
 
@@ -84,9 +82,9 @@ The "Authorization" category is intentionally broader than Key Manager alone —
 
 #### User personas
 
-| Persona                  | Description                                                                                                                                                                                                                                                     | Roles                                                                           |
-| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| OpenStack Project Member | Any authenticated user with a role on the current project. This is a single-persona UI — all create, view, and delete actions are visible to every authenticated project member. Barbican's own policy engine enforces what actually succeeds at the API level. | Any Keystone project role (`creator`, `observer`, `auditor`, `admin`, `member`) |
+| Persona                  | Description                                                                                                                                                                                                                                                                                                | Roles                                                                                              |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| OpenStack Project Member | Any authenticated user with a role on the current project. The UI checks Barbican permissions proactively — create and delete controls are hidden for users who lack the corresponding write or delete permission; browse and view actions show an Access Denied error state when Barbican restricts them. | Any Keystone project role that Barbican's policy grants the relevant `key-manager:*` permission to |
 
 #### Summary of UI functionality
 
@@ -107,7 +105,7 @@ All authenticated project members can list, search, sort, and filter secrets; vi
 - [ ] **Search** by name: server-side (`name` query param, Barbican similarity match), a search field with 300 ms debounce, no full-page reload
 - [ ] **Filter** by Secret Type (`secret_type`) and Algorithm (`alg`): server-side query params; each defaults to "All"; active filters compose with AND; a "Clear filters" affordance resets them
 - [ ] **Sort** by Name, Status, Secret Type, Created, Expiration, Updated: server-side (`sort=<field>:asc` or `sort=<field>:desc`); clicking a column header toggles ascending / descending
-- [ ] Pagination controls; default page size 25 rows
+- [ ] Pagination controls; default page size 50 rows
 - [ ] Empty state shown when no secrets exist
 - [ ] Loading state shown while the request is in flight
 - [ ] Error state shown if the API call fails, surfacing the Barbican error message when present
@@ -207,15 +205,15 @@ API: `GET /v1/secrets/{id}/metadata`, `POST /v1/secrets/{id}/metadata`, `PUT /v1
 
 - [ ] Lists all containers via `GET /v1/containers` (server-side pagination: `offset` + `limit`)
 - [ ] Displays per row: **Name** + **ID** (stacked, copy-to-clipboard for ID) / **Status** / **Container Type** / per-row actions (Show details, Delete)
-- [ ] Client-side search by Name (substring match) and sort by Name, Status, Container Type, and Created over the fetched page (Barbican list API provides pagination only; no server-side filter/sort for containers)
-- [ ] **Create container** form: Name, Type (generic / rsa / certificate / dh), named secret references (key: ref name, value: secret URI); required secret refs vary by type (e.g. `certificate` type expects `certificate`, `private_key`, optionally `intermediates` and `public_key`)
+- [ ] Client-side search by Name (substring match) and sort by Name, Status, Container Type, and Created over all fetched pages (Barbican list API provides pagination only; no server-side filter/sort for containers)
+- [ ] **Create container** form: Name, Type (generic / rsa / certificate), named secret references (key: ref name, value: secret URI); required secret refs vary by type — `certificate` type requires `certificate`; `rsa` type requires `public_key` and `private_key`; other refs are optional
 - [ ] **Detail view**: Name, ID (copy-to-clipboard), Type, Status, Created, Updated, secret_refs list (each ref name + URI, URI with copy-to-clipboard affordance)
 - [ ] **Delete** with confirmation prompt
 - [ ] Empty state shown when no containers exist; loading state shown while the list request is in flight; error state shown on failure, surfacing the Barbican error message (`title`/`description`) when present; create and delete errors surfaced inline with the Barbican error message
 
 **Notes:**
 API: `GET /v1/containers`, `POST /v1/containers`, `GET /v1/containers/{id}`, `DELETE /v1/containers/{id}`
-Container types: `generic`, `rsa`, `certificate`, `dh`
+Container types: `generic`, `rsa`, `certificate`
 
 ---
 
@@ -343,7 +341,7 @@ Aurora BFF pattern. The browser never holds the Keystone token directly. All tRP
 
 #### How will the UI discover the service
 
-Via `getServiceIndex("key-manager")` in `buildNavSections.ts`. A new `authorization.tsx` layout file gated on this catalog check covers all `authorization/*` sub-scopes. Key Manager (the first scope under Authorization) requires no additional catalog integration.
+Via `getServiceIndex("key-manager")` in `buildNavSections.ts`. Each Authorization sub-scope (Key Manager and future scopes) checks for its own service type in its own layout file's `beforeLoad` — there is no shared `authorization.tsx` layout. Key Manager's guard lives in `key-manager.tsx`.
 
 ---
 
@@ -357,20 +355,20 @@ Keystone (OpenStack identity). Aurora BFF pattern — token stored server-side i
 
 **Required roles or equivalent**
 
-| Action                           | Required role                                                                                                                  |
-| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| Browse secrets list              | Any authenticated project role                                                                                                 |
-| View secret metadata             | Any authenticated project role                                                                                                 |
-| Reveal / download secret payload | Any authenticated project role (Barbican policy may restrict by role — the UI surfaces the resulting 403 as an explicit error) |
-| Create secret                    | Any authenticated project role (Barbican policy enforces creator permissions)                                                  |
-| Delete secret                    | Any authenticated project role (Barbican policy enforces ownership)                                                            |
-| Manage secret metadata labels    | Any authenticated project role                                                                                                 |
-| Browse / view containers         | Any authenticated project role                                                                                                 |
-| Create / delete container        | Any authenticated project role                                                                                                 |
-| Browse / view orders             | Any authenticated project role                                                                                                 |
-| Create / delete order            | Any authenticated project role                                                                                                 |
+| Action                           | Required role                                                                             |
+| -------------------------------- | ----------------------------------------------------------------------------------------- |
+| Browse secrets list              | Any authenticated project member — Access Denied shown if Barbican restricts list access  |
+| View secret metadata             | Any authenticated project member — Access Denied shown if Barbican restricts get access   |
+| Reveal / download secret payload | Any authenticated project member with payload permission — specific error shown if denied |
+| Create secret                    | Project members with write permission — control hidden for users without it               |
+| Delete secret                    | Project members with delete permission — control hidden for users without it              |
+| Manage secret metadata labels    | Project members with update permission — controls hidden for users without it             |
+| Browse / view containers         | Any authenticated project member — Access Denied shown if Barbican restricts list access  |
+| Create / delete container        | Project members with write / delete permission — controls hidden for users without them   |
+| Browse / view orders             | Any authenticated project member — Access Denied shown if Barbican restricts list access  |
+| Create / delete order            | Project members with write / delete permission — controls hidden for users without them   |
 
-The UI exposes all actions to all authenticated project members. Barbican's own project-level policy determines what succeeds; the UI handles 403 responses with appropriate error states rather than hiding controls by role.
+The UI checks Barbican permissions proactively. Create and delete controls are hidden for users who lack the corresponding write or delete permission. Browse and view actions are available to any authenticated project member; if Barbican restricts list or get access, the UI shows an Access Denied error state instead of the data.
 
 **Scope**
 
@@ -419,11 +417,11 @@ No blocking **technical** dependencies identified. Platform prerequisites (Auror
 
 ## Appendix: Open Framework Questions (Aurora developer)
 
-| Q-ID | Question                                                                                                                                                                                     | Status                                                                                                                                       |
-| ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| Q-F1 | Confirm that Pattern A (new built-in scope under a new "Authorization" category) is correct and that there is no existing `key-manager` scope in the Aurora repo.                            | ❓ Confirm with Aurora developer                                                                                                             |
-| Q-F2 | How is the Keystone token injected into Barbican requests?                                                                                                                                   | ✅ BFF — `projectScopedProcedure`; `signal-openstack` injects `X-Auth-Token`.                                                                |
-| Q-F3 | How does the nav entry gate on the `key-manager` service catalog entry?                                                                                                                      | ✅ Via `getServiceIndex("key-manager")` in `buildNavSections.ts` and the `authorization.tsx` `beforeLoad` guard.                             |
-| Q-F4 | How should secret payloads be displayed securely (masked, reveal on demand)? Does Juno provide a masked-reveal-on-demand component for this use case?                                        | ⚠️ Open — confirm with Aurora/Juno developer whether a masked-reveal-on-demand component exists in Juno for displaying secret values.        |
-| Q-F5 | For file download (PEM cert, private key payload): is tRPC SSE streaming (as in `swiftRouter.ts`) required, or is a simpler server-side download endpoint acceptable for small PEM payloads? | ⚠️ Partial — existing pattern uses SSE chunking; for small PEM payloads a simpler approach may be acceptable. Confirm with Aurora developer. |
-| Q-F6 | For order status polling (PENDING → ACTIVE/ERROR): is `refetchInterval` (TanStack Query) acceptable, or does the team prefer tRPC SSE subscriptions?                                         | ⚠️ Partial — `refetchInterval` available; SSE preferred pattern. Confirm with Aurora developer.                                              |
+| Q-ID | Question                                                                                                                                                            | Status                                                                                                                                                   |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Q-F1 | Confirm that Pattern A (new built-in scope under a new "Authorization" category) is correct and that there is no existing `key-manager` scope in the Aurora repo.   | ✅ Confirmed — Pattern A; guard in `key-manager.tsx`; no prior scope.                                                                                    |
+| Q-F2 | How is the Keystone token injected into Barbican requests?                                                                                                          | ✅ BFF — `projectScopedProcedure`; `signal-openstack` injects `X-Auth-Token`.                                                                            |
+| Q-F3 | How does the nav entry gate on the `key-manager` service catalog entry?                                                                                             | ✅ Via `getServiceIndex("key-manager")` in `buildNavSections.ts` and the `key-manager.tsx` `beforeLoad` guard.                                           |
+| Q-F4 | How should secret payloads be displayed securely (masked, reveal on demand)? Does Juno provide a masked-reveal-on-demand component for this use case?               | ✅ Juno `SecretText` component — controlled (`readOnly`, `value` from local state); reveal calls `getSecretPayload`; hide clears local state.            |
+| Q-F5 | For file download (PEM cert, private key payload): is tRPC SSE streaming required, or is a simpler server-side download endpoint acceptable for small PEM payloads? | ✅ Client-side `Blob` + `URL.createObjectURL` — no SSE required. Extensions: `.pem` for cert MIME types, `.txt` for `text/plain`, `.bin` for all others. |
+| Q-F6 | For order status polling (PENDING → ACTIVE/ERROR): is `refetchInterval` (TanStack Query) acceptable, or does the team prefer tRPC SSE subscriptions?                | ✅ `refetchInterval: 5000` while any order is `PENDING`; interval disabled once all orders are terminal.                                                 |

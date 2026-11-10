@@ -65,7 +65,7 @@ where `{Resource}` is the tab label (`Secrets` / `Containers` / `Orders`) for li
 
 **Clickable rows.** Add `onClick` to `DataGridRow` to navigate to the detail route. The per-row PopupMenu ("View Details") must also navigate to the same destination — both paths must work.
 
-**Toast on success.** Call `toast(message, options)` from the mutation `onSuccess` callback after successful create or delete.
+**Toast on success.** Call `toast.success(message, options)` from the mutation `onSuccess` callback after successful create or delete.
 
 **Cache invalidation on mutation.** Always call `utils.keyManager.<resource>.invalidate()` (tRPC utils) first, then `queryClient.invalidateQueries({ queryKey: [...] })` for aggregate queries. This ensures the tRPC cache is marked stale before any re-fetch fires.
 
@@ -96,7 +96,7 @@ and expose the entire Key Manager scope. No visible UI beyond the nav link. All 
 - **Pattern A — new built-in scope.** Key Manager uses file-based TanStack Router routes exactly like `network/floatingips/` and `network/routers/`. It is NOT a service extension (`serviceExtensions` prop).
 - **Authorization category.** "Authorization" is a new nav category, intentionally broader than Key Manager alone — future credential scopes (HSM, PCA, etc.) will sit alongside it. Key Manager is the first scope.
 - **Catalog guard.** The guard lives in `authorization/key-manager.tsx`'s `beforeLoad`, not in a separate `authorization.tsx` layout. Future Authorization scopes each implement their own guard in their own layout file.
-- **tRPC namespace.** Stub router at `packages/aurora/src/server/KeyManager/keyManagerRouter.ts`. Subresource routers (`secretsRouter`, `containersRouter`, `ordersRouter`) are added in tickets 02–08 and merged into `keyManagerRouter`.
+- **tRPC namespace.** Stub router at `packages/aurora/src/server/KeyManager/routers/keyManagerRouter.ts`. Subresource routers (`secretsRouter`, `containersRouter`, `ordersRouter`) are added in tickets 02–08 and merged into `keyManagerRouter`.
 
 **BRD Reference** — §3 (Target Surface) · §7 (Service Catalog) · §8 (Auth)
 
@@ -115,7 +115,7 @@ project's secret inventory at a glance.
 
 **Acceptance Criteria**
 
-- [ ] Lists all project secrets via `GET /v1/secrets` (server-side pagination: `offset` + `limit`, default page size 25)
+- [ ] Lists all project secrets via `GET /v1/secrets` (server-side pagination with `offset` + `limit`, default page size 50)
 - [ ] Each row: **Name** (top line) + **ID** extracted from the Secret Identity URI (second line, `ClipboardText`) / **Status** (Mixed Case) / **Secret Type** + **Content Type** (stacked) / **PopupMenu** with "View Details" (navigates to detail route) and — separated by a divider — "Delete" (opens Ticket 05 modal)
 - [ ] Clicking any row navigates to the Secret detail page (see Cross-cutting: Clickable rows)
 - [ ] DataGridToolbar Zone 2:
@@ -125,10 +125,10 @@ project's secret inventory at a glance.
   - Active filters compose with AND; "Clear filters" resets all
 - [ ] Sort by column header: Name, Status, Secret Type, Created, Expiration, Updated (server-side `sort=<field>:asc|:desc`); active sort direction shown in header; clicking an active column flips direction; clicking a new column resets to `:asc`; `expiration: null` sorts last when sorting by Expiration ascending
 - [ ] `Pagination` component (`variant="input"`) below the grid
-- [ ] Empty state via `Status` component when no secrets exist (with "Create secret" call-to-action); distinct message when filters/search are active ("no results match your filters")
+- [ ] Empty state via `Status` component when no secrets exist (with "Create Secret" call-to-action); distinct message when filters/search are active ("no results match your filters")
 - [ ] Loading state scoped to the DataGrid; inline `Message` (persistent) on API failure surfacing Barbican `title`/`description`
 - [ ] Access Denied error state (see Cross-cutting) when user lacks `key-manager:secrets:list`
-- [ ] "Create secret" button in Zone 1 (visible only when user has `key-manager:secrets:create`) opens the Create Secret modal (Ticket 04)
+- [ ] "Create Secret" button in Zone 1 (visible only when user has `key-manager:secrets:create`) opens the Create Secret modal (Ticket 04)
 
 **Aurora / Juno implementation notes**
 
@@ -169,7 +169,7 @@ material without CLI access.
 
 **Aurora / Juno implementation notes**
 
-- **Route file:** `packages/aurora/src/client/routes/_auth/projects/$projectId/authorization/key-manager/secrets/$secretId/index.tsx`
+- **Route file:** `packages/aurora/src/client/routes/_auth/projects/$projectId/authorization/key-manager/secrets/$secretId.tsx`
 - **tRPC procedures (add to `secretsRouter`):**
   - `keyManager.getSecret` — `projectScopedProcedure`; calls `GET /v1/secrets/{id}`
   - `keyManager.getSecretPayload` — `projectScopedProcedure`; calls `GET /v1/secrets/{id}/payload` forwarding the `Accept` header; returns the raw payload string
@@ -195,7 +195,7 @@ insecure ad-hoc storage.
 
 **Acceptance Criteria**
 
-- [ ] "Create secret" button in the Ticket 02 toolbar opens a `Modal`
+- [ ] "Create Secret" button in the Ticket 02 toolbar opens a `Modal`
 - [ ] **Required fields:** Name (`TextInput`), Secret Type (`Select` — symmetric/asymmetric/public/private/passphrase/certificate/opaque), Payload (`Textarea`), Payload Content Type (`TextInput` or `Select`)
 - [ ] **Optional fields:** Algorithm (`TextInput`), Bit Length (`TextInput`, numeric), Mode (`TextInput`), Expiration (`DateTimePicker`)
 - [ ] The form displays a prominent note: _"Payloads are immutable after creation — to change a payload, delete and recreate the secret."_
@@ -258,8 +258,8 @@ on a secret, so that I can annotate secrets with context (e.g. `env: production`
 **Acceptance Criteria**
 
 - [ ] Existing labels are shown as a key-value table (data already loaded in Ticket 03)
-- [ ] When no labels exist: empty state "No labels yet" with an "Add label" call-to-action button
-- [ ] **Add label:** key + value inputs; on save calls `POST /v1/secrets/{id}/metadata`; new label appears in the table; inline loading while in flight; inline `Message` (persistent) on error with Barbican `title`/`description`; Barbican returns 409 for duplicate keys — no client-side pre-check required
+- [ ] When no labels exist: empty state "No labels yet" with an "Add Label" call-to-action button
+- [ ] **Add Label:** key + value inputs; on save calls `POST /v1/secrets/{id}/metadata`; new label appears in the table; inline loading while in flight; inline `Message` (persistent) on error with Barbican `title`/`description`; Barbican returns 409 for duplicate keys — no client-side pre-check required
 - [ ] **Edit label:** in-place value edit; on save calls `PUT /v1/secrets/{id}/metadata/{key}`; inline loading; error `Message` on failure
 - [ ] **Delete label:** per-row delete control; calls `DELETE /v1/secrets/{id}/metadata/{key}` after confirmation; inline loading; error `Message` on failure
 - [ ] Each operation's loading and error state is scoped to the affected row (not the full page)
@@ -312,13 +312,13 @@ single unit.
 
 - **Route files:**
   - `authorization/key-manager/containers/index.tsx` — containers list
-  - `authorization/key-manager/containers/$containerId/index.tsx` — container detail
+  - `authorization/key-manager/containers/$containerId.tsx` — container detail
 - **tRPC procedures (new `containersRouter.ts` in `KeyManager/`):**
   - `keyManager.listContainers` — `GET /v1/containers?offset=…&limit=…`
   - `keyManager.getContainer` — `GET /v1/containers/{id}`
   - `keyManager.createContainer` — `POST /v1/containers`
   - `keyManager.deleteContainer` — `DELETE /v1/containers/{id}`
-- **Client-side filter/sort:** fetch all pages via `useAllKeyManagerPages`; apply `Array.filter` (substring name match) and `Array.sort` (by selected field) over the full merged dataset; slice to 50-item display pages. `offset` in URL search params drives display pagination; filter/sort state is local (no URL).
+- **Client-side filter/sort:** fetch all pages via `useAllKeyManagerPages`; apply `Array.filter` (substring name match) and `Array.sort` (by selected field) over the full merged dataset; slice to 50-item display pages. `search` and `page` are URL search params (TanStack Router, Zod-validated); sort state is local.
 - **Cache invalidation on create/delete:** `utils.keyManager.listContainers.invalidate()` first, then `queryClient.invalidateQueries({ queryKey: ["km-all-containers", projectId] })`.
 - **Container Secret Reference → Secret link:** `uuidFromRef(secretRef)` extracts the UUID; link navigates to `../../../secrets/$secretId`.
 - **Juno components:** same as Ticket 02 (DataGrid, DataGridToolbar, SearchInput, Pagination, PopupMenu, Message, Status), plus `Modal`.
@@ -369,7 +369,7 @@ without managing key generation locally.
 
 - **Route files:**
   - `authorization/key-manager/orders/index.tsx` — orders list
-  - `authorization/key-manager/orders/$orderId/index.tsx` — order detail
+  - `authorization/key-manager/orders/$orderId.tsx` — order detail
 - **tRPC procedures (new `ordersRouter.ts` in `KeyManager/`):**
   - `keyManager.listOrders` — `GET /v1/orders?offset=…&limit=…`
   - `keyManager.getOrder` — `GET /v1/orders/{id}`
