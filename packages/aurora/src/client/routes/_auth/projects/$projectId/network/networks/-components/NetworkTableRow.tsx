@@ -32,6 +32,7 @@ export const NetworkTableRow = ({ network }: NetworkTableRowProps) => {
 
   return (
     <DataGridRow key={network.id} data-testid={`network-row-${network.id}`} onClick={navigateToDetailsPage}>
+      <DataGridCell>{network.status}</DataGridCell>
       {/* Name — ID shown beneath the name with a copy affordance (E2-adjacent, spec AC) */}
       <DataGridCell>
         <Stack direction="vertical" gap="0.5" className="min-w-0">
@@ -45,7 +46,6 @@ export const NetworkTableRow = ({ network }: NetworkTableRowProps) => {
           )}
         </Stack>
       </DataGridCell>
-      <DataGridCell>{network.status}</DataGridCell>
       <DataGridCell>{network.admin_state_up ? t`Up` : t`Down`}</DataGridCell>
       {/* Subnet count — derived from subnets.length; no extra API call (spec AC) */}
       <DataGridCell>{network.subnets.length}</DataGridCell>
