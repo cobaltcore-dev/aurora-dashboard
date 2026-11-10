@@ -12,6 +12,7 @@ import {
 import { Trans, useLingui } from "@lingui/react/macro"
 import { GlanceImage, ImageMember, MemberStatus } from "@/server/Compute/types/image"
 import { SizeDisplay } from "./SizeDisplay"
+import { StatusLabel } from "@/client/components/StatusLabel"
 import { MEMBER_STATUSES } from "../../-constants/filters"
 import ClipboardText from "@/client/components/ClipboardText"
 import { TwoColumnDescriptionList, EMPTY_VALUE, isEmptyValue } from "@/client/components/TwoColumnDescriptionList"
@@ -100,7 +101,7 @@ export const GeneralImageData: React.FC<{ image: GlanceImage }> = ({ image }) =>
   const items = [
     { label: t`ID`, value: <ClipboardText text={image.id} /> },
     { label: t`Name`, value: image.name },
-    { label: t`Status`, value: image.status },
+    { label: t`Status`, value: <StatusLabel value={image.status} /> },
     { label: t`Size`, value: <SizeDisplay size={image.size} /> },
     { label: t`Min. Disk`, value: image.min_disk != null ? `${image.min_disk} GB` : "" },
     { label: t`Min. RAM`, value: image.min_ram != null ? `${image.min_ram} MB` : "" },

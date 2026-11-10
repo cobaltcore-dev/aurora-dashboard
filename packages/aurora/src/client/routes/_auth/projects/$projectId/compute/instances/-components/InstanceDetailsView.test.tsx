@@ -58,7 +58,8 @@ describe("InstanceDetailsView", () => {
     expect(screen.getByText("General Instance Data")).toBeInTheDocument()
     expect(screen.getByText("Compute & State")).toBeInTheDocument()
     expect(screen.getByText("m1.small")).toBeInTheDocument()
-    expect(screen.getByText("RUNNING")).toBeInTheDocument()
+    // Power State renders lowercased (CSS capitalizes it for display).
+    expect(screen.getByText("running")).toBeInTheDocument()
     expect(screen.getByText("az-1")).toBeInTheDocument()
     // Status renders as plain text, not a badge.
     expect(screen.getByText("ACTIVE")).toBeInTheDocument()

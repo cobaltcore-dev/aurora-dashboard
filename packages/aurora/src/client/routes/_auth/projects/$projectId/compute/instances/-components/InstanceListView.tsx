@@ -16,6 +16,7 @@ import { useParams, useNavigate } from "@tanstack/react-router"
 import { rawImageId, powerStateLabel, EMPTY_VALUE } from "../-utils/instanceDisplay"
 import { ImageNameLink } from "./ImageNameLink"
 import { FlavorLink } from "./FlavorLink"
+import { StatusLabel } from "@/client/components/StatusLabel"
 
 const COLUMN_COUNT = 7
 
@@ -88,7 +89,9 @@ export const InstanceListView = ({
                 data-testid={`instance-row-${instance.id}`}
                 onClick={() => goToDetail(instance.id)}
               >
-                <DataGridCell>{powerStateLabel(instance["OS-EXT-STS:power_state"]) || EMPTY_VALUE}</DataGridCell>
+                <DataGridCell>
+                  <StatusLabel value={powerStateLabel(instance["OS-EXT-STS:power_state"])} />
+                </DataGridCell>
                 <DataGridCell>{instance.name || instance.id}</DataGridCell>
                 <DataGridCell onClick={(e) => e.stopPropagation()}>
                   <FlavorLink instance={instance} projectId={projectId} />

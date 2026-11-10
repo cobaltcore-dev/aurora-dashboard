@@ -81,8 +81,9 @@ describe("InstanceListView", () => {
     // boot-from-volume row with image ""); the raw id is never surfaced here.
     expect(screen.queryByText(/35ffd44f/)).not.toBeInTheDocument()
     expect(screen.getAllByText("- -").length).toBeGreaterThanOrEqual(2)
-    // Power State column renders the label (RUNNING = power_state 1).
-    expect(screen.getAllByText("RUNNING").length).toBeGreaterThanOrEqual(1)
+    // Power State column renders the label lowercased (CSS capitalizes it for
+    // display); RUNNING = power_state 1.
+    expect(screen.getAllByText("running").length).toBeGreaterThanOrEqual(1)
   })
 
   it("renders the empty state when there are no instances", async () => {

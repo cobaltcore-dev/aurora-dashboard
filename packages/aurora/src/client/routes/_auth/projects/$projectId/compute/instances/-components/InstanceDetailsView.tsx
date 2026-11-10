@@ -15,6 +15,7 @@ import { TwoColumnDescriptionList } from "@/client/components/TwoColumnDescripti
 import { powerStateLabel, EMPTY_VALUE, rawImageId } from "../-utils/instanceDisplay"
 import { ImageNameLink } from "./ImageNameLink"
 import { FlavorLink } from "./FlavorLink"
+import { StatusLabel } from "@/client/components/StatusLabel"
 
 interface InstanceDetailsViewProps {
   instance: Server
@@ -79,7 +80,7 @@ function OverviewSection({ instance, projectId }: { instance: Server; projectId:
 function StateSection({ instance }: { instance: Server }) {
   const { t } = useLingui()
   const items = [
-    { label: t`Power State`, value: powerStateLabel(instance["OS-EXT-STS:power_state"]) },
+    { label: t`Power State`, value: <StatusLabel value={powerStateLabel(instance["OS-EXT-STS:power_state"])} /> },
     { label: t`VM State`, value: instance["OS-EXT-STS:vm_state"] },
     { label: t`Task State`, value: instance["OS-EXT-STS:task_state"] },
     { label: t`vCPUs`, value: instance.flavor?.vcpus },
