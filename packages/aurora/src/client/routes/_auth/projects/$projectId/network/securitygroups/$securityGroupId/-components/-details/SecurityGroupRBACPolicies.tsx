@@ -125,7 +125,7 @@ export function SecurityGroupRBACPolicies({ securityGroupId, canManageAccess }: 
         <Stack distribution="end" alignment="center">
           <SearchInput
             className="w-60 sm:w-68"
-            placeholder={t`Search RBAC policies...`}
+            placeholder={t`Search...`}
             data-testid="searchbar"
             value={localSearchTerm}
             onInput={(e: React.FormEvent<HTMLInputElement>) => {
@@ -175,9 +175,12 @@ export function SecurityGroupRBACPolicies({ securityGroupId, canManageAccess }: 
           <DataGridRow>
             <DataGridCell colSpan={RBAC_COLUMN_COUNT}>
               <Status
-                status="empty"
-                title={
-                  searchTerm ? t`No policies match your search` : t`There are no RBAC policies for this security group`
+                status={searchTerm ? "no-matches" : "empty"}
+                title={t`No RBAC Policies Found`}
+                body={
+                  searchTerm
+                    ? t`No RBAC policies match your search. Clear the search to view all RBAC policies.`
+                    : t`There are no RBAC Policy items to display for this Security Group.`
                 }
               />
             </DataGridCell>

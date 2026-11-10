@@ -1378,8 +1378,8 @@ msgstr "Regel löschen"
 msgid "Delete Secret"
 msgstr ""
 
-msgid "Delete Security Group \"{securityGroupName}\""
-msgstr "Security Group \"{securityGroupName}\" löschen"
+msgid "Delete Security Group"
+msgstr "Sicherheitsgruppe löschen"
 
 msgid "Delete Security Group Rule"
 msgstr "Sicherheitsgruppenregel löschen"
@@ -2374,6 +2374,9 @@ msgstr "Ich bestätige, dass alle vorhandenen Versionen ebenfalls gelöscht werd
 msgid "I understand that enabling versioning is permanent"
 msgstr ""
 
+msgid "ICMP"
+msgstr ""
+
 msgid "ICMP Code"
 msgstr "ICMP-Code"
 
@@ -2893,6 +2896,9 @@ msgstr "Der Name muss 2-50 Zeichen lang sein."
 msgid "Name must be at most 255 characters long."
 msgstr ""
 
+msgid "Name or number"
+msgstr ""
+
 msgid "Network"
 msgstr "Netzwerk"
 
@@ -3013,9 +3019,6 @@ msgstr ""
 msgid "No Orders Match Your Search"
 msgstr ""
 
-msgid "No policies match your search"
-msgstr "Keine Richtlinien entsprechen Ihrer Suche"
-
 msgid "No Policy Found"
 msgstr ""
 
@@ -3046,6 +3049,12 @@ msgstr "Keine Projekte verfügbar."
 msgid "No projects have access to this image yet. Click \"Add Project Access\" to grant access."
 msgstr "Noch kein Projekt hat Zugriff auf dieses Image. Klicken Sie auf \"Projektzugriff hinzufügen\", um Zugriff zu gewähren."
 
+msgid "No RBAC Policies Found"
+msgstr "Keine RBAC-Richtlinien gefunden"
+
+msgid "No RBAC policies match your search. Clear the search to view all RBAC policies."
+msgstr "Keine RBAC-Richtlinien entsprechen Ihrer Suche. Löschen Sie die Suche, um alle RBAC-Richtlinien anzuzeigen."
+
 msgid "No Routers Found"
 msgstr ""
 
@@ -3056,7 +3065,10 @@ msgid "No routers match your search. Clear the search to view all routers."
 msgstr ""
 
 msgid "No Rules Found"
-msgstr ""
+msgstr "Keine Regeln gefunden"
+
+msgid "No rules match the current search or filters. Clear the search or filters to view all rules."
+msgstr "Keine Regeln entsprechen der aktuellen Suche oder den Filtern. Löschen Sie Suche oder Filter, um alle Regeln anzuzeigen."
 
 msgid "No Secrets Found"
 msgstr ""
@@ -3067,8 +3079,11 @@ msgstr ""
 msgid "No Secrets Match Your Search"
 msgstr ""
 
-msgid "No security groups found"
+msgid "No Security Groups Found"
 msgstr "Keine Sicherheitsgruppen gefunden"
+
+msgid "No security groups match the current search or filters. Clear the search or filters to view all security groups."
+msgstr "Keine Sicherheitsgruppen entsprechen der aktuellen Suche oder den Filtern. Löschen Sie Suche oder Filter, um alle Sicherheitsgruppen anzuzeigen."
 
 msgid "No services available for this project."
 msgstr "Keine Dienste für dieses Projekt verfügbar."
@@ -3565,6 +3580,9 @@ msgstr "Entferntes IP-Präfix"
 msgid "Remote Security Group"
 msgstr "Entfernte Sicherheitsgruppe"
 
+msgid "Remote type"
+msgstr ""
+
 msgid "Remove"
 msgstr "Entfernen"
 
@@ -3730,16 +3748,7 @@ msgstr "Objekte suchen..."
 msgid "Search ports..."
 msgstr ""
 
-msgid "Search RBAC policies..."
-msgstr ""
-
 msgid "Search routers..."
-msgstr ""
-
-msgid "Search rules..."
-msgstr ""
-
-msgid "Search security groups..."
 msgstr ""
 
 msgid "Search..."
@@ -3813,6 +3822,9 @@ msgstr ""
 
 msgid "Security group rule was successfully deleted."
 msgstr ""
+
+msgid "Security group sections"
+msgstr "Bereiche der Sicherheitsgruppe"
 
 msgid "Security Group Shared"
 msgstr ""
@@ -4339,6 +4351,9 @@ msgstr ""
 msgid "The secret's data to be stored."
 msgstr ""
 
+msgid "The security group \"{securityGroupName}\" will be permanently deleted. This action cannot be undone."
+msgstr "Die Sicherheitsgruppe \"{securityGroupName}\" wird dauerhaft gelöscht. Diese Aktion kann nicht rückgängig gemacht werden."
+
 msgid "The selected images will be permanently deleted. This action cannot be undone."
 msgstr ""
 
@@ -4423,20 +4438,20 @@ msgstr ""
 msgid "There are no ports on this network."
 msgstr ""
 
-msgid "There are no RBAC policies for this security group"
-msgstr "Für diese Security Group sind keine RBAC-Richtlinien vorhanden"
+msgid "There are no RBAC Policy items to display for this Security Group."
+msgstr "Für diese Security Group sind keine RBAC-Richtlinien zum Anzeigen vorhanden."
 
 msgid "There are no routers in this project."
 msgstr ""
 
-msgid "There are no rules for this security group"
-msgstr "Es gibt keine Regeln für diese Sicherheitsgruppe"
+msgid "There are no Rule items to display for this Security Group."
+msgstr "Für diese Sicherheitsgruppe sind keine Regeln zum Anzeigen vorhanden."
 
 msgid "There are no secrets in this project. Create one to get started."
 msgstr ""
 
-msgid "There are no security groups available for this project with the current filters applied. Try adjusting your filter criteria or create a new security group to get started."
-msgstr "Für dieses Projekt sind mit den aktuellen Filtern keine Sicherheitsgruppen verfügbar. Passen Sie Ihre Filterkriterien an oder erstellen Sie eine neue Sicherheitsgruppe."
+msgid "There are no security groups in this project."
+msgstr "In diesem Projekt sind keine Sicherheitsgruppen vorhanden."
 
 msgid "These images are already active or you do not have permission to activate them."
 msgstr ""
@@ -4461,9 +4476,6 @@ msgstr "Diese Aktion kann nicht rückgängig gemacht werden. Das Image wird daue
 
 msgid "This action cannot be undone. The rule will be permanently deleted."
 msgstr "Diese Aktion kann nicht rückgängig gemacht werden. Die Regel wird dauerhaft gelöscht."
-
-msgid "This action cannot be undone. The security group will be permanently deleted."
-msgstr "Diese Aktion kann nicht rückgängig gemacht werden. Die Security Group wird dauerhaft gelöscht."
 
 msgid "This action cannot be undone. The target project will lose access to this security group immediately."
 msgstr "Diese Aktion kann nicht rückgängig gemacht werden. Das Zielprojekt verliert sofort den Zugriff auf diese Sicherheitsgruppe."

@@ -213,7 +213,32 @@ describe("SecurityGroupListContainer", () => {
       render(<RouterProvider router={router} />)
 
       await waitFor(() => {
-        expect(screen.getByText("No security groups found")).toBeInTheDocument()
+        expect(screen.getByText("No Security Groups Found")).toBeInTheDocument()
+        expect(screen.getByText("There are no security groups in this project.")).toBeInTheDocument()
+      })
+    })
+
+    it("renders the no-matches state when filtered", async () => {
+      const router = createTestRouter(
+        <SecurityGroupListContainer
+          securityGroups={[]}
+          isLoading={false}
+          isError={false}
+          error={null}
+          permissions={defaultPermissions}
+          isFiltered
+        />
+      )
+      render(<RouterProvider router={router} />)
+
+      await waitFor(() => {
+        expect(screen.getByText("No Security Groups Found")).toBeInTheDocument()
+        expect(
+          screen.getByText(
+            "No security groups match the current search or filters. Clear the search or filters to view all security groups."
+          )
+        ).toBeInTheDocument()
+        expect(screen.queryByText("There are no security groups in this project.")).not.toBeInTheDocument()
       })
     })
   })

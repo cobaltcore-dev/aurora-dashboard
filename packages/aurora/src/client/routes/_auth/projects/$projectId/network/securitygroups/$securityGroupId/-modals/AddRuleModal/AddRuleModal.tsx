@@ -1,7 +1,7 @@
 import React from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { useForm, useStore } from "@tanstack/react-form"
-import { Modal, Form, FormRow, FormSection, Message, Status } from "@cloudoperators/juno-ui-components"
+import { Modal, Form, FormRow, FormSection, Message, Status, Divider } from "@cloudoperators/juno-ui-components"
 import type { CreateSecurityGroupRuleInput } from "@/server/Network/types/securityGroup"
 import { createRuleFormSchema } from "./validation/formSchema"
 import { showAllRuleFieldErrors } from "./validation/fieldErrors"
@@ -9,7 +9,7 @@ import { detectCIDRFamily } from "./validation/validationHelpers"
 import { DEFAULT_VALUES } from "./types"
 import { CUSTOM_TCP_RULE, CUSTOM_UDP_RULE, OTHER_PROTOCOL_RULE, hasIcmpFields, normalizeProtocol } from "./constants"
 import { RuleTypeSection } from "./sections/RuleTypeSection"
-import { DirectionSection, EthertypeSection } from "./sections/DirectionEthertypeSection"
+import { DirectionSection } from "./sections/DirectionEthertypeSection"
 import { ProtocolSection } from "./sections/ProtocolSection"
 import { PortRangeSection } from "./sections/PortRangeSection"
 import { IcmpSection } from "./sections/IcmpSection"
@@ -188,9 +188,7 @@ export const AddRuleModal: React.FC<AddRuleModalProps> = ({
 
             {/* Show other fields only when rule type is selected */}
             <form.Subscribe>
-              {(state: {
-                values: { ruleType: string; protocol: string | null; remoteSourceType: "cidr" | "security_group" }
-              }) => {
+              {(state: { values: { ruleType: string; protocol: string | null } }) => {
                 const isRuleTypeSelected = Boolean(state.values.ruleType)
 
                 if (!isRuleTypeSelected) {
@@ -228,10 +226,10 @@ export const AddRuleModal: React.FC<AddRuleModalProps> = ({
                       availableSecurityGroups={availableSecurityGroups}
                     />
 
-                    {/* Ethertype (Security Group remote only; a CIDR remote implies it) */}
-                    {state.values.remoteSourceType === "security_group" && (
-                      <EthertypeSection form={form} disabled={isLoading} />
-                    )}
+                    {/* Description isn't a titled section, so a divider closes the section block above it.
+                        -mt-4 takes half of the Remote section's 32px bottom margin and mb-4 gives it back below,
+                        so the gap stays 32px like between the sections, with the line midway */}
+                    <Divider spacing="0" className="-mt-4 mb-4" />
 
                     {/* Description */}
                     <DescriptionSection form={form} disabled={isLoading} />
