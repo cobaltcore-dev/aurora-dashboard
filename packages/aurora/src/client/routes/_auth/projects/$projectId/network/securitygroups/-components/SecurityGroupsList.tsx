@@ -290,7 +290,7 @@ export const SecurityGroups = ({ project: projectId }: SecurityGroupsProps) => {
                   // The wrapper is inline-block/w-auto and the input reserves pr-16 for its icons, so at
                   // the browser's default input width this placeholder gets cut off mid-ellipsis.
                   className="w-60 sm:w-68"
-                  placeholder={t`Search security groups...`}
+                  placeholder={t`Search...`}
                   data-testid="searchbar"
                   value={localSearchTerm}
                   onInput={(e: React.FormEvent<HTMLInputElement>) => {
@@ -341,6 +341,7 @@ export const SecurityGroups = ({ project: projectId }: SecurityGroupsProps) => {
           isError={isError && securityGroups.length === 0}
           error={listError ? { message: listError } : null}
           permissions={permissions}
+          isFiltered={Boolean(urlSearchTerm) || urlFilters.length > 0}
           onCreateClick={() => setCreateModalOpen(true)}
           onDeleteSecurityGroup={handleDeleteSecurityGroup}
           isDeletingSecurityGroup={deleteSecurityGroupMutation.isPending}
