@@ -1378,8 +1378,8 @@ msgstr "Delete Rule"
 msgid "Delete Secret"
 msgstr "Delete Secret"
 
-msgid "Delete Security Group \"{securityGroupName}\""
-msgstr "Delete Security Group \"{securityGroupName}\""
+msgid "Delete Security Group"
+msgstr "Delete Security Group"
 
 msgid "Delete Security Group Rule"
 msgstr "Delete Security Group Rule"
@@ -2371,6 +2371,9 @@ msgstr "I confirm that all existing versions will also be deleted"
 msgid "I understand that enabling versioning is permanent"
 msgstr "I understand that enabling versioning is permanent"
 
+msgid "ICMP"
+msgstr "ICMP"
+
 msgid "ICMP Code"
 msgstr "ICMP Code"
 
@@ -2890,6 +2893,9 @@ msgstr "Name must be 2-50 characters long."
 msgid "Name must be at most 255 characters long."
 msgstr "Name must be at most 255 characters long."
 
+msgid "Name or number"
+msgstr "Name or number"
+
 msgid "Network"
 msgstr "Network"
 
@@ -3010,9 +3016,6 @@ msgstr "No Orders Found"
 msgid "No Orders Match Your Search"
 msgstr "No Orders Match Your Search"
 
-msgid "No policies match your search"
-msgstr "No policies match your search"
-
 msgid "No Policy Found"
 msgstr "No Policy Found"
 
@@ -3043,6 +3046,12 @@ msgstr "No projects available."
 msgid "No projects have access to this image yet. Click \"Add Project Access\" to grant access."
 msgstr "No projects have access to this image yet. Click \"Add Project Access\" to grant access."
 
+msgid "No RBAC Policies Found"
+msgstr "No RBAC Policies Found"
+
+msgid "No RBAC policies match your search. Clear the search to view all RBAC policies."
+msgstr "No RBAC policies match your search. Clear the search to view all RBAC policies."
+
 msgid "No Routers Found"
 msgstr "No Routers Found"
 
@@ -3055,6 +3064,9 @@ msgstr "No routers match your search. Clear the search to view all routers."
 msgid "No Rules Found"
 msgstr "No Rules Found"
 
+msgid "No rules match the current search or filters. Clear the search or filters to view all rules."
+msgstr "No rules match the current search or filters. Clear the search or filters to view all rules."
+
 msgid "No Secrets Found"
 msgstr "No Secrets Found"
 
@@ -3064,8 +3076,11 @@ msgstr "No Secrets in This Container"
 msgid "No Secrets Match Your Search"
 msgstr "No Secrets Match Your Search"
 
-msgid "No security groups found"
-msgstr "No security groups found"
+msgid "No Security Groups Found"
+msgstr "No Security Groups Found"
+
+msgid "No security groups match the current search or filters. Clear the search or filters to view all security groups."
+msgstr "No security groups match the current search or filters. Clear the search or filters to view all security groups."
 
 msgid "No services available for this project."
 msgstr "No services available for this project."
@@ -3565,6 +3580,9 @@ msgstr "Remote IP Prefix"
 msgid "Remote Security Group"
 msgstr "Remote Security Group"
 
+msgid "Remote type"
+msgstr "Remote type"
+
 msgid "Remove"
 msgstr "Remove"
 
@@ -3730,17 +3748,8 @@ msgstr "Search objects..."
 msgid "Search ports..."
 msgstr "Search ports..."
 
-msgid "Search RBAC policies..."
-msgstr "Search RBAC policies..."
-
 msgid "Search routers..."
 msgstr "Search routers..."
-
-msgid "Search rules..."
-msgstr "Search rules..."
-
-msgid "Search security groups..."
-msgstr "Search security groups..."
 
 msgid "Search..."
 msgstr "Search..."
@@ -3813,6 +3822,9 @@ msgstr "Security group rule was successfully created."
 
 msgid "Security group rule was successfully deleted."
 msgstr "Security group rule was successfully deleted."
+
+msgid "Security group sections"
+msgstr "Security group sections"
 
 msgid "Security Group Shared"
 msgstr "Security Group Shared"
@@ -4339,6 +4351,9 @@ msgstr "The secret was successfully created."
 msgid "The secret's data to be stored."
 msgstr "The secret's data to be stored."
 
+msgid "The security group \"{securityGroupName}\" will be permanently deleted. This action cannot be undone."
+msgstr "The security group \"{securityGroupName}\" will be permanently deleted. This action cannot be undone."
+
 msgid "The selected images will be permanently deleted. This action cannot be undone."
 msgstr "The selected images will be permanently deleted. This action cannot be undone."
 
@@ -4423,20 +4438,20 @@ msgstr "There are no ports in this project."
 msgid "There are no ports on this network."
 msgstr "There are no ports on this network."
 
-msgid "There are no RBAC policies for this security group"
-msgstr "There are no RBAC policies for this security group"
+msgid "There are no RBAC Policy items to display for this Security Group."
+msgstr "There are no RBAC Policy items to display for this Security Group."
 
 msgid "There are no routers in this project."
 msgstr "There are no routers in this project."
 
-msgid "There are no rules for this security group"
-msgstr "There are no rules for this security group"
+msgid "There are no Rule items to display for this Security Group."
+msgstr "There are no Rule items to display for this Security Group."
 
 msgid "There are no secrets in this project. Create one to get started."
 msgstr "There are no secrets in this project. Create one to get started."
 
-msgid "There are no security groups available for this project with the current filters applied. Try adjusting your filter criteria or create a new security group to get started."
-msgstr "There are no security groups available for this project with the current filters applied. Try adjusting your filter criteria or create a new security group to get started."
+msgid "There are no security groups in this project."
+msgstr "There are no security groups in this project."
 
 msgid "These images are already active or you do not have permission to activate them."
 msgstr "These images are already active or you do not have permission to activate them."
@@ -4461,9 +4476,6 @@ msgstr "This action cannot be undone. The image will be permanently deleted."
 
 msgid "This action cannot be undone. The rule will be permanently deleted."
 msgstr "This action cannot be undone. The rule will be permanently deleted."
-
-msgid "This action cannot be undone. The security group will be permanently deleted."
-msgstr "This action cannot be undone. The security group will be permanently deleted."
 
 msgid "This action cannot be undone. The target project will lose access to this security group immediately."
 msgstr "This action cannot be undone. The target project will lose access to this security group immediately."

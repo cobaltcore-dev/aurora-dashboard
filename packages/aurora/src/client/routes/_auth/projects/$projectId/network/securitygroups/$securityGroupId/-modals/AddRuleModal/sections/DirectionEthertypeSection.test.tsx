@@ -76,9 +76,12 @@ describe("DirectionSection", () => {
   })
 
   describe("Rendering", () => {
-    test("renders Direction label", () => {
+    test("renders a Direction section whose title names the radio group", () => {
       render(<DirectionTestWrapper />)
-      expect(screen.getByText("Direction")).toBeInTheDocument()
+      expect(screen.getByRole("region", { name: "Direction" })).toBeInTheDocument()
+      const group = screen.getByRole("radiogroup", { name: "Direction" })
+      expect(group).toHaveAttribute("aria-required", "true")
+      expect(screen.getAllByText("Direction")).toHaveLength(1)
     })
 
     test("renders Ingress and Egress radio options", () => {

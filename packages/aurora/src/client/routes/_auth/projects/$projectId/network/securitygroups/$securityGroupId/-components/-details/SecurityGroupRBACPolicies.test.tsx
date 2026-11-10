@@ -236,7 +236,9 @@ describe("SecurityGroupRBACPolicies", () => {
         wrapper: createWrapper(),
       })
 
-      expect(screen.getByText("There are no RBAC policies for this security group")).toBeInTheDocument()
+      expect(screen.getByText("No RBAC Policies Found")).toBeInTheDocument()
+      expect(screen.getByText("There are no RBAC Policy items to display for this Security Group.")).toBeInTheDocument()
+      expect(screen.queryByText("There are no items to display.")).not.toBeInTheDocument()
     })
 
     it("renders policies table with data", () => {
@@ -317,7 +319,7 @@ describe("SecurityGroupRBACPolicies", () => {
         wrapper: createWrapper(),
       })
 
-      expect(screen.getByPlaceholderText("Search RBAC policies...")).toBeInTheDocument()
+      expect(screen.getByPlaceholderText("Search...")).toBeInTheDocument()
     })
 
     it("filters policies by target tenant", async () => {
@@ -331,7 +333,7 @@ describe("SecurityGroupRBACPolicies", () => {
         wrapper: createWrapper(),
       })
 
-      const searchInput = screen.getByPlaceholderText("Search RBAC policies...")
+      const searchInput = screen.getByPlaceholderText("Search...")
       const user = userEvent.setup()
       await user.type(searchInput, "abc")
 
@@ -356,7 +358,7 @@ describe("SecurityGroupRBACPolicies", () => {
         wrapper: createWrapper(),
       })
 
-      const searchInput = screen.getByPlaceholderText("Search RBAC policies...")
+      const searchInput = screen.getByPlaceholderText("Search...")
       const user = userEvent.setup()
       await user.type(searchInput, "external")
 
@@ -381,7 +383,7 @@ describe("SecurityGroupRBACPolicies", () => {
         wrapper: createWrapper(),
       })
 
-      const searchInput = screen.getByPlaceholderText("Search RBAC policies...")
+      const searchInput = screen.getByPlaceholderText("Search...")
       const user = userEvent.setup()
       await user.type(searchInput, "nonexistent")
 
@@ -389,7 +391,13 @@ describe("SecurityGroupRBACPolicies", () => {
       await new Promise((resolve) => setTimeout(resolve, 600))
 
       await waitFor(() => {
-        expect(screen.getByText("No policies match your search")).toBeInTheDocument()
+        expect(screen.getByText("No RBAC Policies Found")).toBeInTheDocument()
+        expect(
+          screen.getByText("No RBAC policies match your search. Clear the search to view all RBAC policies.")
+        ).toBeInTheDocument()
+        expect(
+          screen.queryByText("There are no RBAC Policy items to display for this Security Group.")
+        ).not.toBeInTheDocument()
       })
     })
 
@@ -404,7 +412,7 @@ describe("SecurityGroupRBACPolicies", () => {
         wrapper: createWrapper(),
       })
 
-      const searchInput = screen.getByPlaceholderText("Search RBAC policies...")
+      const searchInput = screen.getByPlaceholderText("Search...")
       const user = userEvent.setup()
       await user.type(searchInput, "PROJECT-ABC")
 
@@ -427,7 +435,7 @@ describe("SecurityGroupRBACPolicies", () => {
         wrapper: createWrapper(),
       })
 
-      const searchInput = screen.getByPlaceholderText("Search RBAC policies...")
+      const searchInput = screen.getByPlaceholderText("Search...")
       const user = userEvent.setup()
 
       // Type and then clear
@@ -689,7 +697,8 @@ describe("SecurityGroupRBACPolicies", () => {
         wrapper: createWrapper(),
       })
 
-      expect(screen.getByText("There are no RBAC policies for this security group")).toBeInTheDocument()
+      expect(screen.getByText("No RBAC Policies Found")).toBeInTheDocument()
+      expect(screen.getByText("There are no RBAC Policy items to display for this Security Group.")).toBeInTheDocument()
     })
   })
 })
