@@ -53,6 +53,16 @@ export function buildNavSections(
           },
         ]
       : []),
+    ...(serviceIndex?.["compute"]?.["nova"] && isEnabled("instances")
+      ? [
+          {
+            service: "instances",
+            label: t`Instances`,
+            navigate: (nav: NavigateFn) => nav({ to: "/projects/$projectId/compute/instances", params: { projectId } }),
+            params: { projectId },
+          },
+        ]
+      : []),
   ]
 
   const networkServices: NavItem[] = serviceIndex["network"]

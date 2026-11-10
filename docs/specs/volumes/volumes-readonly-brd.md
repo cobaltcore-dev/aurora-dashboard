@@ -152,8 +152,7 @@ attachment → instance).
 - [ ] Shows the volume's **attachments** as a read-only list: for each attachment show the `server_id`, the device (e.g. `/dev/vdb`), and the attachment ID / attached-at timestamp when present; an unattached volume renders an explicit empty state ("Not attached")
 - [ ] **Exception — instance deep-link:** each attachment's `server_id` is rendered as a **deep-link to that instance's detail view** in the Instances scope, keyed on the ID already present in `server_id`. This requires only route construction (no extra API call). If the Instances scope is unavailable in the catalog, the link **degrades gracefully to showing just the ID**.
 - [ ] Shows the volume's **source** when present (created-from-snapshot `snapshot_id` or cloned-from-volume `source_volid`) as an ID-based deep-link to that snapshot / volume detail, degrading gracefully to the ID
-- [ ] **Snapshots of this volume** — the volume detail shows a read-only list of the snapshots created from this volume (Name/ID, Status, Size, Created), each row deep-linking to the snapshot detail. Reuse the project snapshot list when cached; otherwise fetch it through `volume.listSnapshots`, then filter client-side on `snapshot.volume_id === volumeId`. No per-snapshot lookup is required. An empty set renders an explicit empty state ("No snapshots for this volume").
-  - ⚠️ **To be confirmed with an Aurora developer (Q-F8):** whether this section ships in phase 1. It is desirable and technically cheap (reuses the `volume.listSnapshots` data, no per-volume fan-out, no server-side `?volume_id` filter — which is not documented, see §7). If the developer prefers to keep the volume-detail fetch strictly to the single volume object, this moves to a fast-follow; it does **not** block the volume-detail MVP.
+- [ ] **Snapshots of this volume** — the volume detail shows a read-only list of the snapshots created from this volume (Name/ID, Status, Size, Created), each row deep-linking to the snapshot detail. This section **ships in phase 1** (part of the volume detail view). It is backed by a scoped Cinder call that filters snapshots to the volume server-side: `GET /snapshots/detail?volume_id=<this volume id>` (confirmed working against the deployment — see §7). An empty set renders an explicit empty state ("No snapshots for this volume").
 - [ ] Description and metadata are shown when present; when absent, the field renders an explicit empty state (`- -`) rather than being omitted
 - [ ] Object-storage (Swift / Ceph) content is **not** shown here
 
@@ -210,13 +209,16 @@ attachment → instance).
 Phase 1 is read-only; all mutation is deferred to a later phase.
 
 **Minimum shippable first release (MVP):** the **Volumes scope tab shell** (Volumes · Snapshots)
-with the **Volumes tab** (volumes list) + the **volume detail view (metadata + attachments)**.
-This alone delivers the core value — "see my volumes, their state and what they're attached
-to" — and is independently releasable. The tab shell ships in the MVP so the Snapshots tab is a
-drop-in fast-follow rather than a re-layout. The list's **row overflow menu** ships in the MVP
-carrying its single phase-1 item ("View details"); it is included now because it is the
-designated extension point for later mutation actions, and wiring it in from the start avoids
-re-laying-out the list row when those actions arrive.
+with the **Volumes tab** (volumes list) + the **volume detail view (metadata + attachments +
+the "Snapshots of this volume" section)**. The "Snapshots of this volume" section is backed by
+the scoped `GET /snapshots/detail?volume_id=<id>` call and is **independent of the Snapshots
+tab** — it ships with the volume detail in the MVP even though the full Snapshots tab is a
+fast-follow. This delivers the core value — "see my volumes, their state, what they're attached
+to, and which snapshots they have" — and is independently releasable. The tab shell ships in the
+MVP so the Snapshots tab is a drop-in fast-follow rather than a re-layout. The list's **row
+overflow menu** ships in the MVP carrying its single phase-1 item ("View details"); it is
+included now because it is the designated extension point for later mutation actions, and wiring
+it in from the start avoids re-laying-out the list row when those actions arrive.
 
 **Fast-follow (same phase, next increment):** the **Snapshots tab** (snapshots list) + the
 **snapshot detail view**, plus the ID-based deep-links (volume attachment → instance; snapshot
@@ -230,7 +232,7 @@ backlog item.
 - The volume detail view must exist before the volume attachments / deep-links.
 - The snapshots list must exist before the snapshot detail view.
 - The snapshot → volume deep-link depends on the volume detail route existing.
-- A "Snapshots of this volume" section on the volume detail depends on the project snapshot list being fetchable. Phase-1 inclusion is pending developer confirmation (Q-F8 / spec O5); otherwise it moves to a fast-follow and does not block the volume-detail MVP.
+- The "Snapshots of this volume" section on the volume detail (Story 2) depends on the scoped `GET /snapshots/detail?volume_id=<id>` call; it ships in phase 1 as part of the volume detail view.
 
 ---
 
@@ -260,9 +262,11 @@ project-scoped to the active project.
 ### Rate Limits / Throttling
 
 The backing calls are the standard Cinder list endpoints — `GET /volumes/detail` and
-`GET /snapshots/detail` — one list call per view, with no per-item fan-out (the detail views
-reuse the same objects). Request volume is low. No special throttling handling is anticipated
-for phase 1.
+`GET /snapshots/detail` — one list call per view, with no per-item fan-out. The volume detail
+view issues one additional scoped call, `GET /snapshots/detail?volume_id=<id>`, to populate its
+"Snapshots of this volume" section (confirmed working — the `volume_id` query param is accepted
+and filtered server-side). This is a single call per volume-detail open, not a per-row fan-out.
+Request volume is low. No special throttling handling is anticipated for phase 1.
 
 ### Error Response Shape
 
@@ -382,4 +386,10 @@ These are settled framework facts (not open requirements), recorded to orient im
 
 > ⚠️ **Still needed (Aurora developer, not stakeholder) — Q-F7:** whether any near-real-time refresh of volume/snapshot status is wanted (volumes have transitional states like `creating` / `attaching`). For a read-only phase 1 this is likely unnecessary; if desired later, confirm `refetchInterval` vs. an SSE subscription with an Aurora developer. Not a blocker for phase 1.
 
-> ⚠️ **Still needed (Aurora developer, not stakeholder) — Q-F8:** whether the **"Snapshots of this volume"** section (Story 2) ships in phase 1. It is derived client-side from the project snapshot list (`snapshot.volume_id` filter) with no extra backing call and no documented server-side `?volume_id` filter (§7). Desirable and cheap; confirm with an Aurora developer whether the volume-detail view may reuse the snapshot-list data or should stay limited to the single volume object. Not a blocker for the volume-detail MVP.
+> ✅ **Resolved — Q-F8:** the **"Snapshots of this volume"** section (Story 2) **ships in phase 1**.
+> The Cinder block-storage API accepts a server-side `volume_id` filter on the snapshots list
+> endpoint — confirmed working against the deployment:
+> `GET …/v3/<project_id>/snapshots/detail?volume_id=<volume_id>` (observed request id
+> `req-51978d1c-b571-4c3c-a58d-b368364156c9`). The volume detail therefore fetches its snapshot
+> list via this scoped call rather than client-side-filtering the whole project snapshot list.
+> One call per volume-detail open, no per-row fan-out (see §7).

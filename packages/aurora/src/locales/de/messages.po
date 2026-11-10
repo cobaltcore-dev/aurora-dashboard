@@ -478,6 +478,9 @@ msgstr "Sicherheitsgruppenregel hinzufügen"
 msgid "Address group: {id}"
 msgstr ""
 
+msgid "Addresses"
+msgstr ""
+
 msgid "Admin State"
 msgstr ""
 
@@ -625,6 +628,9 @@ msgstr ""
 msgid "Auto-generated if not provided. Only alphanumeric, hyphens, underscores, and dots allowed."
 msgstr ""
 
+msgid "Availability Zone"
+msgstr ""
+
 msgid "Back"
 msgstr "Zurück"
 
@@ -649,6 +655,9 @@ msgstr "Zurück zu Floating IPs"
 msgid "Back to Images"
 msgstr "Zurück zu Images"
 
+msgid "Back to Instances"
+msgstr ""
+
 msgid "Back to Key Manager"
 msgstr ""
 
@@ -672,6 +681,9 @@ msgstr "Boot-RAM"
 
 msgid "Boot size"
 msgstr "Boot-Größe"
+
+msgid "Booted from volume"
+msgstr ""
 
 msgid "Bucket \"{bucketName}\" was already empty."
 msgstr ""
@@ -831,6 +843,9 @@ msgstr "Community"
 
 msgid "Compute"
 msgstr "Compute"
+
+msgid "Compute & State"
+msgstr ""
 
 msgid "Configuration Unavailable"
 msgstr ""
@@ -1456,11 +1471,20 @@ msgstr "DNS"
 msgid "DNS Domain"
 msgstr "DNS-Domain"
 
+msgid "DNS domain is required when a DNS name is entered."
+msgstr ""
+
 msgid "DNS Name"
 msgstr "DNS-Name"
 
+msgid "DNS name is required when a DNS domain is selected."
+msgstr ""
+
 msgid "DNS name must be at most 63 characters."
 msgstr "Der DNS-Name darf höchstens 63 Zeichen lang sein."
+
+msgid "DNS name must use only letters, digits, and hyphens, and must start and end with a letter or digit."
+msgstr ""
 
 msgid "Done"
 msgstr ""
@@ -1539,9 +1563,6 @@ msgstr "Beschreibung bearbeiten"
 
 msgid "Edit Details"
 msgstr "Details bearbeiten"
-
-msgid "Edit Floating IP {floating_ip_address} Description"
-msgstr ""
 
 msgid "Edit Group"
 msgstr ""
@@ -1633,9 +1654,6 @@ msgstr "Stellen Sie sicher, dass ACL-Einträge gültig sind — korrekte Projekt
 msgid "Ensure that the Project ID and User ID you enter are correct. The system cannot validate these values — incorrect IDs may apply access to wrong projects and users."
 msgstr "Stellen Sie sicher, dass die eingegebene Projekt-ID und Benutzer-ID korrekt sind. Das System kann diese Werte nicht validieren — falsche IDs können Zugriff auf falsche Projekte und Benutzer gewähren."
 
-msgid "Enter a floating IP"
-msgstr "Floating IP eingeben"
-
 msgid "Enter a floating IP or leave blank to auto-assign one"
 msgstr "Floating IP eingeben oder leer lassen für automatische Zuweisung"
 
@@ -1657,13 +1675,13 @@ msgstr "Geben Sie einen Zeitstempel wie \"YYYY-MM-DD HH:mm:ss\" ein, um die auto
 msgid "Enter a URL and press Enter. Use * to allow all origins."
 msgstr ""
 
-msgid "Enter a valid PQDN or FQDN (max 63 characters) to associate with the floating IP. A and PTR records are created automatically."
-msgstr "Gültige PQDN oder FQDN (max. 63 Zeichen) eingeben, um sie der Floating IP zuzuordnen. A- und PTR-Einträge werden automatisch erstellt."
-
 msgid "Enter a valid project ID: 32 hexadecimal characters, dashes optional."
 msgstr ""
 
 msgid "Enter a whole number of days greater than 0"
+msgstr ""
+
+msgid "Enter an optional description for the floating IP (max 255 characters)."
 msgstr ""
 
 msgid "Enter bucket policy JSON..."
@@ -1680,6 +1698,9 @@ msgstr "Key eingeben"
 
 msgid "Enter project ID"
 msgstr "Projekt-ID eingeben"
+
+msgid "Enter the hostname label only (e.g., webserver01), without the domain. It will be combined with the DNS domain to form the full record (e.g., webserver01.example.com.)"
+msgstr ""
 
 msgid "Enter value"
 msgstr "Value eingeben"
@@ -1708,10 +1729,10 @@ msgstr ""
 msgid "Error Loading Flavor"
 msgstr "Fehler beim Laden des Flavors"
 
-msgid "Error Loading Floating IP"
+msgid "Error Loading Image"
 msgstr ""
 
-msgid "Error Loading Image"
+msgid "Error Loading Instance"
 msgstr ""
 
 msgid "Error Loading Port"
@@ -1972,10 +1993,16 @@ msgstr "Flavor-Details konnten nicht geladen werden. Bitte versuchen Sie es erne
 msgid "Failed to Load Flavors"
 msgstr ""
 
+msgid "Failed to Load Floating IP"
+msgstr ""
+
 msgid "Failed to Load Floating IPs"
 msgstr ""
 
 msgid "Failed to Load Images"
+msgstr ""
+
+msgid "Failed to Load Instances"
 msgstr ""
 
 msgid "Failed to Load Internal Networks"
@@ -2123,6 +2150,9 @@ msgid "Fixed IP Address"
 msgstr "Feste IP-Adresse"
 
 msgid "Fixed IPs"
+msgstr ""
+
+msgid "Flavor"
 msgstr ""
 
 msgid "Flavor \"{name}\" was successfully created."
@@ -2275,6 +2305,9 @@ msgstr "Allgemeine Image-Daten"
 msgid "General Information"
 msgstr ""
 
+msgid "General Instance Data"
+msgstr ""
+
 msgid "Generate URL"
 msgstr "URL generieren"
 
@@ -2323,7 +2356,13 @@ msgstr ""
 msgid "Home"
 msgstr "Startseite"
 
+msgid "Host"
+msgstr ""
+
 msgid "How long browsers can cache preflight responses. Common values: 3600 (1 hour), 86400 (1 day), 604800 (1 week)."
+msgstr ""
+
+msgid "Hypervisor"
 msgstr ""
 
 msgid "I confirm that all existing versions will also be deleted"
@@ -2422,6 +2461,15 @@ msgstr ""
 msgid "Inside a project, objects are stored in containers. Containers are where you define access permissions and quotas."
 msgstr "Innerhalb eines Projekts werden Objekte in Containern gespeichert. Container sind der Ort, an dem Sie Zugriffsberechtigungen und Quotas definieren."
 
+msgid "Instance Name"
+msgstr ""
+
+msgid "Instance Not Found"
+msgstr ""
+
+msgid "Instances"
+msgstr ""
+
 msgid "Insufficient Permissions"
 msgstr ""
 
@@ -2442,6 +2490,9 @@ msgstr ""
 
 msgid "Invalid value for public flavor setting."
 msgstr "Ungültiger Wert für die Einstellung des öffentlichen Flavors."
+
+msgid "IP Address"
+msgstr ""
 
 msgid "IP Restricted"
 msgstr ""
@@ -2499,6 +2550,9 @@ msgstr ""
 
 msgid "Key must contain at least one alphanumeric character"
 msgstr "Schlüssel muss mindestens ein alphanumerisches Zeichen enthalten"
+
+msgid "Key Name"
+msgstr ""
 
 msgid "Last modified"
 msgstr ""
@@ -2595,6 +2649,12 @@ msgstr "Image-Details werden geladen..."
 
 msgid "Loading Images..."
 msgstr "Lädt Images..."
+
+msgid "Loading Instance Details..."
+msgstr ""
+
+msgid "Loading Instances..."
+msgstr ""
 
 msgid "Loading Internal Networks..."
 msgstr ""
@@ -2809,9 +2869,6 @@ msgstr "Wird verschoben..."
 msgid "Must be a valid IPv4 or IPv6 address (for example: 172.24.4.228 or 2001:db8::1)."
 msgstr "Muss eine gültige IPv4- oder IPv6-Adresse sein (z. B.: 172.24.4.228 oder 2001:db8::1)."
 
-msgid "Must be a valid PQDN or FQDN (alphanumeric and hyphens only, cannot start or end with hyphen)."
-msgstr "Muss eine gültige PQDN oder FQDN sein (nur alphanumerische Zeichen und Bindestriche, darf nicht mit einem Bindestrich beginnen oder enden)."
-
 msgid "Must be a whole number, 0 or greater"
 msgstr "Muss eine ganze Zahl sein, 0 oder größer"
 
@@ -2875,6 +2932,9 @@ msgstr ""
 msgid "No Access Keys"
 msgstr ""
 
+msgid "No addresses"
+msgstr ""
+
 msgid "No buckets found"
 msgstr ""
 
@@ -2918,6 +2978,9 @@ msgid "No Floating IPs Found"
 msgstr ""
 
 msgid "No Images Found"
+msgstr ""
+
+msgid "No instances found"
 msgstr ""
 
 msgid "No Internal Networks"
@@ -3313,6 +3376,9 @@ msgstr "Port-Bereich"
 msgid "Ports"
 msgstr ""
 
+msgid "Power State"
+msgstr ""
+
 msgid "Pre-signed URL"
 msgstr "Vorsignierte URL"
 
@@ -3547,6 +3613,9 @@ msgstr ""
 msgid "Restore Version"
 msgstr ""
 
+msgid "Retry"
+msgstr ""
+
 msgid "Reveal"
 msgstr ""
 
@@ -3667,7 +3736,7 @@ msgstr ""
 msgid "Search flavors..."
 msgstr "Flavors suchen..."
 
-msgid "Search floating IPs..."
+msgid "Search instances..."
 msgstr ""
 
 msgid "Search lifecycle rules..."
@@ -3684,6 +3753,9 @@ msgstr ""
 
 msgid "Search..."
 msgstr "Suchen..."
+
+msgid "Search…"
+msgstr ""
 
 msgid "Secret"
 msgstr ""
@@ -3770,6 +3842,9 @@ msgid "Select"
 msgstr "Auswählen"
 
 msgid "Select {displayName}"
+msgstr ""
+
+msgid "Select a DNS domain"
 msgstr ""
 
 msgid "Select a DNS domain."
@@ -4111,6 +4186,9 @@ msgstr "Zielprojekt-ID"
 msgid "Target project ID is required"
 msgstr "Zielprojekt-ID ist erforderlich"
 
+msgid "Task State"
+msgstr ""
+
 msgid "Temporary URL"
 msgstr "Temporäre URL"
 
@@ -4249,6 +4327,9 @@ msgstr ""
 msgid "The requested flavor could not be found. It may have been deleted or you may not have access to it."
 msgstr "Der angeforderte Flavor konnte nicht gefunden werden. Er wurde möglicherweise gelöscht oder Sie haben keinen Zugriff darauf."
 
+msgid "The requested instance could not be found. It may have been deleted or you may not have access to it."
+msgstr ""
+
 msgid "The Resource you are looking for does not exist or is not accessible."
 msgstr ""
 
@@ -4334,6 +4415,9 @@ msgid "There are no Floating IPs available for this project. Floating IPs allow 
 msgstr "Für dieses Projekt sind keine Floating IPs verfügbar. Floating IPs ermöglichen es, öffentliche IP-Adressen Instanzen zuzuordnen."
 
 msgid "There are no images available for this project with the current filters applied."
+msgstr ""
+
+msgid "There are no instances in this project with the current filters applied. Try adjusting your search or filter criteria."
 msgstr ""
 
 msgid "There are no items to display."
@@ -4467,6 +4551,9 @@ msgstr "Dieser Ordner ist leer."
 
 msgid "This image was shared with you by <0>{ownerProject}</0> on {sharedAt}."
 msgstr "Dieses Image wurde am {sharedAt} von <0>{ownerProject}</0> mit Ihnen geteilt."
+
+msgid "This instance has no network addresses."
+msgstr ""
 
 msgid "This is a <0>dynamic large object (DLO)</0> manifest. Metadata changes apply to the manifest only — segment objects are not affected."
 msgstr "Dies ist ein <0>dynamisches großes Objekt (DLO)</0>-Manifest. Metadaten-Änderungen gelten nur für das Manifest — Segment-Objekte sind nicht betroffen."
@@ -4750,11 +4837,17 @@ msgstr "Wert ist erforderlich"
 msgid "vCPU"
 msgstr "vCPU"
 
+msgid "vCPUs"
+msgstr ""
+
 msgid "VCPUs"
 msgstr "VCPUs"
 
 msgid "VCPUs must be an integer ≥ 1."
 msgstr "VCPUs müssen eine ganze Zahl ≥ 1 sein."
+
+msgid "Version"
+msgstr ""
 
 msgid "Version {shortVersionId}... deleted successfully"
 msgstr ""
@@ -4807,11 +4900,17 @@ msgstr ""
 msgid "Versions to delete:"
 msgstr ""
 
+msgid "View details"
+msgstr ""
+
 msgid "View Versions"
 msgstr ""
 
 msgid "Visibility"
 msgstr "Sichtbarkeit"
+
+msgid "VM State"
+msgstr ""
 
 msgid "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
 msgstr "Wir entwickeln das Aurora-Dashboard, um Ihnen einen besseren Service zu bieten. Ihr Feedback ist von unschätzbarem Wert, um ein Werkzeug zu gestalten, das den einzigartigen Bedürfnissen von Unternehmen wie Ihrem gerecht wird. Bleiben Sie in Verbindung und begleiten Sie uns, während wir das Cloud-Management neu definieren."
@@ -4949,6 +5048,9 @@ msgid "You don't have permission to view extra specs for this flavor."
 msgstr "Sie haben keine Berechtigung, Metadata für diesen Flavor anzusehen."
 
 msgid "You don't have permission to view images in this project. Contact your administrator to grant you the necessary permissions."
+msgstr ""
+
+msgid "You don't have permission to view instances in this project. Contact your administrator to grant you the necessary permissions."
 msgstr ""
 
 msgid "You don't have permission to view this flavor's details."

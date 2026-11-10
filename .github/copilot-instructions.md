@@ -19,6 +19,11 @@ Do **not** flag anything the toolchain already enforces. These are caught before
 
 Focus review effort on **semantics, structure, and consistency** that no compiler or linter can verify: correct pattern/zone usage, permission fail-closed behavior, security boundaries, `error`/`danger` intent, empty-state reasoning, ARIA presence, import ordering, and UX writing — none of which are enforced by tooling in this repo.
 
+> [!NOTE]
+> **Some rules below defer to Intent-loaded skills.** DataGrid and Status guidance (B.15, B.2, B.6, and parts of B.1) is owned by the `datagrid` / `status` skills shipped in `@cloudoperators/juno-ui-components` and loaded via Intent (see `AGENTS.md`). Those skills are the authoritative source; the summaries here are review aids that cite skill rule IDs (e.g. `DT-2`, `INV-4`), and on any conflict **the skill wins**.
+>
+> **If you cannot load the skills** (e.g. a PR-review environment with no `node_modules` and no Intent), you will see rule-ID citations you cannot resolve. That is expected, not a defect: treat the summaries here as the best available guidance, do not flag an unresolvable citation as an error, and leave verification of skill-specific details to a human or a skill-capable agent. These summaries are kept deliberately thin to avoid duplicating — and drifting from — the skills; closing this gap (making skill content readable by non-tool agents) is tracked separately.
+
 **Review in three passes — report all findings from all passes before submitting:**
 
 1. **Security & Data** — B.7 (Data Fetching), B.8 (Permissions/RBAC), B.15 (DataGrid/Row Interaction)
@@ -44,7 +49,6 @@ Focus review effort on **semantics, structure, and consistency** that no compile
 - [ ] Custom `modalFooter` without explicit `disableCloseButton` on the `Modal` itself
 - [ ] Destructive modal without `confirmButtonVariant="primary-danger"`
 - [ ] Destructive modal with alarmist/vague title (`"Danger!"`, `"Are You Sure?"`)
-- [ ] `PopupMenu` without `PopupMenuToggle` as trigger
 - [ ] "Delete" action not the last item in its menu group, or a single-entity menu missing the divider before it (multi-entity menus need no extra divider — group dividers suffice)
 - [ ] URL-worthy state held in `useState` instead of search params
 - [ ] User-facing string not wrapped in `<Trans>` or `` t`...` `` (skip in `packages/aurora` — enforced by `eslint-plugin-lingui`)
@@ -114,7 +118,6 @@ Use Juno UI components for UI primitives; use the application components listed 
 | Key-value detail views        | `DescriptionList`, `DescriptionTerm`, `DescriptionDefinition`                  |
 | Two-column key-value (modal)  | `TwoColumnDescriptionList` from `@/client/components/TwoColumnDescriptionList` |
 | Section headings in detail    | `ContentHeading`                                                               |
-| Status indicators             | `Badge`                                                                        |
 | Loading / empty / error state | `Status`                                                                       |
 | Inline banner messages        | `Message`                                                                      |
 | Pagination                    | `Pagination` (`variant="input"`)                                               |
@@ -136,28 +139,14 @@ Use Juno UI components for UI primitives; use the application components listed 
 
 ### B.2 [STANDARD] List Page Zone Structure
 
-Every list page **must** follow this four-zone pattern:
+The DataGrid header zone structure is owned by the `datagrid` skill (loaded via Intent — see `AGENTS.md`). Load it and review against its Decision Trees and Invariants, citing rule IDs. The summary below is a review aid only; if it and the skill ever differ, **the skill wins**.
 
-```
-Zone 1  [Stack, className="pb-2"]
-        Sort controls (SortInput)  +  primary action Button (create/add)
-        distribution="between"
+- Three header zones, rendered only when their contents exist (DT-2): Zone 1 = predefined filter tabs + sorting + overflow menu + primary action (DT-3); Zone 2 = filter inputs + search + active filter pills (DT-4); Zone 3 = bulk actions + item count + last-update/refresh (DT-5).
+- Zone 1 is a bare `Stack`, never wrapped in `DataGridToolbar` (INV-3). Zones 2 and 3 each get **their own** `DataGridToolbar` — they are never merged into one (INV-4).
 
-Zone 2  [DataGridToolbar]
-        SearchInput → distribution="end"
+**Aurora-specific (not covered by the skill):** for navigation-style DataGrids that browse a hierarchy (folder/file), render a breadcrumb / prefix-navigation row above the toolbar. The skill scopes navigation out, so this is an Aurora app pattern — do not number it as a DataGrid header zone.
 
-Zone 3  [DataGridToolbar, optional]
-        Breadcrumb / prefix navigation
-        Only rendered when hierarchical navigation exists
-
-Zone 4  [DataGridToolbar, optional]
-        Checkbox (select-all, indeterminate)  +  PopupMenu (bulk actions)  +  item count
-        Only rendered when bulk-select feature exists
-```
-
-- Zone 1 is outside `DataGridToolbar`; zones 2–4 are inside.
-- Each zone is a `Stack` with `direction="horizontal"`.
-- **Reject** any structure that mixes zones or skips Zone 2 when search is available.
+**Reject** any header that merges Zones 2 and 3 into a single `DataGridToolbar`, wraps Zone 1 in a `DataGridToolbar`, or skips Zone 2 when search is available.
 
 ### B.3 [STYLE] Spacing Rules
 
@@ -165,13 +154,13 @@ Use only these spacing values. Do not invent arbitrary padding or margin classes
 
 **Padding**
 
-| Context                         | Class              |
-| ------------------------------- | ------------------ |
-| Toolbar background bar          | `p-2` or `p-4`     |
-| Zone 1 bottom (sort+create row) | `pb-2`             |
-| Pagination wrapper              | `py-4`             |
-| Full-page loading/empty center  | `py-8`             |
-| Inline empty paragraph in table | `py-8 text-center` |
+| Context                              | Class              |
+| ------------------------------------ | ------------------ |
+| Toolbar background bar               | `p-2` or `p-4`     |
+| Zone 1 bottom (tabs/sort/action row) | `pb-2`             |
+| Pagination wrapper                   | `py-4`             |
+| Full-page loading/empty center       | `py-8`             |
+| Inline empty paragraph in table      | `py-8 text-center` |
 
 **Margin**
 
@@ -254,17 +243,12 @@ All modals **must** follow this skeleton:
 
 ```tsx
 // Full-page loading
-<Status status="progress" title={t`Loading...`} />
+<Status status="progress" title={t`Loading…`} />
 
 // Full-page error
 <Container className="py-8">
   <Status status="error" code={...} title={...} body={...} action={<ButtonRow>...</ButtonRow>} />
 </Container>
-
-// Empty state in table cell
-<DataGridCell colSpan={N}>
-  <Status status="empty" title={...} body={...} />
-</DataGridCell>
 
 // Inline banner error (dismissible)
 <Message variant="error" text={...} className="mb-4" onDismiss={...} />
@@ -273,8 +257,9 @@ All modals **must** follow this skeleton:
 <p className="text-theme-error" role="alert" aria-live="assertive">{error}</p>
 ```
 
+- **DataGrid loading / empty / error rows** defer to the `datagrid` skill (its state-row fragments, correctly wrapped in `DataGridRow`; see B.15). The rest of this section covers non-DataGrid states.
 - Use `Status` as the default for any error, loading, or empty state not covered by a more specific pattern. Its `status` prop is a typed union — do not review which values are valid (TypeScript enforces that); review only whether the chosen state fits the situation.
-- Distinguish empty reasons: "no data" → suggest creating; "no filter results" → suggest clearing filters. This is about the `title`/`body` _wording_, not the `status` value.
+- Distinguish empty reasons: "no data" → suggest creating; "no filter results" → suggest clearing filters.
 - Scope loading states to the affected component, not the whole page. Prefer the tightest sensible boundary, but do not multiply spinners — one busy indicator per busy scope (e.g. one on the DataGrid, not one per row).
 - Keep tight error boundaries and render as much of the page as possible; never show a blank screen. Always communicate the state and a possible course of action (retry link where feasible).
 
@@ -454,7 +439,6 @@ All imports **must** use `@/` path aliases. No relative `../../` traversal beyon
 - All user-facing strings **must** be wrapped in `<Trans>` (JSX) or `` t`...` `` (strings) from `@lingui/react/macro` / `@lingui/core/macro`. In `packages/aurora` this is already enforced by `eslint-plugin-lingui` — only review it manually in `packages/signal-openstack`, `packages/policy-engine`, and `apps/dashboard`.
 - Error messages **must** use `role="alert"` and `aria-live="assertive"`. Non-urgent status updates use `role="status"`.
 - `DataGrid` header cells must use `DataGridHeadCell`, never plain `<th>`.
-- Context menus **must** use `<PopupMenuToggle as="div"><Button icon="moreVert" /></PopupMenuToggle>` as the trigger.
 - **Icon-only buttons** must carry `aria-label` describing the action (e.g. `aria-label="Delete item"`).
 - **Form inputs with help text or error messages** must link them via `aria-describedby`. Juno's `TextInput` handles this automatically when `helptext`/`errortext` props are used — always use the component API, never place adjacent `<p>` text manually.
 - **Do not suppress focus rings.** Juno provides focus ring styles; never override them with `outline-none` without replacement.
@@ -462,30 +446,15 @@ All imports **must** use `@/` path aliases. No relative `../../` traversal beyon
 
 **Reject** any hardcoded English string in JSX (outside `packages/aurora`, where lingui lint already covers it), any error element without appropriate ARIA attributes, or any icon-only button without `aria-label`.
 
-### B.15 [CRITICAL] DataGrid Column Structure & Row Interaction
+### B.15 [CRITICAL] DataGrid composition
 
-**Column ordering:**
+Authoritative rules: the `datagrid` skill in `@cloudoperators/juno-ui-components` (loaded via Intent — see `AGENTS.md`). Load it and review against its Decision Trees and Invariants, citing rule IDs. The summary below is a review aid only; if it and the skill ever differ, **the skill wins**.
 
-- Leftmost: checkbox column (bulk select) — no header label needed
-- Second: most identifying attribute (name, ID) — bold text recommended
-- Status/state columns: near the left (users scan for status first)
-- Remaining attributes: ordered by relevance
-- Rightmost: action column (overflow menu / `PopupMenu`)
-
-**Action column:** Use an overflow `PopupMenu` even for a single action — avoids row clutter. Set a `min-width` on the action cell to prevent the column from collapsing.
-
-**Clickable rows:** When a row navigates or triggers an action, the entire row must be clickable with visible hover feedback. Every nested interactive element (button, link, `PopupMenu`) inside that row **must** call `event.stopPropagation()` on its click handler.
-
-**Permission-based rendering:**
-
-- Do not render bulk-action controls (checkboxes + bulk menu) when the user has no permission for any bulk action.
-- Do not render per-row checkboxes when the user has no bulk action permissions.
-- Do not render "Create" button when the user has no create permission.
-
-**Bulk selection behavior:**
-
-- Bulk action controls must be **disabled until at least one item is selected**.
-- The select-all checkbox is **tri-state**: unchecked (none selected), indeterminate (some selected), checked (all selected). Clicking while unchecked/indeterminate selects all; clicking while checked deselects all.
+- Column order: checkbox (select) → primary identifier → status → remaining → actions (DT-1).
+- Overflow `PopupMenu` even for a single action (DT-8).
+- Clickable row: every nested interactive element calls `event.stopPropagation()` on its own handler (INV-9).
+- Permission-gated controls (bulk actions, per-row checkboxes, Create) are conditionally rendered, never merely disabled (INV-14).
+- Select-all is tri-state and bulk actions stay disabled until at least one item is selected (DT-9).
 
 **Reject** any DataGrid that renders bulk-action or create UI without checking permissions, any nested interactive element in a clickable row without `stopPropagation()`, bulk actions enabled with nothing selected, or a select-all checkbox that is not tri-state.
 

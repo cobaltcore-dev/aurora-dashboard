@@ -6,6 +6,7 @@ import { I18nProvider } from "@lingui/react"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { describe, it, expect, vi, afterEach, beforeEach } from "vitest"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
+import { trpcReact } from "@/client/trpcClient"
 import { FloatingIpTableRow } from "./FloatingIpTableRow"
 import { FloatingIpActionModalTriggers } from "../-modals/FloatingIpActionModals"
 
@@ -18,6 +19,20 @@ vi.mock("@tanstack/react-router", () => ({
 vi.mock("@/client/hooks", () => ({
   useProjectId: () => "test-project",
 }))
+
+vi.mock("@/client/trpcClient", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/client/trpcClient")>()
+  return {
+    ...actual,
+    trpcReact: {
+      network: {
+        canUser: {
+          useQuery: vi.fn(),
+        },
+      },
+    },
+  }
+})
 
 vi.mock("../-modals/FloatingIpActionModals", () => ({
   FloatingIpActionModals: ({ children }: { children: (triggers: FloatingIpActionModalTriggers) => ReactElement }) =>
@@ -54,6 +69,10 @@ describe("FloatingIpTableRow", () => {
 
   beforeEach(() => {
     i18n.activate("en")
+    // Default: user is allowed to perform every action. Individual tests override this to assert gating.
+    vi.mocked(trpcReact.network.canUser.useQuery).mockReturnValue({
+      data: { canUpdate: true, canDisassociate: true, canDelete: true, canAssociate: true },
+    } as ReturnType<typeof trpcReact.network.canUser.useQuery>)
   })
 
   const renderComponent = () => {
@@ -79,19 +98,18 @@ describe("FloatingIpTableRow", () => {
       expect(screen.getByText("Web server FIP")).toHaveClass("truncate")
     })
 
-    it("renders status icon and text in single cell", async () => {
+    it("renders the status in title case in the status cell", async () => {
       renderComponent()
 
       await waitFor(() => {
         expect(screen.getByText("Active")).toBeInTheDocument()
       })
 
-      // Verify the row contains the status text
       const row = screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)
       expect(row.textContent).toContain("Active")
     })
 
-    it("renders em dash when fixed IP is missing", async () => {
+    it("renders empty state placeholder when fixed IP is missing", async () => {
       const fipWithoutFixedIp = { ...mockFloatingIp, fixed_ip_address: null }
       render(
         <I18nProvider i18n={i18n}>
@@ -102,12 +120,12 @@ describe("FloatingIpTableRow", () => {
       )
 
       await waitFor(() => {
-        const cells = screen.getAllByText("—")
+        const cells = screen.getAllByText("- -")
         expect(cells.length).toBeGreaterThan(0)
       })
     })
 
-    it("renders em dash when description is missing", async () => {
+    it("renders empty state placeholder when description is missing", async () => {
       const fipWithoutDescription = { ...mockFloatingIp, description: null }
       render(
         <I18nProvider i18n={i18n}>
@@ -118,7 +136,7 @@ describe("FloatingIpTableRow", () => {
       )
 
       await waitFor(() => {
-        const cells = screen.getAllByText("—")
+        const cells = screen.getAllByText("- -")
         expect(cells.length).toBeGreaterThan(0)
       })
     })
@@ -131,14 +149,14 @@ describe("FloatingIpTableRow", () => {
       })
     })
 
-    it("renders different status values correctly", async () => {
-      const testCases: Array<[typeof mockFloatingIp.status, string]> = [
-        ["ACTIVE", "Active"],
-        ["DOWN", "Down"],
-        ["ERROR", "Error"],
+    it("renders different status values in title case", async () => {
+      const statuses: Array<{ status: typeof mockFloatingIp.status; expected: string }> = [
+        { status: "ACTIVE", expected: "Active" },
+        { status: "DOWN", expected: "Down" },
+        { status: "ERROR", expected: "Error" },
       ]
 
-      for (const [status, displayText] of testCases) {
+      for (const { status, expected } of statuses) {
         const { unmount } = render(
           <I18nProvider i18n={i18n}>
             <PortalProvider>
@@ -148,7 +166,7 @@ describe("FloatingIpTableRow", () => {
         )
 
         await waitFor(() => {
-          expect(screen.getByText(displayText)).toBeInTheDocument()
+          expect(screen.getByText(expected)).toBeInTheDocument()
         })
 
         unmount()
@@ -211,6 +229,79 @@ describe("FloatingIpTableRow", () => {
         expect(screen.getByText("Detach")).toBeInTheDocument()
         expect(screen.getByText("Release")).toBeInTheDocument()
       })
+    })
+  })
+
+  describe("Permissions", () => {
+    const openMenu = async () => {
+      const user = userEvent.setup()
+      renderComponent()
+
+      await waitFor(() => {
+        expect(screen.getByText("203.0.113.10")).toBeInTheDocument()
+      })
+
+      const row = screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)
+      const menuButton = row.querySelector("button")
+      await user.click(menuButton!)
+    }
+
+    it("hides Edit Description when the user lacks update permission", async () => {
+      vi.mocked(trpcReact.network.canUser.useQuery).mockReturnValue({
+        data: { canUpdate: false, canDisassociate: true, canDelete: true, canAssociate: true },
+      } as ReturnType<typeof trpcReact.network.canUser.useQuery>)
+
+      await openMenu()
+
+      await waitFor(() => expect(screen.getByText("Show Details")).toBeInTheDocument())
+      expect(screen.queryByText("Edit Description")).not.toBeInTheDocument()
+    })
+
+    it("hides Attach when the user lacks associate permission", async () => {
+      vi.mocked(trpcReact.network.canUser.useQuery).mockReturnValue({
+        data: { canUpdate: true, canDisassociate: true, canDelete: true, canAssociate: false },
+      } as ReturnType<typeof trpcReact.network.canUser.useQuery>)
+
+      await openMenu()
+
+      await waitFor(() => expect(screen.getByText("Show Details")).toBeInTheDocument())
+      expect(screen.queryByText("Attach")).not.toBeInTheDocument()
+    })
+
+    it("hides Detach when the user lacks disassociate permission", async () => {
+      vi.mocked(trpcReact.network.canUser.useQuery).mockReturnValue({
+        data: { canUpdate: true, canDisassociate: false, canDelete: true, canAssociate: true },
+      } as ReturnType<typeof trpcReact.network.canUser.useQuery>)
+
+      await openMenu()
+
+      await waitFor(() => expect(screen.getByText("Show Details")).toBeInTheDocument())
+      expect(screen.queryByText("Detach")).not.toBeInTheDocument()
+    })
+
+    it("hides Release when the user lacks delete permission", async () => {
+      vi.mocked(trpcReact.network.canUser.useQuery).mockReturnValue({
+        data: { canUpdate: true, canDisassociate: true, canDelete: false, canAssociate: true },
+      } as ReturnType<typeof trpcReact.network.canUser.useQuery>)
+
+      await openMenu()
+
+      await waitFor(() => expect(screen.getByText("Show Details")).toBeInTheDocument())
+      expect(screen.queryByText("Release")).not.toBeInTheDocument()
+    })
+
+    it("shows only Show Details for a viewer with no action permissions", async () => {
+      vi.mocked(trpcReact.network.canUser.useQuery).mockReturnValue({
+        data: { canUpdate: false, canDisassociate: false, canDelete: false, canAssociate: false },
+      } as ReturnType<typeof trpcReact.network.canUser.useQuery>)
+
+      await openMenu()
+
+      await waitFor(() => expect(screen.getByText("Show Details")).toBeInTheDocument())
+      expect(screen.queryByText("Edit Description")).not.toBeInTheDocument()
+      expect(screen.queryByText("Attach")).not.toBeInTheDocument()
+      expect(screen.queryByText("Detach")).not.toBeInTheDocument()
+      expect(screen.queryByText("Release")).not.toBeInTheDocument()
     })
   })
 })
