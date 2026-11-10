@@ -114,7 +114,8 @@ describe("SecurityGroupRulesTable", () => {
         }
       )
 
-      expect(screen.getByText("There are no rules for this security group")).toBeInTheDocument()
+      expect(screen.getByText("No Rules Found")).toBeInTheDocument()
+      expect(screen.getByText("There are no Rule items to display for this Security Group.")).toBeInTheDocument()
     })
 
     it("renders empty state with filters when rules are filtered out", () => {
@@ -131,7 +132,30 @@ describe("SecurityGroupRulesTable", () => {
         { wrapper: createWrapper() }
       )
 
-      expect(screen.getByText("There are no rules for this security group")).toBeInTheDocument()
+      expect(screen.getByText("No Rules Found")).toBeInTheDocument()
+      expect(
+        screen.getByText("No rules match the current search or filters. Clear the search or filters to view all rules.")
+      ).toBeInTheDocument()
+    })
+
+    it("renders the no-matches state when a filter is selected", () => {
+      render(
+        <SecurityGroupRulesTable
+          rules={[]}
+          onDeleteRule={vi.fn()}
+          isDeletingRule={false}
+          deleteError={null}
+          filterSettings={{ filters: [], selectedFilters: [{ name: "direction", value: "ingress" }] }}
+          canCreateRule={true}
+          canDeleteRule={true}
+        />,
+        { wrapper: createWrapper() }
+      )
+
+      expect(screen.getByText("No Rules Found")).toBeInTheDocument()
+      expect(
+        screen.getByText("No rules match the current search or filters. Clear the search or filters to view all rules.")
+      ).toBeInTheDocument()
     })
 
     it("renders table with rules when provided", () => {
@@ -289,7 +313,7 @@ describe("SecurityGroupRulesTable", () => {
         { wrapper: createWrapper() }
       )
 
-      expect(screen.getByPlaceholderText("Search rules...")).toBeInTheDocument()
+      expect(screen.getByPlaceholderText("Search...")).toBeInTheDocument()
     })
 
     it("calls onSearchChange when search input changes", async () => {
@@ -307,7 +331,7 @@ describe("SecurityGroupRulesTable", () => {
         { wrapper: createWrapper() }
       )
 
-      const searchInput = screen.getByPlaceholderText("Search rules...")
+      const searchInput = screen.getByPlaceholderText("Search...")
       const user = userEvent.setup()
       await user.type(searchInput, "HTTP")
 
@@ -646,14 +670,14 @@ describe("SecurityGroupRulesTable", () => {
     it("shows a dash when no port range is set", () => {
       renderRule({ protocol: "tcp", port_range_min: null, port_range_max: null })
 
-      expect(screen.getAllByText("—").length).toBeGreaterThan(0)
+      expect(screen.getAllByText("- -").length).toBeGreaterThan(0)
     })
 
     it("shows a dash instead of 'undefined' when the port range keys are absent", () => {
       renderRule({ protocol: "tcp" })
 
       expect(screen.queryByText("undefined")).not.toBeInTheDocument()
-      expect(screen.getAllByText("—").length).toBeGreaterThan(0)
+      expect(screen.getAllByText("- -").length).toBeGreaterThan(0)
     })
 
     it("reads the port range as ICMP type and code", () => {
@@ -671,7 +695,7 @@ describe("SecurityGroupRulesTable", () => {
     it("shows a dash for an ICMP rule with neither type nor code", () => {
       renderRule({ protocol: "icmp", port_range_min: null, port_range_max: null })
 
-      expect(screen.getAllByText("—").length).toBeGreaterThan(0)
+      expect(screen.getAllByText("- -").length).toBeGreaterThan(0)
     })
 
     it("recognises ICMP written as an alias or as a protocol number", () => {

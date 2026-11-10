@@ -38,7 +38,7 @@ describe("DeleteSecurityGroupDialog", () => {
     vi.clearAllMocks()
   })
 
-  it("renders with security group name", () => {
+  it("names the security group in the body, not the title", () => {
     render(
       <DeleteSecurityGroupDialog
         isOpen={true}
@@ -49,7 +49,13 @@ describe("DeleteSecurityGroupDialog", () => {
       { wrapper: createWrapper() }
     )
 
-    expect(screen.getByText('Delete Security Group "test-security-group"')).toBeInTheDocument()
+    expect(screen.getByText("Delete Security Group")).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'The security group "test-security-group" will be permanently deleted. This action cannot be undone.'
+      )
+    ).toBeInTheDocument()
+    expect(screen.queryByText('Delete Security Group "test-security-group"')).not.toBeInTheDocument()
   })
 
   it("displays error message when provided", () => {
