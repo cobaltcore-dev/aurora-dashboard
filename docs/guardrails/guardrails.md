@@ -5,8 +5,7 @@ This file collects project-specific guardrails: conventions and patterns that mu
 ## List Views
 
 - Render the individual items' IDs in the name column underneath the name in a subdued text style if possible
-- If the items have a detail view _DO_ make each whole row clickable to navigate to the detail view
-- If any action can be performed on an item, _DO_ add a column with an overflow menu containing the actions as the last column. Note: If the item has a detail view, ensure the overflow menu contains a "View Details" item.
+- If any action can be performed on an item, _DO_ add a column with an overflow menu containing the actions as the last column. Note: If the item has a detail view, ensure the overflow menu contains a "Show Details" item, make sure it is the first item in the list of options.
 
 ## Detail Views
 
