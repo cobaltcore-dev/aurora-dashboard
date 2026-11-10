@@ -478,6 +478,9 @@ msgstr "Sicherheitsgruppenregel hinzufügen"
 msgid "Address group: {id}"
 msgstr ""
 
+msgid "Addresses"
+msgstr ""
+
 msgid "Admin State"
 msgstr ""
 
@@ -625,6 +628,9 @@ msgstr ""
 msgid "Auto-generated if not provided. Only alphanumeric, hyphens, underscores, and dots allowed."
 msgstr ""
 
+msgid "Availability Zone"
+msgstr ""
+
 msgid "Back"
 msgstr "Zurück"
 
@@ -649,6 +655,9 @@ msgstr "Zurück zu Floating IPs"
 msgid "Back to Images"
 msgstr "Zurück zu Images"
 
+msgid "Back to Instances"
+msgstr ""
+
 msgid "Back to Key Manager"
 msgstr ""
 
@@ -672,6 +681,9 @@ msgstr "Boot-RAM"
 
 msgid "Boot size"
 msgstr "Boot-Größe"
+
+msgid "Booted from volume"
+msgstr ""
 
 msgid "Bucket \"{bucketName}\" was already empty."
 msgstr ""
@@ -831,6 +843,9 @@ msgstr "Community"
 
 msgid "Compute"
 msgstr "Compute"
+
+msgid "Compute & State"
+msgstr ""
 
 msgid "Configuration Unavailable"
 msgstr ""
@@ -1717,6 +1732,9 @@ msgstr "Fehler beim Laden des Flavors"
 msgid "Error Loading Image"
 msgstr ""
 
+msgid "Error Loading Instance"
+msgstr ""
+
 msgid "Error Loading Port"
 msgstr ""
 
@@ -1984,6 +2002,9 @@ msgstr ""
 msgid "Failed to Load Images"
 msgstr ""
 
+msgid "Failed to Load Instances"
+msgstr ""
+
 msgid "Failed to Load Internal Networks"
 msgstr ""
 
@@ -2129,6 +2150,9 @@ msgid "Fixed IP Address"
 msgstr "Feste IP-Adresse"
 
 msgid "Fixed IPs"
+msgstr ""
+
+msgid "Flavor"
 msgstr ""
 
 msgid "Flavor \"{name}\" was successfully created."
@@ -2281,6 +2305,9 @@ msgstr "Allgemeine Image-Daten"
 msgid "General Information"
 msgstr ""
 
+msgid "General Instance Data"
+msgstr ""
+
 msgid "Generate URL"
 msgstr "URL generieren"
 
@@ -2329,7 +2356,13 @@ msgstr ""
 msgid "Home"
 msgstr "Startseite"
 
+msgid "Host"
+msgstr ""
+
 msgid "How long browsers can cache preflight responses. Common values: 3600 (1 hour), 86400 (1 day), 604800 (1 week)."
+msgstr ""
+
+msgid "Hypervisor"
 msgstr ""
 
 msgid "I confirm that all existing versions will also be deleted"
@@ -2425,6 +2458,15 @@ msgstr ""
 msgid "Inside a project, objects are stored in containers. Containers are where you define access permissions and quotas."
 msgstr "Innerhalb eines Projekts werden Objekte in Containern gespeichert. Container sind der Ort, an dem Sie Zugriffsberechtigungen und Quotas definieren."
 
+msgid "Instance Name"
+msgstr ""
+
+msgid "Instance Not Found"
+msgstr ""
+
+msgid "Instances"
+msgstr ""
+
 msgid "Insufficient Permissions"
 msgstr ""
 
@@ -2445,6 +2487,9 @@ msgstr ""
 
 msgid "Invalid value for public flavor setting."
 msgstr "Ungültiger Wert für die Einstellung des öffentlichen Flavors."
+
+msgid "IP Address"
+msgstr ""
 
 msgid "IP Restricted"
 msgstr ""
@@ -2502,6 +2547,9 @@ msgstr ""
 
 msgid "Key must contain at least one alphanumeric character"
 msgstr "Schlüssel muss mindestens ein alphanumerisches Zeichen enthalten"
+
+msgid "Key Name"
+msgstr ""
 
 msgid "Last modified"
 msgstr ""
@@ -2598,6 +2646,12 @@ msgstr "Image-Details werden geladen..."
 
 msgid "Loading Images..."
 msgstr "Lädt Images..."
+
+msgid "Loading Instance Details..."
+msgstr ""
+
+msgid "Loading Instances..."
+msgstr ""
 
 msgid "Loading Internal Networks..."
 msgstr ""
@@ -2872,6 +2926,9 @@ msgstr ""
 msgid "No Access Keys"
 msgstr ""
 
+msgid "No addresses"
+msgstr ""
+
 msgid "No buckets found"
 msgstr ""
 
@@ -2915,6 +2972,9 @@ msgid "No Floating IPs Found"
 msgstr ""
 
 msgid "No Images Found"
+msgstr ""
+
+msgid "No instances found"
 msgstr ""
 
 msgid "No Internal Networks"
@@ -3301,6 +3361,9 @@ msgstr "Port-Bereich"
 msgid "Ports"
 msgstr ""
 
+msgid "Power State"
+msgstr ""
+
 msgid "Pre-signed URL"
 msgstr "Vorsignierte URL"
 
@@ -3532,6 +3595,9 @@ msgstr ""
 msgid "Restore Version"
 msgstr ""
 
+msgid "Retry"
+msgstr ""
+
 msgid "Reveal"
 msgstr ""
 
@@ -3651,6 +3717,9 @@ msgstr ""
 
 msgid "Search flavors..."
 msgstr "Flavors suchen..."
+
+msgid "Search instances..."
+msgstr ""
 
 msgid "Search lifecycle rules..."
 msgstr ""
@@ -4105,6 +4174,9 @@ msgstr "Zielprojekt-ID"
 msgid "Target project ID is required"
 msgstr "Zielprojekt-ID ist erforderlich"
 
+msgid "Task State"
+msgstr ""
+
 msgid "Temporary URL"
 msgstr "Temporäre URL"
 
@@ -4243,6 +4315,9 @@ msgstr ""
 msgid "The requested flavor could not be found. It may have been deleted or you may not have access to it."
 msgstr "Der angeforderte Flavor konnte nicht gefunden werden. Er wurde möglicherweise gelöscht oder Sie haben keinen Zugriff darauf."
 
+msgid "The requested instance could not be found. It may have been deleted or you may not have access to it."
+msgstr ""
+
 msgid "The Resource you are looking for does not exist or is not accessible."
 msgstr ""
 
@@ -4325,6 +4400,9 @@ msgid "There are no Floating IPs available for this project. Floating IPs allow 
 msgstr "Für dieses Projekt sind keine Floating IPs verfügbar. Floating IPs ermöglichen es, öffentliche IP-Adressen Instanzen zuzuordnen."
 
 msgid "There are no images available for this project with the current filters applied."
+msgstr ""
+
+msgid "There are no instances in this project with the current filters applied. Try adjusting your search or filter criteria."
 msgstr ""
 
 msgid "There are no items to display."
@@ -4461,6 +4539,9 @@ msgstr "Dieser Ordner ist leer."
 
 msgid "This image was shared with you by <0>{ownerProject}</0> on {sharedAt}."
 msgstr "Dieses Image wurde am {sharedAt} von <0>{ownerProject}</0> mit Ihnen geteilt."
+
+msgid "This instance has no network addresses."
+msgstr ""
 
 msgid "This is a <0>dynamic large object (DLO)</0> manifest. Metadata changes apply to the manifest only — segment objects are not affected."
 msgstr "Dies ist ein <0>dynamisches großes Objekt (DLO)</0>-Manifest. Metadaten-Änderungen gelten nur für das Manifest — Segment-Objekte sind nicht betroffen."
@@ -4744,11 +4825,17 @@ msgstr "Wert ist erforderlich"
 msgid "vCPU"
 msgstr "vCPU"
 
+msgid "vCPUs"
+msgstr ""
+
 msgid "VCPUs"
 msgstr "VCPUs"
 
 msgid "VCPUs must be an integer ≥ 1."
 msgstr "VCPUs müssen eine ganze Zahl ≥ 1 sein."
+
+msgid "Version"
+msgstr ""
 
 msgid "Version {shortVersionId}... deleted successfully"
 msgstr ""
@@ -4801,11 +4888,17 @@ msgstr ""
 msgid "Versions to delete:"
 msgstr ""
 
+msgid "View details"
+msgstr ""
+
 msgid "View Versions"
 msgstr ""
 
 msgid "Visibility"
 msgstr "Sichtbarkeit"
+
+msgid "VM State"
+msgstr ""
 
 msgid "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
 msgstr "Wir entwickeln das Aurora-Dashboard, um Ihnen einen besseren Service zu bieten. Ihr Feedback ist von unschätzbarem Wert, um ein Werkzeug zu gestalten, das den einzigartigen Bedürfnissen von Unternehmen wie Ihrem gerecht wird. Bleiben Sie in Verbindung und begleiten Sie uns, während wir das Cloud-Management neu definieren."
@@ -4943,6 +5036,9 @@ msgid "You don't have permission to view extra specs for this flavor."
 msgstr "Sie haben keine Berechtigung, Metadata für diesen Flavor anzusehen."
 
 msgid "You don't have permission to view images in this project. Contact your administrator to grant you the necessary permissions."
+msgstr ""
+
+msgid "You don't have permission to view instances in this project. Contact your administrator to grant you the necessary permissions."
 msgstr ""
 
 msgid "You don't have permission to view this flavor's details."
