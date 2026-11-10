@@ -62,7 +62,7 @@ export function CreateContainerModal({
   // `secretType` filters the dropdown to only secrets of that Barbican type, matching the old plugin.
   const rsaFields = [
     { name: "private_key", label: t`Private Key`, required: true, secretType: "private" },
-    { name: "private_key_passphrase", label: t`Private Key Passphrase`, required: true, secretType: "passphrase" },
+    { name: "private_key_passphrase", label: t`Private Key Passphrase`, required: false, secretType: "passphrase" },
     { name: "public_key", label: t`Public Key`, required: true, secretType: "public" },
   ]
   const certificateFields = [
@@ -101,7 +101,6 @@ export function CreateContainerModal({
   const validate = (): string | null => {
     if (type === "rsa") {
       if (!namedRefs["private_key"]) return t`Private Key is required for RSA containers`
-      if (!namedRefs["private_key_passphrase"]) return t`Private Key Passphrase is required for RSA containers`
       if (!namedRefs["public_key"]) return t`Public Key is required for RSA containers`
     } else if (type === "certificate") {
       if (!namedRefs["certificate"]) return t`Certificate is required for certificate containers`
