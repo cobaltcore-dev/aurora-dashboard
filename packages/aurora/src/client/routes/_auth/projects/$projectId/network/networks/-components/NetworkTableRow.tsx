@@ -32,7 +32,7 @@ export const NetworkTableRow = ({ network }: NetworkTableRowProps) => {
 
   return (
     <DataGridRow key={network.id} data-testid={`network-row-${network.id}`} onClick={navigateToDetailsPage}>
-      <DataGridCell>{network.status}</DataGridCell>
+      <DataGridCell>{network.status.charAt(0) + network.status.slice(1).toLowerCase()}</DataGridCell>
       {/* Name — ID shown beneath the name with a copy affordance (E2-adjacent, spec AC) */}
       <DataGridCell>
         <Stack direction="vertical" gap="0.5" className="min-w-0">

@@ -76,7 +76,7 @@ export function NetworkDetailsView({ network, activeTab, onTabChange }: NetworkD
   const basicInfoItems: DetailListItem[] = [
     { label: t`Name`, value: network.name },
     { label: t`ID`, value: <ClipboardText text={network.id} /> },
-    { label: t`Status`, value: network.status },
+    { label: t`Status`, value: network.status.charAt(0) + network.status.slice(1).toLowerCase() },
     { label: t`Admin State`, value: network.admin_state_up ? t`Up` : t`Down` },
     // E2: when shared, shows the owning project_id with copy affordance
     { label: t`Shared`, value: network.shared ? <ClipboardText text={network.project_id} /> : t`No` },

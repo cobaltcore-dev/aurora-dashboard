@@ -222,7 +222,7 @@ describe("NetworkDetailsView", () => {
       expect(screen.getByText("private")).toBeInTheDocument()
       expect(screen.getByText("net-1")).toBeInTheDocument()
       expect(screen.getByText("App tier")).toBeInTheDocument()
-      expect(screen.getByText("ACTIVE")).toBeInTheDocument()
+      expect(screen.getByText("Active")).toBeInTheDocument()
       expect(screen.getByText("Up")).toBeInTheDocument()
       expect(screen.getByText("8950")).toBeInTheDocument()
       // shared=false → shows "No"; project_id copy button NOT present
