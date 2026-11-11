@@ -55,7 +55,7 @@ export function SecretsList({
   }, [search])
 
   const sortLabels: Record<(typeof SORT_FIELDS)[number], string> = {
-    created: t`Created At`,
+    created: t`Created`,
     name: t`Name`,
   }
 

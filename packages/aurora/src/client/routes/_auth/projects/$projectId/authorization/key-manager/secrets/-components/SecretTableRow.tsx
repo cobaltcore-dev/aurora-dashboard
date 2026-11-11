@@ -37,6 +37,7 @@ export function SecretTableRow({ secret, canDeleteSecret, onShowDetails, onDelet
       <DataGridCell>{toMixedCase(secret.status)}</DataGridCell>
       <DataGridCell>{secret.secret_type}</DataGridCell>
       <DataGridCell>{secret.content_types ? Object.values(secret.content_types).join(", ") : "- -"}</DataGridCell>
+      <DataGridCell>{new Date(secret.created).toLocaleString()}</DataGridCell>
       <DataGridCell onClick={(e: React.MouseEvent) => e.stopPropagation()} className="items-end pr-0">
         <PopupMenu>
           <PopupMenuToggle as="div">
