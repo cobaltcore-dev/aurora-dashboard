@@ -104,12 +104,8 @@ msgid "{0}/255 characters. Metadata for informational purposes."
 msgstr "{0}/255 characters. Metadata for informational purposes."
 
 #. placeholder {0}: name.length
-msgid "{0}/255 characters. Optional. A friendly name for the container."
-msgstr "{0}/255 characters. Optional. A friendly name for the container."
-
-#. placeholder {0}: name.length
-msgid "{0}/255 characters. Optional. Names the secret this order generates."
-msgstr "{0}/255 characters. Optional. Names the secret this order generates."
+msgid "{0}/255 characters. Names the secret this order generates."
+msgstr "{0}/255 characters. Names the secret this order generates."
 
 msgid "{activeCount, plural, one {Deactivate # Image} other {Deactivate # Images}}"
 msgstr "{activeCount, plural, one {Deactivate # Image} other {Deactivate # Images}}"

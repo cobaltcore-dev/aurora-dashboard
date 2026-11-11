@@ -191,7 +191,7 @@ export function CreateOrderModal({
               }}
               invalid={Boolean(validation.name)}
               errortext={validation.name}
-              helptext={t`${name.length}/255 characters. Optional. Names the secret this order generates.`}
+              helptext={t`${name.length}/255 characters. Names the secret this order generates.`}
             />
           </FormRow>
           <FormRow>

@@ -180,7 +180,7 @@ export function CreateContainerModal({
               }}
               invalid={Boolean(nameError)}
               errortext={nameError}
-              helptext={t`${name.length}/255 characters. Optional. A friendly name for the container.`}
+              helptext={t`${name.length}/255 characters`}
             />
           </FormRow>
           <FormRow>
