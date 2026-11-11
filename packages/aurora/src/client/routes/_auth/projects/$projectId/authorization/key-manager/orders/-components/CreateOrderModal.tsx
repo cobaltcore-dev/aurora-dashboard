@@ -36,6 +36,11 @@ const AES_MODES = [
   { value: "ctr", label: "CTR" },
 ]
 
+const ORDER_PAYLOAD_CONTENT_TYPES = [
+  { value: "application/octet-stream", label: "application/octet-stream" },
+  { value: "text/plain", label: "text/plain" },
+]
+
 // Bit-length presets per algorithm. Algorithms without a preset fall back to free numeric input.
 const BIT_LENGTHS_BY_ALGORITHM: Record<string, number[]> = {
   aes: [128, 192, 256],
@@ -146,7 +151,7 @@ export function CreateOrderModal({
         algorithm,
         bit_length: parseInt(bitLength, 10),
         ...(algorithm === "aes" ? { mode } : {}),
-        ...(trimmedContentType ? { payload_content_type: trimmedContentType } : {}),
+        ...(orderType !== "asymmetric" && trimmedContentType ? { payload_content_type: trimmedContentType } : {}),
         ...(expiration ? { expiration } : {}),
       },
     })
@@ -291,15 +296,20 @@ export function CreateOrderModal({
               </Select>
             </FormRow>
           )}
-          <FormRow>
-            <TextInput
-              id="payload-content-type"
-              label={t`Payload Content Type`}
-              value={payloadContentType}
-              onChange={(e) => setPayloadContentType(e.target.value)}
-              placeholder="application/octet-stream"
-            />
-          </FormRow>
+          {orderType !== "asymmetric" && (
+            <FormRow>
+              <Select
+                id="payload-content-type"
+                label={t`Payload Content Type`}
+                value={payloadContentType}
+                onChange={(v) => setPayloadContentType(typeof v === "string" ? v : "application/octet-stream")}
+              >
+                {ORDER_PAYLOAD_CONTENT_TYPES.map((ct) => (
+                  <SelectOption key={ct.value} value={ct.value} label={ct.label} />
+                ))}
+              </Select>
+            </FormRow>
+          )}
         </FormSection>
       </Form>
     </Modal>
