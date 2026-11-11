@@ -693,6 +693,9 @@ msgstr "Grundlegende Informationen"
 msgid "Bit Length"
 msgstr ""
 
+msgid "Bit length must be a positive integer"
+msgstr ""
+
 msgid "Boot RAM"
 msgstr "Boot-RAM"
 

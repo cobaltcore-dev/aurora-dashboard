@@ -42,6 +42,7 @@ interface SecretValidation {
   expiration?: string
   algorithm?: string
   mode?: string
+  bit_length?: string
 }
 
 export function CreateSecretModal({
@@ -109,6 +110,10 @@ export function CreateSecretModal({
       case "mode":
         if (mode.length > 255) return t`Mode must be at most 255 characters`
         return undefined
+      case "bit_length":
+        if (bitLength && (isNaN(Number(bitLength)) || Number(bitLength) < 1))
+          return t`Bit length must be a positive integer`
+        return undefined
       default:
         return undefined
     }
@@ -132,6 +137,7 @@ export function CreateSecretModal({
       "expiration",
       "algorithm",
       "mode",
+      "bit_length",
     ] as const) {
       const error = validateField(field)
       if (error) errors[field] = error
@@ -226,7 +232,17 @@ export function CreateSecretModal({
               type="number"
               label={t`Bit Length`}
               value={bitLength}
-              onChange={(e) => setBitLength(e.target.value)}
+              min={1}
+              onChange={(e) => {
+                const val = e.target.value
+                setBitLength(val)
+                if (val && (isNaN(Number(val)) || Number(val) < 1))
+                  setValidation((prev) => ({ ...prev, bit_length: t`Bit length must be a positive integer` }))
+                else setValidation((prev) => ({ ...prev, bit_length: undefined }))
+              }}
+              onBlur={() => handleBlur("bit_length")}
+              invalid={Boolean(validation.bit_length)}
+              errortext={validation.bit_length}
               helptext={t`Metadata for informational purposes. Value must be greater than zero.`}
             />
           </FormRow>
