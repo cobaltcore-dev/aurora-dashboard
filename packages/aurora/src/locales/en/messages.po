@@ -189,6 +189,12 @@ msgstr "{errorCount} item(s) could not be deleted"
 msgid "{filteredCount, plural, one {{filteredCount} of {totalCount} container} other {{filteredCount} of {totalCount} containers}}"
 msgstr "{filteredCount, plural, one {{filteredCount} of {totalCount} container} other {{filteredCount} of {totalCount} containers}}"
 
+msgid "{matchingCount} networks"
+msgstr "{matchingCount} networks"
+
+msgid "{matchingCount} of {totalCount} networks"
+msgstr "{matchingCount} of {totalCount} networks"
+
 msgid "{name} (this group)"
 msgstr "{name} (this group)"
 
@@ -209,6 +215,9 @@ msgstr "{ruleCount, plural, one {Delete CORS Rule} other {Delete CORS Rules}}"
 
 msgid "{ruleCount, plural, one {Delete Lifecycle Rule} other {Delete Lifecycle Rules}}"
 msgstr "{ruleCount, plural, one {Delete Lifecycle Rule} other {Delete Lifecycle Rules}}"
+
+msgid "{segmentCount} segment"
+msgstr "{segmentCount} segment"
 
 msgid "{selectedCount, plural, one {Delete # Object} other {Delete # Objects}}"
 msgstr "{selectedCount, plural, one {Delete # Object} other {Delete # Objects}}"
@@ -417,6 +426,9 @@ msgstr "Access Status:"
 msgid "Access to S3 Object Storage requires an access key (access key ID + secret access key)."
 msgstr "Access to S3 Object Storage requires an access key (access key ID + secret access key)."
 
+msgid "Access to this network is not permitted."
+msgstr "Access to this network is not permitted."
+
 msgid "Access to this router is not permitted."
 msgstr "Access to this router is not permitted."
 
@@ -546,6 +558,9 @@ msgstr "Allocate Floating IP"
 msgid "Allocating Floating IP..."
 msgstr "Allocating Floating IP..."
 
+msgid "Allocation Pools"
+msgstr "Allocation Pools"
+
 msgid "Allowed Headers"
 msgstr "Allowed Headers"
 
@@ -633,6 +648,9 @@ msgstr "Attach"
 msgid "Attach Floating IP {floating_ip_address} to the Port"
 msgstr "Attach Floating IP {floating_ip_address} to the Port"
 
+msgid "Attached Device"
+msgstr "Attached Device"
+
 msgid "Attaching Floating IP..."
 msgstr "Attaching Floating IP..."
 
@@ -647,6 +665,9 @@ msgstr "Auto-generated if not provided. Only alphanumeric, hyphens, underscores,
 
 msgid "Availability Zone"
 msgstr "Availability Zone"
+
+msgid "Availability Zones"
+msgstr "Availability Zones"
 
 msgid "Back"
 msgstr "Back"
@@ -677,6 +698,9 @@ msgstr "Back to Instances"
 
 msgid "Back to Key Manager"
 msgstr "Back to Key Manager"
+
+msgid "Back to Networks"
+msgstr "Back to Networks"
 
 msgid "Back to Ports"
 msgstr "Back to Ports"
@@ -1467,6 +1491,12 @@ msgstr "Device ID"
 msgid "Device Owner"
 msgstr "Device Owner"
 
+msgid "DHCP"
+msgstr "DHCP"
+
+msgid "DHCP agent"
+msgstr "DHCP agent"
+
 msgid "Direction"
 msgstr "Direction"
 
@@ -1506,8 +1536,14 @@ msgstr "DNS name must be at most 63 characters."
 msgid "DNS name must use only letters, digits, and hyphens, and must start and end with a letter or digit."
 msgstr "DNS name must use only letters, digits, and hyphens, and must start and end with a letter or digit."
 
+msgid "DNS Nameservers"
+msgstr "DNS Nameservers"
+
 msgid "Done"
 msgstr "Done"
+
+msgid "Down"
+msgstr "Down"
 
 msgid "DOWN"
 msgstr "DOWN"
@@ -1758,6 +1794,9 @@ msgstr "Error Loading Image"
 msgid "Error Loading Instance"
 msgstr "Error Loading Instance"
 
+msgid "Error Loading Network"
+msgstr "Error Loading Network"
+
 msgid "Error Loading Port"
 msgstr "Error Loading Port"
 
@@ -1808,6 +1847,9 @@ msgstr "Expires in {selectedPresetLabel} — at {expiresAtFormatted}"
 
 msgid "Expose Headers"
 msgstr "Expose Headers"
+
+msgid "External"
+msgstr "External"
 
 msgid "External Fixed IPs"
 msgstr "External Fixed IPs"
@@ -2040,6 +2082,9 @@ msgstr "Failed to Load Metadata"
 msgid "Failed to Load Metadata Configuration"
 msgstr "Failed to Load Metadata Configuration"
 
+msgid "Failed to Load Networks"
+msgstr "Failed to Load Networks"
+
 msgid "Failed to Load Object Metadata"
 msgstr "Failed to Load Object Metadata"
 
@@ -2072,6 +2117,9 @@ msgstr "Failed to Load Secrets"
 
 msgid "Failed to Load Security Groups"
 msgstr "Failed to Load Security Groups"
+
+msgid "Failed to Load Subnets"
+msgstr "Failed to Load Subnets"
 
 msgid "Failed to Load Versions"
 msgstr "Failed to Load Versions"
@@ -2211,6 +2259,9 @@ msgstr "Flavor service is not available for this project."
 msgid "Flavors"
 msgstr "Flavors"
 
+msgid "Floating IP"
+msgstr "Floating IP"
+
 msgid "Floating IP \"{ip}\" was successfully associated with the port."
 msgstr "Floating IP \"{ip}\" was successfully associated with the port."
 
@@ -2319,6 +2370,9 @@ msgstr "Full Path"
 msgid "Full path:"
 msgstr "Full path:"
 
+msgid "Gateway IP"
+msgstr "Gateway IP"
+
 msgid "General"
 msgstr "General"
 
@@ -2381,6 +2435,9 @@ msgstr "Home"
 
 msgid "Host"
 msgstr "Host"
+
+msgid "Host Routes"
+msgstr "Host Routes"
 
 msgid "How long browsers can cache preflight responses. Common values: 3600 (1 hour), 86400 (1 day), 604800 (1 week)."
 msgstr "How long browsers can cache preflight responses. Common values: 3600 (1 hour), 86400 (1 day), 604800 (1 week)."
@@ -2483,6 +2540,9 @@ msgstr "Ingress: traffic coming in to the instances. Egress: traffic going out o
 
 msgid "Inside a project, objects are stored in containers. Containers are where you define access permissions and quotas."
 msgstr "Inside a project, objects are stored in containers. Containers are where you define access permissions and quotas."
+
+msgid "Instance"
+msgstr "Instance"
 
 msgid "Instance Name"
 msgstr "Instance Name"
@@ -2589,6 +2649,9 @@ msgstr "Last modified (UTC)"
 msgid "Last updated: {formattedDate}"
 msgstr "Last updated: {formattedDate}"
 
+msgid "Last updated: {lastUpdatedText}"
+msgstr "Last updated: {lastUpdatedText}"
+
 msgid "Latest"
 msgstr "Latest"
 
@@ -2694,6 +2757,12 @@ msgstr "Loading Metadata..."
 msgid "Loading more..."
 msgstr "Loading more..."
 
+msgid "Loading Network Details..."
+msgstr "Loading Network Details..."
+
+msgid "Loading Networks..."
+msgstr "Loading Networks..."
+
 msgid "Loading Object Info..."
 msgstr "Loading Object Info..."
 
@@ -2744,6 +2813,9 @@ msgstr "Loading Secrets..."
 
 msgid "Loading Security Group Details..."
 msgstr "Loading Security Group Details..."
+
+msgid "Loading Subnets..."
+msgstr "Loading Subnets..."
 
 msgid "Loading Versions..."
 msgstr "Loading Versions..."
@@ -2889,6 +2961,9 @@ msgstr "Moving Object..."
 msgid "Moving..."
 msgstr "Moving..."
 
+msgid "MTU"
+msgstr "MTU"
+
 msgid "Must be a valid IPv4 or IPv6 address (for example: 172.24.4.228 or 2001:db8::1)."
 msgstr "Must be a valid IPv4 or IPv6 address (for example: 172.24.4.228 or 2001:db8::1)."
 
@@ -2928,11 +3003,23 @@ msgstr "Network"
 msgid "Network & Routing"
 msgstr "Network & Routing"
 
+msgid "Network detail sections"
+msgstr "Network detail sections"
+
 msgid "Network ID"
 msgstr "Network ID"
 
 msgid "Network Name"
 msgstr "Network Name"
+
+msgid "Network Not Found"
+msgstr "Network Not Found"
+
+msgid "Network Type"
+msgstr "Network Type"
+
+msgid "Networks"
+msgstr "Networks"
 
 msgid "Never"
 msgstr "Never"
@@ -3021,6 +3108,15 @@ msgstr "No limit"
 msgid "No Metadata Properties Found"
 msgstr "No Metadata Properties Found"
 
+msgid "No Networks Found"
+msgstr "No Networks Found"
+
+msgid "No networks in this project"
+msgstr "No networks in this project"
+
+msgid "No networks match your filters"
+msgstr "No networks match your filters"
+
 msgid "No new versions will be created"
 msgstr "No new versions will be created"
 
@@ -3044,6 +3140,9 @@ msgstr "No Orders Match Your Search"
 
 msgid "No Policy Found"
 msgstr "No Policy Found"
+
+msgid "No Ports"
+msgstr "No Ports"
 
 msgid "No Ports Found"
 msgstr "No Ports Found"
@@ -3078,6 +3177,12 @@ msgstr "No RBAC Policies Found"
 msgid "No RBAC policies match your search. Clear the search to view all RBAC policies."
 msgstr "No RBAC policies match your search. Clear the search to view all RBAC policies."
 
+msgid "No routers are attached to this network."
+msgstr "No routers are attached to this network."
+
+msgid "No Routers Attached"
+msgstr "No Routers Attached"
+
 msgid "No Routers Found"
 msgstr "No Routers Found"
 
@@ -3108,8 +3213,17 @@ msgstr "No Security Groups Found"
 msgid "No security groups match the current search or filters. Clear the search or filters to view all security groups."
 msgstr "No security groups match the current search or filters. Clear the search or filters to view all security groups."
 
+msgid "No Segmentation Data"
+msgstr "No Segmentation Data"
+
+msgid "No segmentation data available."
+msgstr "No segmentation data available."
+
 msgid "No services available for this project."
 msgstr "No services available for this project."
+
+msgid "No Subnets"
+msgstr "No Subnets"
 
 msgid "No Suggested Images Found"
 msgstr "No Suggested Images Found"
@@ -3348,6 +3462,9 @@ msgstr "Payload must be at most 10,000 bytes"
 msgid "Pending"
 msgstr "Pending"
 
+msgid "Physical Network"
+msgstr "Physical Network"
+
 msgid "Please enter a valid number of minutes greater than 0"
 msgstr "Please enter a valid number of minutes greater than 0"
 
@@ -3395,6 +3512,9 @@ msgstr "Port Not Found"
 
 msgid "Port Range"
 msgstr "Port Range"
+
+msgid "Port Security"
+msgstr "Port Security"
 
 msgid "Ports"
 msgstr "Ports"
@@ -3660,6 +3780,9 @@ msgstr "Router actions"
 msgid "Router ID"
 msgstr "Router ID"
 
+msgid "Router interface"
+msgstr "Router interface"
+
 msgid "Router Not Found"
 msgstr "Router Not Found"
 
@@ -3746,6 +3869,9 @@ msgstr "Search by name"
 
 msgid "Search by name or ID"
 msgstr "Search by name or ID"
+
+msgid "Search by name or ID..."
+msgstr "Search by name or ID..."
 
 msgid "Search containers..."
 msgstr "Search containers..."
@@ -3857,6 +3983,15 @@ msgstr "Security group was successfully shared with project \"{targetTenant}\"."
 
 msgid "Security Groups"
 msgstr "Security Groups"
+
+msgid "Segment Count"
+msgstr "Segment Count"
+
+msgid "Segmentation"
+msgstr "Segmentation"
+
+msgid "Segmentation ID"
+msgstr "Segmentation ID"
 
 msgid "Select"
 msgstr "Select"
@@ -4131,8 +4266,14 @@ msgstr "Sub Status"
 msgid "Subnet"
 msgstr "Subnet"
 
+msgid "Subnet Count"
+msgstr "Subnet Count"
+
 msgid "Subnet ID:"
 msgstr "Subnet ID:"
+
+msgid "Subnets"
+msgstr "Subnets"
 
 msgid "Successfully activated {successCount} of {totalCount} image(s)"
 msgstr "Successfully activated {successCount} of {totalCount} image(s)"
@@ -4314,6 +4455,12 @@ msgstr "The lifecycle configuration has changed. Please refresh and try again."
 msgid "The name \"default\" is reserved for the default security group."
 msgstr "The name \"default\" is reserved for the default security group."
 
+msgid "The network could not be loaded."
+msgstr "The network could not be loaded."
+
+msgid "The network could not be loaded. Try again."
+msgstr "The network could not be loaded. Try again."
+
 msgid "The object will be copied to this path. Navigate folders above to change the destination."
 msgstr "The object will be copied to this path. Navigate folders above to change the destination."
 
@@ -4384,7 +4531,10 @@ msgid "The selected objects will be permanently deleted. This cannot be undone."
 msgstr "The selected objects will be permanently deleted. This cannot be undone."
 
 msgid "The service you're looking for doesn't exist or may have moved. Check the URL or return to the project home."
-msgstr "The service you're looking for doesn't exist or may have moved. Check the URL or return to the project home."
+msgstr "The service you're looking for doesn't exist or may have moved. Check the URL or return to the project home.<<<<<<< HEAD"
+
+msgid "The session has expired. Sign in again to continue."
+msgstr "The session has expired. Sign in again to continue.=======>>>>>>> main"
 
 msgid "The specified project does not exist or you don't have permission to share with it."
 msgstr "The specified project does not exist or you don't have permission to share with it."
@@ -4599,6 +4749,15 @@ msgstr "This key is reserved and managed separately"
 msgid "This member already has access to this image."
 msgstr "This member already has access to this image."
 
+msgid "This network does not exist or has been deleted."
+msgstr "This network does not exist or has been deleted."
+
+msgid "This network has no ports."
+msgstr "This network has no ports."
+
+msgid "This network has no subnets."
+msgstr "This network has no subnets."
+
 msgid "This object and all its versions will be permanently deleted and cannot be restored."
 msgstr "This object and all its versions will be permanently deleted and cannot be restored."
 
@@ -4764,6 +4923,9 @@ msgstr "Unknown domain"
 msgid "Unknown Error"
 msgstr "Unknown Error"
 
+msgid "Up"
+msgstr "Up"
+
 msgid "UP"
 msgstr "UP"
 
@@ -4920,6 +5082,9 @@ msgstr "Versions to delete:"
 msgid "View details"
 msgstr "View details"
 
+msgid "View Details"
+msgstr "View Details"
+
 msgid "View Versions"
 msgstr "View Versions"
 
@@ -5015,6 +5180,9 @@ msgstr "You do not have the necessary permissions to view this Secret."
 
 msgid "You do not have the required permissions to access this port."
 msgstr "You do not have the required permissions to access this port."
+
+msgid "You do not have the required permissions to view networks in this project."
+msgstr "You do not have the required permissions to view networks in this project."
 
 msgid "You do not have the required permissions to view ports in this project."
 msgstr "You do not have the required permissions to view ports in this project."
