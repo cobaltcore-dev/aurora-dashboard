@@ -52,10 +52,10 @@ describe("SecretTableRow", () => {
       expect(screen.getByText("secret-123")).toBeInTheDocument()
     })
 
-    it("renders 'unnamed' when the secret has no name", () => {
+    it("renders '- -' when the secret has no name", () => {
       renderRow({ ...mockSecret, name: null })
 
-      expect(screen.getByText("unnamed")).toBeInTheDocument()
+      expect(screen.getByText("- -")).toBeInTheDocument()
     })
 
     it("renders the status and the secret type", () => {

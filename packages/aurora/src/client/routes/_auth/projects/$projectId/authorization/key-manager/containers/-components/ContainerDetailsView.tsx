@@ -106,7 +106,7 @@ export function ContainerDetailsView({ projectId, containerId }: ContainerDetail
                     className="cursor-pointer"
                   >
                     <DataGridCell>
-                      <div>{ref.name || <em>{t`unnamed`}</em>}</div>
+                      <div>{ref.name || "- -"}</div>
                       <div className="text-xs opacity-60">
                         <ClipboardText text={secretId} />
                       </div>

@@ -4765,9 +4765,6 @@ msgstr ""
 msgid "Unknown Error"
 msgstr ""
 
-msgid "unnamed"
-msgstr ""
-
 msgid "UP"
 msgstr ""
 

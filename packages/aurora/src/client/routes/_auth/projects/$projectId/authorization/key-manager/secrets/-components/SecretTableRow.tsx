@@ -29,7 +29,7 @@ export function SecretTableRow({ secret, canDeleteSecret, onShowDetails, onDelet
   return (
     <DataGridRow onClick={() => onShowDetails(secret)}>
       <DataGridCell>
-        <div>{secret.name ?? <em>{t`unnamed`}</em>}</div>
+        <div>{secret.name ?? "- -"}</div>
         <div className="text-xs opacity-60">
           <ClipboardText text={id} />
         </div>
