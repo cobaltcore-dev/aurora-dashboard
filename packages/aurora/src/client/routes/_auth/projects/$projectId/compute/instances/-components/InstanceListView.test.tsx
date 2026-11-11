@@ -15,12 +15,11 @@ vi.mock("@tanstack/react-router", () => ({
   Link: ({ children }: { children: ReactNode }) => <a>{children}</a>,
 }))
 
-// Rows render ImageNameLink + FlavorLink, which query getImageById /
-// getFlavorsByProjectId; stub both.
+// Rows render FlavorLink, which queries getFlavorsByProjectId; stub it. The
+// list no longer renders an image column, so getImageById is unused here.
 vi.mock("@/client/trpcClient", () => ({
   trpcReact: {
     compute: {
-      getImageById: { useQuery: () => ({ data: undefined, status: "pending", error: null }) },
       getFlavorsByProjectId: { useQuery: () => ({ data: { flavors: [] } }) },
     },
   },
@@ -62,7 +61,7 @@ describe("InstanceListView", () => {
 
   beforeEach(() => vi.clearAllMocks())
 
-  it("renders a row per instance, showing '- -' in the image column until the name resolves", async () => {
+  it("renders a row per instance and never surfaces the image id in the list", async () => {
     await act(async () => {
       render(
         <InstanceListView
@@ -77,10 +76,9 @@ describe("InstanceListView", () => {
       )
     })
     expect(screen.getByText("web-1")).toBeInTheDocument()
-    // Image column shows "- -" while the name query is pending (and for the
-    // boot-from-volume row with image ""); the raw id is never surfaced here.
+    expect(screen.getByText("web-2")).toBeInTheDocument()
+    // The list has no image column; image details live on the detail view only.
     expect(screen.queryByText(/35ffd44f/)).not.toBeInTheDocument()
-    expect(screen.getAllByText("- -").length).toBeGreaterThanOrEqual(2)
     // Power State column renders the label lowercased (CSS capitalizes it for
     // display); RUNNING = power_state 1.
     expect(screen.getAllByText("running").length).toBeGreaterThanOrEqual(1)
