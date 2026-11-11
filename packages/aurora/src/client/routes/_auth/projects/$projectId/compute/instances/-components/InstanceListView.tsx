@@ -57,7 +57,12 @@ export const InstanceListView = ({
 
   return (
     <>
-      <DataGrid columns={COLUMN_COUNT} minContentColumns={[6]} className="instances" data-testid="instances-table">
+      <DataGrid
+        columns={COLUMN_COUNT}
+        minContentColumns={[COLUMN_COUNT - 1]}
+        className="instances"
+        data-testid="instances-table"
+      >
         <DataGridRow>
           <DataGridHeadCell>
             <Trans>Power State</Trans>
