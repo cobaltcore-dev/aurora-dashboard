@@ -63,12 +63,13 @@ describe("SecretListContainer", () => {
       render(<SecretListContainer secrets={mockSecrets} {...defaultProps} />, { wrapper: TestWrapper })
 
       const headers = screen.getAllByRole("columnheader")
-      // Name / ID, Status, Type, Content Types, actions
-      expect(headers).toHaveLength(5)
+      // Name / ID, Status, Type, Payload Content Type, Created, actions
+      expect(headers).toHaveLength(6)
       expect(headers[0]).toHaveTextContent("Name / ID")
       expect(headers[1]).toHaveTextContent("Status")
       expect(headers[2]).toHaveTextContent("Type")
-      expect(headers[3]).toHaveTextContent("Content Types")
+      expect(headers[3]).toHaveTextContent("Payload Content Type")
+      expect(headers[4]).toHaveTextContent("Created")
     })
   })
 
