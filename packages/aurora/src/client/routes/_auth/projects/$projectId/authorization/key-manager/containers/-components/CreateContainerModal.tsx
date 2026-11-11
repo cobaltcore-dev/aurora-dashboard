@@ -193,14 +193,12 @@ export function CreateContainerModal({
               required
               value={type}
               onChange={(v) => handleTypeChange(typeof v === "string" ? v : "generic")}
+              helptext={typeDescriptions[type]}
             >
               {CONTAINER_TYPES.map((containerType) => (
                 <SelectOption key={containerType} value={containerType} label={containerType} />
               ))}
             </Select>
-          </FormRow>
-          <FormRow>
-            <p className="text-sm">{typeDescriptions[type]}</p>
           </FormRow>
         </FormSection>
 
