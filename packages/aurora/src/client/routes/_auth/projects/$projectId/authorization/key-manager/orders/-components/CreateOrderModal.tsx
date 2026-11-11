@@ -166,7 +166,7 @@ export function CreateOrderModal({
       onConfirm={handleConfirm}
       confirmButtonLabel={t`Create`}
       cancelButtonLabel={t`Cancel`}
-      disableConfirmButton={createMutation.isPending}
+      disableConfirmButton={createMutation.isPending || Object.values(validation).some(Boolean)}
       disableCancelButton={createMutation.isPending}
       disableCloseButton={createMutation.isPending}
     >
@@ -186,6 +186,7 @@ export function CreateOrderModal({
               id="name"
               label={t`Name`}
               value={name}
+              maxLength={255}
               onChange={(e) => {
                 setName(e.target.value)
                 setValidation((prev) => ({ ...prev, name: undefined }))

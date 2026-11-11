@@ -167,7 +167,7 @@ export function CreateSecretModal({
       onConfirm={handleConfirm}
       confirmButtonLabel={t`Create`}
       cancelButtonLabel={t`Cancel`}
-      disableConfirmButton={createMutation.isPending}
+      disableConfirmButton={createMutation.isPending || Object.values(validation).some(Boolean)}
       disableCancelButton={createMutation.isPending}
       disableCloseButton={createMutation.isPending}
     >
@@ -188,6 +188,7 @@ export function CreateSecretModal({
               label={t`Name`}
               required
               value={name}
+              maxLength={255}
               onChange={(e) => {
                 setName(e.target.value)
                 clearError("name")
@@ -231,6 +232,7 @@ export function CreateSecretModal({
               id="algorithm"
               label={t`Algorithm`}
               value={algorithm}
+              maxLength={255}
               onChange={(e) => {
                 setAlgorithm(e.target.value)
                 clearError("algorithm")
@@ -246,6 +248,7 @@ export function CreateSecretModal({
               id="mode"
               label={t`Mode`}
               value={mode}
+              maxLength={255}
               onChange={(e) => {
                 setMode(e.target.value)
                 clearError("mode")
@@ -282,6 +285,7 @@ export function CreateSecretModal({
               required
               rows={6}
               value={payload}
+              maxLength={10000}
               onChange={(e) => {
                 setPayload(e.target.value)
                 clearError("payload")

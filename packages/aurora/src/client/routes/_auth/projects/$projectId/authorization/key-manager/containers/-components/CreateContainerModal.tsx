@@ -151,7 +151,7 @@ export function CreateContainerModal({
       onConfirm={handleConfirm}
       confirmButtonLabel={t`Create`}
       cancelButtonLabel={t`Cancel`}
-      disableConfirmButton={createMutation.isPending}
+      disableConfirmButton={createMutation.isPending || Boolean(nameError)}
       disableCancelButton={createMutation.isPending}
       disableCloseButton={createMutation.isPending}
     >
@@ -171,6 +171,7 @@ export function CreateContainerModal({
               id="name"
               label={t`Name`}
               value={name}
+              maxLength={255}
               onChange={(e) => {
                 setName(e.target.value)
                 setNameError(undefined)
