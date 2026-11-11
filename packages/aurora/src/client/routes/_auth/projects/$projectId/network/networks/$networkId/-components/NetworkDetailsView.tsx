@@ -1,0 +1,157 @@
+import { useLoaderData, useRouteContext } from "@tanstack/react-router"
+import { useLingui } from "@lingui/react/macro"
+import { trpcReact } from "@/client/trpcClient"
+import { Stack, TabBar, TabBarItem } from "@cloudoperators/juno-ui-components"
+import { getServiceIndex } from "@/server/Authentication/helpers"
+import type { Network } from "@/server/Network/types/network"
+import { useProjectId } from "@/client/hooks"
+import ClipboardText from "@/client/components/ClipboardText"
+import { TwoColumnDescriptionList, type DetailListItem } from "@/client/components/TwoColumnDescriptionList"
+import { NetworkSubnetsTable } from "./NetworkSubnetsTable"
+import { NetworkSegmentationTab } from "./NetworkSegmentationTab"
+import { NetworkPortsTable } from "./NetworkPortsTable"
+import { NetworkRoutersTab } from "./NetworkRoutersTab"
+
+/** Tabs of the network details view, in display order. The first one is the default. */
+export const NETWORK_DETAILS_TABS = ["segmentation", "subnets", "ports", "routers"] as const
+
+export type NetworkDetailsTab = (typeof NETWORK_DETAILS_TABS)[number]
+
+export const DEFAULT_NETWORK_DETAILS_TAB: NetworkDetailsTab = "segmentation"
+
+export const isNetworkDetailsTab = (value: unknown): value is NetworkDetailsTab =>
+  NETWORK_DETAILS_TABS.includes(value as NetworkDetailsTab)
+
+interface NetworkDetailsViewProps {
+  network: Network
+  /** Active tab, owned by the route's `tab` search param */
+  activeTab: NetworkDetailsTab
+  onTabChange: (tab: NetworkDetailsTab) => void
+}
+
+const formatDateTime = (value?: string): string | undefined => (value ? new Date(value).toLocaleString() : undefined)
+
+export function NetworkDetailsView({ network, activeTab, onTabChange }: NetworkDetailsViewProps) {
+  const { t } = useLingui()
+  const projectId = useProjectId()
+  // Routers deep-link degrades gracefully: only link when the network service is in the catalog and
+  // the Routers scope is enabled (I13) — not merely because the route exists in the build.
+  const { availableServices } = useLoaderData({ from: "/_auth/projects/$projectId" })
+  const { enabledServices, deniedServices } = useRouteContext({ strict: false })
+  const isEnabled = (service: string) =>
+    (!enabledServices || enabledServices.includes(service)) && !deniedServices?.includes(service)
+  const serviceIndex = getServiceIndex(availableServices ?? [])
+  const routersAvailable = Boolean(serviceIndex["network"]) && isEnabled("routers")
+
+  const {
+    data: subnets = [],
+    isLoading: isLoadingSubnets,
+    isError: isSubnetsError,
+    error: subnetsError,
+    refetch: refetchSubnets,
+  } = trpcReact.network.networks.listSubnets.useQuery({ project_id: projectId, network_id: network.id })
+
+  const {
+    data: ports = [],
+    isLoading: isLoadingPorts,
+    isError: isPortsError,
+    error: portsError,
+    refetch: refetchPorts,
+  } = trpcReact.network.networks.listPorts.useQuery({ project_id: projectId, network_id: network.id })
+
+  const yesNo = (value?: boolean | null): string | undefined =>
+    value === undefined || value === null ? undefined : value ? t`Yes` : t`No`
+
+  const enabledDisabled = (value?: boolean | null): string | undefined =>
+    value === undefined || value === null ? undefined : value ? t`Enabled` : t`Disabled`
+
+  const segmentCount =
+    network["provider:network_type"] != null ||
+    network["provider:physical_network"] != null ||
+    network["provider:segmentation_id"] != null
+      ? 1
+      : 0
+
+  const basicInfoItems: DetailListItem[] = [
+    { label: t`Name`, value: network.name },
+    { label: t`ID`, value: <ClipboardText text={network.id} /> },
+    { label: t`Status`, value: network.status.charAt(0) + network.status.slice(1).toLowerCase() },
+    { label: t`Admin State`, value: network.admin_state_up ? t`Up` : t`Down` },
+    // E2: when shared, shows the owning project_id with copy affordance
+    { label: t`Shared`, value: network.shared ? <ClipboardText text={network.project_id} /> : t`No` },
+    { label: t`External`, value: yesNo(network["router:external"]) },
+    { label: t`MTU`, value: network.mtu },
+    { label: t`Port Security`, value: enabledDisabled(network.port_security_enabled) },
+    { label: t`Subnet Count`, value: network.subnets.length },
+    { label: t`Segment Count`, value: segmentCount },
+    { label: t`Availability Zones`, value: network.availability_zones?.join(", ") },
+    { label: t`Description`, value: network.description },
+    { label: t`Tags`, value: network.tags?.join(", ") },
+    { label: t`Created`, value: formatDateTime(network.created_at) },
+    { label: t`Updated`, value: formatDateTime(network.updated_at) },
+  ]
+
+  const tabLabels: Record<NetworkDetailsTab, string> = {
+    segmentation: t`Segmentation`,
+    subnets: t`Subnets`,
+    ports: t`Ports`,
+    routers: t`Routers`,
+  }
+
+  return (
+    <Stack direction="vertical" gap="6" className="mt-6">
+      <TwoColumnDescriptionList items={basicInfoItems} />
+
+      <Stack direction="vertical" gap="4">
+        {/* TabBar keeps its own active item once a tab is clicked, so activeItem keeps it in sync with
+            the URL. `active` only covers the first render, before activeItem is applied. */}
+        <TabBar
+          ariaLabel={t`Network detail sections`}
+          activeItem={activeTab}
+          onActiveItemChange={(value) => isNetworkDetailsTab(value) && onTabChange(value)}
+        >
+          {NETWORK_DETAILS_TABS.map((tab) => (
+            <TabBarItem key={tab} label={tabLabels[tab]} value={tab} active={activeTab === tab} />
+          ))}
+        </TabBar>
+
+        {activeTab === "segmentation" && <NetworkSegmentationTab network={network} />}
+
+        {activeTab === "subnets" && (
+          <NetworkSubnetsTable
+            subnets={subnets}
+            isLoading={isLoadingSubnets}
+            isError={isSubnetsError}
+            error={subnetsError}
+            onRetry={() => refetchSubnets()}
+          />
+        )}
+
+        {/* Mount point for #1404 (Ports) and #1405 (Routers deep-link) */}
+        {activeTab === "ports" && (
+          <NetworkPortsTable
+            ports={ports}
+            isLoading={isLoadingPorts}
+            isError={isPortsError}
+            error={portsError}
+            onRetry={() => refetchPorts()}
+            projectId={projectId}
+            routersAvailable={routersAvailable}
+          />
+        )}
+
+        {activeTab === "routers" && (
+          <NetworkRoutersTab
+            ports={ports}
+            isLoading={isLoadingPorts}
+            isError={isPortsError}
+            error={portsError}
+            onRetry={() => refetchPorts()}
+            projectId={projectId}
+            routersAvailable={routersAvailable}
+          />
+        )}
+      </Stack>
+    </Stack>
+  )
+}

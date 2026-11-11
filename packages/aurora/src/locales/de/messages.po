@@ -175,6 +175,12 @@ msgstr ""
 msgid "{filteredCount, plural, one {{filteredCount} of {totalCount} container} other {{filteredCount} of {totalCount} containers}}"
 msgstr "{filteredCount, plural, one {{filteredCount} von {totalCount} Container} other {{filteredCount} von {totalCount} Containern}}"
 
+msgid "{matchingCount} networks"
+msgstr ""
+
+msgid "{matchingCount} of {totalCount} networks"
+msgstr ""
+
 msgid "{name} (this group)"
 msgstr ""
 
@@ -194,6 +200,9 @@ msgid "{ruleCount, plural, one {Delete CORS Rule} other {Delete CORS Rules}}"
 msgstr ""
 
 msgid "{ruleCount, plural, one {Delete Lifecycle Rule} other {Delete Lifecycle Rules}}"
+msgstr ""
+
+msgid "{segmentCount} segment"
 msgstr ""
 
 msgid "{selectedCount, plural, one {Delete # Object} other {Delete # Objects}}"
@@ -403,6 +412,9 @@ msgstr "Zugriffsstatus:"
 msgid "Access to S3 Object Storage requires an access key (access key ID + secret access key)."
 msgstr ""
 
+msgid "Access to this network is not permitted."
+msgstr ""
+
 msgid "Access to this router is not permitted."
 msgstr ""
 
@@ -529,6 +541,9 @@ msgstr "Floating IP zuweisen"
 msgid "Allocating Floating IP..."
 msgstr "Floating IP wird zugewiesen..."
 
+msgid "Allocation Pools"
+msgstr ""
+
 msgid "Allowed Headers"
 msgstr ""
 
@@ -616,6 +631,9 @@ msgstr "Anhängen"
 msgid "Attach Floating IP {floating_ip_address} to the Port"
 msgstr ""
 
+msgid "Attached Device"
+msgstr ""
+
 msgid "Attaching Floating IP..."
 msgstr ""
 
@@ -629,6 +647,9 @@ msgid "Auto-generated if not provided. Only alphanumeric, hyphens, underscores, 
 msgstr ""
 
 msgid "Availability Zone"
+msgstr ""
+
+msgid "Availability Zones"
 msgstr ""
 
 msgid "Back"
@@ -659,6 +680,9 @@ msgid "Back to Instances"
 msgstr ""
 
 msgid "Back to Key Manager"
+msgstr ""
+
+msgid "Back to Networks"
 msgstr ""
 
 msgid "Back to Ports"
@@ -1447,6 +1471,12 @@ msgstr "Geräte-ID"
 msgid "Device Owner"
 msgstr "Geräteeigentümer"
 
+msgid "DHCP"
+msgstr ""
+
+msgid "DHCP agent"
+msgstr ""
+
 msgid "Direction"
 msgstr "Richtung"
 
@@ -1486,7 +1516,13 @@ msgstr "Der DNS-Name darf höchstens 63 Zeichen lang sein."
 msgid "DNS name must use only letters, digits, and hyphens, and must start and end with a letter or digit."
 msgstr ""
 
+msgid "DNS Nameservers"
+msgstr ""
+
 msgid "Done"
+msgstr ""
+
+msgid "Down"
 msgstr ""
 
 msgid "DOWN"
@@ -1738,6 +1774,9 @@ msgstr ""
 msgid "Error Loading Instance"
 msgstr ""
 
+msgid "Error Loading Network"
+msgstr ""
+
 msgid "Error Loading Port"
 msgstr ""
 
@@ -1787,6 +1826,9 @@ msgid "Expires in {selectedPresetLabel} — at {expiresAtFormatted}"
 msgstr "Läuft ab in {selectedPresetLabel} — um {expiresAtFormatted}"
 
 msgid "Expose Headers"
+msgstr ""
+
+msgid "External"
 msgstr ""
 
 msgid "External Fixed IPs"
@@ -2020,6 +2062,9 @@ msgstr ""
 msgid "Failed to Load Metadata Configuration"
 msgstr ""
 
+msgid "Failed to Load Networks"
+msgstr ""
+
 msgid "Failed to Load Object Metadata"
 msgstr ""
 
@@ -2051,6 +2096,9 @@ msgid "Failed to Load Secrets"
 msgstr ""
 
 msgid "Failed to Load Security Groups"
+msgstr ""
+
+msgid "Failed to Load Subnets"
 msgstr ""
 
 msgid "Failed to Load Versions"
@@ -2191,6 +2239,9 @@ msgstr "Der Flavor-Service ist für dieses Projekt nicht verfügbar."
 msgid "Flavors"
 msgstr "Flavors"
 
+msgid "Floating IP"
+msgstr ""
+
 msgid "Floating IP \"{ip}\" was successfully associated with the port."
 msgstr ""
 
@@ -2299,6 +2350,9 @@ msgstr ""
 msgid "Full path:"
 msgstr ""
 
+msgid "Gateway IP"
+msgstr ""
+
 msgid "General"
 msgstr ""
 
@@ -2360,6 +2414,9 @@ msgid "Home"
 msgstr "Startseite"
 
 msgid "Host"
+msgstr ""
+
+msgid "Host Routes"
 msgstr ""
 
 msgid "How long browsers can cache preflight responses. Common values: 3600 (1 hour), 86400 (1 day), 604800 (1 week)."
@@ -2463,6 +2520,9 @@ msgstr ""
 
 msgid "Inside a project, objects are stored in containers. Containers are where you define access permissions and quotas."
 msgstr "Innerhalb eines Projekts werden Objekte in Containern gespeichert. Container sind der Ort, an dem Sie Zugriffsberechtigungen und Quotas definieren."
+
+msgid "Instance"
+msgstr ""
 
 msgid "Instance Name"
 msgstr ""
@@ -2569,6 +2629,9 @@ msgstr "Zuletzt geändert (UTC)"
 msgid "Last updated: {formattedDate}"
 msgstr "Zuletzt aktualisiert: {formattedDate}"
 
+msgid "Last updated: {lastUpdatedText}"
+msgstr ""
+
 msgid "Latest"
 msgstr ""
 
@@ -2674,6 +2737,12 @@ msgstr ""
 msgid "Loading more..."
 msgstr "Weitere werden geladen..."
 
+msgid "Loading Network Details..."
+msgstr ""
+
+msgid "Loading Networks..."
+msgstr ""
+
 msgid "Loading Object Info..."
 msgstr ""
 
@@ -2724,6 +2793,9 @@ msgstr ""
 
 msgid "Loading Security Group Details..."
 msgstr "Security Group-Details werden geladen..."
+
+msgid "Loading Subnets..."
+msgstr ""
 
 msgid "Loading Versions..."
 msgstr ""
@@ -2869,6 +2941,9 @@ msgstr ""
 msgid "Moving..."
 msgstr "Wird verschoben..."
 
+msgid "MTU"
+msgstr ""
+
 msgid "Must be a valid IPv4 or IPv6 address (for example: 172.24.4.228 or 2001:db8::1)."
 msgstr "Muss eine gültige IPv4- oder IPv6-Adresse sein (z. B.: 172.24.4.228 oder 2001:db8::1)."
 
@@ -2905,10 +2980,22 @@ msgstr "Netzwerk"
 msgid "Network & Routing"
 msgstr "Netzwerk & Routing"
 
+msgid "Network detail sections"
+msgstr ""
+
 msgid "Network ID"
 msgstr "Netzwerk-ID"
 
 msgid "Network Name"
+msgstr ""
+
+msgid "Network Not Found"
+msgstr ""
+
+msgid "Network Type"
+msgstr ""
+
+msgid "Networks"
 msgstr ""
 
 msgid "Never"
@@ -2998,6 +3085,15 @@ msgstr "Kein Limit"
 msgid "No Metadata Properties Found"
 msgstr ""
 
+msgid "No Networks Found"
+msgstr ""
+
+msgid "No networks in this project"
+msgstr ""
+
+msgid "No networks match your filters"
+msgstr ""
+
 msgid "No new versions will be created"
 msgstr ""
 
@@ -3020,6 +3116,9 @@ msgid "No Orders Match Your Search"
 msgstr ""
 
 msgid "No Policy Found"
+msgstr ""
+
+msgid "No Ports"
 msgstr ""
 
 msgid "No Ports Found"
@@ -3055,6 +3154,12 @@ msgstr "Keine RBAC-Richtlinien gefunden"
 msgid "No RBAC policies match your search. Clear the search to view all RBAC policies."
 msgstr "Keine RBAC-Richtlinien entsprechen Ihrer Suche. Löschen Sie die Suche, um alle RBAC-Richtlinien anzuzeigen."
 
+msgid "No routers are attached to this network."
+msgstr ""
+
+msgid "No Routers Attached"
+msgstr ""
+
 msgid "No Routers Found"
 msgstr ""
 
@@ -3085,8 +3190,17 @@ msgstr "Keine Sicherheitsgruppen gefunden"
 msgid "No security groups match the current search or filters. Clear the search or filters to view all security groups."
 msgstr "Keine Sicherheitsgruppen entsprechen der aktuellen Suche oder den Filtern. Löschen Sie Suche oder Filter, um alle Sicherheitsgruppen anzuzeigen."
 
+msgid "No Segmentation Data"
+msgstr ""
+
+msgid "No segmentation data available."
+msgstr ""
+
 msgid "No services available for this project."
 msgstr "Keine Dienste für dieses Projekt verfügbar."
+
+msgid "No Subnets"
+msgstr ""
 
 msgid "No Suggested Images Found"
 msgstr ""
@@ -3328,6 +3442,9 @@ msgstr ""
 msgid "Pending"
 msgstr "Ausstehend"
 
+msgid "Physical Network"
+msgstr ""
+
 msgid "Please enter a valid number of minutes greater than 0"
 msgstr "Bitte geben Sie eine gültige Anzahl von Minuten größer als 0 ein"
 
@@ -3375,6 +3492,9 @@ msgstr ""
 
 msgid "Port Range"
 msgstr "Port-Bereich"
+
+msgid "Port Security"
+msgstr ""
 
 msgid "Ports"
 msgstr ""
@@ -3640,6 +3760,9 @@ msgstr ""
 msgid "Router ID"
 msgstr "Router-ID"
 
+msgid "Router interface"
+msgstr ""
+
 msgid "Router Not Found"
 msgstr ""
 
@@ -3725,6 +3848,9 @@ msgid "Search by name"
 msgstr ""
 
 msgid "Search by name or ID"
+msgstr ""
+
+msgid "Search by name or ID..."
 msgstr ""
 
 msgid "Search containers..."
@@ -3837,6 +3963,15 @@ msgstr ""
 
 msgid "Security Groups"
 msgstr "Security Groups"
+
+msgid "Segment Count"
+msgstr ""
+
+msgid "Segmentation"
+msgstr ""
+
+msgid "Segmentation ID"
+msgstr ""
 
 msgid "Select"
 msgstr "Auswählen"
@@ -4111,7 +4246,13 @@ msgstr ""
 msgid "Subnet"
 msgstr "Subnet"
 
+msgid "Subnet Count"
+msgstr ""
+
 msgid "Subnet ID:"
+msgstr ""
+
+msgid "Subnets"
 msgstr ""
 
 msgid "Successfully activated {successCount} of {totalCount} image(s)"
@@ -4294,6 +4435,12 @@ msgstr ""
 msgid "The name \"default\" is reserved for the default security group."
 msgstr ""
 
+msgid "The network could not be loaded."
+msgstr ""
+
+msgid "The network could not be loaded. Try again."
+msgstr ""
+
 msgid "The object will be copied to this path. Navigate folders above to change the destination."
 msgstr "Das Objekt wird zu diesem Pfad kopiert. Navigieren Sie oben durch die Ordner, um das Ziel zu ändern."
 
@@ -4367,6 +4514,9 @@ msgid "The selected objects will be permanently deleted. This cannot be undone."
 msgstr "Die ausgewählten Objekte werden dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden."
 
 msgid "The service you're looking for doesn't exist or may have moved. Check the URL or return to the project home."
+msgstr ""
+
+msgid "The session has expired. Sign in again to continue."
 msgstr ""
 
 msgid "The specified project does not exist or you don't have permission to share with it."
@@ -4582,6 +4732,15 @@ msgstr "Dieser Schlüssel ist reserviert und wird separat verwaltet"
 msgid "This member already has access to this image."
 msgstr "Dieses Mitglied hat bereits Zugriff auf dieses Image."
 
+msgid "This network does not exist or has been deleted."
+msgstr ""
+
+msgid "This network has no ports."
+msgstr ""
+
+msgid "This network has no subnets."
+msgstr ""
+
 msgid "This object and all its versions will be permanently deleted and cannot be restored."
 msgstr ""
 
@@ -4750,6 +4909,9 @@ msgstr ""
 msgid "unnamed"
 msgstr ""
 
+msgid "Up"
+msgstr ""
+
 msgid "UP"
 msgstr ""
 
@@ -4906,6 +5068,9 @@ msgstr ""
 msgid "View details"
 msgstr ""
 
+msgid "View Details"
+msgstr ""
+
 msgid "View Versions"
 msgstr ""
 
@@ -5000,6 +5165,9 @@ msgid "You do not have the necessary permissions to view this Secret."
 msgstr ""
 
 msgid "You do not have the required permissions to access this port."
+msgstr ""
+
+msgid "You do not have the required permissions to view networks in this project."
 msgstr ""
 
 msgid "You do not have the required permissions to view ports in this project."

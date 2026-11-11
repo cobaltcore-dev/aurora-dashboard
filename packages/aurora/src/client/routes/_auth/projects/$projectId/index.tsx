@@ -72,6 +72,13 @@ function RouteComponent() {
   if (serviceIndex["compute"]?.["nova"] && isEnabled("instances"))
     cards.push({ group: t`Compute`, label: t`Instances`, to: `${base}/compute/instances`, service: "instances" })
   if (serviceIndex["network"]) {
+    if (isEnabled("networks"))
+      cards.push({
+        group: t`Network`,
+        label: t`Networks`,
+        to: `${base}/network/networks`,
+        service: "networks",
+      })
     if (isEnabled("securitygroups"))
       cards.push({
         group: t`Network`,

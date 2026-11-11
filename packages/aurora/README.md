@@ -180,7 +180,7 @@ function MyFooter(_props: SlotProps) {
 
 The `serviceBadge`, `servicePageActions`, and `serviceBanner` slots receive `auroraContext.currentService` — a string identifying which service is being rendered (e.g. `"images"`, `"ceph-containers"`). Return `null` from these slots to suppress rendering for specific services.
 
-**Service key reference:** `"images"`, `"flavors"`, `"securitygroups"`, `"floatingips"`, `"containers"`, `"ceph-containers"`, `"pca"`
+**Service key reference:** `"images"`, `"flavors"`, `"networks"`, `"securitygroups"`, `"floatingips"`, `"containers"`, `"ceph-containers"`, `"pca"`
 
 **Shadow DOM isolation:** Slots rendered in a shadow DOM cannot inherit styles from the host page. If your slot component uses a CSS framework, inject the styles inline:
 
@@ -207,7 +207,7 @@ By default all services available in the OpenStack catalog are shown in the side
 
 Only services whose key appears in the array will be shown. Services absent from the catalog are always hidden regardless of this list.
 
-**Available service keys:** `"images"`, `"flavors"`, `"securitygroups"`, `"floatingips"`, `"containers"`, `"ceph-containers"`, `"pca"`
+**Available service keys:** `"images"`, `"flavors"`, `"networks"`, `"securitygroups"`, `"floatingips"`, `"containers"`, `"ceph-containers"`, `"pca"`
 
 In a Vite-based consumer app you can drive this from an environment variable:
 
