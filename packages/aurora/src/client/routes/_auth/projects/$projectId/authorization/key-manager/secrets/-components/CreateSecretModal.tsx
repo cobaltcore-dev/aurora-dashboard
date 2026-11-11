@@ -190,8 +190,11 @@ export function CreateSecretModal({
               value={name}
               maxLength={255}
               onChange={(e) => {
-                setName(e.target.value)
-                clearError("name")
+                const val = e.target.value
+                setName(val)
+                if (val.length >= 255)
+                  setValidation((prev) => ({ ...prev, name: t`Name must be at most 255 characters` }))
+                else clearError("name")
               }}
               onBlur={() => handleBlur("name")}
               invalid={Boolean(validation.name)}
@@ -234,8 +237,11 @@ export function CreateSecretModal({
               value={algorithm}
               maxLength={255}
               onChange={(e) => {
-                setAlgorithm(e.target.value)
-                clearError("algorithm")
+                const val = e.target.value
+                setAlgorithm(val)
+                if (val.length >= 255)
+                  setValidation((prev) => ({ ...prev, algorithm: t`Algorithm must be at most 255 characters` }))
+                else clearError("algorithm")
               }}
               onBlur={() => handleBlur("algorithm")}
               invalid={Boolean(validation.algorithm)}
@@ -250,8 +256,11 @@ export function CreateSecretModal({
               value={mode}
               maxLength={255}
               onChange={(e) => {
-                setMode(e.target.value)
-                clearError("mode")
+                const val = e.target.value
+                setMode(val)
+                if (val.length >= 255)
+                  setValidation((prev) => ({ ...prev, mode: t`Mode must be at most 255 characters` }))
+                else clearError("mode")
               }}
               onBlur={() => handleBlur("mode")}
               invalid={Boolean(validation.mode)}
@@ -287,8 +296,11 @@ export function CreateSecretModal({
               value={payload}
               maxLength={10000}
               onChange={(e) => {
-                setPayload(e.target.value)
-                clearError("payload")
+                const val = e.target.value
+                setPayload(val)
+                if (val.length >= 10000)
+                  setValidation((prev) => ({ ...prev, payload: t`Payload must be at most 10,000 bytes` }))
+                else clearError("payload")
               }}
               onBlur={() => handleBlur("payload")}
               invalid={Boolean(validation.payload)}
