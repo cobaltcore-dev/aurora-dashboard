@@ -56,11 +56,11 @@ export const CreateSecurityGroupModal: React.FC<CreateSecurityGroupModalProps> =
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }))
-    // Clear error for this field when user changes the value
-    setErrors((prev) => ({
-      ...prev,
-      [name]: undefined,
-    }))
+    // #1426: show an error as soon as it disables the confirm button, not only on blur
+    if (VALIDATED_FIELDS.includes(name as SecurityGroupFormField)) {
+      const field = name as SecurityGroupFormField
+      setErrors((prev) => ({ ...prev, [field]: validateSecurityGroupField(field, value, t) }))
+    }
   }
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {

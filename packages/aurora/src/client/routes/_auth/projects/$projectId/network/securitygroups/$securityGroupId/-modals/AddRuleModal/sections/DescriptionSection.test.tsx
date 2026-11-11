@@ -105,16 +105,19 @@ describe("DescriptionSection", () => {
   })
 
   describe("Validation", () => {
-    test("rejects a description longer than 255 characters once the field is left", async () => {
+    test("shows no error before the description is edited", () => {
+      render(<TestWrapper />)
+
+      expect(screen.queryByText("Description must be at most 255 characters long.")).not.toBeInTheDocument()
+    })
+
+    test("rejects a description longer than 255 characters as soon as the limit is exceeded", async () => {
       const user = userEvent.setup()
       render(<TestWrapper />)
 
-      const textarea = screen.getByLabelText(/Description/i)
-      await user.click(textarea)
+      await user.click(screen.getByLabelText(/Description/i))
       await user.paste("d".repeat(256))
-      expect(screen.queryByText("Description must be at most 255 characters long.")).not.toBeInTheDocument()
 
-      fireEvent.blur(textarea)
       expect(await screen.findByText("Description must be at most 255 characters long.")).toBeInTheDocument()
     })
 

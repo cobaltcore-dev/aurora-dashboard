@@ -1,4 +1,4 @@
-import { FormRow, RadioGroup, Radio } from "@cloudoperators/juno-ui-components"
+import { FormRow, FormSection, RadioGroup, Radio } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
 import type { AddRuleFormApi } from "../AddRuleModal"
 
@@ -11,26 +11,31 @@ export function DirectionSection({ form, disabled = false }: DirectionSectionPro
   const { t } = useLingui()
 
   return (
-    <form.Field name="direction">
-      {(directionField) => (
-        <FormRow>
-          <RadioGroup
-            name="direction"
-            label={t`Direction`}
-            selected={directionField.state.value}
-            onChange={(value) => directionField.handleChange(String(value) as "ingress" | "egress")}
-            required
-            disabled={disabled}
-            helptext={t`Ingress: traffic coming in to the instances. Egress: traffic going out of them.`}
-          >
-            <div className="flex gap-4">
-              <Radio value="ingress" label={t`Ingress`} />
-              <Radio value="egress" label={t`Egress`} />
-            </div>
-          </RadioGroup>
-        </FormRow>
-      )}
-    </form.Field>
+    // #1426: a titled section like Remote; the title is the group's visible label
+    <FormSection title={t`Direction`}>
+      <form.Field name="direction">
+        {(directionField) => (
+          <FormRow>
+            <RadioGroup
+              name="direction"
+              // Juno shows the required marker only with a visible label, so keep it for screen readers
+              aria-label={t`Direction`}
+              aria-required
+              selected={directionField.state.value}
+              onChange={(value) => directionField.handleChange(String(value) as "ingress" | "egress")}
+              required
+              disabled={disabled}
+              helptext={t`Ingress: traffic coming in to the instances. Egress: traffic going out of them.`}
+            >
+              <div className="flex gap-4">
+                <Radio value="ingress" label={t`Ingress`} />
+                <Radio value="egress" label={t`Egress`} />
+              </div>
+            </RadioGroup>
+          </FormRow>
+        )}
+      </form.Field>
+    </FormSection>
   )
 }
 
