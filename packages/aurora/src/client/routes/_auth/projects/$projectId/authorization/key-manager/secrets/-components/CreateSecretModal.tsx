@@ -259,7 +259,7 @@ export function CreateSecretModal({
           <FormRow>
             <Select
               id="secret-type"
-              label={t`Secret Type`}
+              label={t`Type`}
               required
               value={secretType}
               placeholder={t`Select...`}
