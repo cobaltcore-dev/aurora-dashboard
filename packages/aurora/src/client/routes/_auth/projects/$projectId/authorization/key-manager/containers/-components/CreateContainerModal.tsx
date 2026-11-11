@@ -35,6 +35,7 @@ export function CreateContainerModal({
   const queryClient = useQueryClient()
   const utils = trpcReact.useUtils()
   const [name, setName] = useState("")
+  const [nameError, setNameError] = useState<string | undefined>()
   const [type, setType] = useState<Container["type"]>("generic")
   // RSA / Certificate: maps field name → selected secret_ref URI
   const [namedRefs, setNamedRefs] = useState<Record<string, string>>({})
@@ -109,6 +110,11 @@ export function CreateContainerModal({
   }
 
   const handleConfirm = () => {
+    if (name.length > 255) {
+      setNameError(t`Name must be at most 255 characters`)
+      return
+    }
+    setNameError(undefined)
     const error = validate()
     if (error) {
       setValidationError(error)
@@ -165,8 +171,16 @@ export function CreateContainerModal({
               id="name"
               label={t`Name`}
               value={name}
-              onChange={(e) => setName(e.target.value)}
-              helptext={t`Optional. A friendly name for the container.`}
+              onChange={(e) => {
+                setName(e.target.value)
+                setNameError(undefined)
+              }}
+              onBlur={() => {
+                if (name.length > 255) setNameError(t`Name must be at most 255 characters`)
+              }}
+              invalid={Boolean(nameError)}
+              errortext={nameError}
+              helptext={t`${name.length}/255 characters. Optional. A friendly name for the container.`}
             />
           </FormRow>
           <FormRow>

@@ -89,9 +89,27 @@ msgstr "{0, plural, one {Image cannot be deleted (#)} other {Images cannot be de
 msgid "{0, plural, one {Object:} other {Objects to delete:}}"
 msgstr "{0, plural, one {Object:} other {Objects to delete:}}"
 
+#. placeholder {0}: payload.length
+msgid "{0}/10,000 bytes. The secret's data to be stored."
+msgstr "{0}/10,000 bytes. The secret's data to be stored."
+
+#. placeholder {0}: name.length
 #. placeholder {0}: properties.name.length
 msgid "{0}/255 characters"
 msgstr "{0}/255 characters"
+
+#. placeholder {0}: algorithm.length
+#. placeholder {0}: mode.length
+msgid "{0}/255 characters. Metadata for informational purposes."
+msgstr "{0}/255 characters. Metadata for informational purposes."
+
+#. placeholder {0}: name.length
+msgid "{0}/255 characters. Optional. A friendly name for the container."
+msgstr "{0}/255 characters. Optional. A friendly name for the container."
+
+#. placeholder {0}: name.length
+msgid "{0}/255 characters. Optional. Names the secret this order generates."
+msgstr "{0}/255 characters. Optional. Names the secret this order generates."
 
 msgid "{activeCount, plural, one {Deactivate # Image} other {Deactivate # Images}}"
 msgstr "{activeCount, plural, one {Deactivate # Image} other {Deactivate # Images}}"
@@ -498,6 +516,9 @@ msgstr "Algorithm"
 
 msgid "Algorithm is required."
 msgstr "Algorithm is required."
+
+msgid "Algorithm must be at most 255 characters"
+msgstr "Algorithm must be at most 255 characters"
 
 msgid "All"
 msgstr "All"
@@ -2806,9 +2827,6 @@ msgstr "Member \"{trimmedMemberId}\" has been added successfully."
 msgid "Metadata"
 msgstr "Metadata"
 
-msgid "Metadata for informational purposes."
-msgstr "Metadata for informational purposes."
-
 msgid "Metadata for informational purposes. Value must be greater than zero."
 msgstr "Metadata for informational purposes. Value must be greater than zero."
 
@@ -2851,6 +2869,9 @@ msgstr "Minimum RAM required to boot this image"
 msgid "Mode"
 msgstr "Mode"
 
+msgid "Mode must be at most 255 characters"
+msgstr "Mode must be at most 255 characters"
+
 msgid "More Actions"
 msgstr "More Actions"
 
@@ -2892,6 +2913,9 @@ msgstr "Name is required"
 
 msgid "Name must be 2-50 characters long."
 msgstr "Name must be 2-50 characters long."
+
+msgid "Name must be at most 255 characters"
+msgstr "Name must be at most 255 characters"
 
 msgid "Name must be at most 255 characters long."
 msgstr "Name must be at most 255 characters long."
@@ -3235,17 +3259,11 @@ msgstr "Optional identifier for this rule (max 255 characters)."
 msgid "Optional unique identifier for the rule (max 255 characters)"
 msgstr "Optional unique identifier for the rule (max 255 characters)"
 
-msgid "Optional. A friendly name for the container."
-msgstr "Optional. A friendly name for the container."
-
 msgid "Optional. If set, the generated secret will not be available after this UTC timestamp."
 msgstr "Optional. If set, the generated secret will not be available after this UTC timestamp."
 
 msgid "Optional. If set, the secret will not be available after this UTC timestamp."
 msgstr "Optional. If set, the secret will not be available after this UTC timestamp."
-
-msgid "Optional. Names the secret this order generates."
-msgstr "Optional. Names the secret this order generates."
 
 msgid "Optional. Up to 255 characters."
 msgstr "Optional. Up to 255 characters."
@@ -3324,6 +3342,9 @@ msgstr "Payload content type is required"
 
 msgid "Payload is required"
 msgstr "Payload is required"
+
+msgid "Payload must be at most 10,000 bytes"
+msgstr "Payload must be at most 10,000 bytes"
 
 msgid "Pending"
 msgstr "Pending"
@@ -4347,9 +4368,6 @@ msgstr "The secret \"{secretName}\" will be permanently deleted. This action can
 
 msgid "The secret was successfully created."
 msgstr "The secret was successfully created."
-
-msgid "The secret's data to be stored."
-msgstr "The secret's data to be stored."
 
 msgid "The security group \"{securityGroupName}\" will be permanently deleted. This action cannot be undone."
 msgstr "The security group \"{securityGroupName}\" will be permanently deleted. This action cannot be undone."

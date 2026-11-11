@@ -89,8 +89,26 @@ msgstr ""
 msgid "{0, plural, one {Object:} other {Objects to delete:}}"
 msgstr ""
 
+#. placeholder {0}: payload.length
+msgid "{0}/10,000 bytes. The secret's data to be stored."
+msgstr ""
+
+#. placeholder {0}: name.length
 #. placeholder {0}: properties.name.length
 msgid "{0}/255 characters"
+msgstr ""
+
+#. placeholder {0}: algorithm.length
+#. placeholder {0}: mode.length
+msgid "{0}/255 characters. Metadata for informational purposes."
+msgstr ""
+
+#. placeholder {0}: name.length
+msgid "{0}/255 characters. Optional. A friendly name for the container."
+msgstr ""
+
+#. placeholder {0}: name.length
+msgid "{0}/255 characters. Optional. Names the secret this order generates."
 msgstr ""
 
 msgid "{activeCount, plural, one {Deactivate # Image} other {Deactivate # Images}}"
@@ -497,6 +515,9 @@ msgid "Algorithm"
 msgstr ""
 
 msgid "Algorithm is required."
+msgstr ""
+
+msgid "Algorithm must be at most 255 characters"
 msgstr ""
 
 msgid "All"
@@ -2806,9 +2827,6 @@ msgstr "Mitglied \"{trimmedMemberId}\" wurde erfolgreich hinzugefügt."
 msgid "Metadata"
 msgstr "Metadata"
 
-msgid "Metadata for informational purposes."
-msgstr ""
-
 msgid "Metadata for informational purposes. Value must be greater than zero."
 msgstr ""
 
@@ -2849,6 +2867,9 @@ msgid "Minimum RAM required to boot this image"
 msgstr "Minimaler RAM, der zum Booten dieses Images erforderlich ist"
 
 msgid "Mode"
+msgstr ""
+
+msgid "Mode must be at most 255 characters"
 msgstr ""
 
 msgid "More Actions"
@@ -2892,6 +2913,9 @@ msgstr ""
 
 msgid "Name must be 2-50 characters long."
 msgstr "Der Name muss 2-50 Zeichen lang sein."
+
+msgid "Name must be at most 255 characters"
+msgstr ""
 
 msgid "Name must be at most 255 characters long."
 msgstr ""
@@ -3235,16 +3259,10 @@ msgstr ""
 msgid "Optional unique identifier for the rule (max 255 characters)"
 msgstr ""
 
-msgid "Optional. A friendly name for the container."
-msgstr ""
-
 msgid "Optional. If set, the generated secret will not be available after this UTC timestamp."
 msgstr ""
 
 msgid "Optional. If set, the secret will not be available after this UTC timestamp."
-msgstr ""
-
-msgid "Optional. Names the secret this order generates."
 msgstr ""
 
 msgid "Optional. Up to 255 characters."
@@ -3323,6 +3341,9 @@ msgid "Payload content type is required"
 msgstr ""
 
 msgid "Payload is required"
+msgstr ""
+
+msgid "Payload must be at most 10,000 bytes"
 msgstr ""
 
 msgid "Pending"
@@ -4346,9 +4367,6 @@ msgid "The secret \"{secretName}\" will be permanently deleted. This action cann
 msgstr ""
 
 msgid "The secret was successfully created."
-msgstr ""
-
-msgid "The secret's data to be stored."
 msgstr ""
 
 msgid "The security group \"{securityGroupName}\" will be permanently deleted. This action cannot be undone."

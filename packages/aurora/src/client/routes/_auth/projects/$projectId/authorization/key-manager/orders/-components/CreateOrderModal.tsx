@@ -62,6 +62,7 @@ const defaultBitLengthFor = (algorithm: string): string => {
 }
 
 interface OrderValidation {
+  name?: string
   algorithm?: string
   bit_length?: string
   expiration?: string
@@ -110,6 +111,9 @@ export function CreateOrderModal({
 
   const validate = (): OrderValidation => {
     const errors: OrderValidation = {}
+    if (name.length > 255) {
+      errors.name = t`Name must be at most 255 characters`
+    }
     if (!algorithm) {
       errors.algorithm = t`Algorithm is required.`
     }
@@ -177,8 +181,17 @@ export function CreateOrderModal({
               id="name"
               label={t`Name`}
               value={name}
-              onChange={(e) => setName(e.target.value)}
-              helptext={t`Optional. Names the secret this order generates.`}
+              onChange={(e) => {
+                setName(e.target.value)
+                setValidation((prev) => ({ ...prev, name: undefined }))
+              }}
+              onBlur={() => {
+                if (name.length > 255)
+                  setValidation((prev) => ({ ...prev, name: t`Name must be at most 255 characters` }))
+              }}
+              invalid={Boolean(validation.name)}
+              errortext={validation.name}
+              helptext={t`${name.length}/255 characters. Optional. Names the secret this order generates.`}
             />
           </FormRow>
           <FormRow>

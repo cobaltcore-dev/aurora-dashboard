@@ -40,6 +40,8 @@ interface SecretValidation {
   payload?: string
   payload_content_type?: string
   expiration?: string
+  algorithm?: string
+  mode?: string
 }
 
 export function CreateSecretModal({
@@ -88,15 +90,25 @@ export function CreateSecretModal({
   const validateField = (field: keyof SecretValidation): string | undefined => {
     switch (field) {
       case "name":
-        return name.trim() ? undefined : t`Name is required`
+        if (!name.trim()) return t`Name is required`
+        if (name.length > 255) return t`Name must be at most 255 characters`
+        return undefined
       case "secret_type":
         return secretType ? undefined : t`Secret type is required`
       case "payload":
-        return payload.trim() ? undefined : t`Payload is required`
+        if (!payload.trim()) return t`Payload is required`
+        if (payload.length > 10000) return t`Payload must be at most 10,000 bytes`
+        return undefined
       case "payload_content_type":
         return payloadContentType ? undefined : t`Payload content type is required`
       case "expiration":
         return expiration && new Date(expiration) <= new Date() ? t`Expiration must be in the future` : undefined
+      case "algorithm":
+        if (algorithm.length > 255) return t`Algorithm must be at most 255 characters`
+        return undefined
+      case "mode":
+        if (mode.length > 255) return t`Mode must be at most 255 characters`
+        return undefined
       default:
         return undefined
     }
@@ -112,7 +124,15 @@ export function CreateSecretModal({
 
   const validate = (): SecretValidation => {
     const errors: SecretValidation = {}
-    for (const field of ["name", "secret_type", "payload", "payload_content_type", "expiration"] as const) {
+    for (const field of [
+      "name",
+      "secret_type",
+      "payload",
+      "payload_content_type",
+      "expiration",
+      "algorithm",
+      "mode",
+    ] as const) {
       const error = validateField(field)
       if (error) errors[field] = error
     }
@@ -175,6 +195,7 @@ export function CreateSecretModal({
               onBlur={() => handleBlur("name")}
               invalid={Boolean(validation.name)}
               errortext={validation.name}
+              helptext={t`${name.length}/255 characters`}
             />
           </FormRow>
           <FormRow>
@@ -210,8 +231,14 @@ export function CreateSecretModal({
               id="algorithm"
               label={t`Algorithm`}
               value={algorithm}
-              onChange={(e) => setAlgorithm(e.target.value)}
-              helptext={t`Metadata for informational purposes.`}
+              onChange={(e) => {
+                setAlgorithm(e.target.value)
+                clearError("algorithm")
+              }}
+              onBlur={() => handleBlur("algorithm")}
+              invalid={Boolean(validation.algorithm)}
+              errortext={validation.algorithm}
+              helptext={t`${algorithm.length}/255 characters. Metadata for informational purposes.`}
             />
           </FormRow>
           <FormRow>
@@ -219,8 +246,14 @@ export function CreateSecretModal({
               id="mode"
               label={t`Mode`}
               value={mode}
-              onChange={(e) => setMode(e.target.value)}
-              helptext={t`Metadata for informational purposes.`}
+              onChange={(e) => {
+                setMode(e.target.value)
+                clearError("mode")
+              }}
+              onBlur={() => handleBlur("mode")}
+              invalid={Boolean(validation.mode)}
+              errortext={validation.mode}
+              helptext={t`${mode.length}/255 characters. Metadata for informational purposes.`}
             />
           </FormRow>
           <FormRow>
@@ -256,7 +289,7 @@ export function CreateSecretModal({
               onBlur={() => handleBlur("payload")}
               invalid={Boolean(validation.payload)}
               errortext={validation.payload}
-              helptext={validation.payload ? undefined : t`The secret's data to be stored.`}
+              helptext={t`${payload.length}/10,000 bytes. The secret's data to be stored.`}
             />
           </FormRow>
           <FormRow>
