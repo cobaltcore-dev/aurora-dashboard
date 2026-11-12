@@ -197,7 +197,7 @@ export function CreateSecretModal({
               onChange={(e) => {
                 const val = e.target.value
                 setName(val)
-                if (val.length >= 255)
+                if (val.length > 255)
                   setValidation((prev) => ({ ...prev, name: t`Name must be at most 255 characters` }))
                 else clearError("name")
               }}
@@ -253,7 +253,7 @@ export function CreateSecretModal({
               onChange={(e) => {
                 const val = e.target.value
                 setAlgorithm(val)
-                if (val.length >= 255)
+                if (val.length > 255)
                   setValidation((prev) => ({ ...prev, algorithm: t`Algorithm must be at most 255 characters` }))
                 else clearError("algorithm")
               }}
@@ -271,7 +271,7 @@ export function CreateSecretModal({
               onChange={(e) => {
                 const val = e.target.value
                 setMode(val)
-                if (val.length >= 255)
+                if (val.length > 255)
                   setValidation((prev) => ({ ...prev, mode: t`Mode must be at most 255 characters` }))
                 else clearError("mode")
               }}
@@ -310,7 +310,7 @@ export function CreateSecretModal({
               onChange={(e) => {
                 const val = e.target.value
                 setPayload(val)
-                if (val.length >= 10000)
+                if (val.length > 10000)
                   setValidation((prev) => ({ ...prev, payload: t`Payload must be at most 10,000 bytes` }))
                 else clearError("payload")
               }}

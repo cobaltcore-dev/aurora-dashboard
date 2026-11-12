@@ -174,7 +174,7 @@ export function CreateContainerModal({
               onChange={(e) => {
                 const val = e.target.value
                 setName(val)
-                if (val.length >= 255) setNameError(t`Name must be at most 255 characters`)
+                if (val.length > 255) setNameError(t`Name must be at most 255 characters`)
                 else setNameError(undefined)
               }}
               onBlur={() => {

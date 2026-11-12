@@ -189,7 +189,7 @@ export function CreateOrderModal({
               onChange={(e) => {
                 const val = e.target.value
                 setName(val)
-                if (val.length >= 255)
+                if (val.length > 255)
                   setValidation((prev) => ({ ...prev, name: t`Name must be at most 255 characters` }))
                 else setValidation((prev) => ({ ...prev, name: undefined }))
               }}
