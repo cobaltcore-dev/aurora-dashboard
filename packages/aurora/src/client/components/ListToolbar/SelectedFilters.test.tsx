@@ -56,6 +56,23 @@ describe("SelectedFilters", () => {
     expect(pills.length).toBeGreaterThan(0)
   })
 
+  it("displays sentence-case status pills while deleting the raw filter", async () => {
+    const user = userEvent.setup()
+    const selectedFilter = { name: "power_state", value: "RUNNING" }
+    setup({
+      selectedFilters: [selectedFilter],
+      filters: [{ displayName: "Power State", filterName: "power_state", values: ["Running"] }],
+      onDelete: mockOnDelete,
+      onClear: mockOnClear,
+    })
+    expect(screen.getByText("RUNNING").closest(".juno-pill")).toHaveClass(
+      "[&>.pill-value]:lowercase",
+      "[&>.pill-value]:first-letter:uppercase"
+    )
+    await user.click(screen.getByRole("button"))
+    expect(mockOnDelete).toHaveBeenCalledWith(selectedFilter)
+  })
+
   it("calls onDelete with correct filter when close button is clicked", async () => {
     const user = userEvent.setup()
     setup({ selectedFilters: mockFilters, onDelete: mockOnDelete, onClear: mockOnClear })

@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { StatusLabel } from "@/client/components/StatusLabel"
 import {
   DataGrid,
   DataGridHeadCell,
@@ -194,7 +195,9 @@ export function LifecycleRulesTable({
                   </DataGridCell>
                 )}
                 <DataGridCell>{rule.ID || t`—`}</DataGridCell>
-                <DataGridCell>{rule.Status}</DataGridCell>
+                <DataGridCell>
+                  <StatusLabel value={rule.Status} />
+                </DataGridCell>
                 <DataGridCell className="break-all">{formatFilter(rule.Filter, rule.Prefix)}</DataGridCell>
                 <DataGridCell>
                   {formatExpiration(

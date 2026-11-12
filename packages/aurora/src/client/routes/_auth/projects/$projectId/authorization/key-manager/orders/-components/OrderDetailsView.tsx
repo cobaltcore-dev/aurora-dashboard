@@ -5,10 +5,8 @@ import { trpcReact } from "@/client/trpcClient"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import { TwoColumnDescriptionList, type DetailListItem } from "@/client/components/TwoColumnDescriptionList"
 import ClipboardText from "@/client/components/ClipboardText"
-import {
-  uuidFromRef,
-  toMixedCase,
-} from "@/client/routes/_auth/projects/$projectId/authorization/key-manager/-components/keyManagerUtils"
+import { uuidFromRef } from "@/client/routes/_auth/projects/$projectId/authorization/key-manager/-components/keyManagerUtils"
+import { StatusLabel } from "@/client/components/StatusLabel"
 import { useKeyManagerPermissions } from "@/client/routes/_auth/projects/$projectId/authorization/key-manager/-components/useKeyManagerPermissions"
 
 interface OrderDetailsViewProps {
@@ -46,11 +44,14 @@ export function OrderDetailsView({ projectId, orderId }: OrderDetailsViewProps) 
   if (isError) return <Status status="error" title={error?.message ?? t`Failed to Load Order`} />
   if (!order) return <Status status="empty" title={t`Order Not Found`} />
 
-  const subStatus = order.sub_status
-    ? order.sub_status_message
-      ? `${toMixedCase(order.sub_status)}: ${order.sub_status_message}`
-      : toMixedCase(order.sub_status)
-    : "- -"
+  const subStatus = order.sub_status ? (
+    <>
+      <StatusLabel value={order.sub_status} />
+      {order.sub_status_message && `: ${order.sub_status_message}`}
+    </>
+  ) : (
+    "- -"
+  )
 
   const generatedSecretId = order.secret_ref ? uuidFromRef(order.secret_ref) : null
   const generatedSecretName = typeof order.meta?.name === "string" ? order.meta.name : null
@@ -59,7 +60,7 @@ export function OrderDetailsView({ projectId, orderId }: OrderDetailsViewProps) 
     { label: t`ID`, value: <ClipboardText text={orderId} /> },
     { label: t`Reference`, value: <ClipboardText text={order.order_ref} /> },
     { label: t`Type`, value: order.type },
-    { label: t`Status`, value: toMixedCase(order.status) },
+    { label: t`Status`, value: <StatusLabel value={order.status} /> },
     { label: t`Sub Status`, value: subStatus },
     {
       label: t`Secret`,

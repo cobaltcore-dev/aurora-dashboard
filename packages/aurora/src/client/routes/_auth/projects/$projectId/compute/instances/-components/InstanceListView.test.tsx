@@ -79,9 +79,8 @@ describe("InstanceListView", () => {
     expect(screen.getByText("web-2")).toBeInTheDocument()
     // The list has no image column; image details live on the detail view only.
     expect(screen.queryByText(/35ffd44f/)).not.toBeInTheDocument()
-    // Power State column renders the label lowercased (CSS capitalizes it for
-    // display); RUNNING = power_state 1.
-    expect(screen.getAllByText("running").length).toBeGreaterThanOrEqual(1)
+    // Numeric states map to uppercase labels; Tailwind controls display casing.
+    expect(screen.getAllByText("RUNNING")[0]).toHaveClass("lowercase", "first-letter:uppercase")
   })
 
   it("renders the empty state when there are no instances", async () => {

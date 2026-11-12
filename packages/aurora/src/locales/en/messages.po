@@ -394,8 +394,8 @@ msgstr "Access Revoked"
 msgid "Access Status"
 msgstr "Access Status"
 
-msgid "Access status updated to \"{newStatus}\"."
-msgstr "Access status updated to \"{newStatus}\"."
+msgid "Access status updated to \"<0/>\"."
+msgstr "Access status updated to \"<0/>\"."
 
 msgid "Access Status:"
 msgstr "Access Status:"

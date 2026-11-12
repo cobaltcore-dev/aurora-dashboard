@@ -72,13 +72,10 @@ describe("ImageDetailsView", () => {
       expect(screen.getByText("Updated At")).toBeInTheDocument()
     })
 
-    it("should render StatusBadge component with correct status", () => {
+    it("should render the sentence-case status label", () => {
       setup(<GeneralImageData image={mockImage} />)
 
-      // StatusBadge shows icon and status text for active status
-      const statusBadge = screen.getByText(`${mockImage.status}`).parentElement
-      expect(statusBadge).toBeInTheDocument()
-      expect(screen.getByText(`${mockImage.status}`)).toBeInTheDocument()
+      expect(screen.getByText("active")).toHaveClass("lowercase", "first-letter:uppercase")
     })
 
     it("should render SizeDisplay component with correct size", () => {

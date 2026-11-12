@@ -58,7 +58,7 @@ describe("ActivateImageModal", () => {
     setup(true)
     expect(screen.getByText("Test Image")).toBeInTheDocument()
     expect(screen.getByText("test-id")).toBeInTheDocument()
-    expect(screen.getByText("deactivated")).toBeInTheDocument()
+    expect(screen.getByText("deactivated")).toHaveClass("lowercase", "first-letter:uppercase")
     expect(screen.getByText("private")).toBeInTheDocument()
     expect(screen.getByText("qcow2")).toBeInTheDocument()
   })
