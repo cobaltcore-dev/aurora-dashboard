@@ -128,7 +128,10 @@ export function OrdersList({ projectId, search, page, onSearchChange, onPageChan
                 <Button
                   label={t`Update`}
                   size="xs"
-                  onClick={() => void allQuery.refetch()}
+                  onClick={async () => {
+                    await utils.keyManager.listOrders.invalidate()
+                    await allQuery.refetch()
+                  }}
                   disabled={allQuery.isFetching}
                 />
               </Stack>

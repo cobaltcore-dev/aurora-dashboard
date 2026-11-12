@@ -134,7 +134,10 @@ export function ContainersList({
                 <Button
                   label={t`Update`}
                   size="xs"
-                  onClick={() => void allQuery.refetch()}
+                  onClick={async () => {
+                    await utils.keyManager.listContainers.invalidate()
+                    await allQuery.refetch()
+                  }}
                   disabled={allQuery.isFetching}
                 />
               </Stack>
