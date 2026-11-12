@@ -1011,9 +1011,6 @@ msgstr ""
 msgid "Content type"
 msgstr "Content type"
 
-msgid "Content Types"
-msgstr ""
-
 msgid "Copied to clipboard!"
 msgstr "In die Zwischenablage kopiert!"
 

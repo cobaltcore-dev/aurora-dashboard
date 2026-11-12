@@ -112,7 +112,7 @@ export function SecretDetailsView({ projectId, secretId }: SecretDetailsViewProp
     { label: t`Algorithm`, value: secret.algorithm ?? "- -" },
     { label: t`Bit Length`, value: secret.bit_length ?? "- -" },
     { label: t`Mode`, value: secret.mode ?? "- -" },
-    { label: t`Content Types`, value: contentTypes },
+    { label: t`Payload Content Type`, value: contentTypes },
     { label: t`Expiration`, value: secret.expiration ? new Date(secret.expiration).toLocaleString() : t`Never` },
     { label: t`Created`, value: new Date(secret.created).toLocaleString() },
     { label: t`Updated`, value: new Date(secret.updated).toLocaleString() },

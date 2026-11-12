@@ -1011,9 +1011,6 @@ msgstr "Containers to be emptied:"
 msgid "Content type"
 msgstr "Content type"
 
-msgid "Content Types"
-msgstr "Content Types"
-
 msgid "Copied to clipboard!"
 msgstr "Copied to clipboard!"
 
