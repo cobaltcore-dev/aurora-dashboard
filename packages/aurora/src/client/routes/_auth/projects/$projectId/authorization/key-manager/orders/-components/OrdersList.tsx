@@ -106,11 +106,7 @@ export function OrdersList({ projectId, search, page, onSearchChange, onPageChan
           </Stack>
 
           <DataGridToolbar>
-            <Stack distribution="between" alignment="center" className="jn:text-sm">
-              <span className="jn:theme-color-text-light">
-                {t`Showing ${totalCount} orders`}
-                {lastUpdated && <> · {t`Last updated: ${lastUpdated}`}</>}
-              </span>
+            <Stack distribution="end" alignment="center">
               <SearchInput
                 placeholder={t`Search by name or ID`}
                 value={searchText}
@@ -121,6 +117,13 @@ export function OrdersList({ projectId, search, page, onSearchChange, onPageChan
                 }}
                 onInput={(e) => setSearchText((e.target as HTMLInputElement).value)}
               />
+            </Stack>
+          </DataGridToolbar>
+
+          <DataGridToolbar>
+            <Stack distribution="between" alignment="center" className="jn:text-sm">
+              <span>{t`Showing ${totalCount} orders`}</span>
+              {lastUpdated && <span>{t`Last update: ${lastUpdated}`}</span>}
             </Stack>
           </DataGridToolbar>
         </Stack>

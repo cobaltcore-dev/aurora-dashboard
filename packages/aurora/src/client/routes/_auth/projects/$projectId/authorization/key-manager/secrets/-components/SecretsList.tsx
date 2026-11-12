@@ -133,11 +133,7 @@ export function SecretsList({
           </Stack>
 
           <DataGridToolbar>
-            <Stack distribution="between" alignment="center" className="jn:text-sm">
-              <span className="jn:theme-color-text-light">
-                {t`Showing ${totalSecrets} secrets`}
-                {lastUpdated && <> · {t`Last updated: ${lastUpdated}`}</>}
-              </span>
+            <Stack distribution="end" alignment="center">
               <SearchInput
                 placeholder={t`Search by name`}
                 value={searchText}
@@ -148,6 +144,13 @@ export function SecretsList({
                 }}
                 onInput={(e) => setSearchText((e.target as HTMLInputElement).value)}
               />
+            </Stack>
+          </DataGridToolbar>
+
+          <DataGridToolbar>
+            <Stack distribution="between" alignment="center" className="jn:text-sm">
+              <span>{t`Showing ${totalSecrets} secrets`}</span>
+              {lastUpdated && <span>{t`Last update: ${lastUpdated}`}</span>}
             </Stack>
           </DataGridToolbar>
         </Stack>

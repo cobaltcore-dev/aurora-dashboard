@@ -112,11 +112,7 @@ export function ContainersList({
           </Stack>
 
           <DataGridToolbar>
-            <Stack distribution="between" alignment="center" className="jn:text-sm">
-              <span className="jn:theme-color-text-light">
-                {t`Showing ${totalCount} containers`}
-                {lastUpdated && <> · {t`Last updated: ${lastUpdated}`}</>}
-              </span>
+            <Stack distribution="end" alignment="center">
               <SearchInput
                 placeholder={t`Search by name or ID`}
                 value={searchText}
@@ -127,6 +123,13 @@ export function ContainersList({
                 }}
                 onInput={(e) => setSearchText((e.target as HTMLInputElement).value)}
               />
+            </Stack>
+          </DataGridToolbar>
+
+          <DataGridToolbar>
+            <Stack distribution="between" alignment="center" className="jn:text-sm">
+              <span>{t`Showing ${totalCount} containers`}</span>
+              {lastUpdated && <span>{t`Last update: ${lastUpdated}`}</span>}
             </Stack>
           </DataGridToolbar>
         </Stack>

@@ -2640,11 +2640,11 @@ msgstr "Last Modified"
 msgid "Last modified (UTC)"
 msgstr "Last modified (UTC)"
 
+msgid "Last update: {lastUpdated}"
+msgstr "Last update: {lastUpdated}"
+
 msgid "Last updated: {formattedDate}"
 msgstr "Last updated: {formattedDate}"
-
-msgid "Last updated: {lastUpdated}"
-msgstr "Last updated: {lastUpdated}"
 
 msgid "Last updated: {lastUpdatedText}"
 msgstr "Last updated: {lastUpdatedText}"
