@@ -58,9 +58,9 @@ export function OrderDetailsView({ projectId, orderId }: OrderDetailsViewProps) 
 
   const detailItems: DetailListItem[] = [
     { label: t`ID`, value: <ClipboardText text={orderId} /> },
+    { label: t`Status`, value: <StatusLabel value={order.status} /> },
     { label: t`Reference`, value: <ClipboardText text={order.order_ref} /> },
     { label: t`Type`, value: order.type },
-    { label: t`Status`, value: <StatusLabel value={order.status} /> },
     { label: t`Sub Status`, value: subStatus },
     {
       label: t`Secret`,

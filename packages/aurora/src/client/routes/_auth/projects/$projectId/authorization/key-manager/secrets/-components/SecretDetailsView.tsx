@@ -104,10 +104,10 @@ export function SecretDetailsView({ projectId, secretId }: SecretDetailsViewProp
     : "- -"
 
   const detailItems: DetailListItem[] = [
-    { label: t`ID`, value: <ClipboardText text={secretId} /> },
-    { label: t`Reference`, value: <ClipboardText text={secret.secret_ref} /> },
     { label: t`Name`, value: secret.name ?? "- -" },
+    { label: t`ID`, value: <ClipboardText text={secretId} /> },
     { label: t`Status`, value: <StatusLabel value={secret.status} /> },
+    { label: t`Reference`, value: <ClipboardText text={secret.secret_ref} /> },
     { label: t`Secret Type`, value: secret.secret_type },
     { label: t`Algorithm`, value: secret.algorithm ?? "- -" },
     { label: t`Bit Length`, value: secret.bit_length ?? "- -" },

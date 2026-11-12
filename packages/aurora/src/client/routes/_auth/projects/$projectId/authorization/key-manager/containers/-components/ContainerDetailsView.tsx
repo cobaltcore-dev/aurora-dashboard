@@ -60,11 +60,11 @@ export function ContainerDetailsView({ projectId, containerId }: ContainerDetail
   if (!container) return <Status status="empty" title={t`Container Not Found`} />
 
   const detailItems: DetailListItem[] = [
-    { label: t`ID`, value: <ClipboardText text={containerId} /> },
-    { label: t`Reference`, value: <ClipboardText text={container.container_ref} /> },
     { label: t`Name`, value: container.name ?? "- -" },
-    { label: t`Type`, value: container.type },
+    { label: t`ID`, value: <ClipboardText text={containerId} /> },
     { label: t`Status`, value: <StatusLabel value={container.status} /> },
+    { label: t`Reference`, value: <ClipboardText text={container.container_ref} /> },
+    { label: t`Type`, value: container.type },
     { label: t`Created`, value: new Date(container.created).toLocaleString() },
     { label: t`Updated`, value: new Date(container.updated).toLocaleString() },
   ]
