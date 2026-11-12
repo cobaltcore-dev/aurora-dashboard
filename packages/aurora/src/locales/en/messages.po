@@ -4935,6 +4935,9 @@ msgstr "Up"
 msgid "UP"
 msgstr "UP"
 
+msgid "Update"
+msgstr "Update"
+
 msgid "Update object"
 msgstr "Update object"
 

@@ -71,16 +71,17 @@ export function SecretsList({
   const canList = permissions["key-manager:secrets:list"]
   const isSearching = Boolean(search)
 
-  const { data, isLoading, isError, error, dataUpdatedAt } = trpcReact.keyManager.listSecrets.useQuery(
-    {
-      project_id: projectId,
-      offset: (page - 1) * PAGE_SIZE,
-      limit: PAGE_SIZE,
-      name: search || undefined,
-      sort: sort || undefined,
-    },
-    { enabled: canList }
-  )
+  const { data, isLoading, isError, error, dataUpdatedAt, refetch, isFetching } =
+    trpcReact.keyManager.listSecrets.useQuery(
+      {
+        project_id: projectId,
+        offset: (page - 1) * PAGE_SIZE,
+        limit: PAGE_SIZE,
+        name: search || undefined,
+        sort: sort || undefined,
+      },
+      { enabled: canList }
+    )
 
   const secrets = data?.secrets ?? []
 
@@ -150,7 +151,10 @@ export function SecretsList({
           <DataGridToolbar>
             <Stack distribution="between" alignment="center" className="jn:text-sm">
               <span>{t`Showing ${totalSecrets} secrets`}</span>
-              {lastUpdated && <span>{t`Last update: ${lastUpdated}`}</span>}
+              <Stack gap="2" alignment="center">
+                {lastUpdated && <span>{t`Last update: ${lastUpdated}`}</span>}
+                <Button label={t`Update`} size="xs" onClick={() => void refetch()} disabled={isFetching} />
+              </Stack>
             </Stack>
           </DataGridToolbar>
         </Stack>

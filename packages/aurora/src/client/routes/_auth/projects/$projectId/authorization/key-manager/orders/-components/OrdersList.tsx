@@ -123,7 +123,15 @@ export function OrdersList({ projectId, search, page, onSearchChange, onPageChan
           <DataGridToolbar>
             <Stack distribution="between" alignment="center" className="jn:text-sm">
               <span>{t`Showing ${totalCount} orders`}</span>
-              {lastUpdated && <span>{t`Last update: ${lastUpdated}`}</span>}
+              <Stack gap="2" alignment="center">
+                {lastUpdated && <span>{t`Last update: ${lastUpdated}`}</span>}
+                <Button
+                  label={t`Update`}
+                  size="xs"
+                  onClick={() => void allQuery.refetch()}
+                  disabled={allQuery.isFetching}
+                />
+              </Stack>
             </Stack>
           </DataGridToolbar>
         </Stack>
