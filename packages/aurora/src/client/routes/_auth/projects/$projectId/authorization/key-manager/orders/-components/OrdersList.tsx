@@ -105,7 +105,8 @@ export function OrdersList({ projectId, search, page, onSearchChange, onPageChan
           </Stack>
 
           <DataGridToolbar>
-            <Stack distribution="end" alignment="center">
+            <Stack distribution="between" alignment="center">
+              <span className="text-sm">{t`${totalCount} orders`}</span>
               <SearchInput
                 placeholder={t`Search by name or ID`}
                 value={searchText}

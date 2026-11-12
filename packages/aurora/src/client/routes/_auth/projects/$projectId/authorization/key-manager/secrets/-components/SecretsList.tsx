@@ -130,7 +130,8 @@ export function SecretsList({
           </Stack>
 
           <DataGridToolbar>
-            <Stack distribution="end" alignment="center">
+            <Stack distribution="between" alignment="center">
+              <span className="text-sm">{t`${data?.total ?? 0} secrets`}</span>
               <SearchInput
                 placeholder={t`Search by name`}
                 value={searchText}

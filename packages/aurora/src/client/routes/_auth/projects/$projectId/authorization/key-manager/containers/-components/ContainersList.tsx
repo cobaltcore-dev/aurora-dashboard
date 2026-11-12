@@ -111,7 +111,8 @@ export function ContainersList({
           </Stack>
 
           <DataGridToolbar>
-            <Stack distribution="end" alignment="center">
+            <Stack distribution="between" alignment="center">
+              <span className="text-sm">{t`${totalCount} containers`}</span>
               <SearchInput
                 placeholder={t`Search by name or ID`}
                 value={searchText}
