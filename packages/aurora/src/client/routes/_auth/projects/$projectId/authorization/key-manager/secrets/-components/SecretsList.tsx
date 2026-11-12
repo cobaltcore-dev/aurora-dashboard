@@ -55,7 +55,7 @@ export function SecretsList({
   }, [search])
 
   const sortLabels: Record<(typeof SORT_FIELDS)[number], string> = {
-    created: t`Created At`,
+    created: t`Created`,
     name: t`Name`,
   }
 
@@ -71,16 +71,17 @@ export function SecretsList({
   const canList = permissions["key-manager:secrets:list"]
   const isSearching = Boolean(search)
 
-  const { data, isLoading, isError, error } = trpcReact.keyManager.listSecrets.useQuery(
-    {
-      project_id: projectId,
-      offset: (page - 1) * PAGE_SIZE,
-      limit: PAGE_SIZE,
-      name: search || undefined,
-      sort: sort || undefined,
-    },
-    { enabled: canList }
-  )
+  const { data, isLoading, isError, error, dataUpdatedAt, refetch, isFetching } =
+    trpcReact.keyManager.listSecrets.useQuery(
+      {
+        project_id: projectId,
+        offset: (page - 1) * PAGE_SIZE,
+        limit: PAGE_SIZE,
+        name: search || undefined,
+        sort: sort || undefined,
+      },
+      { enabled: canList }
+    )
 
   const secrets = data?.secrets ?? []
 
@@ -103,6 +104,9 @@ export function SecretsList({
   }
 
   const totalPages = data?.total ? Math.ceil(data.total / PAGE_SIZE) : 1
+
+  const totalSecrets = data?.total ?? 0
+  const lastUpdated = dataUpdatedAt ? new Date(dataUpdatedAt).toLocaleTimeString() : null
 
   return (
     <>
@@ -141,6 +145,16 @@ export function SecretsList({
                 }}
                 onInput={(e) => setSearchText((e.target as HTMLInputElement).value)}
               />
+            </Stack>
+          </DataGridToolbar>
+
+          <DataGridToolbar>
+            <Stack distribution="between" alignment="center" className="jn:text-sm">
+              <span>{t`Showing ${totalSecrets} secrets`}</span>
+              <Stack gap="2" alignment="center">
+                {lastUpdated && <span>{t`Last update: ${lastUpdated}`}</span>}
+                <Button label={t`Update`} size="xs" onClick={() => void refetch()} disabled={isFetching} />
+              </Stack>
             </Stack>
           </DataGridToolbar>
         </Stack>

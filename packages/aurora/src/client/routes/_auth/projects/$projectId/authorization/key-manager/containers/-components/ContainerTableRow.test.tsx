@@ -53,10 +53,10 @@ describe("ContainerTableRow", () => {
       expect(screen.getByText("container-123")).toBeInTheDocument()
     })
 
-    it("renders 'unnamed' when the container has no name", () => {
+    it("renders '- -' when the container has no name", () => {
       renderRow({ ...mockContainer, name: null })
 
-      expect(screen.getByText("unnamed")).toBeInTheDocument()
+      expect(screen.getByText("- -")).toBeInTheDocument()
     })
 
     it("renders the status and the type", () => {

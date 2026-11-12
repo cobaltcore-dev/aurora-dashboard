@@ -40,6 +40,9 @@ interface SecretValidation {
   payload?: string
   payload_content_type?: string
   expiration?: string
+  algorithm?: string
+  mode?: string
+  bit_length?: string
 }
 
 export function CreateSecretModal({
@@ -88,15 +91,29 @@ export function CreateSecretModal({
   const validateField = (field: keyof SecretValidation): string | undefined => {
     switch (field) {
       case "name":
-        return name.trim() ? undefined : t`Name is required`
+        if (!name.trim()) return t`Name is required`
+        if (name.length > 255) return t`Name must be at most 255 characters`
+        return undefined
       case "secret_type":
         return secretType ? undefined : t`Secret type is required`
       case "payload":
-        return payload.trim() ? undefined : t`Payload is required`
+        if (!payload.trim()) return t`Payload is required`
+        if (payload.length > 10000) return t`Payload must be at most 10,000 bytes`
+        return undefined
       case "payload_content_type":
         return payloadContentType ? undefined : t`Payload content type is required`
       case "expiration":
         return expiration && new Date(expiration) <= new Date() ? t`Expiration must be in the future` : undefined
+      case "algorithm":
+        if (algorithm.length > 255) return t`Algorithm must be at most 255 characters`
+        return undefined
+      case "mode":
+        if (mode.length > 255) return t`Mode must be at most 255 characters`
+        return undefined
+      case "bit_length":
+        if (bitLength && (isNaN(Number(bitLength)) || Number(bitLength) < 1))
+          return t`Bit length must be a positive integer`
+        return undefined
       default:
         return undefined
     }
@@ -112,7 +129,16 @@ export function CreateSecretModal({
 
   const validate = (): SecretValidation => {
     const errors: SecretValidation = {}
-    for (const field of ["name", "secret_type", "payload", "payload_content_type", "expiration"] as const) {
+    for (const field of [
+      "name",
+      "secret_type",
+      "payload",
+      "payload_content_type",
+      "expiration",
+      "algorithm",
+      "mode",
+      "bit_length",
+    ] as const) {
       const error = validateField(field)
       if (error) errors[field] = error
     }
@@ -147,7 +173,7 @@ export function CreateSecretModal({
       onConfirm={handleConfirm}
       confirmButtonLabel={t`Create`}
       cancelButtonLabel={t`Cancel`}
-      disableConfirmButton={createMutation.isPending}
+      disableConfirmButton={createMutation.isPending || Object.values(validation).some(Boolean)}
       disableCancelButton={createMutation.isPending}
       disableCloseButton={createMutation.isPending}
     >
@@ -169,12 +195,16 @@ export function CreateSecretModal({
               required
               value={name}
               onChange={(e) => {
-                setName(e.target.value)
-                clearError("name")
+                const val = e.target.value
+                setName(val)
+                if (val.length > 255)
+                  setValidation((prev) => ({ ...prev, name: t`Name must be at most 255 characters` }))
+                else clearError("name")
               }}
               onBlur={() => handleBlur("name")}
               invalid={Boolean(validation.name)}
               errortext={validation.name}
+              helptext={t`${name.length}/255 characters`}
             />
           </FormRow>
           <FormRow>
@@ -201,7 +231,17 @@ export function CreateSecretModal({
               type="number"
               label={t`Bit Length`}
               value={bitLength}
-              onChange={(e) => setBitLength(e.target.value)}
+              min={1}
+              onChange={(e) => {
+                const val = e.target.value
+                setBitLength(val)
+                if (val && (isNaN(Number(val)) || Number(val) < 1))
+                  setValidation((prev) => ({ ...prev, bit_length: t`Bit length must be a positive integer` }))
+                else setValidation((prev) => ({ ...prev, bit_length: undefined }))
+              }}
+              onBlur={() => handleBlur("bit_length")}
+              invalid={Boolean(validation.bit_length)}
+              errortext={validation.bit_length}
               helptext={t`Metadata for informational purposes. Value must be greater than zero.`}
             />
           </FormRow>
@@ -210,8 +250,17 @@ export function CreateSecretModal({
               id="algorithm"
               label={t`Algorithm`}
               value={algorithm}
-              onChange={(e) => setAlgorithm(e.target.value)}
-              helptext={t`Metadata for informational purposes.`}
+              onChange={(e) => {
+                const val = e.target.value
+                setAlgorithm(val)
+                if (val.length > 255)
+                  setValidation((prev) => ({ ...prev, algorithm: t`Algorithm must be at most 255 characters` }))
+                else clearError("algorithm")
+              }}
+              onBlur={() => handleBlur("algorithm")}
+              invalid={Boolean(validation.algorithm)}
+              errortext={validation.algorithm}
+              helptext={t`${algorithm.length}/255 characters. Metadata for informational purposes.`}
             />
           </FormRow>
           <FormRow>
@@ -219,14 +268,23 @@ export function CreateSecretModal({
               id="mode"
               label={t`Mode`}
               value={mode}
-              onChange={(e) => setMode(e.target.value)}
-              helptext={t`Metadata for informational purposes.`}
+              onChange={(e) => {
+                const val = e.target.value
+                setMode(val)
+                if (val.length > 255)
+                  setValidation((prev) => ({ ...prev, mode: t`Mode must be at most 255 characters` }))
+                else clearError("mode")
+              }}
+              onBlur={() => handleBlur("mode")}
+              invalid={Boolean(validation.mode)}
+              errortext={validation.mode}
+              helptext={t`${mode.length}/255 characters. Metadata for informational purposes.`}
             />
           </FormRow>
           <FormRow>
             <Select
               id="secret-type"
-              label={t`Secret Type`}
+              label={t`Type`}
               required
               value={secretType}
               placeholder={t`Select...`}
@@ -250,13 +308,16 @@ export function CreateSecretModal({
               rows={6}
               value={payload}
               onChange={(e) => {
-                setPayload(e.target.value)
-                clearError("payload")
+                const val = e.target.value
+                setPayload(val)
+                if (val.length > 10000)
+                  setValidation((prev) => ({ ...prev, payload: t`Payload must be at most 10,000 bytes` }))
+                else clearError("payload")
               }}
               onBlur={() => handleBlur("payload")}
               invalid={Boolean(validation.payload)}
               errortext={validation.payload}
-              helptext={validation.payload ? undefined : t`The secret's data to be stored.`}
+              helptext={t`${payload.length}/10,000 bytes. The secret's data to be stored.`}
             />
           </FormRow>
           <FormRow>

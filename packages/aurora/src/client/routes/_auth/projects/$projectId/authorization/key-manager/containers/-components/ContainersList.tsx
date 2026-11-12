@@ -77,6 +77,7 @@ export function ContainersList({
   const error = allQuery.error
   const totalCount = filtered.length
   const containers = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+  const lastUpdated = allQuery.dataUpdatedAt ? new Date(allQuery.dataUpdatedAt).toLocaleTimeString() : null
 
   // After deleting the last item on a page, step back so the user never lands on an empty page.
   useEffect(() => {
@@ -122,6 +123,24 @@ export function ContainersList({
                 }}
                 onInput={(e) => setSearchText((e.target as HTMLInputElement).value)}
               />
+            </Stack>
+          </DataGridToolbar>
+
+          <DataGridToolbar>
+            <Stack distribution="between" alignment="center" className="jn:text-sm">
+              <span>{t`Showing ${totalCount} containers`}</span>
+              <Stack gap="2" alignment="center">
+                {lastUpdated && <span>{t`Last update: ${lastUpdated}`}</span>}
+                <Button
+                  label={t`Update`}
+                  size="xs"
+                  onClick={async () => {
+                    await utils.keyManager.listContainers.invalidate()
+                    await allQuery.refetch()
+                  }}
+                  disabled={allQuery.isFetching}
+                />
+              </Stack>
             </Stack>
           </DataGridToolbar>
         </Stack>

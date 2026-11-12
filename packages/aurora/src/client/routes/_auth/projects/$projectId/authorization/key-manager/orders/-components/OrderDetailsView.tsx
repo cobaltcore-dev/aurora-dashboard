@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router"
-import { Status, Stack, ContentHeading } from "@cloudoperators/juno-ui-components"
+import { Status, Stack } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
@@ -58,9 +58,9 @@ export function OrderDetailsView({ projectId, orderId }: OrderDetailsViewProps) 
 
   const detailItems: DetailListItem[] = [
     { label: t`ID`, value: <ClipboardText text={orderId} /> },
+    { label: t`Status`, value: <StatusLabel value={order.status} /> },
     { label: t`Reference`, value: <ClipboardText text={order.order_ref} /> },
     { label: t`Type`, value: order.type },
-    { label: t`Status`, value: <StatusLabel value={order.status} /> },
     { label: t`Sub Status`, value: subStatus },
     {
       label: t`Secret`,
@@ -93,13 +93,13 @@ export function OrderDetailsView({ projectId, orderId }: OrderDetailsViewProps) 
 
       <Stack direction="vertical" gap="6" className="mt-6">
         <Stack direction="vertical" gap="2">
-          <ContentHeading>{t`Order Details`}</ContentHeading>
+          <h2>{t`Order Details`}</h2>
           <TwoColumnDescriptionList items={detailItems} />
         </Stack>
 
         {metaItems.length > 0 && (
           <Stack direction="vertical" gap="2">
-            <ContentHeading>{t`Metadata`}</ContentHeading>
+            <h2>{t`Metadata`}</h2>
             <TwoColumnDescriptionList items={metaItems} />
           </Stack>
         )}

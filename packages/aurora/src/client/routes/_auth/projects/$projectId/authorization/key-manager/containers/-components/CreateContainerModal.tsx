@@ -35,6 +35,7 @@ export function CreateContainerModal({
   const queryClient = useQueryClient()
   const utils = trpcReact.useUtils()
   const [name, setName] = useState("")
+  const [nameError, setNameError] = useState<string | undefined>()
   const [type, setType] = useState<Container["type"]>("generic")
   // RSA / Certificate: maps field name → selected secret_ref URI
   const [namedRefs, setNamedRefs] = useState<Record<string, string>>({})
@@ -109,6 +110,11 @@ export function CreateContainerModal({
   }
 
   const handleConfirm = () => {
+    if (name.length > 255) {
+      setNameError(t`Name must be at most 255 characters`)
+      return
+    }
+    setNameError(undefined)
     const error = validate()
     if (error) {
       setValidationError(error)
@@ -145,7 +151,7 @@ export function CreateContainerModal({
       onConfirm={handleConfirm}
       confirmButtonLabel={t`Create`}
       cancelButtonLabel={t`Cancel`}
-      disableConfirmButton={createMutation.isPending}
+      disableConfirmButton={createMutation.isPending || Boolean(nameError)}
       disableCancelButton={createMutation.isPending}
       disableCloseButton={createMutation.isPending}
     >
@@ -165,8 +171,19 @@ export function CreateContainerModal({
               id="name"
               label={t`Name`}
               value={name}
-              onChange={(e) => setName(e.target.value)}
-              helptext={t`Optional. A friendly name for the container.`}
+              onChange={(e) => {
+                const val = e.target.value
+                setName(val)
+                if (val.length > 255) setNameError(t`Name must be at most 255 characters`)
+                else setNameError(undefined)
+              }}
+              onBlur={() => {
+                if (name.length > 255) setNameError(t`Name must be at most 255 characters`)
+                else setNameError(undefined)
+              }}
+              invalid={Boolean(nameError)}
+              errortext={nameError}
+              helptext={t`${name.length}/255 characters`}
             />
           </FormRow>
           <FormRow>
@@ -176,14 +193,12 @@ export function CreateContainerModal({
               required
               value={type}
               onChange={(v) => handleTypeChange(typeof v === "string" ? v : "generic")}
+              helptext={typeDescriptions[type]}
             >
               {CONTAINER_TYPES.map((containerType) => (
                 <SelectOption key={containerType} value={containerType} label={containerType} />
               ))}
             </Select>
-          </FormRow>
-          <FormRow>
-            <p className="text-sm">{typeDescriptions[type]}</p>
           </FormRow>
         </FormSection>
 
