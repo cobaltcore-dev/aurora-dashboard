@@ -1,4 +1,5 @@
 import React from "react"
+import { StatusLabel } from "@/client/components/StatusLabel"
 import { useLingui } from "@lingui/react/macro"
 import { GlanceImage } from "@/server/Compute/types/image"
 import {
@@ -60,7 +61,9 @@ export const ActivateImageModal: React.FC<ActivateImageModalProps> = ({
             <DescriptionTerm>{t`Id`}</DescriptionTerm>
             <DescriptionDefinition>{image.id}</DescriptionDefinition>
             <DescriptionTerm>{t`Status`}</DescriptionTerm>
-            <DescriptionDefinition>{image.status}</DescriptionDefinition>
+            <DescriptionDefinition>
+              <StatusLabel value={image.status} />
+            </DescriptionDefinition>
             <DescriptionTerm>{t`Visibility`}</DescriptionTerm>
             <DescriptionDefinition>{image.visibility}</DescriptionDefinition>
             <DescriptionTerm>{t`Size`}</DescriptionTerm>

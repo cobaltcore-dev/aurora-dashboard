@@ -227,7 +227,7 @@ describe("FloatingIpDetailsView", () => {
     it("displays formatted status", () => {
       render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
 
-      expect(screen.getByText("Active")).toBeInTheDocument()
+      expect(screen.getByText("ACTIVE")).toHaveClass("lowercase", "first-letter:uppercase")
     })
 
     it("displays created and updated timestamps when present", () => {
@@ -253,9 +253,9 @@ describe("FloatingIpDetailsView", () => {
 
     it("formats different status values correctly", () => {
       const statuses: Array<[typeof mockFloatingIp.status, string]> = [
-        ["ACTIVE", "Active"],
-        ["DOWN", "Down"],
-        ["ERROR", "Error"],
+        ["ACTIVE", "ACTIVE"],
+        ["DOWN", "DOWN"],
+        ["ERROR", "ERROR"],
       ]
 
       statuses.forEach(([status, displayText]) => {
@@ -380,7 +380,7 @@ describe("FloatingIpDetailsView", () => {
       render(<FloatingIpDetailsView floatingIp={minimalFloatingIp} />, { wrapper: TestWrapper })
 
       expect(screen.getAllByText("203.0.113.100").length).toBeGreaterThan(0)
-      expect(screen.getByText("Down")).toBeInTheDocument()
+      expect(screen.getByText("DOWN")).toBeInTheDocument()
       expect(screen.getByText("net-ext")).toBeInTheDocument()
     })
   })
@@ -390,21 +390,21 @@ describe("FloatingIpDetailsView", () => {
       const activeIp = { ...mockFloatingIp, status: "ACTIVE" as const }
       render(<FloatingIpDetailsView floatingIp={activeIp} />, { wrapper: TestWrapper })
 
-      expect(screen.getByText("Active")).toBeInTheDocument()
+      expect(screen.getByText("ACTIVE")).toBeInTheDocument()
     })
 
     it("renders DOWN status correctly", () => {
       const downIp = { ...mockFloatingIp, status: "DOWN" as const }
       render(<FloatingIpDetailsView floatingIp={downIp} />, { wrapper: TestWrapper })
 
-      expect(screen.getByText("Down")).toBeInTheDocument()
+      expect(screen.getByText("DOWN")).toBeInTheDocument()
     })
 
     it("renders ERROR status correctly", () => {
       const errorIp = { ...mockFloatingIp, status: "ERROR" as const }
       render(<FloatingIpDetailsView floatingIp={errorIp} />, { wrapper: TestWrapper })
 
-      expect(screen.getByText("Error")).toBeInTheDocument()
+      expect(screen.getByText("ERROR")).toBeInTheDocument()
     })
   })
 

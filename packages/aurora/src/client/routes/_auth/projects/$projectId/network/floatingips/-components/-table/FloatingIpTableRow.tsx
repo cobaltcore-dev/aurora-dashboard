@@ -11,7 +11,7 @@ import { FloatingIp } from "@/server/Network/types/floatingIp"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks"
 import { FloatingIpActionModals } from "../-modals/FloatingIpActionModals"
-import { formatFloatingIpStatus } from "../../-utils/formatFloatingIpStatus"
+import { StatusLabel } from "@/client/components/StatusLabel"
 
 interface FloatingIpTableRowProps {
   floatingIp: FloatingIp
@@ -51,7 +51,9 @@ export const FloatingIpTableRow = ({ floatingIp }: FloatingIpTableRowProps) => {
 
   return (
     <DataGridRow key={floatingIp.id} data-testid={`floating-ip-row-${floatingIp.id}`} onClick={navigateToDetailsPage}>
-      <DataGridCell>{formatFloatingIpStatus(floatingIp.status)}</DataGridCell>
+      <DataGridCell>
+        <StatusLabel value={floatingIp.status} />
+      </DataGridCell>
       <DataGridCell>{floatingIp.floating_ip_address}</DataGridCell>
       <DataGridCell>{floatingIp.fixed_ip_address || "- -"}</DataGridCell>
       <DataGridCell>{floatingIp.floating_network_id}</DataGridCell>

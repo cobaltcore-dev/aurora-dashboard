@@ -20,10 +20,21 @@ function mockCompute(pages: unknown[], maxVersion = "2.90"): SignalOpenstackServ
 }
 
 describe("powerStateLabel", () => {
-  it("maps integers to labels", () => {
-    expect(powerStateLabel(1)).toBe("RUNNING")
-    expect(powerStateLabel(4)).toBe("SHUTDOWN")
+  it.each([
+    [0, "NOSTATE"],
+    [1, "RUNNING"],
+    [3, "PAUSED"],
+    [4, "SHUTDOWN"],
+    [6, "CRASHED"],
+    [7, "SUSPENDED"],
+  ] as const)("maps %s to %s", (state, label) => {
+    expect(powerStateLabel(state)).toBe(label)
+  })
+
+  it("handles unknown and missing states", () => {
+    expect(powerStateLabel(99)).toBe("UNKNOWN (99)")
     expect(powerStateLabel(undefined)).toBe("")
+    expect(powerStateLabel(null)).toBe("")
   })
 })
 

@@ -6,7 +6,7 @@ import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import { TwoColumnDescriptionList, type DetailListItem } from "@/client/components/TwoColumnDescriptionList"
 import ClipboardText from "@/client/components/ClipboardText"
 import { useKeyManagerPermissions } from "@/client/routes/_auth/projects/$projectId/authorization/key-manager/-components/useKeyManagerPermissions"
-import { toMixedCase } from "@/client/routes/_auth/projects/$projectId/authorization/key-manager/-components/keyManagerUtils"
+import { StatusLabel } from "@/client/components/StatusLabel"
 
 interface SecretDetailsViewProps {
   projectId: string
@@ -107,7 +107,7 @@ export function SecretDetailsView({ projectId, secretId }: SecretDetailsViewProp
     { label: t`ID`, value: <ClipboardText text={secretId} /> },
     { label: t`Reference`, value: <ClipboardText text={secret.secret_ref} /> },
     { label: t`Name`, value: secret.name ?? "- -" },
-    { label: t`Status`, value: toMixedCase(secret.status) },
+    { label: t`Status`, value: <StatusLabel value={secret.status} /> },
     { label: t`Secret Type`, value: secret.secret_type },
     { label: t`Algorithm`, value: secret.algorithm ?? "- -" },
     { label: t`Bit Length`, value: secret.bit_length ?? "- -" },

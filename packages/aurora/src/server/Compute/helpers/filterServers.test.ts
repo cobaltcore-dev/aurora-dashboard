@@ -76,6 +76,15 @@ describe("filterServers", () => {
     ])
   })
 
+  it("accepts sentence-case and mixed-case power-state labels alongside legacy uppercase URLs", () => {
+    expect(filterServers(servers, { power_state: "Running" }).map((s) => s.id)).toEqual(["id-aaa"])
+    expect(filterServers(servers, { power_state: "in:Running,sHuTdOwN" }).map((s) => s.id)).toEqual([
+      "id-aaa",
+      "id-bbb",
+    ])
+    expect(servers[0]["OS-EXT-STS:power_state"]).toBe(1)
+  })
+
   it("filters by flavor, image (object or string), and key name", () => {
     expect(filterServers(servers, { flavor: "m1.small" }).map((s) => s.id)).toEqual(["id-aaa", "id-ccc"])
     expect(filterServers(servers, { image: "img-1" }).map((s) => s.id)).toEqual(["id-aaa", "id-ccc"])

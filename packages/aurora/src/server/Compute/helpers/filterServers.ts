@@ -5,7 +5,7 @@ import { powerStateLabel } from "./serverHelpers"
 export interface ServerFilters {
   /** Substring match over name and id. */
   name?: string
-  /** Power-state label (e.g. "RUNNING"); supports multi-value "in:RUNNING,SHUTDOWN". */
+  /** Power-state label (case-insensitive); supports multi-value "in:Running,Shutdown". */
   power_state?: string
   /** Supports multi-value. */
   availability_zone?: string
@@ -68,8 +68,9 @@ export function filterServers(servers: Server[], filters: ServerFilters): Server
   }
 
   if (filters.power_state) {
-    const values = parseMultiValue(filters.power_state)
-    filtered = filtered.filter((s) => values.includes(powerStateLabel(s["OS-EXT-STS:power_state"])))
+    // Accept existing uppercase filter URLs as well as the display labels.
+    const values = parseMultiValue(filters.power_state).map((value) => value.toLowerCase())
+    filtered = filtered.filter((s) => values.includes(powerStateLabel(s["OS-EXT-STS:power_state"]).toLowerCase()))
   }
 
   if (filters.availability_zone) {

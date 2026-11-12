@@ -128,7 +128,7 @@ describe("ImageTableRow", () => {
       renderRow({ image: makeImage({ name: "Ubuntu 24.04", status: "active", visibility: "private" }) })
 
       expect(screen.getByText("Ubuntu 24.04")).toBeInTheDocument()
-      expect(screen.getByText("active")).toBeInTheDocument()
+      expect(screen.getByText("active")).toHaveClass("lowercase", "first-letter:uppercase")
       expect(screen.getByText("private")).toBeInTheDocument()
       expect(screen.getByText("qcow2")).toBeInTheDocument()
     })

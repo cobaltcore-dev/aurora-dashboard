@@ -414,8 +414,8 @@ msgstr ""
 msgid "Access Status"
 msgstr "Zugriffsstatus"
 
-msgid "Access status updated to \"{newStatus}\"."
-msgstr " Zugriffsstatus auf \"{newStatus}\" aktualisiert."
+msgid "Access status updated to \"<0/>\"."
+msgstr ""
 
 msgid "Access Status:"
 msgstr "Zugriffsstatus:"
