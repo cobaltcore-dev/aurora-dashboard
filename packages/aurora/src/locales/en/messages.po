@@ -86,10 +86,6 @@ msgstr "{0, plural, one {Image cannot be deleted (#)} other {Images cannot be de
 msgid "{0, plural, one {Object:} other {Objects to delete:}}"
 msgstr "{0, plural, one {Object:} other {Objects to delete:}}"
 
-#. placeholder {0}: data?.total ?? 0
-msgid "{0} secrets"
-msgstr "{0} secrets"
-
 #. placeholder {0}: payload.length
 msgid "{0}/10,000 bytes. The secret's data to be stored."
 msgstr "{0}/10,000 bytes. The secret's data to be stored."
@@ -255,12 +251,6 @@ msgstr "{totalCount, plural, one {Empty Bucket} other {Empty Buckets}}"
 
 msgid "{totalCount, plural, one {Empty Container} other {Empty # Containers}}"
 msgstr "{totalCount, plural, one {Empty Container} other {Empty # Containers}}"
-
-msgid "{totalCount} containers"
-msgstr "{totalCount} containers"
-
-msgid "{totalCount} orders"
-msgstr "{totalCount} orders"
 
 msgid "{totalItemCount, plural, one {{filteredItemCount} of {totalItemCount} item} other {{filteredItemCount} of {totalItemCount} items}}"
 msgstr "{totalItemCount, plural, one {{filteredItemCount} of {totalItemCount} item} other {{filteredItemCount} of {totalItemCount} items}}"
@@ -2653,6 +2643,9 @@ msgstr "Last modified (UTC)"
 msgid "Last updated: {formattedDate}"
 msgstr "Last updated: {formattedDate}"
 
+msgid "Last updated: {lastUpdated}"
+msgstr "Last updated: {lastUpdated}"
+
 msgid "Last updated: {lastUpdatedText}"
 msgstr "Last updated: {lastUpdatedText}"
 
@@ -4167,6 +4160,15 @@ msgstr "Show more info about secret types"
 
 msgid "Showing {filteredCount} of {totalCount} {itemName}"
 msgstr "Showing {filteredCount} of {totalCount} {itemName}"
+
+msgid "Showing {totalCount} containers"
+msgstr "Showing {totalCount} containers"
+
+msgid "Showing {totalCount} orders"
+msgstr "Showing {totalCount} orders"
+
+msgid "Showing {totalSecrets} secrets"
+msgstr "Showing {totalSecrets} secrets"
 
 msgid "Showing first {MAX_COMBO_OPTIONS} of {totalBuckets}, refine your search to narrow results"
 msgstr "Showing first {MAX_COMBO_OPTIONS} of {totalBuckets}, refine your search to narrow results"

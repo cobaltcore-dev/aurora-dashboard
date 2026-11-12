@@ -71,7 +71,7 @@ export function SecretsList({
   const canList = permissions["key-manager:secrets:list"]
   const isSearching = Boolean(search)
 
-  const { data, isLoading, isError, error } = trpcReact.keyManager.listSecrets.useQuery(
+  const { data, isLoading, isError, error, dataUpdatedAt } = trpcReact.keyManager.listSecrets.useQuery(
     {
       project_id: projectId,
       offset: (page - 1) * PAGE_SIZE,
@@ -104,6 +104,9 @@ export function SecretsList({
 
   const totalPages = data?.total ? Math.ceil(data.total / PAGE_SIZE) : 1
 
+  const totalSecrets = data?.total ?? 0
+  const lastUpdated = dataUpdatedAt ? new Date(dataUpdatedAt).toLocaleTimeString() : null
+
   return (
     <>
       <Stack direction="vertical" className="juno-pattern-datagrid-outer">
@@ -130,8 +133,11 @@ export function SecretsList({
           </Stack>
 
           <DataGridToolbar>
-            <Stack distribution="between" alignment="center">
-              <span className="text-sm">{t`${data?.total ?? 0} secrets`}</span>
+            <Stack distribution="between" alignment="center" className="jn:text-sm">
+              <span className="jn:theme-color-text-light">
+                {t`Showing ${totalSecrets} secrets`}
+                {lastUpdated && <> · {t`Last updated: ${lastUpdated}`}</>}
+              </span>
               <SearchInput
                 placeholder={t`Search by name`}
                 value={searchText}

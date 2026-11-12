@@ -71,6 +71,7 @@ export function OrdersList({ projectId, search, page, onSearchChange, onPageChan
   const error = allQuery.error
   const totalCount = filtered.length
   const orders = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+  const lastUpdated = allQuery.dataUpdatedAt ? new Date(allQuery.dataUpdatedAt).toLocaleTimeString() : null
 
   // After deleting the last item on a page, step back so the user never lands on an empty page.
   useEffect(() => {
@@ -105,8 +106,11 @@ export function OrdersList({ projectId, search, page, onSearchChange, onPageChan
           </Stack>
 
           <DataGridToolbar>
-            <Stack distribution="between" alignment="center">
-              <span className="text-sm">{t`${totalCount} orders`}</span>
+            <Stack distribution="between" alignment="center" className="jn:text-sm">
+              <span className="jn:theme-color-text-light">
+                {t`Showing ${totalCount} orders`}
+                {lastUpdated && <> · {t`Last updated: ${lastUpdated}`}</>}
+              </span>
               <SearchInput
                 placeholder={t`Search by name or ID`}
                 value={searchText}
