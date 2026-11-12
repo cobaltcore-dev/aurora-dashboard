@@ -58,11 +58,18 @@ describe("InstanceDetailsView", () => {
     expect(screen.getByText("General Instance Data")).toBeInTheDocument()
     expect(screen.getByText("Compute & State")).toBeInTheDocument()
     expect(screen.getByText("m1.small")).toBeInTheDocument()
-    // Power State renders lowercased (CSS capitalizes it for display).
-    expect(screen.getByText("running")).toBeInTheDocument()
+    expect(screen.getByText("RUNNING")).toHaveClass("lowercase", "first-letter:uppercase")
     expect(screen.getByText("az-1")).toBeInTheDocument()
     // Status renders as plain text, not a badge.
-    expect(screen.getByText("ACTIVE")).toBeInTheDocument()
+    expect(screen.getByText("ACTIVE")).toHaveClass("lowercase", "first-letter:uppercase")
+  })
+
+  it("sentence-cases VM and task states without changing the server data", () => {
+    const instance = makeServer({ "OS-EXT-STS:vm_state": "STOPPED", "OS-EXT-STS:task_state": "powering_on" })
+    render(<InstanceDetailsView instance={instance} projectId={PROJECT_ID} />, { wrapper: TestingProvider })
+    expect(screen.getByText("STOPPED")).toHaveClass("lowercase", "first-letter:uppercase")
+    expect(screen.getByText("powering_on")).toHaveClass("lowercase", "first-letter:uppercase")
+    expect(instance["OS-EXT-STS:task_state"]).toBe("powering_on")
   })
 
   it("shows the Image ID as a copyable control and the name as '- -' until it resolves", () => {

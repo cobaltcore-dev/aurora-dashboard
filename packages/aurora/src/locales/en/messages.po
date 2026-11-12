@@ -403,8 +403,8 @@ msgstr "Access Revoked"
 msgid "Access Status"
 msgstr "Access Status"
 
-msgid "Access status updated to \"{newStatus}\"."
-msgstr "Access status updated to \"{newStatus}\"."
+msgid "Access status updated to \"<0/>\"."
+msgstr "Access status updated to \"<0/>\"."
 
 msgid "Access Status:"
 msgstr "Access Status:"
@@ -4514,10 +4514,10 @@ msgid "The selected objects will be permanently deleted. This cannot be undone."
 msgstr "The selected objects will be permanently deleted. This cannot be undone."
 
 msgid "The service you're looking for doesn't exist or may have moved. Check the URL or return to the project home."
-msgstr "The service you're looking for doesn't exist or may have moved. Check the URL or return to the project home.<<<<<<< HEAD"
+msgstr "The service you're looking for doesn't exist or may have moved. Check the URL or return to the project home."
 
 msgid "The session has expired. Sign in again to continue."
-msgstr "The session has expired. Sign in again to continue.=======>>>>>>> main"
+msgstr "The session has expired. Sign in again to continue."
 
 msgid "The specified project does not exist or you don't have permission to share with it."
 msgstr "The specified project does not exist or you don't have permission to share with it."

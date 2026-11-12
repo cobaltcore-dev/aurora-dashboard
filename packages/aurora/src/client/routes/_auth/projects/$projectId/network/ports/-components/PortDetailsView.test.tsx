@@ -140,7 +140,7 @@ describe("PortDetailsView", () => {
       expect(screen.getByText("server-1")).toBeInTheDocument()
       expect(screen.getByText("2025-02-28T14:36:21Z")).toBeInTheDocument()
       expect(screen.getByText("2025-03-01T09:00:00Z")).toBeInTheDocument()
-      expect(screen.getByText("DOWN")).toBeInTheDocument()
+      expect(screen.getByText("DOWN")).toHaveClass("lowercase", "first-letter:uppercase")
     })
 
     it("renders security groups with name and ID", () => {

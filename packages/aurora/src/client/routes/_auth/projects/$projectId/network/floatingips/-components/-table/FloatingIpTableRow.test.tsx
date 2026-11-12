@@ -102,11 +102,11 @@ describe("FloatingIpTableRow", () => {
       renderComponent()
 
       await waitFor(() => {
-        expect(screen.getByText("Active")).toBeInTheDocument()
+        expect(screen.getByText("ACTIVE")).toHaveClass("lowercase", "first-letter:uppercase")
       })
 
       const row = screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)
-      expect(row.textContent).toContain("Active")
+      expect(row.textContent).toContain("ACTIVE")
     })
 
     it("renders empty state placeholder when fixed IP is missing", async () => {
@@ -151,9 +151,9 @@ describe("FloatingIpTableRow", () => {
 
     it("renders different status values in title case", async () => {
       const statuses: Array<{ status: typeof mockFloatingIp.status; expected: string }> = [
-        { status: "ACTIVE", expected: "Active" },
-        { status: "DOWN", expected: "Down" },
-        { status: "ERROR", expected: "Error" },
+        { status: "ACTIVE", expected: "ACTIVE" },
+        { status: "DOWN", expected: "DOWN" },
+        { status: "ERROR", expected: "ERROR" },
       ]
 
       for (const { status, expected } of statuses) {

@@ -1,4 +1,5 @@
 import { Fragment, ReactNode } from "react"
+import { StatusLabel } from "@/client/components/StatusLabel"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import {
@@ -67,8 +68,8 @@ export function RouterDetailsView({ router, activeTab, onTabChange }: RouterDeta
     { label: t`ID`, value: <ClipboardText text={router.id} /> },
     { label: t`Project ID`, value: <ClipboardText text={router.project_id} /> },
     { label: t`Description`, value: router.description || undefined },
-    { label: t`Status`, value: router.status },
-    { label: t`Admin State`, value: router.admin_state_up ? t`UP` : t`DOWN` },
+    { label: t`Status`, value: <StatusLabel value={router.status} /> },
+    { label: t`Admin State`, value: <StatusLabel value={router.admin_state_up ? t`UP` : t`DOWN`} /> },
   ]
 
   const externalNetworkItems: DetailListItem[] = gateway

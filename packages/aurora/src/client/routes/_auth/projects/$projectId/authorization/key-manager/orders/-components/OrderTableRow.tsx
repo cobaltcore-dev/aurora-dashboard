@@ -9,10 +9,8 @@ import {
   PopupMenuSectionSeparator,
 } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
-import {
-  uuidFromRef,
-  toMixedCase,
-} from "@/client/routes/_auth/projects/$projectId/authorization/key-manager/-components/keyManagerUtils"
+import { uuidFromRef } from "@/client/routes/_auth/projects/$projectId/authorization/key-manager/-components/keyManagerUtils"
+import { StatusLabel } from "@/client/components/StatusLabel"
 import ClipboardText from "@/client/components/ClipboardText"
 import type { Order } from "@/server/KeyManager/types/keyManager"
 
@@ -35,7 +33,9 @@ export function OrderTableRow({ order, canDeleteOrder, onShowDetails, onDelete }
           <ClipboardText text={id} />
         </div>
       </DataGridCell>
-      <DataGridCell>{toMixedCase(order.status)}</DataGridCell>
+      <DataGridCell>
+        <StatusLabel value={order.status} />
+      </DataGridCell>
       <DataGridCell>{order.type}</DataGridCell>
       <DataGridCell onClick={(e: React.MouseEvent) => e.stopPropagation()} className="items-end pr-0">
         <PopupMenu>

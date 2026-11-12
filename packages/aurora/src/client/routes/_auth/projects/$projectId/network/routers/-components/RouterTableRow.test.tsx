@@ -99,7 +99,7 @@ describe("RouterTableRow", () => {
       renderComponent()
 
       await waitFor(() => {
-        expect(screen.getByText("ACTIVE")).toBeInTheDocument()
+        expect(screen.getByText("ACTIVE")).toHaveClass("lowercase", "first-letter:uppercase")
       })
     })
   })

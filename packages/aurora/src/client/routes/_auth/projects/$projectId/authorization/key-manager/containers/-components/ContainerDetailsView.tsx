@@ -18,10 +18,8 @@ import { trpcReact } from "@/client/trpcClient"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import { TwoColumnDescriptionList, type DetailListItem } from "@/client/components/TwoColumnDescriptionList"
 import ClipboardText from "@/client/components/ClipboardText"
-import {
-  uuidFromRef,
-  toMixedCase,
-} from "@/client/routes/_auth/projects/$projectId/authorization/key-manager/-components/keyManagerUtils"
+import { uuidFromRef } from "@/client/routes/_auth/projects/$projectId/authorization/key-manager/-components/keyManagerUtils"
+import { StatusLabel } from "@/client/components/StatusLabel"
 import { useKeyManagerPermissions } from "@/client/routes/_auth/projects/$projectId/authorization/key-manager/-components/useKeyManagerPermissions"
 
 interface ContainerDetailsViewProps {
@@ -67,7 +65,7 @@ export function ContainerDetailsView({ projectId, containerId }: ContainerDetail
     { label: t`Reference`, value: <ClipboardText text={container.container_ref} /> },
     { label: t`Name`, value: container.name ?? "- -" },
     { label: t`Type`, value: container.type },
-    { label: t`Status`, value: toMixedCase(container.status) },
+    { label: t`Status`, value: <StatusLabel value={container.status} /> },
     { label: t`Created`, value: new Date(container.created).toLocaleString() },
     { label: t`Updated`, value: new Date(container.updated).toLocaleString() },
   ]

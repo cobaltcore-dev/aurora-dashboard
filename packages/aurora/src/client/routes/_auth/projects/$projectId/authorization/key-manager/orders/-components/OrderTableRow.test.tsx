@@ -52,7 +52,7 @@ describe("OrderTableRow", () => {
     it("renders the status and the type", () => {
       renderRow()
 
-      expect(screen.getByText("Active")).toBeInTheDocument()
+      expect(screen.getByText("ACTIVE")).toHaveClass("lowercase", "first-letter:uppercase")
       expect(screen.getByText("key")).toBeInTheDocument()
     })
   })

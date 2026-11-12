@@ -193,7 +193,7 @@ describe("RouteComponent (image detail)", () => {
       fireEvent.click(screen.getByText("trigger-member-change"))
 
       expect(await screen.findByText("Access Status")).toBeInTheDocument()
-      expect(screen.getByText('Access status updated to "rejected".')).toBeInTheDocument()
+      expect(screen.getByText("rejected")).toHaveClass("lowercase", "first-letter:uppercase")
       expect(h.updateMemberMutateAsync).toHaveBeenCalledWith(
         expect.objectContaining({ project_id: "p1", imageId: "img-1", memberId: "p1", status: "rejected" })
       )

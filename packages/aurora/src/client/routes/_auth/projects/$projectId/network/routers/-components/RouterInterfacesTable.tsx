@@ -1,4 +1,5 @@
 import { Trans, useLingui } from "@lingui/react/macro"
+import { StatusLabel } from "@/client/components/StatusLabel"
 import {
   Button,
   DataGrid,
@@ -81,7 +82,11 @@ export const RouterInterfacesTable = ({
             </DataGridCell>
             <DataGridCell>{routerInterface.device_owner}</DataGridCell>
             <DataGridCell>
-              {routerInterface.admin_state_up === undefined ? "—" : routerInterface.admin_state_up ? t`UP` : t`DOWN`}
+              {routerInterface.admin_state_up === undefined ? (
+                "—"
+              ) : (
+                <StatusLabel value={routerInterface.admin_state_up ? t`UP` : t`DOWN`} />
+              )}
             </DataGridCell>
           </DataGridRow>
         ))

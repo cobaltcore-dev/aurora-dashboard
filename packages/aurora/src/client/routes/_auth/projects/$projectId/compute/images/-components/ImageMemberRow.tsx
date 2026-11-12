@@ -2,6 +2,7 @@ import React from "react"
 import { useLingui } from "@lingui/react/macro"
 import { DataGridRow, DataGridCell, Button, Stack, Spinner } from "@cloudoperators/juno-ui-components"
 import { MEMBER_STATUSES } from "../../-constants/filters"
+import { StatusLabel } from "@/client/components/StatusLabel"
 
 interface ImageMember {
   image_id: string
@@ -55,7 +56,9 @@ export const ImageMemberRow: React.FC<ImageMemberRowProps> = ({ member, isDeleti
 
   return (
     <DataGridRow>
-      <DataGridCell textContain="break-all">{getStatusLabel(member.status)}</DataGridCell>
+      <DataGridCell textContain="break-all">
+        <StatusLabel value={getStatusLabel(member.status)} />
+      </DataGridCell>
       <DataGridCell textContain="break-all">{member.member_id}</DataGridCell>
       <DataGridCell textContain="break-all">{member.image_id}</DataGridCell>
       <DataGridCell>

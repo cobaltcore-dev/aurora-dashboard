@@ -7,13 +7,10 @@ interface StatusLabelProps {
 
 /**
  * Renders a status/state value with uniform casing ("Active", "Running").
- *
- * Backends disagree on casing — Glance image status is lowercase ("active"),
- * Nova power-state labels are uppercase ("RUNNING"). We lowercase the raw value
- * and let CSS `capitalize` uppercase the first letter, so a plain `capitalize`
- * class alone (which cannot lowercase existing caps) is not enough.
+ * Keep the raw value intact; Tailwind lowercases it and uppercases only the
+ * first letter. Inline-block is required for the first-letter pseudo-element.
  */
 export function StatusLabel({ value }: StatusLabelProps) {
   if (!value) return <>{EMPTY_VALUE}</>
-  return <span className="capitalize">{value.toLowerCase()}</span>
+  return <span className="inline-block lowercase first-letter:uppercase">{value}</span>
 }

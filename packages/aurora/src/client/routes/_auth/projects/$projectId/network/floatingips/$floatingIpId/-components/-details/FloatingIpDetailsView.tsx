@@ -14,7 +14,7 @@ import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks"
 import { FloatingIpActionModals } from "../../../-components/-modals/FloatingIpActionModals"
-import { formatFloatingIpStatus } from "../../../-utils/formatFloatingIpStatus"
+import { StatusLabel } from "@/client/components/StatusLabel"
 
 interface FloatingIpDetailsViewProps {
   floatingIp: FloatingIp
@@ -48,7 +48,7 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
     { label: t`ID`, value: floatingIp.id },
     { label: t`Description`, value: floatingIp.description || `- -` },
     { label: t`Project ID`, value: floatingIp.project_id || `- -` },
-    { label: t`Status`, value: formatFloatingIpStatus(floatingIp.status) },
+    { label: t`Status`, value: <StatusLabel value={floatingIp.status} /> },
     { label: t`Created At`, value: floatingIp.created_at ? new Date(floatingIp.created_at).toLocaleString() : `- -` },
     { label: t`Updated At`, value: floatingIp.updated_at ? new Date(floatingIp.updated_at).toLocaleString() : `- -` },
     { label: t`Tags`, value: floatingIp.tags?.join(", ") || `- -` },

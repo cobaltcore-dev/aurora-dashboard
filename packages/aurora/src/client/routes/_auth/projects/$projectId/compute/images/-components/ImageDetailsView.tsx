@@ -62,7 +62,7 @@ const SharedImageBox: React.FC<{
           <span className="font-semibold">
             <Trans>Access Status:</Trans>
           </span>{" "}
-          {myMemberData.status}
+          <StatusLabel value={myMemberData.status} />
         </li>
         <li>
           <span className="font-semibold">

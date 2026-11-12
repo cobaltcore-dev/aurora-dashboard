@@ -42,7 +42,7 @@ function OverviewSection({ instance, projectId }: { instance: Server; projectId:
   const items = [
     { label: t`ID`, value: <ClipboardText text={instance.id} /> },
     { label: t`Name`, value: instance.name },
-    { label: t`Status`, value: instance.status },
+    { label: t`Status`, value: <StatusLabel value={instance.status} /> },
     { label: t`Availability Zone`, value: instance["OS-EXT-AZ:availability_zone"] },
     {
       label: t`Image Name`,
@@ -81,8 +81,8 @@ function StateSection({ instance }: { instance: Server }) {
   const { t } = useLingui()
   const items = [
     { label: t`Power State`, value: <StatusLabel value={powerStateLabel(instance["OS-EXT-STS:power_state"])} /> },
-    { label: t`VM State`, value: instance["OS-EXT-STS:vm_state"] },
-    { label: t`Task State`, value: instance["OS-EXT-STS:task_state"] },
+    { label: t`VM State`, value: <StatusLabel value={instance["OS-EXT-STS:vm_state"]} /> },
+    { label: t`Task State`, value: <StatusLabel value={instance["OS-EXT-STS:task_state"]} /> },
     { label: t`vCPUs`, value: instance.flavor?.vcpus },
     { label: t`RAM (MiB)`, value: instance.flavor?.ram },
     { label: t`Root Disk (GiB)`, value: instance.flavor?.disk },
