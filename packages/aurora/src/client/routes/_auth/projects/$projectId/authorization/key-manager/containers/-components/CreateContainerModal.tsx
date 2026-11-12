@@ -171,7 +171,6 @@ export function CreateContainerModal({
               id="name"
               label={t`Name`}
               value={name}
-              maxLength={255}
               onChange={(e) => {
                 const val = e.target.value
                 setName(val)

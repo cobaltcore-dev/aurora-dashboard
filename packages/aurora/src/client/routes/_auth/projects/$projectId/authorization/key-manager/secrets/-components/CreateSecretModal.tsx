@@ -194,7 +194,6 @@ export function CreateSecretModal({
               label={t`Name`}
               required
               value={name}
-              maxLength={255}
               onChange={(e) => {
                 const val = e.target.value
                 setName(val)
@@ -251,7 +250,6 @@ export function CreateSecretModal({
               id="algorithm"
               label={t`Algorithm`}
               value={algorithm}
-              maxLength={255}
               onChange={(e) => {
                 const val = e.target.value
                 setAlgorithm(val)
@@ -270,7 +268,6 @@ export function CreateSecretModal({
               id="mode"
               label={t`Mode`}
               value={mode}
-              maxLength={255}
               onChange={(e) => {
                 const val = e.target.value
                 setMode(val)
@@ -310,7 +307,6 @@ export function CreateSecretModal({
               required
               rows={6}
               value={payload}
-              maxLength={10000}
               onChange={(e) => {
                 const val = e.target.value
                 setPayload(val)
