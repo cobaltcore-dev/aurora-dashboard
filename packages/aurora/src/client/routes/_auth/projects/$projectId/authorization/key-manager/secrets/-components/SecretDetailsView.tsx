@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Button, Status, Message, Stack, ContentHeading, SecretText } from "@cloudoperators/juno-ui-components"
+import { Button, Status, Message, Stack, SecretText } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
@@ -125,13 +125,13 @@ export function SecretDetailsView({ projectId, secretId }: SecretDetailsViewProp
 
       <Stack direction="vertical" gap="6" className="mt-6">
         <Stack direction="vertical" gap="2">
-          <ContentHeading>{t`Secret Details`}</ContentHeading>
+          <h2>{t`Secret Details`}</h2>
           <TwoColumnDescriptionList items={detailItems} />
         </Stack>
 
         {canRevealPayload && (
           <Stack direction="vertical" gap="2">
-            <ContentHeading>{t`Payload`}</ContentHeading>
+            <h2>{t`Payload`}</h2>
             {!showPayload ? (
               <div>
                 <Button variant="subdued" onClick={handleRevealPayload} disabled={payloadFetching}>

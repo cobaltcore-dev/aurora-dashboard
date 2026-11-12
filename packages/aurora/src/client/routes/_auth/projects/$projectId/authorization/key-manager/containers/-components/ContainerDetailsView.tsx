@@ -1,7 +1,6 @@
 import {
   Status,
   Stack,
-  ContentHeading,
   DataGrid,
   DataGridRow,
   DataGridHeadCell,
@@ -85,12 +84,12 @@ export function ContainerDetailsView({ projectId, containerId }: ContainerDetail
 
       <Stack direction="vertical" gap="6" className="mt-6">
         <Stack direction="vertical" gap="2">
-          <ContentHeading>{t`Container Details`}</ContentHeading>
+          <h2>{t`Container Details`}</h2>
           <TwoColumnDescriptionList items={detailItems} />
         </Stack>
 
         <Stack direction="vertical" gap="2">
-          <ContentHeading>{t`Secrets`}</ContentHeading>
+          <h2>{t`Secrets`}</h2>
           <DataGrid columns={2} minContentColumns={[1]}>
             <DataGridRow>
               <DataGridHeadCell>{t`Name / ID`}</DataGridHeadCell>
