@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Button, Status, Message, Stack, ContentHeading } from "@cloudoperators/juno-ui-components"
+import { Button, Status, Message, Stack, ContentHeading, SecretText } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
@@ -142,24 +142,22 @@ export function SecretDetailsView({ projectId, secretId }: SecretDetailsViewProp
               <Message variant="error" text={t`Failed to load payload.`} />
             ) : payloadData ? (
               <Stack direction="vertical" gap="2">
-                <p className="text-sm opacity-60">
-                  {payloadData.encoding === "base64"
-                    ? `${payloadData.contentType} ${t`(base64-encoded)`}`
-                    : payloadData.contentType}
-                </p>
-                <pre className="bg-theme-background-lvl-2 max-h-48 overflow-auto rounded p-4 text-xs">
-                  {payloadData.payload}
-                </pre>
-                <Stack gap="2">
-                  <Button
-                    size="small"
-                    variant="subdued"
-                    onClick={() => void navigator.clipboard.writeText(payloadData.payload)}
-                    label={t`Copy`}
-                  />
+                <SecretText
+                  value={payloadData.payload}
+                  readOnly
+                  reveal
+                  copy
+                  toggle
+                  onHide={() => setShowPayload(false)}
+                  helptext={
+                    payloadData.encoding === "base64"
+                      ? `${payloadData.contentType} (base64-encoded)`
+                      : payloadData.contentType
+                  }
+                />
+                <div>
                   <Button size="small" variant="subdued" onClick={handleDownload} label={t`Download`} />
-                  <Button size="small" variant="subdued" onClick={() => setShowPayload(false)} label={t`Hide`} />
-                </Stack>
+                </div>
               </Stack>
             ) : null}
           </Stack>
