@@ -146,7 +146,6 @@ export function SecretDetailsView({ projectId, secretId }: SecretDetailsViewProp
                   value={payloadData.payload}
                   readOnly
                   reveal
-                  copy
                   toggle
                   onHide={() => setShowPayload(false)}
                   helptext={
@@ -155,9 +154,15 @@ export function SecretDetailsView({ projectId, secretId }: SecretDetailsViewProp
                       : payloadData.contentType
                   }
                 />
-                <div>
+                <Stack gap="2">
+                  <Button
+                    size="small"
+                    variant="subdued"
+                    onClick={() => void navigator.clipboard.writeText(payloadData.payload)}
+                    label={t`Copy`}
+                  />
                   <Button size="small" variant="subdued" onClick={handleDownload} label={t`Download`} />
-                </div>
+                </Stack>
               </Stack>
             ) : null}
           </Stack>
