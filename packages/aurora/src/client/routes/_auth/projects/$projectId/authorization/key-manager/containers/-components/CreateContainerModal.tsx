@@ -179,6 +179,7 @@ export function CreateContainerModal({
               }}
               onBlur={() => {
                 if (name.length > 255) setNameError(t`Name must be at most 255 characters`)
+                else setNameError(undefined)
               }}
               invalid={Boolean(nameError)}
               errortext={nameError}

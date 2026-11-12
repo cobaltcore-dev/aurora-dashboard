@@ -196,6 +196,7 @@ export function CreateOrderModal({
               onBlur={() => {
                 if (name.length > 255)
                   setValidation((prev) => ({ ...prev, name: t`Name must be at most 255 characters` }))
+                else setValidation((prev) => ({ ...prev, name: undefined }))
               }}
               invalid={Boolean(validation.name)}
               errortext={validation.name}
