@@ -1,7 +1,6 @@
 import {
   Status,
   Stack,
-  ContentHeading,
   DataGrid,
   DataGridRow,
   DataGridHeadCell,
@@ -61,11 +60,11 @@ export function ContainerDetailsView({ projectId, containerId }: ContainerDetail
   if (!container) return <Status status="empty" title={t`Container Not Found`} />
 
   const detailItems: DetailListItem[] = [
-    { label: t`ID`, value: <ClipboardText text={containerId} /> },
-    { label: t`Reference`, value: <ClipboardText text={container.container_ref} /> },
     { label: t`Name`, value: container.name ?? "- -" },
-    { label: t`Type`, value: container.type },
+    { label: t`ID`, value: <ClipboardText text={containerId} /> },
     { label: t`Status`, value: <StatusLabel value={container.status} /> },
+    { label: t`Reference`, value: <ClipboardText text={container.container_ref} /> },
+    { label: t`Type`, value: container.type },
     { label: t`Created`, value: new Date(container.created).toLocaleString() },
     { label: t`Updated`, value: new Date(container.updated).toLocaleString() },
   ]
@@ -83,12 +82,12 @@ export function ContainerDetailsView({ projectId, containerId }: ContainerDetail
 
       <Stack direction="vertical" gap="6" className="mt-6">
         <Stack direction="vertical" gap="2">
-          <ContentHeading>{t`Container Details`}</ContentHeading>
+          <h2>{t`Container Details`}</h2>
           <TwoColumnDescriptionList items={detailItems} />
         </Stack>
 
         <Stack direction="vertical" gap="2">
-          <ContentHeading>{t`Secrets`}</ContentHeading>
+          <h2>{t`Secrets`}</h2>
           <DataGrid columns={2} minContentColumns={[1]}>
             <DataGridRow>
               <DataGridHeadCell>{t`Name / ID`}</DataGridHeadCell>
@@ -104,7 +103,7 @@ export function ContainerDetailsView({ projectId, containerId }: ContainerDetail
                     className="cursor-pointer"
                   >
                     <DataGridCell>
-                      <div>{ref.name || <em>{t`unnamed`}</em>}</div>
+                      <div>{ref.name || "- -"}</div>
                       <div className="text-xs opacity-60">
                         <ClipboardText text={secretId} />
                       </div>

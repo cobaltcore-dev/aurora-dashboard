@@ -36,6 +36,11 @@ const AES_MODES = [
   { value: "ctr", label: "CTR" },
 ]
 
+const ORDER_PAYLOAD_CONTENT_TYPES = [
+  { value: "application/octet-stream", label: "application/octet-stream" },
+  { value: "text/plain", label: "text/plain" },
+]
+
 // Bit-length presets per algorithm. Algorithms without a preset fall back to free numeric input.
 const BIT_LENGTHS_BY_ALGORITHM: Record<string, number[]> = {
   aes: [128, 192, 256],
@@ -62,6 +67,7 @@ const defaultBitLengthFor = (algorithm: string): string => {
 }
 
 interface OrderValidation {
+  name?: string
   algorithm?: string
   bit_length?: string
   expiration?: string
@@ -110,6 +116,9 @@ export function CreateOrderModal({
 
   const validate = (): OrderValidation => {
     const errors: OrderValidation = {}
+    if (name.length > 255) {
+      errors.name = t`Name must be at most 255 characters`
+    }
     if (!algorithm) {
       errors.algorithm = t`Algorithm is required.`
     }
@@ -142,7 +151,7 @@ export function CreateOrderModal({
         algorithm,
         bit_length: parseInt(bitLength, 10),
         ...(algorithm === "aes" ? { mode } : {}),
-        ...(trimmedContentType ? { payload_content_type: trimmedContentType } : {}),
+        ...(orderType !== "asymmetric" && trimmedContentType ? { payload_content_type: trimmedContentType } : {}),
         ...(expiration ? { expiration } : {}),
       },
     })
@@ -157,7 +166,7 @@ export function CreateOrderModal({
       onConfirm={handleConfirm}
       confirmButtonLabel={t`Create`}
       cancelButtonLabel={t`Cancel`}
-      disableConfirmButton={createMutation.isPending}
+      disableConfirmButton={createMutation.isPending || Object.values(validation).some(Boolean)}
       disableCancelButton={createMutation.isPending}
       disableCloseButton={createMutation.isPending}
     >
@@ -177,8 +186,21 @@ export function CreateOrderModal({
               id="name"
               label={t`Name`}
               value={name}
-              onChange={(e) => setName(e.target.value)}
-              helptext={t`Optional. Names the secret this order generates.`}
+              onChange={(e) => {
+                const val = e.target.value
+                setName(val)
+                if (val.length > 255)
+                  setValidation((prev) => ({ ...prev, name: t`Name must be at most 255 characters` }))
+                else setValidation((prev) => ({ ...prev, name: undefined }))
+              }}
+              onBlur={() => {
+                if (name.length > 255)
+                  setValidation((prev) => ({ ...prev, name: t`Name must be at most 255 characters` }))
+                else setValidation((prev) => ({ ...prev, name: undefined }))
+              }}
+              invalid={Boolean(validation.name)}
+              errortext={validation.name}
+              helptext={t`${name.length}/255 characters. Names the secret this order generates.`}
             />
           </FormRow>
           <FormRow>
@@ -278,15 +300,20 @@ export function CreateOrderModal({
               </Select>
             </FormRow>
           )}
-          <FormRow>
-            <TextInput
-              id="payload-content-type"
-              label={t`Payload Content Type`}
-              value={payloadContentType}
-              onChange={(e) => setPayloadContentType(e.target.value)}
-              placeholder="application/octet-stream"
-            />
-          </FormRow>
+          {orderType !== "asymmetric" && (
+            <FormRow>
+              <Select
+                id="payload-content-type"
+                label={t`Payload Content Type`}
+                value={payloadContentType}
+                onChange={(v) => setPayloadContentType(typeof v === "string" ? v : "application/octet-stream")}
+              >
+                {ORDER_PAYLOAD_CONTENT_TYPES.map((ct) => (
+                  <SelectOption key={ct.value} value={ct.value} label={ct.label} />
+                ))}
+              </Select>
+            </FormRow>
+          )}
         </FormSection>
       </Form>
     </Modal>

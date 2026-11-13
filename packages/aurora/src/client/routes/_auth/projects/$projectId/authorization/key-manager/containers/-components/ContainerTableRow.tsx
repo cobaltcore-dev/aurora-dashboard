@@ -27,7 +27,7 @@ export function ContainerTableRow({ container, canDeleteContainer, onShowDetails
   return (
     <DataGridRow onClick={() => onShowDetails(container)}>
       <DataGridCell>
-        <div>{container.name ?? <em>{t`unnamed`}</em>}</div>
+        <div>{container.name ?? "- -"}</div>
         <div className="text-xs opacity-60">
           <ClipboardText text={id} />
         </div>

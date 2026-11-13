@@ -28,7 +28,7 @@ export function OrderTableRow({ order, canDeleteOrder, onShowDetails, onDelete }
   return (
     <DataGridRow onClick={() => onShowDetails(order)}>
       <DataGridCell>
-        <div>{name ?? <em>{t`unnamed`}</em>}</div>
+        <div>{name ?? "- -"}</div>
         <div className="text-xs opacity-60">
           <ClipboardText text={id} />
         </div>
