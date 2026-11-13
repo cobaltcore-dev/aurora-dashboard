@@ -90,8 +90,8 @@ describe("Images — Type filter navigation", () => {
     expect(h.filterNames.slice(0, 2)).toEqual(["status", "image_type"])
     if (memberStatus === "all") expect(h.filterNames[2]).toBe("visibility")
     expect(screen.getByRole("option", { name: "All" })).toBeInTheDocument()
-    expect(screen.getByRole("option", { name: "snapshot" })).toBeInTheDocument()
-    expect(screen.getByRole("option", { name: "images" })).toBeInTheDocument()
+    expect(screen.getByRole("option", { name: "Snapshot" })).toBeInTheDocument()
+    expect(screen.getByRole("option", { name: "Images" })).toBeInTheDocument()
   })
 
   it("refreshes when only Type changes and resets pagination without losing other filters", async () => {

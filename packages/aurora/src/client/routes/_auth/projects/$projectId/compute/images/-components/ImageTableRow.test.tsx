@@ -130,11 +130,11 @@ describe("ImageTableRow", () => {
       JSON.stringify([{ source_type: "snapshot" }]),
     ])("renders the snapshot type for block_device_mapping %j", (block_device_mapping) => {
       renderRow({ image: makeImage({ block_device_mapping }) })
-      expect(screen.getByText("snapshot")).toBeInTheDocument()
+      expect(screen.getByText("Snapshot")).toBeInTheDocument()
     })
 
     it.each([
-      { image_type: "snapshot", label: "snapshot" },
+      { image_type: "snapshot", label: "Snapshot" },
       { image_type: undefined, label: "- -" },
       { image_type: null, label: "- -" },
       { image_type: "backup", label: "- -" },

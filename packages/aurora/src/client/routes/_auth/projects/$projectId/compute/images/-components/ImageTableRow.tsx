@@ -127,7 +127,7 @@ export function ImageTableRow({
       <DataGridCell textContain="truncate-end" title={name || id}>
         {name || id}
       </DataGridCell>
-      <DataGridCell>{isSnapshotImage(image) ? t`snapshot` : "- -"}</DataGridCell>
+      <DataGridCell>{isSnapshotImage(image) ? t`Snapshot` : "- -"}</DataGridCell>
       <DataGridCell>{visibility}</DataGridCell>
       <DataGridCell>{image.protected ? t`Yes` : t`No`}</DataGridCell>
       <DataGridCell>

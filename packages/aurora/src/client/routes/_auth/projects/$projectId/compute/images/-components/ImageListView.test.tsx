@@ -123,7 +123,7 @@ describe("ImageListView — pagination", () => {
       })
 
       expect(screen.getByRole("columnheader", { name: "Type" })).toBeInTheDocument()
-      expect(within(screen.getByTestId("image-row-image-1")).getByText("snapshot")).toBeInTheDocument()
+      expect(within(screen.getByTestId("image-row-image-1")).getByText("Snapshot")).toBeInTheDocument()
       expect(within(screen.getByTestId("image-row-image-2")).getByText("- -")).toBeInTheDocument()
     }
   )
