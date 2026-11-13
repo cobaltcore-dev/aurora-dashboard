@@ -99,7 +99,7 @@ Primary users are **Developer** and **DevOps Engineer** — they have the highes
 
 #### Summary of UI functionality
 
-A modal dialog accessible from the Ceph Object Storage section that displays step-by-step CLI configuration instructions with pre-filled endpoint and region values. Users select their preferred CLI tool (AWS CLI, s3cmd, or rclone) and copy ready-to-use commands.
+A modal dialog accessible from the bucket list, a bucket page, and the Setup Required screen of Ceph Object Storage that displays step-by-step CLI configuration instructions with pre-filled endpoint and region values. Users select their preferred CLI tool (AWS CLI, s3cmd, or rclone) and copy ready-to-use commands.
 
 ### Story 1: Configure CLI for S3 storage
 
@@ -111,14 +111,15 @@ A modal dialog accessible from the Ceph Object Storage section that displays ste
 
 - [ ] "CLI Setup" menu item appears in More Actions menu on bucket list page
 - [ ] "CLI Setup" menu item appears in actions menu on individual bucket page
+- [ ] "CLI Setup" button appears next to "Manage Credentials" on the "S3 Object Storage: Setup Required" screen (no access keys yet)
 - [ ] Modal displays dynamically populated endpoint and region from `storage.ceph.containers.status` tRPC endpoint
 - [ ] User can select between AWS CLI, s3cmd, and rclone via dropdown (AWS CLI is default)
 - [ ] Each CLI tool shows step-by-step instructions with copyable code blocks
 - [ ] Commands use placeholders for credentials (`<ACCESS_KEY_ID>`, `<SECRET_ACCESS_KEY>`)
 - [ ] When opened from bucket page, bucket name is pre-filled in example commands
 - [ ] "Manage Credentials" button opens existing ManageCredentialsModal
-- [ ] Loading state shows spinner with "Loading Connection Details..." (timeout: 10s → error state)
-- [ ] Error state shows error message without rendering code blocks
+- [ ] Loading state shows a progress Status "Loading Connection Details…" (timeout: 10s → error state)
+- [ ] Error state shows an error Status (Retry only for network failures) instead of the instructions; the tool selector and "Manage Credentials" stay available
 - [ ] Modal closes via Close button, Escape key, or clicking outside
 - [ ] Analytics events: `cliSetup.open`, `cliSetup.close`, `cliSetup.selectTool` (payload: `{ tool: 'aws-cli' | 's3cmd' | 'rclone' }`)
 - [ ] Copy feedback: Juno CodeBlock built-in "Copied!" toast on successful copy
@@ -128,6 +129,7 @@ A modal dialog accessible from the Ceph Object Storage section that displays ste
 - Tool-specific: AWS CLI shows configure + set region + list/upload/download commands; s3cmd shows ~/.s3cfg config file + commands; rclone shows config block + commands
 - All commands use path-style addressing (not virtual-hosted)
 - Credentials are always placeholders — real secrets never displayed
+- Setup Required entry point added by user decision during PR review (#1471); see spec Open items.
 
 ---
 
@@ -139,6 +141,7 @@ A modal dialog accessible from the Ceph Object Storage section that displays ste
 
 - [x] Open CLI Setup from bucket list page (More Actions menu)
 - [x] Open CLI Setup from bucket page (actions menu)
+- [x] Open CLI Setup from the Setup Required screen (button next to Manage Credentials; shown when the project has no access keys)
 - [x] Select CLI tool from dropdown (AWS CLI / s3cmd / rclone)
 - [x] Copy configuration or commands (per code block)
 - [x] Navigate to Manage Credentials (button opens existing modal)
@@ -146,7 +149,7 @@ A modal dialog accessible from the Ceph Object Storage section that displays ste
 
 **State availability:**
 
-- Select tool and Manage Credentials: available in all states (loading/error/success)
+- Select tool and Manage Credentials: available in all states (loading/error/success); instructions render once connection details load
 - Copy code: only available in success state (no code blocks during loading/error)
 
 ---
@@ -179,13 +182,13 @@ A modal dialog accessible from the Ceph Object Storage section that displays ste
 
 ### Details
 
-|                           |                                                                                                     | Notes                                    |
-| ------------------------- | --------------------------------------------------------------------------------------------------- | ---------------------------------------- |
-| **Service Documentation** | [Ceph CLI Docs](https://documentation.global.cloud.sap/docs/customer/storage/obj-v2-ceph/ceph-cli/) | Reference for CLI commands               |
-| **API Docs**              | tRPC `storage.ceph.containers.status`                                                               | Existing endpoint                        |
-| **API Spec**              | `{ project_id: string }` → `{ hasCredentials: boolean, endpoint: string, region: string }`          | Frozen contract                          |
-| **API stable?**           | [x] Yes [ ] No                                                                                      | Production since aurora 2.2.0 (Oct 2026) |
-| **API available in QA**   | [x] Yes [ ] No                                                                                      | Available in local mock, QA, and prod    |
+|                           |                                                                                                     | Notes                                                                                                       |
+| ------------------------- | --------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| **Service Documentation** | [Ceph CLI Docs](https://documentation.global.cloud.sap/docs/customer/storage/obj-v2-ceph/ceph-cli/) | Reference for CLI commands                                                                                  |
+| **API Docs**              | tRPC `storage.ceph.containers.status`                                                               | Existing endpoint                                                                                           |
+| **API Spec**              | `{ project_id: string }` → `{ hasCredentials: boolean, endpoint: string, region: string }`          | Frozen contract                                                                                             |
+| **API stable?**           | [x] Yes [ ] No                                                                                      | Production since aurora 2.2.0 (Oct 2026)                                                                    |
+| **API available in QA**   | [x] Yes [ ] No                                                                                      | Available wherever the `ceph` service is in the catalog and the server's Ceph region is set (dev, QA, prod) |
 
 ### Authentication Mode
 
@@ -201,13 +204,13 @@ Standard tRPC error shape. UI handles with generic error status component.
 
 ### Dev Environment
 
-| Property                             | Value                                         |
-| ------------------------------------ | --------------------------------------------- |
-| **Dev/QA endpoint URL**              | https://rgw.st1.eu-de-2.cloud.sap (example)   |
-| **Region**                           | Varies by deployment (e.g., eu-de-1, eu-de-2) |
-| **Test tenant / project ID**         | Any project with Ceph Storage enabled         |
-| **Seed data or mock data available** | Local mock via MOCK_CEPH_REGION env var       |
-| **Access credentials**               | Standard OpenStack credentials                |
+| Property                             | Value                                                                                                                                                                                     |
+| ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Dev/QA endpoint URL**              | https://rgw.st1.eu-de-2.cloud.sap (example)                                                                                                                                               |
+| **Region**                           | Varies by deployment (e.g., eu-de-1, eu-de-2)                                                                                                                                             |
+| **Test tenant / project ID**         | Any project with Ceph Storage enabled                                                                                                                                                     |
+| **Seed data or mock data available** | None needed: the region comes from `createServer({ cephRegion })` (in `apps/dashboard`, the `CEPH_REGION` env var — see `.env.example`); the endpoint comes from the `ceph` catalog entry |
+| **Access credentials**               | Standard OpenStack credentials                                                                                                                                                            |
 
 ### OpenStack Service Catalog Registration
 
@@ -233,13 +236,13 @@ Standard tRPC error shape. UI handles with generic error status component.
 
 **Scope:** Project-scoped
 
-**Who is explicitly denied?** No one with project access. The feature shows public information (endpoint, region, example commands with placeholders). Users without permission to create credentials will see the instructions but will encounter an error in ManageCredentialsModal if they try to create keys.
+**Who is explicitly denied?** No one with project access. The feature shows public information (endpoint, region, example commands with placeholders). Users without permission to create credentials will see the instructions; in ManageCredentialsModal the Create Access Key action is hidden or disabled for them and an info message explains why.
 
-| Role          | Can see CLI Setup | Can view instructions | Can create credentials                  |
-| ------------- | ----------------- | --------------------- | --------------------------------------- |
-| admin         | ✅ Yes            | ✅ Yes                | ✅ Yes                                  |
-| member        | ✅ Yes            | ✅ Yes                | ✅ Yes                                  |
-| reader/viewer | ✅ Yes            | ✅ Yes                | ❌ No (error in ManageCredentialsModal) |
+| Role          | Can see CLI Setup | Can view instructions | Can create credentials                                                                      |
+| ------------- | ----------------- | --------------------- | ------------------------------------------------------------------------------------------- |
+| admin         | ✅ Yes            | ✅ Yes                | ✅ Yes                                                                                      |
+| member        | ✅ Yes            | ✅ Yes                | ✅ Yes                                                                                      |
+| reader/viewer | ✅ Yes            | ✅ Yes                | ❌ No (Create Access Key hidden or disabled in ManageCredentialsModal, with an explanation) |
 
 ### Dependencies on Other Teams or Services
 
@@ -311,6 +314,7 @@ access_key = <ACCESS_KEY_ID>
 secret_key = <SECRET_ACCESS_KEY>
 host_base = {endpoint_host}
 host_bucket = {endpoint_host}
+bucket_location = {region}
 use_https = True
 signature_v2 = False
 ```
@@ -328,4 +332,4 @@ endpoint = {endpoint}
 region = {region}
 ```
 
-Where `{endpoint}`, `{region}`, `{endpoint_host}` are dynamically populated from the API.
+Where `{endpoint}`, `{region}`, `{endpoint_host}` are populated from the API, and `<bucket-name>` is replaced by the bucket name when the guide is opened from a bucket page.
