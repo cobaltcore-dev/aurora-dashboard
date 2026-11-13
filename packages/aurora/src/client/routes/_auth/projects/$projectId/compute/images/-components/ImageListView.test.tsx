@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, act } from "@testing-library/react"
+import { render, screen, fireEvent, act, within } from "@testing-library/react"
 import { describe, it, expect, vi, beforeAll, beforeEach } from "vitest"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
@@ -111,6 +111,40 @@ describe("ImageListView — pagination", () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
+
+  it.each(["all", "accepted", "pending"] as const)(
+    "renders snapshot Type consistently in the %s tab",
+    async (memberStatusView) => {
+      const images = [{ ...makeImage(1), image_type: "snapshot" }, makeImage(2)]
+      await act(async () => {
+        render(<ImageListView {...defaultProps} images={images} memberStatusView={memberStatusView} />, {
+          wrapper: TestingProvider,
+        })
+      })
+
+      expect(screen.getByRole("columnheader", { name: "Type" })).toBeInTheDocument()
+      expect(within(screen.getByTestId("image-row-image-1")).getByText("Snapshot")).toBeInTheDocument()
+      expect(within(screen.getByTestId("image-row-image-2")).getByText("- -")).toBeInTheDocument()
+    }
+  )
+
+  it.each([true, false])(
+    "keeps header, rows, and empty span aligned with bulk actions=%s",
+    async (hasAnyBulkAction) => {
+      const columnCount = hasAnyBulkAction ? 10 : 9
+      const { rerender } = render(
+        <ImageListView {...defaultProps} images={[makeImage(1)]} hasAnyBulkAction={hasAnyBulkAction} />,
+        { wrapper: TestingProvider }
+      )
+
+      expect(screen.getAllByRole("columnheader")).toHaveLength(columnCount)
+      expect(within(screen.getByTestId("image-row-image-1")).getAllByRole("gridcell")).toHaveLength(columnCount)
+      expect(screen.getByTestId("images-table").style.gridTemplateColumns.trim().endsWith("min-content")).toBe(true)
+
+      rerender(<ImageListView {...defaultProps} images={[]} hasAnyBulkAction={hasAnyBulkAction} />)
+      expect(screen.getByRole("gridcell")).toHaveStyle({ gridColumn: `span ${columnCount} / span ${columnCount}` })
+    }
+  )
 
   it("renders 'no images' message when images array is empty", async () => {
     await act(async () => {

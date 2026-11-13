@@ -130,6 +130,47 @@ describe("imageRouter", () => {
   })
 
   describe("listImagesWithSearch", () => {
+    it.each(["snapshot", "images"] as const)("filters %s before counting and paginating", async (image_type) => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+      const images = Array.from({ length: 65 }, (_, index) => ({
+        ...mockGlanceImage,
+        id: generateTestUUID(index),
+        ...(index % 4 === 0
+          ? { image_type: "snapshot" }
+          : index % 4 === 2
+            ? { block_device_mapping: JSON.stringify([{ source_type: "snapshot" }]) }
+            : {}),
+      }))
+      mockCtx.mockGlance.get.mockResolvedValueOnce({
+        json: async () => ({ images: images.slice(0, 20), next: "v2/images?marker=next" }),
+      })
+      mockCtx.mockGlance.get.mockResolvedValueOnce({ json: async () => ({ images: images.slice(20) }) })
+
+      const result = await caller.image.listImagesWithSearch({ project_id: TEST_PROJECT_ID, image_type, marker: "2" })
+      const expected = images.filter((_, index) => (index % 2 === 0) === (image_type === "snapshot"))
+
+      expect(result.images).toEqual(expected.slice(30))
+      expect(result.totalCount).toBe(expected.length)
+      expect(result.next).toBeUndefined()
+      expect(mockCtx.mockGlance.get).toHaveBeenCalledTimes(2)
+      expect(imageHelpers.applyImageQueryParams).toHaveBeenCalledWith(
+        expect.any(URLSearchParams),
+        expect.not.objectContaining({ image_type })
+      )
+    })
+
+    it("keeps all types when the type filter is All", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+      const images = [mockGlanceImage, { ...mockGlanceImage, id: generateTestUUID(2), image_type: "snapshot" }]
+      mockCtx.mockGlance.get.mockResolvedValueOnce({ json: async () => ({ images }) })
+
+      expect(
+        (await caller.image.listImagesWithSearch({ project_id: TEST_PROJECT_ID, image_type: "all" })).images
+      ).toEqual(images)
+    })
+
     it("should throw UNAUTHORIZED when session validation fails", async () => {
       const mockCtx = createMockContext(true)
       const caller = createCaller(mockCtx)
@@ -361,6 +402,43 @@ describe("imageRouter", () => {
   })
 
   describe("listImagesWithPagination", () => {
+    it.each(["all", "snapshot", "images"] as const)(
+      "classifies an image with both snapshot markers once for %s",
+      async (image_type) => {
+        const mockCtx = createMockContext()
+        const caller = createCaller(mockCtx)
+        const snapshot = {
+          ...mockGlanceImage,
+          id: generateTestUUID(4),
+          image_type: "snapshot",
+          block_device_mapping: JSON.stringify([{ source_type: "snapshot" }]),
+        }
+        mockCtx.mockGlance.get.mockResolvedValueOnce({ json: async () => ({ images: [snapshot] }) })
+
+        const result = await caller.image.listImagesWithPagination({ project_id: TEST_PROJECT_ID, image_type })
+
+        expect(result.images).toEqual(image_type === "images" ? [] : [snapshot])
+      }
+    )
+
+    it.each(["snapshot", "images"] as const)("applies the %s filter to the full list", async (image_type) => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+      const snapshot = { ...mockGlanceImage, id: generateTestUUID(2), image_type: "snapshot" }
+      const volumeSnapshot = {
+        ...mockGlanceImage,
+        id: generateTestUUID(3),
+        block_device_mapping: JSON.stringify([{ source_type: "snapshot" }]),
+      }
+      mockCtx.mockGlance.get.mockResolvedValueOnce({
+        json: async () => ({ images: [mockGlanceImage, snapshot, volumeSnapshot] }),
+      })
+
+      const result = await caller.image.listImagesWithPagination({ project_id: TEST_PROJECT_ID, image_type })
+
+      expect(result.images).toEqual(image_type === "snapshot" ? [snapshot, volumeSnapshot] : [mockGlanceImage])
+    })
+
     it("should list images with pagination successfully", async () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
@@ -2010,6 +2088,55 @@ describe("imageRouter", () => {
     })
 
     describe("Member Data Fetching", () => {
+      it.each(["accepted", "pending"] as const)(
+        "limits membership lookups to ten across pages and preserves %s image order",
+        async (memberStatus) => {
+          const mockCtx = createMockContext()
+          const caller = createCaller(mockCtx)
+          mockCtx.openstack.getToken = vi.fn().mockReturnValue({
+            tokenData: { project: { id: currentProjectId } },
+          })
+          const images = Array.from({ length: 25 }, (_, index) => ({
+            ...sharedImageWithAcceptedStatus,
+            id: generateTestUUID(100 + index),
+          }))
+          mockCtx.mockGlance.get.mockResolvedValueOnce({
+            json: async () => ({ images: images.slice(0, 15), next: "v2/images?marker=next" }),
+          })
+          mockCtx.mockGlance.get.mockResolvedValueOnce({ json: async () => ({ images: images.slice(15) }) })
+
+          let active = 0
+          let maxActive = 0
+          mockCtx.mockGlance.get.mockImplementation(async (url: string) => {
+            active++
+            maxActive = Math.max(maxActive, active)
+            // Keep lookups in flight until the current batch has been started.
+            await Promise.resolve()
+            active--
+            const imageId = url.split("/")[2]
+            const index = images.findIndex((image) => image.id === imageId)
+            return {
+              ok: true,
+              json: async () => ({
+                ...memberWithAcceptedStatus,
+                image_id: imageId,
+                status: index % 2 === 0 ? "accepted" : "pending",
+              }),
+            }
+          })
+
+          const result = await caller.image.listSharedImagesByMemberStatus({
+            project_id: TEST_PROJECT_ID,
+            memberStatus,
+          })
+
+          expect(maxActive).toBe(10)
+          expect(active).toBe(0)
+          expect(mockCtx.mockGlance.get).toHaveBeenCalledTimes(27)
+          expect(result).toEqual(images.filter((_, index) => (index % 2 === 0) === (memberStatus === "accepted")))
+        }
+      )
+
       it("should fetch member data for each shared image using the current projectId", async () => {
         const mockCtx = createMockContext()
         const caller = createCaller(mockCtx)
@@ -2427,6 +2554,77 @@ describe("imageRouter", () => {
         expect(result[0].id).toBe(imgA.id)
         const glanceUrl: string = mockCtx.mockGlance.get.mock.calls[0][0]
         expect(glanceUrl).not.toContain("name=")
+      })
+
+      it.each(["all", "snapshot", "images"] as const)("filters shared images by type %s", async (image_type) => {
+        const mockCtx = createMockContext()
+        const caller = createCaller(mockCtx)
+        const snapshot = { ...sharedImageWithAcceptedStatus, id: generateTestUUID(50), image_type: "snapshot" }
+        const regular = { ...sharedImageWithAcceptedStatus, id: generateTestUUID(51) }
+        const backup = { ...sharedImageWithAcceptedStatus, id: generateTestUUID(52), image_type: "backup" }
+        const volumeSnapshot = {
+          ...sharedImageWithAcceptedStatus,
+          id: generateTestUUID(53),
+          block_device_mapping: JSON.stringify([{ source_type: "snapshot" }]),
+        }
+        setupWithImages(mockCtx, [snapshot, regular, backup, volumeSnapshot])
+
+        const result = await caller.image.listSharedImagesByMemberStatus({
+          project_id: TEST_PROJECT_ID,
+          memberStatus: "accepted",
+          image_type,
+        })
+
+        expect(result).toEqual(
+          image_type === "snapshot"
+            ? [snapshot, volumeSnapshot]
+            : image_type === "images"
+              ? [regular, backup]
+              : [snapshot, regular, backup, volumeSnapshot]
+        )
+        expect(mockCtx.mockGlance.get.mock.calls[0][0]).not.toContain("image_type=")
+      })
+
+      it.each(["accepted", "pending"] as const)(
+        "finds snapshots on later upstream pages for %s",
+        async (memberStatus) => {
+          const mockCtx = createMockContext()
+          const caller = createCaller(mockCtx)
+          mockCtx.openstack.getToken = vi.fn().mockReturnValue({ tokenData: { project: { id: currentProjectId } } })
+          const regular = { ...sharedImageWithAcceptedStatus, id: generateTestUUID(53) }
+          const snapshot = { ...sharedImageWithAcceptedStatus, id: generateTestUUID(54), image_type: "snapshot" }
+          const next = `v2/images?visibility=shared&member_status=${memberStatus}&marker=${regular.id}`
+          mockCtx.mockGlance.get.mockResolvedValueOnce({ json: async () => ({ images: [regular], next }) })
+          mockCtx.mockGlance.get.mockResolvedValueOnce({ json: async () => ({ images: [snapshot] }) })
+          for (const image of [regular, snapshot]) {
+            mockCtx.mockGlance.get.mockResolvedValueOnce({
+              ok: true,
+              json: async () => ({ ...memberWithAcceptedStatus, image_id: image.id, status: memberStatus }),
+            })
+          }
+
+          const result = await caller.image.listSharedImagesByMemberStatus({
+            project_id: TEST_PROJECT_ID,
+            memberStatus,
+            image_type: "snapshot",
+          })
+
+          expect(result).toEqual([snapshot])
+          expect(mockCtx.mockGlance.get).toHaveBeenNthCalledWith(2, next)
+        }
+      )
+
+      it("rejects absolute upstream pagination URLs", async () => {
+        const mockCtx = createMockContext()
+        const caller = createCaller(mockCtx)
+        mockCtx.mockGlance.get.mockResolvedValueOnce({
+          json: async () => ({ images: [], next: "https://untrusted.example/images" }),
+        })
+
+        await expect(
+          caller.image.listSharedImagesByMemberStatus({ project_id: TEST_PROJECT_ID, memberStatus: "accepted" })
+        ).rejects.toThrow("absolute URLs are not allowed")
+        expect(mockCtx.mockGlance.get).toHaveBeenCalledTimes(1)
       })
 
       it("filters by single status value", async () => {

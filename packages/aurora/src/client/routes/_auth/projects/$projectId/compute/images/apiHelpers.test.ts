@@ -29,6 +29,26 @@ const makeClient = (opts: {
 const call = (client: TrpcClient, filters = {}) => createImagesPromise(client, "p1", "name", "asc", "", filters)
 
 describe("createImagesPromise", () => {
+  it.each(["all", "snapshot", "images"] as const)("forwards Type=%s to the main list", async (image_type) => {
+    const client = makeClient({})
+    await createImagesPromise(client, "p1", "name", "asc", "ubuntu", { image_type }, "2")
+
+    expect(client.compute.listImagesWithSearch.query).toHaveBeenCalledWith(
+      expect.objectContaining({ image_type, marker: "2", name: "ubuntu" })
+    )
+    expect(client.compute.listSharedImagesByMemberStatus.query).not.toHaveBeenCalled()
+  })
+
+  it.each(["accepted", "pending"] as const)("forwards Type to the %s tab query", async (member_status) => {
+    const client = makeClient({})
+    await call(client, { member_status, image_type: "snapshot", status: "active" })
+
+    expect(client.compute.listSharedImagesByMemberStatus.query).toHaveBeenCalledWith(
+      expect.objectContaining({ memberStatus: member_status, image_type: "snapshot", status: "active" })
+    )
+    expect(client.compute.listImagesWithSearch.query).not.toHaveBeenCalled()
+  })
+
   it("flags FORBIDDEN from the main list as listForbidden", async () => {
     const client = makeClient({ listImagesWithSearch: () => Promise.reject(forbiddenError("Forbidden")) })
 

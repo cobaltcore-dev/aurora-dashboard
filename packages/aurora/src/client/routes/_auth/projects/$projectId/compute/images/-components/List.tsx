@@ -35,6 +35,7 @@ interface ImagesProps {
 }
 
 type ImagesSearchParams = {
+  image_type?: string
   status?: string
   visibility?: string
   disk_format?: string
@@ -434,6 +435,13 @@ export const Images = ({ client, project }: ImagesProps) => {
         supportsMultiValue: true,
       },
       {
+        displayName: t`Type`,
+        filterName: "image_type",
+        values: ["snapshot", "images"],
+        valueLabels: { snapshot: t`Snapshot`, images: t`Images` },
+        supportsMultiValue: true,
+      },
+      {
         displayName: t`Visibility`,
         filterName: "visibility",
         values: Object.values(IMAGE_VISIBILITY),
@@ -579,6 +587,7 @@ export const Images = ({ client, project }: ImagesProps) => {
       setImagesPromise(newPromise as Promise<ImagesResult>)
     })
   }, [
+    searchParams.image_type,
     searchParams.status,
     searchParams.visibility,
     searchParams.disk_format,

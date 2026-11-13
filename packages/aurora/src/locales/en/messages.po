@@ -4200,6 +4200,9 @@ msgstr "Size:"
 msgid "Size: {policySize} / {MAX_POLICY_SIZE} bytes"
 msgstr "Size: {policySize} / {MAX_POLICY_SIZE} bytes"
 
+msgid "Snapshot"
+msgstr "Snapshot"
+
 msgid "SNAT"
 msgstr "SNAT"
 

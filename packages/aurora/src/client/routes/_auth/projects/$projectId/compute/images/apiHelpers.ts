@@ -1,7 +1,9 @@
 import { TrpcClient } from "@/client/trpcClient"
 import { TRPCClientError } from "@trpc/client"
+import type { ImageTypeFilter } from "@/server/Compute/types/image"
 
 type ImageFilters = {
+  image_type?: ImageTypeFilter
   status?: string
   visibility?: "public" | "private" | "shared" | "community" | "all"
   disk_format?: string
@@ -36,6 +38,7 @@ export const createImagesPromise = (
         project_id: project,
         memberStatus: filters.member_status,
         name: searchTerm || undefined,
+        image_type: filters.image_type,
         status: filters.status,
         disk_format: filters.disk_format,
         container_format: filters.container_format,

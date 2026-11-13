@@ -599,9 +599,9 @@ export function ImageListView({
   if (isLoading) {
     return (
       <div data-testid="loading">
-        <DataGrid columns={hasAnyBulkAction ? 9 : 8} className="images">
+        <DataGrid columns={hasAnyBulkAction ? 10 : 9} className="images">
           <DataGridRow>
-            <DataGridCell colSpan={hasAnyBulkAction ? 9 : 8}>
+            <DataGridCell colSpan={hasAnyBulkAction ? 10 : 9}>
               <Status status="progress" title={t`Loading...`} />
             </DataGridCell>
           </DataGridRow>
@@ -621,8 +621,8 @@ export function ImageListView({
         ) : (
           <>
             <DataGrid
-              columns={hasAnyBulkAction ? 9 : 8}
-              minContentColumns={hasAnyBulkAction ? [0, 8] : [7]}
+              columns={hasAnyBulkAction ? 10 : 9}
+              minContentColumns={hasAnyBulkAction ? [0, 9] : [8]}
               className="images"
               data-testid="images-table"
             >
@@ -634,6 +634,9 @@ export function ImageListView({
                 </DataGridHeadCell>
                 <DataGridHeadCell>
                   <Trans>Image Name</Trans>
+                </DataGridHeadCell>
+                <DataGridHeadCell>
+                  <Trans>Type</Trans>
                 </DataGridHeadCell>
                 <DataGridHeadCell>
                   <Trans>Visibility</Trans>
@@ -685,7 +688,7 @@ export function ImageListView({
                 ))
               ) : (
                 <DataGridRow>
-                  <DataGridCell colSpan={hasAnyBulkAction ? 9 : 8}>
+                  <DataGridCell colSpan={hasAnyBulkAction ? 10 : 9}>
                     <Status
                       status="empty"
                       title={

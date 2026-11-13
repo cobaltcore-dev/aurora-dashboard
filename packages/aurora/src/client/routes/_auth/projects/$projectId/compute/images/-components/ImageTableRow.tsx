@@ -19,6 +19,7 @@ import { trpcReact } from "@/client/trpcClient"
 import { TRPCClientError } from "@trpc/client"
 import { InferrableClientTypes } from "@trpc/server/unstable-core-do-not-import"
 import { getImageAccessStatusUpdatedToast, getImageAccessStatusErrorToast } from "./ImageToastNotifications"
+import { isSnapshotImage } from "@/types/image"
 
 interface ImageTableRowProps {
   image: GlanceImage
@@ -126,6 +127,7 @@ export function ImageTableRow({
       <DataGridCell textContain="truncate-end" title={name || id}>
         {name || id}
       </DataGridCell>
+      <DataGridCell>{isSnapshotImage(image) ? t`Snapshot` : "- -"}</DataGridCell>
       <DataGridCell>{visibility}</DataGridCell>
       <DataGridCell>{image.protected ? t`Yes` : t`No`}</DataGridCell>
       <DataGridCell>
