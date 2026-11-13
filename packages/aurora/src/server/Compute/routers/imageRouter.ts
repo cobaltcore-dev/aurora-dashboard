@@ -996,22 +996,29 @@ export const imageRouter = {
           return []
         }
 
-        // Step 3: Fetch member data for all remaining images using Promise.all
-        const imageMembersPromises = imagesSharedWithMe.map(
-          (image) =>
-            glance
-              .get(`v2/images/${image.id}/members/${projectId}`)
-              .then(async (response) => {
-                if (response?.ok) {
-                  const parsed = imageMemberSchema.safeParse(await response.json())
-                  return parsed.success ? parsed.data : null
-                }
-                return null
-              })
-              .catch(() => null) // Handle cases where the image member doesn't exist
-        )
+        // Step 3: Fetch member data in bounded batches, preserving image order.
+        const CONCURRENCY_LIMIT = 10
+        const imageMembers: (z.infer<typeof imageMemberSchema> | null)[] = []
 
-        const imageMembers = await Promise.all(imageMembersPromises)
+        for (let i = 0; i < imagesSharedWithMe.length; i += CONCURRENCY_LIMIT) {
+          const batch = imagesSharedWithMe.slice(i, i + CONCURRENCY_LIMIT)
+          const batchResults = await Promise.all(
+            batch.map(
+              (image) =>
+                glance
+                  .get(`v2/images/${image.id}/members/${projectId}`)
+                  .then(async (response) => {
+                    if (response?.ok) {
+                      const parsed = imageMemberSchema.safeParse(await response.json())
+                      return parsed.success ? parsed.data : null
+                    }
+                    return null
+                  })
+                  .catch(() => null) // Handle cases where the image member doesn't exist
+            )
+          )
+          imageMembers.push(...batchResults)
+        }
 
         // Step 4: Filter images by member_status
         const memberFilteredImages = imagesSharedWithMe.filter((image, index) => {

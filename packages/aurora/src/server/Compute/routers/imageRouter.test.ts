@@ -2088,6 +2088,55 @@ describe("imageRouter", () => {
     })
 
     describe("Member Data Fetching", () => {
+      it.each(["accepted", "pending"] as const)(
+        "limits membership lookups to ten across pages and preserves %s image order",
+        async (memberStatus) => {
+          const mockCtx = createMockContext()
+          const caller = createCaller(mockCtx)
+          mockCtx.openstack.getToken = vi.fn().mockReturnValue({
+            tokenData: { project: { id: currentProjectId } },
+          })
+          const images = Array.from({ length: 25 }, (_, index) => ({
+            ...sharedImageWithAcceptedStatus,
+            id: generateTestUUID(100 + index),
+          }))
+          mockCtx.mockGlance.get.mockResolvedValueOnce({
+            json: async () => ({ images: images.slice(0, 15), next: "v2/images?marker=next" }),
+          })
+          mockCtx.mockGlance.get.mockResolvedValueOnce({ json: async () => ({ images: images.slice(15) }) })
+
+          let active = 0
+          let maxActive = 0
+          mockCtx.mockGlance.get.mockImplementation(async (url: string) => {
+            active++
+            maxActive = Math.max(maxActive, active)
+            // Keep lookups in flight until the current batch has been started.
+            await Promise.resolve()
+            active--
+            const imageId = url.split("/")[2]
+            const index = images.findIndex((image) => image.id === imageId)
+            return {
+              ok: true,
+              json: async () => ({
+                ...memberWithAcceptedStatus,
+                image_id: imageId,
+                status: index % 2 === 0 ? "accepted" : "pending",
+              }),
+            }
+          })
+
+          const result = await caller.image.listSharedImagesByMemberStatus({
+            project_id: TEST_PROJECT_ID,
+            memberStatus,
+          })
+
+          expect(maxActive).toBe(10)
+          expect(active).toBe(0)
+          expect(mockCtx.mockGlance.get).toHaveBeenCalledTimes(27)
+          expect(result).toEqual(images.filter((_, index) => (index % 2 === 0) === (memberStatus === "accepted")))
+        }
+      )
+
       it("should fetch member data for each shared image using the current projectId", async () => {
         const mockCtx = createMockContext()
         const caller = createCaller(mockCtx)
