@@ -2500,6 +2500,9 @@ msgstr ""
 msgid "Image Visibility"
 msgstr "Image-Sichtbarkeit"
 
+msgid "images"
+msgstr ""
+
 msgid "Images"
 msgstr "Images"
 
@@ -4172,6 +4175,9 @@ msgid "Size:"
 msgstr ""
 
 msgid "Size: {policySize} / {MAX_POLICY_SIZE} bytes"
+msgstr ""
+
+msgid "snapshot"
 msgstr ""
 
 msgid "SNAT"

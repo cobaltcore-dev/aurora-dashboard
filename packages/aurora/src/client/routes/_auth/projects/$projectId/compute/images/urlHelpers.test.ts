@@ -20,6 +20,10 @@ describe("parseFiltersFromUrl", () => {
   })
 
   describe("parses single-value filters", () => {
+    it.each(["all", "snapshot", "images"])("parses image type %s", (image_type) => {
+      expect(parseFiltersFromUrl({ image_type })).toEqual([{ name: "image_type", value: image_type }])
+    })
+
     it("parses visibility filter", () => {
       const result = parseFiltersFromUrl({ visibility: "public" })
       expect(result).toEqual([{ name: "visibility", value: "public" }])
@@ -344,6 +348,28 @@ const singleFilter: Filter = {
 const filterDefs: Filter[] = [multiFilter, singleFilter]
 
 describe("applyFilterSelection", () => {
+  it("round-trips Type as a single-value filter and replaces it without losing other filters", () => {
+    const typeFilter: Filter = {
+      filterName: "image_type",
+      displayName: "Type",
+      values: ["all", "snapshot", "images"],
+      supportsMultiValue: false,
+    }
+    const definitions = [...filterDefs, typeFilter]
+    const selected = applyFilterSelection(
+      [
+        { name: "status", value: "active" },
+        { name: "image_type", value: "snapshot" },
+      ],
+      { name: "image_type", value: "images" },
+      definitions
+    )
+    const url = buildUrlSearchParams(selected, definitions, { memberStatus: "accepted" })
+
+    expect(url).toMatchObject({ image_type: "images", status: "active", memberStatus: "accepted" })
+    expect(buildFilterParams(parseFiltersFromUrl(url), definitions)).toEqual({ image_type: "images", status: "active" })
+  })
+
   it("appends a new multi-value filter entry", () => {
     const current: SelectedFilter[] = [{ name: "status", value: "active" }]
     const result = applyFilterSelection(current, { name: "status", value: "deactivated" }, filterDefs)

@@ -124,6 +124,26 @@ describe("ImageTableRow", () => {
   })
 
   describe("rendering", () => {
+    it.each([
+      { source_type: "snapshot" },
+      [{ source_type: "snapshot" }],
+      JSON.stringify([{ source_type: "snapshot" }]),
+    ])("renders the snapshot type for block_device_mapping %j", (block_device_mapping) => {
+      renderRow({ image: makeImage({ block_device_mapping }) })
+      expect(screen.getByText("snapshot")).toBeInTheDocument()
+    })
+
+    it.each([
+      { image_type: "snapshot", label: "snapshot" },
+      { image_type: undefined, label: "- -" },
+      { image_type: null, label: "- -" },
+      { image_type: "backup", label: "- -" },
+      { image_type: "custom", label: "- -" },
+    ])("renders Type=$label for image_type=$image_type", ({ image_type, label }) => {
+      renderRow({ image: makeImage({ image_type }) })
+      expect(screen.getByText(label)).toBeInTheDocument()
+    })
+
     it("renders the image's core fields", () => {
       renderRow({ image: makeImage({ name: "Ubuntu 24.04", status: "active", visibility: "private" }) })
 

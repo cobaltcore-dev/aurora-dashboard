@@ -2500,6 +2500,9 @@ msgstr "Image name must be at most 255 characters"
 msgid "Image Visibility"
 msgstr "Image Visibility"
 
+msgid "images"
+msgstr "images"
+
 msgid "Images"
 msgstr "Images"
 
@@ -4173,6 +4176,9 @@ msgstr "Size:"
 
 msgid "Size: {policySize} / {MAX_POLICY_SIZE} bytes"
 msgstr "Size: {policySize} / {MAX_POLICY_SIZE} bytes"
+
+msgid "snapshot"
+msgstr "snapshot"
 
 msgid "SNAT"
 msgstr "SNAT"

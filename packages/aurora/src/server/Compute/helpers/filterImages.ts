@@ -1,9 +1,12 @@
 import { GlanceImage } from "../types/image"
 import { filterBySearchParams } from "@/server/helpers/filterBySearchParams"
 import { parseMultiValue } from "./imageHelpers"
+import { isSnapshotImage } from "@/types/image"
+import type { ImageTypeFilter } from "../types/image"
 
 export interface ImageFilters {
   name?: string
+  image_type?: ImageTypeFilter
   visibility?: string
   status?: string
   disk_format?: string
@@ -29,6 +32,12 @@ export function filterImages(
   options: { excludeOwner?: string } = {}
 ): GlanceImage[] {
   let filtered = images
+
+  // "images" includes every image without either snapshot marker.
+  if (filters.image_type && filters.image_type !== "all") {
+    const wantSnapshot = filters.image_type === "snapshot"
+    filtered = filtered.filter((image) => isSnapshotImage(image) === wantSnapshot)
+  }
 
   // Filter by name (search)
   if (filters.name && filters.name.trim()) {

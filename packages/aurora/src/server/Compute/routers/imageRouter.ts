@@ -21,7 +21,6 @@ import {
   validateUploadInput,
 } from "../helpers/imageHelpers"
 import {
-  imageResponseSchema,
   imageSchema,
   GlanceImage,
   createImageInputSchema,
@@ -48,6 +47,7 @@ import {
   deactivateImagesInputSchema,
   BulkOperationResult,
   memberStatusSchema,
+  imageTypeFilterSchema,
 } from "../types/image"
 
 // Create a global event emitter for upload progress
@@ -122,6 +122,7 @@ export const imageRouter = {
         // Apply BFF-side filtering using shared helper
         const filteredImages = filterImages(allImages, {
           name: hasSearchTerm ? queryInput.name : undefined,
+          image_type: queryInput.image_type,
           visibility: queryInput.visibility,
           status: queryInput.status,
           disk_format: queryInput.disk_format,
@@ -256,6 +257,7 @@ export const imageRouter = {
         // Apply BFF-side filtering using shared helper
         const filteredImages = filterImages(allImages, {
           name: queryInput.name,
+          image_type: queryInput.image_type,
           visibility: queryInput.visibility,
           status: queryInput.status,
           disk_format: queryInput.disk_format,
@@ -910,6 +912,7 @@ export const imageRouter = {
       z.object({
         memberStatus: memberStatusSchema,
         name: z.string().optional(),
+        image_type: imageTypeFilterSchema.optional(),
         status: z.string().optional(),
         disk_format: z.string().optional(),
         container_format: z.string().optional(),
@@ -919,7 +922,16 @@ export const imageRouter = {
     )
     .query(async ({ ctx, input }): Promise<GlanceImage[]> => {
       return withErrorHandling(async () => {
-        const { memberStatus, name, status, disk_format, container_format, protected: protectedFilter, sort } = input
+        const {
+          memberStatus,
+          name,
+          image_type,
+          status,
+          disk_format,
+          container_format,
+          protected: protectedFilter,
+          sort,
+        } = input
 
         const openstackSession = ctx.openstack
         const glance = openstackSession?.service("glance")
@@ -948,18 +960,37 @@ export const imageRouter = {
         queryParams.append("member_status", memberStatus)
         if (sort) queryParams.append("sort", sort)
 
-        const url = `v2/images?${queryParams.toString()}`
-        const response = await glance.get(url).catch((error) => {
-          throw mapErrorResponseToTRPCError(error, { operation: "list shared images by member status" })
-        })
+        // Follow every upstream page before filtering or client-side pagination.
+        const allImages: GlanceImage[] = []
+        let currentUrl: string | undefined = `v2/images?${queryParams.toString()}`
+        let pageCount = 0
+        const MAX_PAGES = 1000
 
-        const parsedData = imageResponseSchema.safeParse(await response.json())
-        if (!parsedData.success) {
-          throw handleZodParsingError(parsedData.error, "list shared images by member status")
+        while (currentUrl && pageCount < MAX_PAGES) {
+          const response = await glance.get(currentUrl).catch((error) => {
+            throw mapErrorResponseToTRPCError(error, { operation: "list shared images by member status" })
+          })
+
+          const parsedData = imagesPaginatedResponseSchema.safeParse(await response.json())
+          if (!parsedData.success) {
+            throw handleZodParsingError(parsedData.error, "list shared images by member status")
+          }
+
+          allImages.push(...parsedData.data.images)
+          validateRelativeUrl(parsedData.data.next, "pagination URL")
+          currentUrl = parsedData.data.next
+          pageCount++
         }
 
         // Step 2: Filter out images owned by current project
-        const imagesSharedWithMe = parsedData.data.images.filter((image) => image.owner !== projectId)
+        if (currentUrl) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Unable to load all shared image pages",
+          })
+        }
+
+        const imagesSharedWithMe = allImages.filter((image) => image.owner !== projectId)
 
         if (imagesSharedWithMe.length === 0) {
           return []
@@ -991,6 +1022,7 @@ export const imageRouter = {
         // Step 5: Apply BFF-side filters using shared helper
         const filteredImages = filterImages(memberFilteredImages, {
           name,
+          image_type,
           status,
           disk_format,
           container_format,

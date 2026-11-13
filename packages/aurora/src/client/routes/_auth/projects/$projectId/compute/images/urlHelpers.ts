@@ -1,6 +1,7 @@
 import { SelectedFilter, Filter } from "@/client/components/ListToolbar/types"
 
 type ImagesSearchParams = {
+  image_type?: string
   status?: string
   visibility?: string
   disk_format?: string
@@ -17,6 +18,10 @@ type ImagesSearchParams = {
  */
 export const parseFiltersFromUrl = (searchParams: ImagesSearchParams): SelectedFilter[] => {
   const filters: SelectedFilter[] = []
+
+  if (searchParams.image_type) {
+    filters.push({ name: "image_type", value: searchParams.image_type })
+  }
 
   // Status filter
   if (searchParams.status) {
