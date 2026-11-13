@@ -20,9 +20,16 @@ describe("parseFiltersFromUrl", () => {
   })
 
   describe("parses single-value filters", () => {
-    it.each(["all", "snapshot", "images"])("parses image type %s", (image_type) => {
+    it.each(["snapshot", "images"])("parses image type %s", (image_type) => {
       expect(parseFiltersFromUrl({ image_type })).toEqual([{ name: "image_type", value: image_type }])
     })
+
+    it.each(["all", "backup", "SNAPSHOT", "", "in:snapshot,backup", 1, true, null, ["snapshot"], {}])(
+      "ignores unrestricted or invalid image type %j without losing other filters",
+      (image_type) => {
+        expect(parseFiltersFromUrl({ image_type, status: "active" })).toEqual([{ name: "status", value: "active" }])
+      }
+    )
 
     it("parses visibility filter", () => {
       const result = parseFiltersFromUrl({ visibility: "public" })
@@ -348,12 +355,12 @@ const singleFilter: Filter = {
 const filterDefs: Filter[] = [multiFilter, singleFilter]
 
 describe("applyFilterSelection", () => {
-  it("round-trips Type as a single-value filter and replaces it without losing other filters", () => {
+  it("round-trips both Type pills without restricting the API or losing other filters", () => {
     const typeFilter: Filter = {
       filterName: "image_type",
       displayName: "Type",
-      values: ["all", "snapshot", "images"],
-      supportsMultiValue: false,
+      values: ["snapshot", "images"],
+      supportsMultiValue: true,
     }
     const definitions = [...filterDefs, typeFilter]
     const selected = applyFilterSelection(
@@ -366,8 +373,22 @@ describe("applyFilterSelection", () => {
     )
     const url = buildUrlSearchParams(selected, definitions, { memberStatus: "accepted" })
 
-    expect(url).toMatchObject({ image_type: "images", status: "active", memberStatus: "accepted" })
-    expect(buildFilterParams(parseFiltersFromUrl(url), definitions)).toEqual({ image_type: "images", status: "active" })
+    expect(url).toMatchObject({ image_type: "in:snapshot,images", status: "active", memberStatus: "accepted" })
+    expect(parseFiltersFromUrl(url)).toEqual([
+      { name: "image_type", value: "snapshot" },
+      { name: "image_type", value: "images" },
+      { name: "status", value: "active" },
+    ])
+    expect(buildFilterParams(parseFiltersFromUrl(url), definitions)).toEqual({ status: "active" })
+    expect(
+      buildFilterParams(
+        selected.filter((filter) => filter.value !== "snapshot"),
+        definitions
+      )
+    ).toEqual({
+      image_type: "images",
+      status: "active",
+    })
   })
 
   it("appends a new multi-value filter entry", () => {

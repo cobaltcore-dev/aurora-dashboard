@@ -89,7 +89,7 @@ describe("Images — Type filter navigation", () => {
     expect(query).toHaveBeenCalledWith(expect.objectContaining({ image_type: "snapshot" }))
     expect(h.filterNames.slice(0, 2)).toEqual(["status", "image_type"])
     if (memberStatus === "all") expect(h.filterNames[2]).toBe("visibility")
-    expect(screen.getByRole("option", { name: "All" })).toBeInTheDocument()
+    expect(screen.queryByRole("option", { name: "All" })).not.toBeInTheDocument()
     expect(screen.getByRole("option", { name: "Snapshot" })).toBeInTheDocument()
     expect(screen.getByRole("option", { name: "Images" })).toBeInTheDocument()
   })
@@ -107,17 +107,16 @@ describe("Images — Type filter navigation", () => {
       fireEvent.change(screen.getByRole("combobox", { name: "Type filter" }), { target: { value: "images" } })
     })
     h.search = h.navigate.mock.lastCall![0].search(h.search)
-    expect(h.search).toMatchObject({ status: "active", image_type: "images", search: "ubuntu" })
+    expect(h.search).toMatchObject({ status: "active", image_type: "in:snapshot,images", search: "ubuntu" })
     expect(h.search.page).toBeUndefined()
     await act(async () => {
       rerender(<Images client={client} project="p1" />)
     })
 
     await waitFor(() =>
-      expect(h.mainQuery).toHaveBeenLastCalledWith(
-        expect.objectContaining({ image_type: "images", status: "active", marker: undefined })
-      )
+      expect(h.mainQuery).toHaveBeenLastCalledWith(expect.objectContaining({ status: "active", marker: undefined }))
     )
+    expect(h.mainQuery.mock.lastCall![0]).not.toHaveProperty("image_type")
 
     // A URL-only change models browser back/forward without changing other params.
     h.search = { ...h.search, image_type: "snapshot" }
@@ -128,6 +127,43 @@ describe("Images — Type filter navigation", () => {
       expect(h.mainQuery).toHaveBeenLastCalledWith(expect.objectContaining({ image_type: "snapshot" }))
     )
   })
+
+  it.each(["all", "accepted", "pending"] as const)(
+    "restores both Type pills as unrestricted in the %s tab and narrows when one is removed",
+    async (memberStatus) => {
+      h.search = { image_type: "in:snapshot,images", memberStatus }
+      let view!: ReturnType<typeof render>
+      await act(async () => {
+        view = render(<Images client={client} project="p1" />, { wrapper })
+      })
+      await screen.findByText("Images loaded")
+      const query = memberStatus === "all" ? h.mainQuery : h.sharedQuery
+      expect(query.mock.lastCall![0].image_type).toBeUndefined()
+
+      await act(async () => {
+        fireEvent.click(screen.getByRole("button", { name: "Remove Type" }))
+      })
+      h.search = h.navigate.mock.lastCall![0].search(h.search)
+      expect(h.search.image_type).toBe("images")
+      await act(async () => {
+        view.rerender(<Images client={client} project="p1" />)
+      })
+      await waitFor(() => expect(query).toHaveBeenLastCalledWith(expect.objectContaining({ image_type: "images" })))
+    }
+  )
+
+  it.each([undefined, "all", "backup", 1, true, ["snapshot"], {}])(
+    "does not create a Type pill or restriction for %j",
+    async (image_type) => {
+      h.search = { image_type }
+      await act(async () => {
+        render(<Images client={client} project="p1" />, { wrapper })
+      })
+      await screen.findByText("Images loaded")
+      expect(screen.queryByRole("button", { name: "Remove Type" })).not.toBeInTheDocument()
+      expect(h.mainQuery.mock.lastCall![0].image_type).toBeUndefined()
+    }
+  )
 
   it("removes Type without clearing other filters", async () => {
     h.search = { status: "active", image_type: "snapshot" }

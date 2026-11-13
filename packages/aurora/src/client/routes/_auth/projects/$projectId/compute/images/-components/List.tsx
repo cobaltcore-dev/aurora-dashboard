@@ -437,9 +437,9 @@ export const Images = ({ client, project }: ImagesProps) => {
       {
         displayName: t`Type`,
         filterName: "image_type",
-        values: ["all", "snapshot", "images"],
-        valueLabels: { all: t`All`, snapshot: t`Snapshot`, images: t`Images` },
-        supportsMultiValue: false,
+        values: ["snapshot", "images"],
+        valueLabels: { snapshot: t`Snapshot`, images: t`Images` },
+        supportsMultiValue: true,
       },
       {
         displayName: t`Visibility`,
