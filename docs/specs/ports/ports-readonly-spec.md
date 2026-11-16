@@ -131,7 +131,7 @@ Give Aurora project members a project-wide read-only view of all their Neutron p
   - [ ] **Device type** — human-friendly label from the `device_owner` mapping (E2); `- -` when `device_owner` is empty
   - [ ] a **row overflow menu** (last column) with a single **"View details"** item (phase-1 extension point)
 - [ ] The whole row is clickable and navigates to the port detail route; nested interactive elements (ID copy, network deep-link, overflow menu) call `event.stopPropagation()`
-- [ ] **Searchable** by name and ID (search box placeholder makes the matched fields clear)
+- [ ] **Searchable** across the existing fields: port name, ID, description, Fixed IP addresses, MAC address, device ID/owner, network ID/name, and subnet ID/name. Search remains client-side over the fetched response, including fields not displayed as columns; the placeholder makes the name, ID, IP, and MAC lookup use cases clear.
 - [ ] **Sortable** by name and status. Status sorts attention-first per E7, flipped by the direction toggle
 - [ ] **Filterable** by status, device type (the human-friendly label categories), and network (distinct `network_id` values from the response — E6), with active-filter pills + "clear all"
 - [ ] MAC address, Security Group IDs, and binding details are **not** shown in the list — they live in the detail view
