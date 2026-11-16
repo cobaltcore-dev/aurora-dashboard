@@ -30,3 +30,4 @@ tmp/
 # Playwright MCP
 .playwright-mcp/
 
+.vscode
