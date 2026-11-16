@@ -109,6 +109,17 @@ vi.mock("../Credentials/ManageCredentialsModal", () => ({
   ),
 }))
 
+vi.mock("../CliSetup/CliSetupModal", () => ({
+  CliSetupModal: vi.fn(({ isOpen, onClose, onOpenCredentials }) =>
+    isOpen ? (
+      <div data-testid="cli-setup-modal">
+        <button onClick={onClose}>CloseCliSetup</button>
+        <button onClick={onOpenCredentials}>OpenCredentialsFromCliSetup</button>
+      </div>
+    ) : null
+  ),
+}))
+
 vi.mock("./EmptyBucketsModal", () => ({
   EmptyBucketsModal: vi.fn(({ isOpen, buckets, onClose, onComplete }) => {
     return isOpen ? (
@@ -394,6 +405,54 @@ describe("CephBuckets (index)", () => {
       await waitFor(() => {
         expect(screen.queryByTestId("manage-credentials-modal")).not.toBeInTheDocument()
       })
+    })
+  })
+
+  describe("CLI Setup", () => {
+    test("the More Actions menu item opens the CLI setup modal", async () => {
+      const user = userEvent.setup()
+      renderBuckets()
+
+      expect(screen.queryByTestId("cli-setup-modal")).not.toBeInTheDocument()
+
+      await user.click(screen.getByRole("button", { name: "More Actions" }))
+      await user.click(await screen.findByTestId("cli-setup-action"))
+
+      expect(screen.getByTestId("cli-setup-modal")).toBeInTheDocument()
+    })
+
+    test("opening credentials from the CLI modal swaps the modals, never showing both", async () => {
+      const user = userEvent.setup()
+      renderBuckets()
+
+      await user.click(screen.getByRole("button", { name: "More Actions" }))
+      await user.click(await screen.findByTestId("cli-setup-action"))
+      await user.click(screen.getByRole("button", { name: "OpenCredentialsFromCliSetup" }))
+
+      expect(screen.queryByTestId("cli-setup-modal")).not.toBeInTheDocument()
+      expect(screen.getByTestId("manage-credentials-modal")).toBeInTheDocument()
+    })
+
+    test("the Setup Required screen offers CLI Setup", async () => {
+      trpcState.error = { message: "NO_CEPH_CREDENTIALS" }
+      trpcState.buckets = undefined
+      const user = userEvent.setup()
+      renderBuckets()
+
+      await user.click(screen.getByRole("button", { name: "CLI Setup" }))
+
+      expect(screen.getByTestId("cli-setup-modal")).toBeInTheDocument()
+    })
+
+    test("the menu lists CLI Setup before Manage Credentials", async () => {
+      const user = userEvent.setup()
+      renderBuckets()
+
+      await user.click(screen.getByRole("button", { name: "More Actions" }))
+      const cliSetup = await screen.findByTestId("cli-setup-action")
+      const credentials = screen.getByTestId("manage-credentials-action")
+
+      expect(cliSetup.compareDocumentPosition(credentials) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     })
   })
 

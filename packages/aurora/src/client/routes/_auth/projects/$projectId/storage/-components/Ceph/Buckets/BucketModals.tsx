@@ -33,6 +33,8 @@ export type ModalType =
   | "emptyBucket"
   | "deleteBucket"
   | "deleteVersions"
+  | "cliSetup"
+  | "manageCredentials"
 
 interface BucketModalsProps {
   bucketName: string

@@ -498,6 +498,9 @@ msgstr "Add Rule"
 msgid "Add Security Group Rule"
 msgstr "Add Security Group Rule"
 
+msgid "Add this configuration to rclone.conf (run \"rclone config file\" to find it) and replace the placeholders with the access key ID and secret access key."
+msgstr "Add this configuration to rclone.conf (run \"rclone config file\" to find it) and replace the placeholders with the access key ID and secret access key."
+
 msgid "Address group: {id}"
 msgstr "Address group: {id}"
 
@@ -569,6 +572,9 @@ msgstr "Allowed Origins"
 
 msgid "Also delete all versions and all delete markers"
 msgstr "Also delete all versions and all delete markers"
+
+msgid "An access key ID and secret access key (see Manage Credentials)"
+msgstr "An access key ID and secret access key (see Manage Credentials)"
 
 msgid "An access key stops working the moment it is deleted. Any S3 client still configured with it loses access."
 msgstr "An access key stops working the moment it is deleted. Any S3 client still configured with it loses access."
@@ -870,6 +876,15 @@ msgstr "CIDR"
 msgid "Clear all"
 msgstr "Clear all"
 
+msgid "CLI Setup"
+msgstr "CLI Setup"
+
+msgid "CLI Setup Guide"
+msgstr "CLI Setup Guide"
+
+msgid "CLI Tool"
+msgstr "CLI Tool"
+
 msgid "Click \"Add Property\" to create one."
 msgstr "Click \"Add Property\" to create one."
 
@@ -908,6 +923,9 @@ msgstr "Connection Details"
 
 msgid "Connection Details Unavailable"
 msgstr "Connection Details Unavailable"
+
+msgid "Contact your administrator if the problem persists."
+msgstr "Contact your administrator if the problem persists."
 
 msgid "Container \"{containerName}\" properties were successfully updated."
 msgstr "Container \"{containerName}\" properties were successfully updated."
@@ -1137,6 +1155,9 @@ msgstr "Could not enable versioning for bucket \"{bucketName}\": {errorMessage}"
 msgid "Could Not Load Access Keys"
 msgstr "Could Not Load Access Keys"
 
+msgid "Could not load connection details. Check the network connection and try again."
+msgstr "Could not load connection details. Check the network connection and try again."
+
 msgid "Could not load the secret for access key \"{access}\". Try again."
 msgstr "Could not load the secret for access key \"{access}\". Try again."
 
@@ -1190,6 +1211,9 @@ msgstr "Couldn't open container \"{containerName}\" — it may not exist, or you
 
 msgid "Create"
 msgstr "Create"
+
+msgid "Create a profile. Enter the access key ID and secret access key when prompted."
+msgstr "Create a profile. Enter the access key ID and secret access key when prompted."
 
 msgid "Create Access Key"
 msgstr "Create Access Key"
@@ -1547,6 +1571,9 @@ msgstr "Download"
 
 msgid "Download {rowDisplayName}"
 msgstr "Download {rowDisplayName}"
+
+msgid "Download an object."
+msgstr "Download an object."
 
 msgid "Download Cancelled"
 msgstr "Download Cancelled"
@@ -2535,6 +2562,15 @@ msgstr "Ingress: traffic coming in to the instances. Egress: traffic going out o
 msgid "Inside a project, objects are stored in containers. Containers are where you define access permissions and quotas."
 msgstr "Inside a project, objects are stored in containers. Containers are where you define access permissions and quotas."
 
+msgid "Install AWS CLI v2"
+msgstr "Install AWS CLI v2"
+
+msgid "Install rclone"
+msgstr "Install rclone"
+
+msgid "Install s3cmd"
+msgstr "Install s3cmd"
+
 msgid "Instance"
 msgstr "Instance"
 
@@ -2679,6 +2715,12 @@ msgstr "Lifecycle rules cannot be modified"
 msgid "Limits"
 msgstr "Limits"
 
+msgid "List buckets."
+msgstr "List buckets."
+
+msgid "List objects in the bucket."
+msgstr "List objects in the bucket."
+
 msgid "Listing access"
 msgstr "Listing access"
 
@@ -2699,6 +2741,9 @@ msgstr "Loading buckets..."
 
 msgid "Loading Buckets..."
 msgstr "Loading Buckets..."
+
+msgid "Loading Connection Details…"
+msgstr "Loading Connection Details…"
 
 msgid "Loading Container Properties..."
 msgstr "Loading Container Properties..."
@@ -3528,6 +3573,9 @@ msgstr "Pre-signed URL for \"{displayName}\" was copied to clipboard."
 msgid "Prefix and tag filters define which objects a rule applies to. Without them, this rule will be applied to all objects in the bucket."
 msgstr "Prefix and tag filters define which objects a rule applies to. Without them, this rule will be applied to all objects in the bucket."
 
+msgid "Prerequisites"
+msgstr "Prerequisites"
+
 msgid "Press Enter or click Add to add a tag"
 msgstr "Press Enter or click Add to add a tag"
 
@@ -3849,6 +3897,9 @@ msgstr "Save Changes"
 msgid "Save Metadata"
 msgstr "Save Metadata"
 
+msgid "Save this configuration as ~/.s3cfg and replace the placeholders with the access key ID and secret access key."
+msgstr "Save this configuration as ~/.s3cfg and replace the placeholders with the access key ID and secret access key."
+
 msgid "Saving Image Details..."
 msgstr "Saving Image Details..."
 
@@ -4115,6 +4166,9 @@ msgstr "Session expires in"
 
 msgid "Set by the preset. Use a custom TCP or UDP rule to change the ports."
 msgstr "Set by the preset. Use a custom TCP or UDP rule to change the ports."
+
+msgid "Set the region and path-style addressing for the profile."
+msgstr "Set the region and path-style addressing for the profile."
 
 msgid "Set to \"Shared\""
 msgstr "Set to \"Shared\""
@@ -4964,6 +5018,9 @@ msgstr "Updating Security Group..."
 
 msgid "Upload"
 msgstr "Upload"
+
+msgid "Upload a file."
+msgstr "Upload a file."
 
 msgid "Upload Cancelled"
 msgstr "Upload Cancelled"
