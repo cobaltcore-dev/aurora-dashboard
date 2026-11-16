@@ -1,11 +1,11 @@
-# Epic: Ports (read-only) scope
+# Epic: Fixed IPs / Ports (read-only) scope
 
 Source BRD: [ports-readonly-brd.md](ports-readonly-brd.md)
 Target surface: Aurora Dashboard — built-in scope (**Pattern A**: file-based TanStack Router routes under `$projectId/network/ports/`, server tRPC router registered via `buildBaseRouter()`, nav entry added to the existing `network` section in `buildNavSections.ts`)
 Development context (source of truth): `.claude/context/aurora-dashboard.md`, `.claude/context/juno.md`
 Status: ready-for-engineering
 
-> **Scope framing (BRD §6).** Phase 1 is strictly **read-only** — no create/edit/delete; mutation is a separate later phase. The MVP is the **port list** (sub-issue 3). The **port detail view** (sub-issue 4) is fast-follow within the same phase — it adds the full Fixed IPs sub-table, MAC address, Security Group IDs, and the router deep-link. Status/empty/error/loading state handling is **folded into each sub-issue** where it applies rather than tracked separately. **There is no data-refresh mechanism in phase 1** (see Engineering decision E1).
+> **Scope framing (BRD §6).** Phase 1 is strictly **read-only** — no create/edit/delete; mutation is a separate later phase. The MVP is the **Fixed IPs / Ports list** (sub-issue 3). The **port detail view** (sub-issue 4) is fast-follow within the same phase — it adds the full Fixed IPs sub-table, MAC address, Security Group IDs, and the router deep-link. Status/empty/error/loading state handling is **folded into each sub-issue** where it applies rather than tracked separately. **There is no data-refresh mechanism in phase 1** (see Engineering decision E1).
 
 > **Relationship to the Networks scope.** The Networks scope (BRD Story 4 / spec sub-issues 6–7) shows ports nested inside a network's detail view, fetched via `GET /v2.0/ports?network_id=<id>`. That answers "which ports belong to this network?" The new Ports scope answers the orthogonal question: "show me all ports in my project" — it uses the unfiltered project-scoped port list. The two views are **complementary, not duplicates**. The device-owner label mapping is **shared** between both (extract to a utility in `Network/helpers/portHelpers.ts`).
 
@@ -44,7 +44,7 @@ Grounded in the current Aurora codebase (`floatingips` / `routers` / `securitygr
 | --------- | ---------------------------------------- | :---------: | ---------- |
 | 1         | API & environment gate                   |   prereq    | —          |
 | 2         | Scope scaffold, routing & auth wiring    |   prereq    | 1          |
-| 3         | List project ports                       |   ✅ MVP    | 1, 2       |
+| 3         | List project Fixed IPs / Ports           |   ✅ MVP    | 1, 2       |
 | 4         | Port detail — full metadata + deep-links | fast-follow | 3          |
 
 ## Dependency graph
@@ -52,7 +52,7 @@ Grounded in the current Aurora codebase (`floatingips` / `routers` / `securitygr
 ```
 1  API & environment gate
 └─ 2  Scope scaffold, routing & auth wiring
-   └─ 3  List ports ───────────────────────────── (MVP releasable: 3 alone)
+   └─ 3  List Fixed IPs / Ports ──────────────────── (MVP releasable: 3 alone)
       └─ 4  Port detail — full metadata + deep-links   (fast-follow)
 ```
 
@@ -60,7 +60,7 @@ Critical path to MVP: **1 → 2 → 3**. Fast-follow extends **3 → 4**.
 
 ---
 
-# Epic — Ports (read-only) scope
+# Epic — Fixed IPs / Ports (read-only) scope
 
 Give Aurora project members a project-wide read-only view of all their Neutron ports, their Fixed IPs, and their device assignments — in context, no CLI.
 
@@ -97,7 +97,7 @@ Give Aurora project members a project-wide read-only view of all their Neutron p
 
 - [ ] A new route tree exists under `…/projects/$projectId/network/ports/` (list route `network/ports/index.tsx`) and `…/network/ports/$portId.tsx` (detail route, **single-file form**), following the file-based routing used by the sibling `network/routers` and `network/floatingips` resources.
 - [ ] A server-side tRPC router for ports (`Network/routers/portsRouter.ts`) is registered alongside the existing network routers in `Network/routers/index.ts` (`buildNetworkRouters`), pulled into `buildBaseRouter()` via `server/routers.ts`. All procedures use `projectScopedProcedure` so the server injects `X-Auth-Token` via `signal-openstack` and the browser never holds the token.
-- [ ] A **Ports** navigation entry is added in `buildNavSections.ts`, appearing within the existing `network` scope section alongside Floating IPs, Routers, Security Groups, and Networks.
+- [ ] A **Fixed IPs / Ports** navigation entry is added in `buildNavSections.ts`, appearing within the existing `network` scope section alongside Floating IPs, Routers, Security Groups, and Networks.
 - [ ] The scope is catalog-gated: it only appears when the `network` service is in the Keystone catalog, reusing the existing `getServiceIndex("network")` + `beforeLoad` guard in `network.tsx` (no new guard needed — Ports lives under the already-guarded `network` scope).
 - [ ] A user without the Neutron read capability for the active project does not see the nav entry; a user who reaches the route without the capability sees the standard unauthorized state (not a crash/blank page). Reuses the existing `network.canUser` permission pattern. _(Residual open item O2: confirm the exact Neutron policy key for "list ports" at build — expected: `get_ports`.)_
 - [ ] The shared device-owner label mapping utility is extracted to `Network/helpers/portHelpers.ts` and consumed by both the new `portsRouter.ts` and the existing `networksRouter.ts` `listPorts` procedure. If the Networks scope is already implemented, update `networksRouter.ts` to import from `portHelpers.ts` in the same PR. _(If the Networks scope has not yet been implemented, create the utility in `portHelpers.ts` and leave a TODO for the Networks scope to adopt it.)_
@@ -113,12 +113,12 @@ Give Aurora project members a project-wide read-only view of all their Neutron p
 
 ---
 
-## 3 — List project ports
+## 3 — List project Fixed IPs / Ports
 
-**What to build:** The project-wide ports list page — a DataGrid of all ports in the current project with the confirmed 3-zone toolbar, clickable rows that open the detail route, per-row status, device type label, Fixed IPs, and Network deep-link. Fully handles its own loading / empty / error / unauthorized states.
+**What to build:** The project-wide Fixed IPs / Ports list page — a DataGrid of all ports in the current project with the confirmed 3-zone toolbar, clickable rows that open the detail route, per-row status, device type label, Fixed IPs, and Network deep-link. Fully handles its own loading / empty / error / unauthorized states.
 **Blocked by:** 1, 2 · **Status:** ready-for-agent
 
-**User story:** As a Project Member (Viewer), I want to see a list of all ports in my project, so that I can get a cross-network overview of my project's port inventory at a glance.
+**User story:** As a Project Member (Viewer), I want to see a list of all Fixed IPs / Ports in my project, so that I can get a cross-network overview of my project's port inventory at a glance.
 
 **Acceptance Criteria** (from BRD §5.1 Story 1)
 

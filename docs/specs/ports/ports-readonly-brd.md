@@ -1,10 +1,10 @@
-# Business Requirements Document (BRD) for Ports (read-only) scope
+# Business Requirements Document (BRD) for Fixed IPs / Ports (read-only) scope
 
 ## Document Control
 
 | Field                           | Details                                                                                                            |
 | ------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| **Feature/Requirement Name**    | Ports (read-only) scope for Aurora Dashboard                                                                       |
+| **Feature/Requirement Name**    | Fixed IPs / Ports (read-only) scope for Aurora Dashboard                                                           |
 | **Submitted By**                | <!-- fill in -->                                                                                                   |
 | **Team**                        | Team 2 – Specs and BRDs                                                                                            |
 | **Date**                        | 2026-11-11                                                                                                         |
@@ -18,7 +18,7 @@
 
 ## 1. Summary (2-3 sentences)
 
-A new **read-only Ports scope** in the Aurora Dashboard that lets project members inspect all
+A new **read-only Fixed IPs / Ports scope** in the Aurora Dashboard that lets project members inspect all
 Neutron ports in their own project from a single, project-wide view. Users can list all their
 project's ports, filter and search them (e.g. by network, device type, or status), and open a
 port to see its full metadata including Fixed IPs, MAC address, device assignment, and Security
@@ -117,10 +117,10 @@ A Project Member can: list all their project's ports across all networks with se
 filter; open a port to see its full metadata including Fixed IPs, MAC address, device
 assignment, and Security Group IDs. Everything is read-only.
 
-### Story 1: List project ports
+### Story 1: List project Fixed IPs / Ports
 
 **As a** Project Member (Viewer)
-**I want to** see a list of all ports in my project
+**I want to** see a list of all Fixed IPs / Ports in my project
 **So that** I can get a cross-network overview of my project's port inventory at a glance
 
 **Acceptance Criteria:**
