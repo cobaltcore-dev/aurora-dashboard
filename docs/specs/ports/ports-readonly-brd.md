@@ -307,9 +307,9 @@ permission logic.
 
 **Soft dependencies**
 
-- The **Networks scope** should exist for the port → network deep-link (Story 1 and Story 2). It exists today. If absent from the catalog, the deep-link degrades to showing the `network_id` only — a graceful-degradation dependency, not a hard blocker.
-- The **Routers scope** must exist for the port → router deep-link (Story 2). It exists today. If absent from the catalog, the deep-link degrades to showing the router ID only.
-- The **Security Groups scope** must exist for the port → Security Group deep-links (Story 2). It exists today. If absent, the Security Group IDs are shown as plain IDs.
+- The **Networks resource** enables the port → network deep-link (Stories 1 and 2). Render it only when the `network` catalog service is present and `networks` is enabled by the resource allow/deny configuration; otherwise show the plain network ID.
+- The **Routers resource** enables the port → router deep-link (Story 2). Apply the same catalog and resource-visibility checks for `routers`; otherwise show the plain router ID.
+- The **Security Groups resource** enables the port → Security Group deep-links (Story 2). Apply the same checks for `securitygroups`; otherwise show plain Security Group IDs.
 
 **Cross-team approvals needed**
 
