@@ -31,6 +31,13 @@ Each rule carries a `[scope: …]` tag marking where its guidance is expected to
 - `[scope: aurora]` Render the individual items' IDs in the name column underneath the name in a subdued text style if possible.
 - `[scope: aurora]` When a list item has a detail view, its row's overflow menu must contain a "Show Details" entry, and it must be the first item in the menu.
 
+## Forms
+
+- `[scope: design-system]` Every form input element **should have a persistent label**. A placeholder should never act as a label.
+- `[scope: design-system]` A placeholder should communicate how the expected input of the element should be formed, not what it should be.
+- `[scope: design-system]` A form input should never have no label but a placeholder.
+- `[scope: design-system]` Use helptext only where it supplies meaningful, additional information that neither the label nor a placeholder convey. A helptext should never just mirror or repeat the label or the placeholder.
+
 ## Displaying multiple distinct datasets
 
 - `[scope: pattern]` When a view must show several discrete, distinct sets of data, render a separate DataGrid for each and switch between them with a `TabBar` using `appearance="tabs"`. This applies regardless of the view type (list view, detail view, …) — it is a concern of the data's shape, not of the page it lives on.
