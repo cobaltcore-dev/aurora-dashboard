@@ -1,11 +1,15 @@
 # Guardrails for Aurora Dashboard
 
-This file collects project-specific guardrails: conventions and patterns that must be followed but don't yet have a home in our skills or other references. Content grows or shrinks over time.
+This file collects guardrails for ai generation and validation of the Aurora UI. It contains conventions and patterns that are either specific to Aurora, or that are specific in a broader scope, but not yet reflected in the broader ai guidance Aurora consumes.
+
+All guidance in this document must be followed.
+
+We expect this document to chnage (shrink or grow) over time, as we move more guidance where it belongs in our skills and references, or as we add more rules and directives that are truly specific to Aurora.
 
 ## List Views
 
 - Render the individual items' IDs in the name column underneath the name in a subdued text style if possible.
-- When an item has a detail view, its row's overflow menu must contain a "Show Details" entry, and it must be the first item in the menu.
+- When an list item has a detail view, its row's overflow menu must contain a "Show Details" entry, and it must be the first item in the menu.
 
 ## Displaying multiple distinct datasets
 
