@@ -223,10 +223,10 @@ project-scoped to the active project.
 
 ### Rate Limits / Throttling
 
-The backing call is the standard Neutron `GET /v2.0/ports` list endpoint, project-scoped (no
-`network_id` filter — this is the distinguishing feature of the standalone scope vs. the
-Networks nested view). Each list view issues a single call with no per-item fan-out. No special
-throttling handling is anticipated for phase 1.
+The client issues one `network.ports.list` request for the active project, without a
+`network_id` filter. The BFF preserves the explicit `project_id` ownership filter and
+follows Neutron's `ports_links` until all pages are collected. Existing network/subnet
+name enrichment uses batched lookups, not per-port fan-out. No UI pagination is required.
 
 ### Error Response Shape
 
