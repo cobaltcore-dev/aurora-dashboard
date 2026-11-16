@@ -175,7 +175,7 @@ Give Aurora project members a project-wide read-only view of all their Neutron p
 - **Data source:** `network.ports.getById` (`projectScopedProcedure`, `GET /v2.0/ports/{port_id}`). For the MVP it is acceptable to select from the already-fetched `network.ports.list` cache when navigating from the list; support a standalone fetch for direct-link/refresh.
 - Detail layout: follow the `routers` single-file detail form (description list pattern).
 - **Fixed IPs sub-table:** `fixed_ips` is an array of `{ ip_address, subnet_id }` on the port object — already present in the list response; no extra call.
-- **Security Groups:** `security_groups` is an array of SG IDs on the port object — no extra call. Construct the SG deep-link from the SG ID and `projectId`; gate on the Security Groups scope being in the catalog.
+- **Security Groups:** `network.ports.getById` returns `security_groups` as `{ id, name? }[]` after a best-effort batched lookup; use each reference's `id` for display, copying, and deep-links. If reusing list data (`security_groups: string[]`), normalize its IDs to references before passing it to the detail view. The UI needs no additional lookup. Construct links from the SG ID and `projectId`, falling back to plain IDs when the Security Groups resource is unavailable.
 - **Router deep-link:** construct target route `/projects/$projectId/network/routers/$routerId` from `device_id`; gate on the Routers scope being available. Identical to the deep-link in Networks scope sub-issue 7 — share or reference that implementation.
 - **Refresh:** none (E1).
 
