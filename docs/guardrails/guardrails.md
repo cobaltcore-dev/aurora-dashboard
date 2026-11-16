@@ -23,6 +23,7 @@ Each rule carries a `[scope: …]` tag marking where its guidance is expected to
 - `[scope: aurora]` Use a ui-components component whenever possible. Never re-invent or re-create existing components from scratch. Use native props of the component, do not circumvent or overwrite existing props using className or html native attributes, css classes or style tags.
 - `[scope: aurora]` When using className to apply custom CSS to juno-ui components, do not use `jn:` or `juno-` prefixes. These are reserved and internal to Juno.
 - `[scope: aurora]` Do not use juno-internal classes to hook in additional functionality or tests, as these may be changed internally and without notice.
+- `[scope: aurora]` Allow only exactly one `h1` heading element per page.
 
 ## List Views
 
