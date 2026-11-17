@@ -1,5 +1,16 @@
 import { Button, Status } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
+import { useEffect } from "react"
+import { trpcClient } from "@/client/trpcClient"
+import { restartSignIn } from "@/client/utils/restartSignIn"
+
+function SessionExpiredRedirect() {
+  const { t } = useLingui()
+  useEffect(() => {
+    void restartSignIn(trpcClient)
+  }, [])
+  return <Status status="progress" title={t`Session Expired`} body={t`Redirecting to sign-in...`} />
+}
 
 export function BlockStorageState({
   loading,
@@ -24,16 +35,7 @@ export function BlockStorageState({
         body={t`You do not have permission to view this block storage resource.`}
       />
     )
-  if (code === "UNAUTHORIZED")
-    return (
-      <Status
-        status="error"
-        code={401}
-        title={t`Session Expired`}
-        body={t`Sign in again to continue.`}
-        action={<Button href="/" label={t`Sign in`} />}
-      />
-    )
+  if (code === "UNAUTHORIZED") return <SessionExpiredRedirect />
   if (code === "NOT_FOUND")
     return (
       <Status

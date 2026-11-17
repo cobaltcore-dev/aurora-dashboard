@@ -18,7 +18,12 @@ export const buildVolumeResourceRouter = (check: VolumePermissionCheck) => ({
       `volumes/${input.volumeId}`,
       z.object({ volume: volumeSchema })
     )
-    assertResourceProject(ctx, volume["os-vol-tenant-attr:tenant_id"])
+    await assertResourceProject(ctx, volume["os-vol-tenant-attr:tenant_id"], async () => {
+      if (!check(ctx, "volume:volumes:list")) return false
+      // Cinder lists are project-only without all_tenants, even for elevated custom roles.
+      const volumes = await listVolumeResources(ctx, "volumes", volumeSchema)
+      return volumes.some((item) => item.id === volume.id)
+    })
     return volume
   }),
 })

@@ -717,12 +717,6 @@ msgstr "Bit Length"
 msgid "Bit length must be a positive integer"
 msgstr "Bit length must be a positive integer"
 
-msgid "Block Storage"
-msgstr "Block Storage"
-
-msgid "Block storage resources"
-msgstr "Block storage resources"
-
 msgid "Boot RAM"
 msgstr "Boot RAM"
 
@@ -2700,9 +2694,6 @@ msgstr "Loading Access..."
 msgid "Loading ACLs..."
 msgstr "Loading ACLs..."
 
-msgid "Loading Block Storage"
-msgstr "Loading Block Storage"
-
 msgid "Loading buckets..."
 msgstr "Loading buckets..."
 
@@ -3750,9 +3741,6 @@ msgstr "Removing..."
 msgid "Reserved keys: web-index, web-listings, quota-count, quota-bytes"
 msgstr "Reserved keys: web-index, web-listings, quota-count, quota-bytes"
 
-msgid "Resource Not Accessible"
-msgstr "Resource Not Accessible"
-
 msgid "Resource Not Found"
 msgstr "Resource Not Found"
 
@@ -4122,9 +4110,6 @@ msgstr "Services"
 msgid "Session Changed"
 msgstr "Session Changed"
 
-msgid "Session Expired"
-msgstr "Session Expired"
-
 msgid "Session expires in"
 msgstr "Session expires in"
 
@@ -4200,9 +4185,6 @@ msgstr "Sign in"
 msgid "Sign In"
 msgstr "Sign In"
 
-msgid "Sign in again to continue."
-msgstr "Sign in again to continue."
-
 msgid "Sign In to Your Account"
 msgstr "Sign In to Your Account"
 
@@ -4220,12 +4202,6 @@ msgstr "Size: {policySize} / {MAX_POLICY_SIZE} bytes"
 
 msgid "Snapshot"
 msgstr "Snapshot"
-
-msgid "Snapshots"
-msgstr "Snapshots"
-
-msgid "Snapshots View Coming Soon"
-msgstr "Snapshots View Coming Soon"
 
 msgid "SNAT"
 msgstr "SNAT"
@@ -4394,12 +4370,6 @@ msgstr "Temporary URLs"
 
 msgid "The application configuration could not be loaded. Some services and features may be unavailable."
 msgstr "The application configuration could not be loaded. Some services and features may be unavailable."
-
-msgid "The block storage scope is available. The snapshots list will be added in a follow-up release."
-msgstr "The block storage scope is available. The snapshots list will be added in a follow-up release."
-
-msgid "The block storage scope is available. The volumes list will be added in a follow-up release."
-msgstr "The block storage scope is available. The volumes list will be added in a follow-up release."
 
 msgid "The bucket could not be created. Try again or choose a different name."
 msgstr "The bucket could not be created. Try again or choose a different name."
@@ -4824,9 +4794,6 @@ msgstr "This property is reserved and cannot be modified"
 msgid "This property is reserved and cannot be modified."
 msgstr "This property is reserved and cannot be modified."
 
-msgid "This resource does not exist or is not accessible in this project."
-msgstr "This resource does not exist or is not accessible in this project."
-
 msgid "This router does not exist or has been deleted."
 msgstr "This router does not exist or has been deleted."
 
@@ -4893,14 +4860,8 @@ msgstr "Try adjusting your filter criteria or check the Suggested Images tab."
 msgid "Try adjusting your filter criteria or create a new image."
 msgstr "Try adjusting your filter criteria or create a new image."
 
-msgid "Try again"
-msgstr "Try again"
-
 msgid "Try Again"
 msgstr "Try Again"
-
-msgid "Try again. If the problem persists, contact your administrator."
-msgstr "Try again. If the problem persists, contact your administrator."
 
 msgid "Type"
 msgstr "Type"
@@ -4946,9 +4907,6 @@ msgstr "Unable to Deactivate Image"
 
 msgid "Unable to Delete Image"
 msgstr "Unable to Delete Image"
-
-msgid "Unable to Load Block Storage"
-msgstr "Unable to Load Block Storage"
 
 msgid "Unable to Load Content"
 msgstr "Unable to Load Content"
@@ -5148,12 +5106,6 @@ msgstr "Visibility"
 msgid "VM State"
 msgstr "VM State"
 
-msgid "Volumes"
-msgstr "Volumes"
-
-msgid "Volumes View Coming Soon"
-msgstr "Volumes View Coming Soon"
-
 msgid "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
 msgstr "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
 
@@ -5219,9 +5171,6 @@ msgstr "You can rename the object by changing the name here."
 
 msgid "You do not have permission to view security groups"
 msgstr "You do not have permission to view security groups"
-
-msgid "You do not have permission to view this block storage resource."
-msgstr "You do not have permission to view this block storage resource."
 
 msgid "You do not have the necessary permissions to view Containers."
 msgstr "You do not have the necessary permissions to view Containers."

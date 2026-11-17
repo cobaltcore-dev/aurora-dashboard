@@ -2,7 +2,6 @@ import { createFileRoute, Outlet, redirect, useMatches, useNavigate, useRouter }
 import { TabBar, TabBarItem } from "@cloudoperators/juno-ui-components"
 import { msg } from "@lingui/core/macro"
 import { useLingui } from "@lingui/react/macro"
-import { findCinderService } from "@/types/volume"
 import { useVolumePermissions } from "@/client/hooks/useVolumePermissions"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import { BlockStorageState } from "./volumes/-components/BlockStorageState"
@@ -14,7 +13,11 @@ export const Route = createFileRoute("/_auth/projects/$projectId/volumes")({
     const enabled =
       (!context.enabledServices || context.enabledServices.includes("volumes")) &&
       !context.deniedServices?.includes("volumes")
-    if (!enabled || !findCinderService((await context.trpcClient?.auth.getAvailableServices.query()) ?? [])) {
+    if (!enabled) {
+      throw redirect({ to: "/projects/$projectId", params: { projectId: params.projectId } })
+    }
+    const availability = await context.trpcClient?.volume.getAvailability.query({ project_id: params.projectId })
+    if (!availability?.available) {
       throw redirect({ to: "/projects/$projectId", params: { projectId: params.projectId } })
     }
   },
@@ -35,6 +38,13 @@ function VolumeLayout() {
   const detail = matches.some((match) => match.routeId.includes("$volumeId") || match.routeId.includes("$snapshotId"))
   const snapshots = matches.some((match) => match.routeId.includes("/snapshots"))
   const permissions = useVolumePermissions(projectId)
+  const canAccess = snapshots
+    ? detail
+      ? permissions.canReadSnapshots
+      : permissions.canListSnapshots
+    : detail
+      ? permissions.canReadVolumes
+      : permissions.canListVolumes
   if (permissions.isPending) return <BlockStorageState loading />
   if (permissions.error) return <BlockStorageState error={permissions.error} retry={() => void permissions.refetch()} />
   // Detail read permissions are independent of list permissions.
@@ -59,9 +69,7 @@ function VolumeLayout() {
           </TabBar>
         </>
       )}
-      <div className="mt-4">
-        <Outlet />
-      </div>
+      <div className="mt-4">{canAccess ? <Outlet /> : <BlockStorageState denied />}</div>
     </div>
   )
 }

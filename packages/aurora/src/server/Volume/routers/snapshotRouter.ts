@@ -20,7 +20,11 @@ export const buildSnapshotResourceRouter = (check: VolumePermissionCheck) => ({
       `snapshots/${input.snapshotId}`,
       z.object({ snapshot: snapshotSchema })
     )
-    assertResourceProject(ctx, snapshot["os-extended-snapshot-attributes:project_id"])
+    await assertResourceProject(ctx, snapshot["os-extended-snapshot-attributes:project_id"], async () => {
+      if (!check(ctx, "volume:snapshots:list")) return false
+      const snapshots = await listVolumeResources(ctx, "snapshots", snapshotSchema)
+      return snapshots.some((item) => item.id === snapshot.id)
+    })
     return snapshot
   }),
 })

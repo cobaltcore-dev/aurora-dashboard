@@ -717,12 +717,6 @@ msgstr ""
 msgid "Bit length must be a positive integer"
 msgstr ""
 
-msgid "Block Storage"
-msgstr ""
-
-msgid "Block storage resources"
-msgstr ""
-
 msgid "Boot RAM"
 msgstr "Boot-RAM"
 
@@ -2700,9 +2694,6 @@ msgstr ""
 msgid "Loading ACLs..."
 msgstr "ACLs werden geladen..."
 
-msgid "Loading Block Storage"
-msgstr ""
-
 msgid "Loading buckets..."
 msgstr ""
 
@@ -3750,9 +3741,6 @@ msgstr "Wird entfernt..."
 msgid "Reserved keys: web-index, web-listings, quota-count, quota-bytes"
 msgstr "Reservierte Schlüssel: web-index, web-listings, quota-count, quota-bytes"
 
-msgid "Resource Not Accessible"
-msgstr ""
-
 msgid "Resource Not Found"
 msgstr ""
 
@@ -4122,9 +4110,6 @@ msgstr "Services"
 msgid "Session Changed"
 msgstr ""
 
-msgid "Session Expired"
-msgstr ""
-
 msgid "Session expires in"
 msgstr "Sitzung läuft ab in"
 
@@ -4200,9 +4185,6 @@ msgstr ""
 msgid "Sign In"
 msgstr "Einloggen"
 
-msgid "Sign in again to continue."
-msgstr ""
-
 msgid "Sign In to Your Account"
 msgstr "Bei Ihrem Konto anmelden"
 
@@ -4219,12 +4201,6 @@ msgid "Size: {policySize} / {MAX_POLICY_SIZE} bytes"
 msgstr ""
 
 msgid "Snapshot"
-msgstr ""
-
-msgid "Snapshots"
-msgstr ""
-
-msgid "Snapshots View Coming Soon"
 msgstr ""
 
 msgid "SNAT"
@@ -4393,12 +4369,6 @@ msgid "Temporary URLs"
 msgstr "Temporäre URLs"
 
 msgid "The application configuration could not be loaded. Some services and features may be unavailable."
-msgstr ""
-
-msgid "The block storage scope is available. The snapshots list will be added in a follow-up release."
-msgstr ""
-
-msgid "The block storage scope is available. The volumes list will be added in a follow-up release."
 msgstr ""
 
 msgid "The bucket could not be created. Try again or choose a different name."
@@ -4824,9 +4794,6 @@ msgstr "Diese Eigenschaft ist reserviert und kann nicht geändert werden"
 msgid "This property is reserved and cannot be modified."
 msgstr ""
 
-msgid "This resource does not exist or is not accessible in this project."
-msgstr ""
-
 msgid "This router does not exist or has been deleted."
 msgstr ""
 
@@ -4893,14 +4860,8 @@ msgstr ""
 msgid "Try adjusting your filter criteria or create a new image."
 msgstr ""
 
-msgid "Try again"
-msgstr ""
-
 msgid "Try Again"
 msgstr "Erneut versuchen"
-
-msgid "Try again. If the problem persists, contact your administrator."
-msgstr ""
 
 msgid "Type"
 msgstr ""
@@ -4946,9 +4907,6 @@ msgstr "Image kann nicht deaktiviert werden"
 
 msgid "Unable to Delete Image"
 msgstr "Image kann nicht gelöscht werden"
-
-msgid "Unable to Load Block Storage"
-msgstr ""
 
 msgid "Unable to Load Content"
 msgstr "Inhalt kann nicht geladen werden"
@@ -5148,12 +5106,6 @@ msgstr "Sichtbarkeit"
 msgid "VM State"
 msgstr ""
 
-msgid "Volumes"
-msgstr ""
-
-msgid "Volumes View Coming Soon"
-msgstr ""
-
 msgid "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
 msgstr "Wir entwickeln das Aurora-Dashboard, um Ihnen einen besseren Service zu bieten. Ihr Feedback ist von unschätzbarem Wert, um ein Werkzeug zu gestalten, das den einzigartigen Bedürfnissen von Unternehmen wie Ihrem gerecht wird. Bleiben Sie in Verbindung und begleiten Sie uns, während wir das Cloud-Management neu definieren."
 
@@ -5218,9 +5170,6 @@ msgid "You can rename the object by changing the name here."
 msgstr "Sie können das Objekt umbenennen, indem Sie den Namen hier ändern."
 
 msgid "You do not have permission to view security groups"
-msgstr ""
-
-msgid "You do not have permission to view this block storage resource."
 msgstr ""
 
 msgid "You do not have the necessary permissions to view Containers."

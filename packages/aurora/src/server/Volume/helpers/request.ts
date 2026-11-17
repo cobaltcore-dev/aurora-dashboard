@@ -1,17 +1,30 @@
 import { TRPCError } from "@trpc/server"
 import { z } from "zod"
 import type { AuroraPortalContext } from "../../context"
-import { findCinderService } from "@/types/volume"
+import { CINDER_SERVICE_TYPES } from "@/types/volume"
+
+export function resolveVolumeService(ctx: AuroraPortalContext) {
+  const token = ctx.openstack?.getToken()
+  if (!token || !ctx.openstack) throw new TRPCError({ code: "UNAUTHORIZED" })
+  for (const type of CINDER_SERVICE_TYPES) {
+    if (!token.tokenData.catalog?.some((entry) => entry.type === type)) continue
+    const service = ctx.openstack.service(type)
+    const endpoint = service.getEndpoint()
+    if (!endpoint) continue
+    let url: URL
+    try {
+      url = new URL(endpoint)
+    } catch {
+      continue
+    }
+    if (["http:", "https:"].includes(url.protocol) && /\/v3(?:\/|$)/.test(url.pathname)) return service
+  }
+  return undefined
+}
 
 export function getVolumeService(ctx: AuroraPortalContext) {
-  const token = ctx.openstack?.getToken()
-  const entry = findCinderService(token?.tokenData.catalog ?? [])
-  if (!entry || !ctx.openstack) throw new TRPCError({ code: "NOT_FOUND", message: "Block storage is not available." })
-  const service = ctx.openstack.service(entry.type)
-  const endpoint = service.getEndpoint()
-  if (!endpoint || !/\/v3(?:\/|$)/.test(new URL(endpoint).pathname)) {
-    throw new TRPCError({ code: "NOT_FOUND", message: "A Cinder v3 endpoint is required." })
-  }
+  const service = resolveVolumeService(ctx)
+  if (!service) throw new TRPCError({ code: "NOT_FOUND", message: "A Cinder v3 endpoint is required." })
   return service
 }
 
@@ -94,11 +107,21 @@ export async function listVolumeResources<T extends z.ZodType>(
   return results
 }
 
-/** Admin tokens can show other projects' resources; keep Aurora's detail routes project-only. */
-export function assertResourceProject(ctx: AuroraPortalContext, owner: string | null | undefined) {
+/** Policy may elevate any role. Require ownership proof for every detail response. */
+export async function assertResourceProject(
+  ctx: AuroraPortalContext,
+  owner: string | null | undefined,
+  verifyProjectMembership: () => Promise<boolean>
+) {
   const token = ctx.openstack?.getToken()?.tokenData
-  const isAdmin = token?.roles?.some((role) => role.name === "admin")
-  if ((owner && owner !== token?.project?.id) || (isAdmin && !owner)) {
-    throw new TRPCError({ code: "NOT_FOUND", message: "Resource not found or not accessible in this project." })
+  if (token?.project?.id && owner === token.project.id) return
+  if (token?.project?.id && !owner) {
+    try {
+      if (await verifyProjectMembership()) return
+    } catch (error) {
+      // List denial cannot prove ownership. Preserve authentication/service errors for the caller.
+      if (!(error instanceof TRPCError && ["FORBIDDEN", "NOT_FOUND"].includes(error.code))) throw error
+    }
   }
+  throw new TRPCError({ code: "NOT_FOUND", message: "Resource not found or not accessible in this project." })
 }
