@@ -5,7 +5,8 @@
   "private": false,
   "intent": {
     "skills": [
-      "@cloudoperators/juno-ui-components"
+      "@cloudoperators/juno-ui-components",
+      "workspace:@cobaltcore-dev/aurora"
     ]
   },
   "scripts": {
