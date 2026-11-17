@@ -416,6 +416,25 @@ describe("sessionRouter", () => {
   })
 
   describe("terminateUserSession", () => {
+    it("waits for session and cookie termination before replying", async () => {
+      let finish!: () => void
+      mockContext.terminateSession.mockImplementationOnce(
+        () =>
+          new Promise<void>((resolve) => {
+            finish = resolve
+          })
+      )
+      let replied = false
+      const pending = caller.terminateUserSession().then(() => {
+        replied = true
+      })
+      await vi.waitFor(() => expect(mockContext.terminateSession).toHaveBeenCalledTimes(1))
+      expect(replied).toBe(false)
+      finish()
+      await pending
+      expect(replied).toBe(true)
+    })
+
     it("should reject unauthenticated callers with UNAUTHORIZED", async () => {
       mockContext.validateSession.mockReturnValue(false)
       await expect(caller.terminateUserSession()).rejects.toThrow(

@@ -134,7 +134,7 @@ export const sessionRouter = {
     }),
 
   terminateUserSession: protectedProcedure.mutation(async ({ ctx }) => {
-    ctx.terminateSession()
+    await ctx.terminateSession()
   }),
 
   /**

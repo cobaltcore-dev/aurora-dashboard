@@ -9,6 +9,8 @@ import { TRPCClientError } from "@trpc/client"
 import { useLingui, Trans } from "@lingui/react/macro"
 import { BreadcrumbExtensionProvider } from "@/client/context/BreadcrumbExtensionContext"
 import { useSetBreadcrumb } from "@/client/hooks/useSetBreadcrumb"
+import { useVolumePermissions } from "@/client/hooks/useVolumePermissions"
+import { findCinderService } from "@/types/volume"
 
 // Type for scope error that we catch and handle gracefully
 type ScopeError = {
@@ -101,6 +103,11 @@ function RouteComponent() {
   const loaderData = useLoaderData({ from: Route.id })
   const navigate = Route.useNavigate()
   const { enabledServices, deniedServices, serviceExtensions } = useRouteContext({ strict: false })
+  const volumePermissions = useVolumePermissions(
+    loaderData.projectId,
+    !loaderData.scopeError && Boolean(findCinderService(loaderData.availableServices ?? []))
+  )
+  const canListBlockStorage = volumePermissions.canListVolumes || volumePermissions.canListSnapshots
 
   const projectName = loaderData.crumbProject?.name || loaderData.projectId
   const projectLabel = loaderData.crumbDomain?.name ? `${loaderData.crumbDomain.name}/${projectName}` : projectName
@@ -175,8 +182,16 @@ function RouteComponent() {
   const { availableServices, projectId, crumbProject, crumbDomain } = loaderData
 
   const sections = useMemo(
-    () => buildNavSections(projectId, availableServices!, enabledServices, serviceExtensions, deniedServices),
-    [projectId, availableServices, enabledServices, serviceExtensions, deniedServices]
+    () =>
+      buildNavSections(
+        projectId,
+        availableServices!,
+        enabledServices,
+        serviceExtensions,
+        deniedServices,
+        canListBlockStorage
+      ),
+    [projectId, availableServices, enabledServices, serviceExtensions, deniedServices, canListBlockStorage]
   )
 
   return (
