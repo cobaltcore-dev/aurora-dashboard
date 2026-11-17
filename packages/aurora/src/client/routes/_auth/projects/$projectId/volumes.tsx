@@ -1,10 +1,11 @@
 import { createFileRoute, Outlet, redirect, useMatches, useNavigate, useRouter } from "@tanstack/react-router"
-import { TabBar, TabBarItem } from "@cloudoperators/juno-ui-components"
+import { Button, Stack, Status, TabBar, TabBarItem } from "@cloudoperators/juno-ui-components"
 import { msg } from "@lingui/core/macro"
 import { useLingui } from "@lingui/react/macro"
 import { useVolumePermissions } from "@/client/hooks/useVolumePermissions"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
-import { BlockStorageState } from "./volumes/-components/BlockStorageState"
+import { RouteError } from "@/client/components/Errors/RouteError"
+import { SessionExpired } from "@/client/components/Errors/SessionExpired"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/volumes")({
@@ -27,7 +28,23 @@ export const Route = createFileRoute("/_auth/projects/$projectId/volumes")({
 
 function VolumeScopeError({ error }: { error: unknown }) {
   const router = useRouter()
-  return <BlockStorageState error={error} retry={() => void router.invalidate()} />
+  const { t } = useLingui()
+  const code = (error as { data?: { code?: string } } | undefined)?.data?.code
+  if (code === "UNAUTHORIZED") return <SessionExpired />
+  if (code === "FORBIDDEN")
+    return (
+      <Status
+        status="error"
+        title={t`Access Denied`}
+        body={t`You don't have permission to view block storage in this project.`}
+      />
+    )
+  return (
+    <Stack direction="vertical">
+      <RouteError error={error} title={t`Failed to Load Volumes`} />
+      <Button size="xs" label={t`Try again`} onClick={() => void router.invalidate()} />
+    </Stack>
+  )
 }
 
 function VolumeLayout() {
@@ -45,10 +62,32 @@ function VolumeLayout() {
     : detail
       ? permissions.canReadVolumes
       : permissions.canListVolumes
-  if (permissions.isPending) return <BlockStorageState loading />
-  if (permissions.error) return <BlockStorageState error={permissions.error} retry={() => void permissions.refetch()} />
+  if (permissions.isPending) return <Status status="progress" title={t`Loading Volumes...`} />
+  if (permissions.error?.data?.code === "UNAUTHORIZED") return <SessionExpired />
+  if (permissions.error?.data?.code === "FORBIDDEN")
+    return (
+      <Status
+        status="error"
+        title={t`Access Denied`}
+        body={t`You don't have permission to view block storage in this project.`}
+      />
+    )
+  if (permissions.error)
+    return (
+      <Stack direction="vertical">
+        <RouteError error={permissions.error} title={t`Failed to Load Volumes`} />
+        <Button size="xs" label={t`Try again`} onClick={() => void permissions.refetch()} />
+      </Stack>
+    )
   // Detail read permissions are independent of list permissions.
-  if (!detail && !permissions.canListVolumes && !permissions.canListSnapshots) return <BlockStorageState denied />
+  if (!detail && !permissions.canListVolumes && !permissions.canListSnapshots)
+    return (
+      <Status
+        status="error"
+        title={t`Access Denied`}
+        body={t`You don't have permission to view block storage in this project.`}
+      />
+    )
   return (
     <div>
       {!detail && (
@@ -69,7 +108,21 @@ function VolumeLayout() {
           </TabBar>
         </>
       )}
-      <div className="mt-4">{canAccess ? <Outlet /> : <BlockStorageState denied />}</div>
+      <div className="mt-4">
+        {canAccess ? (
+          <Outlet />
+        ) : (
+          <Status
+            status="error"
+            title={t`Access Denied`}
+            body={
+              snapshots
+                ? t`You don't have permission to view snapshots in this project.`
+                : t`You don't have permission to view volumes in this project.`
+            }
+          />
+        )}
+      </div>
     </div>
   )
 }

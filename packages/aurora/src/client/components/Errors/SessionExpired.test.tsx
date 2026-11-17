@@ -2,7 +2,7 @@ import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest"
 import { render, screen } from "@testing-library/react"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
-import { BlockStorageState } from "./BlockStorageState"
+import { SessionExpired } from "./SessionExpired"
 
 const h = vi.hoisted(() => ({ restart: vi.fn() }))
 vi.mock("@/client/utils/restartSignIn", () => ({ restartSignIn: h.restart }))
@@ -15,25 +15,15 @@ beforeEach(() => {
   vi.clearAllMocks()
 })
 
-describe("block storage authorization state", () => {
-  it("keeps the Session Expired title and restarts sign-in after 401", () => {
+describe("SessionExpired", () => {
+  it("keeps the Session Expired title and restarts sign-in", () => {
     render(
       <I18nProvider i18n={i18n}>
-        <BlockStorageState error={{ data: { code: "UNAUTHORIZED" } }} />
+        <SessionExpired />
       </I18nProvider>
     )
     expect(screen.getByText("Session Expired")).toBeInTheDocument()
     expect(screen.getByText("Redirecting to sign-in...")).toBeInTheDocument()
     expect(h.restart).toHaveBeenCalledTimes(1)
-  })
-
-  it("does not terminate the session for an ordinary permission denial", () => {
-    render(
-      <I18nProvider i18n={i18n}>
-        <BlockStorageState denied />
-      </I18nProvider>
-    )
-    expect(screen.getByText("Insufficient Permissions")).toBeInTheDocument()
-    expect(h.restart).not.toHaveBeenCalled()
   })
 })
