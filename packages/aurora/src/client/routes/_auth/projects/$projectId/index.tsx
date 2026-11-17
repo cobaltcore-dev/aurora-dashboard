@@ -9,6 +9,8 @@ import { Slot } from "@/client/components/Slot"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { hasServiceByName } from "@/client/utils/serviceCatalog"
 import { STORAGE_PROVIDER, STORAGE_TYPE_BY_PROVIDER } from "@/client/utils/storageProviders"
+import { findCinderService } from "@/types/volume"
+import { useVolumePermissions } from "@/client/hooks/useVolumePermissions"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/")({
   staticData: {
@@ -56,6 +58,7 @@ function RouteComponent() {
   })
   const { t } = useLingui()
   const { enabledServices, deniedServices, serviceExtensions } = useRouteContext({ strict: false })
+  const volumePermissions = useVolumePermissions(projectId, Boolean(findCinderService(availableServices ?? [])))
   // Deny always wins and applies even without an allow/enabled list (deny-only). See buildNavSections.
   const isEnabled = (service: string) =>
     (!enabledServices || enabledServices.includes(service)) && !deniedServices?.includes(service)
@@ -64,6 +67,14 @@ function RouteComponent() {
   const base = `/projects/${projectId}`
 
   const cards: ServiceCardProps[] = []
+
+  if (
+    findCinderService(availableServices ?? []) &&
+    isEnabled("volumes") &&
+    (volumePermissions.canListVolumes || volumePermissions.canListSnapshots)
+  ) {
+    cards.push({ group: t`Block Storage`, label: t`Volumes`, to: `${base}/volumes`, service: "volumes" })
+  }
 
   if (serviceIndex["image"]?.["glance"] && isEnabled("images"))
     cards.push({ group: t`Compute`, label: t`Images`, to: `${base}/compute/images`, service: "images" })
