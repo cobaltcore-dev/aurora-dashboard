@@ -8,3 +8,4 @@
 - Verify detail ownership for all roles and gate each route on its own read capability
 - Resolve usable project-scoped v3 endpoints before exposing the Volumes scope
 - Use Aurora's shared route errors and inline loading and access-denied states
+- Align Cinder read policy defaults with Queens and check the detailed-list policy for Instances

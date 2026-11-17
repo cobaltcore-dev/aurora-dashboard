@@ -8,7 +8,7 @@ import { createPermissionRouter } from "../../policies/createPermissionRouter"
  */
 const COMPUTE_IMAGE_MAPPINGS = {
   // Servers
-  "servers:list": { engine: "compute", rule: "os_compute_api:servers:index" },
+  "servers:list": { engine: "compute", rule: "os_compute_api:servers:detail" },
   "servers:create": { engine: "compute", rule: "os_compute_api:servers:create" },
   "servers:delete": { engine: "compute", rule: "os_compute_api:servers:delete" },
   "servers:update": { engine: "compute", rule: "os_compute_api:servers:update" },

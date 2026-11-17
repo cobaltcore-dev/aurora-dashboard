@@ -1,8 +1,8 @@
 {
-  "project_reader": "role:reader and project_id:%(project_id)s",
-  "admin_or_project_reader": "role:admin or rule:project_reader",
-  "volume:get_all": "rule:admin_or_project_reader",
-  "volume:get": "rule:admin_or_project_reader",
-  "volume:get_all_snapshots": "rule:admin_or_project_reader",
-  "volume:get_snapshot": "rule:admin_or_project_reader"
+  "context_is_admin": "role:admin",
+  "admin_or_owner": "is_admin:True or (role:admin and is_admin_project:True) or project_id:%(project_id)s",
+  "volume:get_all": "rule:admin_or_owner",
+  "volume:get": "rule:admin_or_owner",
+  "volume:get_all_snapshots": "rule:admin_or_owner",
+  "volume:get_snapshot": "rule:admin_or_owner"
 }
