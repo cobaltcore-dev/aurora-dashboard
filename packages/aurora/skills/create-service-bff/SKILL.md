@@ -52,11 +52,18 @@ src/server/<Service>/
 ## Procedure
 
 1. **Types** (`types/<service>.ts`). Define a `zod` schema per resource and per
-   create/update input, following the KeyManager types _pattern_ (nullable fields
-   where OpenStack may omit them, list schemas wrapping the item schema). Take the
-   actual fields from the brief, not from KeyManager - if the fields or their
-   nullability are unclear, ask. These schemas are the single source of truth for the
-   shapes the UI consumes.
+   create/update input, following the KeyManager types _pattern_ (list schemas
+   wrapping the item schema). Take the actual fields from the brief, not from
+   KeyManager - if the fields or their presence/nullability are unclear, ask.
+   Match each field to how OpenStack actually returns it:
+   - a key that may be **`null`** but is always present -> `.nullable()`
+   - a key that may be **absent** from the response -> `.optional()`
+   - a key that may be **either** -> `.nullish()` (i.e. `.optional().nullable()`),
+     as the exemplar does for `content_types`.
+
+   `.nullable()` alone still rejects an absent key, so using it for an omitted field
+   makes `parseOrThrow` reject valid OpenStack responses at runtime. These schemas are
+   the single source of truth for the shapes the UI consumes.
 
 2. **Resource router** (`routers/<service>Router.ts`). Export
    `build<Service>ResourceRouter(policyDir)`. For each operation build a
@@ -75,6 +82,16 @@ src/server/<Service>/
    `"<service>:<resource>:<op>"` to `{ engine, rule }`, passed to
    `createPermissionRouter` (from `@/server/policies/createPermissionRouter`). This
    powers the client's `canUser` checks.
+
+   **Provision the policy file before wiring this up.** `createPermissionRouter` loads
+   every configured engine's policy file eagerly at build time (`loadPolicyEngine`), and
+   a missing file throws - which prevents the dashboard server from starting, not just
+   the one request. So each `engine.fileName` must resolve to a real file that defines
+   the mapped rules, found either in the consumer's `policyDir` or in the bundled
+   `permission_custom_policies/` fallback. Either add that policy file (defining every
+   rule in `MAPPINGS`) or point the mapping at an existing file that already provides
+   those rules. Confirm the file and its rule names with the user if the brief does not
+   specify them.
 
 4. **Index** (`routers/index.ts`). Export `build<Service>Routers(policyDir)` returning
    `{ <service>: auroraRouter({ ...resourceRouter, ...permissionRouter }) }` - one

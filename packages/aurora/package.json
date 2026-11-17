@@ -4,9 +4,6 @@
   "private": false,
   "description": "Aurora OpenStack dashboard — server and client library",
   "license": "Apache-2.0",
-  "keywords": [
-    "tanstack-intent"
-  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/cobaltcore-dev/aurora-dashboard.git",
@@ -16,10 +13,7 @@
     "node": ">=24.15.0"
   },
   "files": [
-    "dist",
-    "skills/create-service",
-    "skills/create-service-bff",
-    "skills/create-service-ui"
+    "dist"
   ],
   "publishConfig": {
     "access": "public"
