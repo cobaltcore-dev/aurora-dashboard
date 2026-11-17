@@ -4,6 +4,7 @@ import type { NavigateFn } from "@tanstack/react-router"
 import type { ServiceExtension } from "@/client/AuroraApp"
 import { hasServiceByName } from "@/client/utils/serviceCatalog"
 import { STORAGE_PROVIDER, STORAGE_TYPE_BY_PROVIDER } from "@/client/utils/storageProviders"
+import { findCinderService } from "@/types/volume"
 
 export type NavItem = {
   service: string
@@ -23,7 +24,8 @@ export function buildNavSections(
   availableServices: { type: string; name: string }[],
   enabledServices?: string[],
   serviceExtensions?: ServiceExtension[],
-  deniedServices?: string[]
+  deniedServices?: string[],
+  canListBlockStorage = false
 ): NavSection[] {
   const serviceIndex = getServiceIndex(availableServices)
   // Deny always wins and applies even without an allow/enabled list, so a service can be hidden
@@ -171,11 +173,24 @@ export function buildNavSections(
       : []),
   ]
 
+  const blockStorageServices: NavItem[] =
+    findCinderService(availableServices) && isEnabled("volumes") && canListBlockStorage
+      ? [
+          {
+            service: "volumes",
+            label: t`Volumes`,
+            navigate: (nav: NavigateFn) => nav({ to: "/projects/$projectId/volumes", params: { projectId } }),
+            params: { projectId },
+          },
+        ]
+      : []
+
   // Seed the section map with built-in sections
   const sectionMap = new Map<string, NavSection>([
     ["compute", { section: "compute", label: t`Compute`, services: computeServices }],
     ["network", { section: "network", label: t`Network`, services: networkServices }],
     ["storage", { section: "storage", label: t`Storage`, services: storageServices }],
+    ["block-storage", { section: "block-storage", label: t`Block Storage`, services: blockStorageServices }],
     [
       "authorization",
       {
