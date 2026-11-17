@@ -5,7 +5,6 @@ import { useLingui } from "@lingui/react/macro"
 import { useVolumePermissions } from "@/client/hooks/useVolumePermissions"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import { RouteError } from "@/client/components/Errors/RouteError"
-import { SessionExpired } from "@/client/components/Errors/SessionExpired"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/volumes")({
@@ -30,7 +29,6 @@ function VolumeScopeError({ error }: { error: unknown }) {
   const router = useRouter()
   const { t } = useLingui()
   const code = (error as { data?: { code?: string } } | undefined)?.data?.code
-  if (code === "UNAUTHORIZED") return <SessionExpired />
   if (code === "FORBIDDEN")
     return (
       <Status
@@ -41,7 +39,7 @@ function VolumeScopeError({ error }: { error: unknown }) {
     )
   return (
     <Stack direction="vertical">
-      <RouteError error={error} title={t`Failed to Load Volumes`} />
+      <RouteError error={error} title={code === "UNAUTHORIZED" ? t`Session Expired` : t`Failed to Load Volumes`} />
       <Button size="xs" label={t`Try again`} onClick={() => void router.invalidate()} />
     </Stack>
   )
@@ -63,7 +61,6 @@ function VolumeLayout() {
       ? permissions.canReadVolumes
       : permissions.canListVolumes
   if (permissions.isPending) return <Status status="progress" title={t`Loading Volumes...`} />
-  if (permissions.error?.data?.code === "UNAUTHORIZED") return <SessionExpired />
   if (permissions.error?.data?.code === "FORBIDDEN")
     return (
       <Status
@@ -75,7 +72,10 @@ function VolumeLayout() {
   if (permissions.error)
     return (
       <Stack direction="vertical">
-        <RouteError error={permissions.error} title={t`Failed to Load Volumes`} />
+        <RouteError
+          error={permissions.error}
+          title={permissions.error.data?.code === "UNAUTHORIZED" ? t`Session Expired` : t`Failed to Load Volumes`}
+        />
         <Button size="xs" label={t`Try again`} onClick={() => void permissions.refetch()} />
       </Stack>
     )

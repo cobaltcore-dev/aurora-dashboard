@@ -14,7 +14,7 @@ const h = vi.hoisted(() => ({
   navigate: vi.fn(),
   invalidate: vi.fn(),
   refetch: vi.fn(),
-  expired: vi.fn(),
+  terminate: vi.fn(),
   pending: false,
   error: null as unknown,
 }))
@@ -40,12 +40,7 @@ vi.mock("@/client/hooks/useVolumePermissions", () => ({
 vi.mock("@/client/components/ContentHeader/ContentHeader", () => ({
   ContentHeader: ({ title }: { title: string }) => <h1>{title}</h1>,
 }))
-vi.mock("@/client/components/Errors/SessionExpired", () => ({
-  SessionExpired: () => {
-    h.expired()
-    return <span>Session Expired</span>
-  },
-}))
+vi.mock("@/client/trpcClient", () => ({ trpcClient: { auth: { terminateUserSession: { mutate: h.terminate } } } }))
 
 const guard = Route.options.beforeLoad as unknown as (options: {
   context: {
@@ -196,7 +191,7 @@ describe("volume scope routing", () => {
     fireEvent.click(screen.getByText("Try again"))
     expect(h.refetch).toHaveBeenCalled()
   })
-  it("preserves Session Expired recovery for query errors", () => {
+  it("shows Session Expired without a scope-specific logout for query errors", () => {
     h.error = { data: { code: "UNAUTHORIZED" } }
     render(
       <I18nProvider i18n={i18n}>
@@ -204,9 +199,9 @@ describe("volume scope routing", () => {
       </I18nProvider>
     )
     expect(screen.getByText("Session Expired")).toBeInTheDocument()
-    expect(h.expired).toHaveBeenCalled()
+    expect(h.terminate).not.toHaveBeenCalled()
   })
-  it("preserves Session Expired recovery for route-guard errors", () => {
+  it("shows Session Expired without a scope-specific logout for route-guard errors", () => {
     const ErrorComponent = Route.options.errorComponent as ComponentType<{ error: unknown }>
     render(
       <I18nProvider i18n={i18n}>
@@ -214,6 +209,6 @@ describe("volume scope routing", () => {
       </I18nProvider>
     )
     expect(screen.getByText("Session Expired")).toBeInTheDocument()
-    expect(h.expired).toHaveBeenCalled()
+    expect(h.terminate).not.toHaveBeenCalled()
   })
 })
