@@ -49,7 +49,7 @@ Each rule carries a `[scope: …]` tag marking where its guidance is expected to
 
 ## Messages and Notifications
 
-- `[scope: design-system]` `Message` = use for static, anchored, persistent (never auto-dismiss `error`/`warning`), near related content; `Toast` = use for transient, floating, auto-dismiss, via `NotificationManager` mounted once at app root (`toast()`, never `Toast` directly); never combine a toast and an in-page confirmation Message for the same action.
+- `[scope: design-system]` `Message` = use for static, anchored, persistent feedback near related content; `Toast` = use for floating notifications via `NotificationManager` mounted once at app root (`toast()`, never `Toast` directly). Auto-dismiss only low-stakes `info`/`success` feedback; never auto-dismiss `error`/`warning` messages or toasts. Keep progress toasts visible until their operation finishes and dismiss them explicitly. Use an anchored `Message` for errors requiring user action. Never combine a toast and an in-page confirmation Message for the same action.
 
 ## UX Writing
 
