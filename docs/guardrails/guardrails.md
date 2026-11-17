@@ -28,7 +28,7 @@ Each rule carries a `[scope: …]` tag marking where its guidance is expected to
 ## List Views
 
 - `[scope: aurora]` Use DataGrid exclusively to render list/tabular data on list views. Do not use or add alternating row backgrounds.
-- `[scope: aurora]` Render the individual items' IDs in the name column underneath the name in a subdued text style if possible.
+- `[scope: aurora]` Render the individual items' IDs in the name column underneath the name in a subdued text style if possible. In the corresponding column header, use `"Name / ID"` in that exact spelling, unless something else is explicitly specified.
 - `[scope: aurora]` When a list item has a detail view, its row's overflow menu must contain a "Show Details" entry, and it must be the first item in the menu.
 
 ## Forms
