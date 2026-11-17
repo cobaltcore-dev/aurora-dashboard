@@ -30,6 +30,7 @@ Each rule carries a `[scope: …]` tag marking where its guidance is expected to
 - `[scope: aurora]` Use DataGrid exclusively to render list/tabular data on list views. Do not use or add alternating row backgrounds.
 - `[scope: aurora]` Render the individual items' IDs in the name column underneath the name in a subdued text style if possible. In the corresponding column header, use `"Name / ID"` in that exact spelling, unless something else is explicitly specified.
 - `[scope: aurora]` When a list item has a detail view, its row's overflow menu must contain a "Show Details" entry, and it must be the first item in the menu.
+- `[scope: aurora]` In overflow menus, "Delete [Entity]" must always be the last item in its group. For single-entity menus (all actions target one entity type), separate the Delete action from the rest with a divider. For multi-entity menus (multiple groups separated by dividers), no additional divider before Delete is needed — the group divider already provides separation.
 
 ## Forms
 
