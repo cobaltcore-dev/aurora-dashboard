@@ -14,8 +14,6 @@
 
 > **Note (deferred, non-blocking):** submitter and target release quarter are not yet recorded (Q-N4); priority is provisionally **Medium**. These are nice-to-have document-control fields and do not block engineering review.
 
-> **Engineering update (2026-11-16):** manual Refresh is included, without polling/SSE. “One list call” means one tRPC query, potentially multiple Cinder pages; the BFF returns the complete list. Both resource detail routes ship with their lists, so no links lead to placeholders. Upstream supports `volume_id` snapshot filtering; the previously observed deployment request is not a substitute for verifying project-reader permissions. See [volumes-api-verification.md](volumes-api-verification.md).
-
 ---
 
 ## 1. Summary (2-3 sentences)
@@ -386,7 +384,7 @@ These are settled framework facts (not open requirements), recorded to orient im
 - **Cross-scope deep-link prior art:** the Networks scope's port → router deep-link (ID-based, no extra API call, graceful degradation) is the model for the volume → instance and snapshot → volume links.
 - **List toolbar prior art:** sibling list views compose `DataGridToolbar` + `SearchInput` + the shared `ListToolbar/{SortInput,FiltersInput,SelectedFilters}` sub-components.
 
-> ✅ **Resolved — Q-F7:** explicit manual Refresh on lists/details, with a last-fetched timestamp on lists. No automatic polling or SSE in phase 1.
+> ⚠️ **Still needed (Aurora developer, not stakeholder) — Q-F7:** whether any near-real-time refresh of volume/snapshot status is wanted (volumes have transitional states like `creating` / `attaching`). For a read-only phase 1 this is likely unnecessary; if desired later, confirm `refetchInterval` vs. an SSE subscription with an Aurora developer. Not a blocker for phase 1.
 
 > ✅ **Resolved — Q-F8:** the **"Snapshots of this volume"** section (Story 2) **ships in phase 1**.
 > The Cinder block-storage API accepts a server-side `volume_id` filter on the snapshots list

@@ -5,27 +5,7 @@ Target surface: Aurora Dashboard — built-in scope (**Pattern A**: file-based T
 Development context (source of truth): `.claude/context/aurora-dashboard.md`, `.claude/context/juno.md`
 Status: ready-for-engineering
 
-## API corrections and implementation contract (2026-11-16)
-
-This section supersedes the original sequencing assumptions below. The read-only implementation ships both resource lists and both detail routes together; there are no navigable placeholder routes.
-
-- **Manual refresh is included.** Lists and details offer Refresh; no automatic polling or SSE. The list timestamp means **last fetched**, from `dataUpdatedAt`, not the resource's `updated_at`.
-- **One tRPC list query, not necessarily one Cinder HTTP response.** Cinder caps collections (`osapi_max_limit`, upstream default 1000). The BFF follows `volumes_links` / `snapshots_links` until complete, preserving the volume filter, rejecting unsafe URLs and repeated markers. UI search/sort/filter remains client-side; there is no UI pagination or per-row enrichment.
-- **Snapshots of this volume ships with volume detail.** `volume.listSnapshots({ project_id, volumeId })` requests `snapshots/detail` with the `volume_id` query parameter. Cinder explicitly supports this filter. From microversion 3.31 its availability can be operator-configured; verify as a normal project reader. Do not infer non-support from omission in the API-reference query table.
-- **Show endpoints for details:** `volumes/<id>` and `snapshots/<id>`, independent of list permissions and list cache availability. An inaccessible resource can return 404; show “not found or not accessible”. Admin detail reads must not expose another project's resource.
-- **Relative endpoint paths:** append `volumes/detail` / `snapshots/detail` to the catalog endpoint (normally ending in `/v3/<project_id>`). Do not replace that path with a leading slash. The BFF explicitly requests `OpenStack-API-Version: volume 3.0`; all required fields are available there. Newer optional fields must not be required.
-- **Attachments:** display every embedded attachment. Use `attachment_id`, not `id` (the latter historically identifies the volume). `server_id`, device, and timestamp may be null. Embedded attachments only report completed attachments; do not infer transitional state from an empty array.
-- **Status ranking:** all `error` / `error_*` states sort first, followed by known transitional states, `awaiting-transfer`, `reserved`, `in-use`, `available`, then unknown states. Snapshot transitions also include `backing-up` and `unmanaging`. Direction reverses the order.
-- **Parsing:** optional/null fields render `- -`; `bootable` is a string boolean in Cinder and must be normalized explicitly. Never use truthiness to parse `"false"`. Missing required IDs or malformed collection envelopes are errors, not empty projects. Unzoned Cinder timestamps are UTC.
-- **Permissions:** volume list/show and snapshot list/show are independent. One cached permission query is shared by nav, cards, scope, and links. Missing `volume.json` disables Cinder only, without breaking server startup. The supplied policy file is a starting point, not proof of deployment equivalence; operators must supply their effective read rules and dependencies. Cinder remains the final resource-authorization authority.
-- **Routing/UI:** use Juno `TabBar` / `TabBarItem` (the installed version deprecates `TabNavigation`). Resource tabs appear only on lists. Volume detail's attachments and snapshots are peer sub-tabs. Keep the epic's explicit column order. IDs link without name resolution; disabled/absent target services or denied target read permissions render plain IDs.
-- **Instances route already exists:** `/projects/$projectId/compute/instances/$instanceId`; it is a navigation-only dependency, not a missing-code blocker.
-
-Ticket ownership: [#1474](https://github.com/cobaltcore-dev/aurora-dashboard/issues/1474) environment verification → [#1475](https://github.com/cobaltcore-dev/aurora-dashboard/issues/1475) scope + registered permission namespace → [#1476](https://github.com/cobaltcore-dev/aurora-dashboard/issues/1476) BFF data procedures → [#1477](https://github.com/cobaltcore-dev/aurora-dashboard/issues/1477) volumes list → [#1478](https://github.com/cobaltcore-dev/aurora-dashboard/issues/1478) volume detail. Snapshot views [#1479](https://github.com/cobaltcore-dev/aurora-dashboard/issues/1479) → [#1480](https://github.com/cobaltcore-dev/aurora-dashboard/issues/1480) also depend on #1476. Links [#1481](https://github.com/cobaltcore-dev/aurora-dashboard/issues/1481) cover the snapshot list's source-volume cell as well as both detail pages.
-
-Deployment verification remains pending. See [volumes-api-verification.md](volumes-api-verification.md) for evidence, release checks, and the policy compatibility contract.
-
-> **Scope framing (BRD §6).** Phase 1 is strictly read-only: no create/extend/attach/detach/delete or snapshot-create/restore. Both resource lists, details, and ID-based relationship links ship together, with Volumes · Snapshots peer tabs. Volume detail includes attachments and scoped snapshots. State handling is part of every view. Explicit Refresh is included, without polling/SSE (E1).
+> **Scope framing (BRD §6).** Phase 1 is strictly **read-only** — no create/extend/attach/detach/delete and no snapshot-create/restore; mutation is a separate later phase. The scope is presented as **two tabs — Volumes · Snapshots** (E7). The MVP is the **tab shell + Volumes tab (list) + volume detail (metadata + attachments)** (sub-issues 2–4). The **Snapshots tab (list) + snapshot detail** and the **ID-based deep-links** (sub-issues 5–7) are fast-follow within the same phase — headline functionality, sequenced immediately after the volume MVP but not blocking first release. Status/empty/error/loading state handling is **folded into each sub-issue** where it applies rather than tracked separately. **There is no data-refresh mechanism in phase 1** (see Engineering decision E1).
 
 > **Net-new on both tiers.** Unlike the Instances scope (where the server procedure already existed), **nothing Cinder-related exists in the codebase today** — no client route, no server router, no types. The closest precedent is the **Networks** scope, which was also net-new and which also uses ID-based cross-scope deep-links (port → router). Reference `Network/` for the server layout and the network `routers` / `floatingips` resources for the client layout.
 
@@ -34,23 +14,23 @@ Deployment verification remains pending. See [volumes-api-verification.md](volum
 These must be used **verbatim** by implementers. The reference list views are the network `routers` and `floatingips` views, which compose Juno primitives rather than the monolithic `ListToolbar` wrapper:
 
 1. **List toolbar — composed 3-zone DataGrid header** built from `DataGridToolbar` + `SearchInput` (`@cloudoperators/juno-ui-components`) plus the shared `ListToolbar/{SortInput,FiltersInput,SelectedFilters}` sub-components (`client/components/ListToolbar/`), exactly as `network/routers/-components/RoutersList.tsx` does. Both the volumes list and the snapshots list use the same composition:
-   - **Volumes — Zone 1:** sort (Name / Status / Size / Created) + direction toggle. **Zone 2:** name/ID search + Status, Volume type, Bootable, Availability Zone filters + pills and clear all. **Zone 3:** item count + last-fetched timestamp + Refresh (E1).
+   - **Volumes — Zone 1:** sort `Select` (Name / Status / Size / Created) + direction toggle. **Zone 2:** `SearchInput` (placeholder: matches Name and ID) + filter `Select`s for Status, Volume type, Bootable, Availability Zone + active-filter pills with "clear all". **Zone 3:** item count + last-updated timestamp. **No refresh button** (E1).
    - **Snapshots — Zone 1:** sort `Select` (Name / Status / Size / Created) + direction toggle. **Zone 2:** `SearchInput` + a Status filter `Select` + pills. **Zone 3:** count + last-updated.
 2. **Row navigation — clickable row + scaffolded overflow menu.** The whole row is clickable to open the detail route (`datagrid.md`); nested interactive elements (ID copy, overflow menu, deep-links) call `event.stopPropagation()`. The last column keeps an overflow menu (`⋮`) holding a single **"View details"** item in phase 1 — the extension point for future mutation actions and to reserve the column `min-width` now. (Conscious divergence from `popup-and-overflow-menus.md`, same decision as the Networks / Instances scopes.)
 3. **Detail presentation — full route pages.** Volume detail at `…/projects/$projectId/volumes/$volumeId` and snapshot detail at `…/projects/$projectId/volumes/snapshots/$snapshotId`, each a full page. Because the volume detail has a nested attachments sub-table + components, implement the volume detail in the **directory route form** (`volumes/$volumeId/index.tsx` with a co-located `volumes/$volumeId/-components/` subtree), matching the `floatingips` resource. The snapshot detail is simpler and may use the single-file form (`volumes/snapshots/$snapshotId.tsx`), matching `routers`/`flavors`.
-4. **Scope tab shell — Volumes · Snapshots (E7).** Use `TabBar` / `TabBarItem` for the two peer list routes. Volumes is default. Detail routes are full pages without the scope's list tabs. Both lists/details ship in the same increment; do not link to placeholder pages.
+4. **Scope tab shell — Volumes · Snapshots (E7).** The scope renders a `TabNavigation` with two peer tabs: **Volumes** (default, list at `…/volumes`) and **Snapshots** (list at `…/volumes/snapshots`). Each tab hosts its own full DataGrid list; opening a row navigates to that resource's detail route (the detail pages are full route pages, not nested inside the tab). Tab prior art: the network `securitygroups` detail `TabNavigation` / `TabNavigationItem` usage. The tab shell is part of the MVP (sub-issue 2) so the Snapshots tab is a drop-in fast-follow rather than a re-layout.
 
 ## Confirmed engineering decisions
 
 Grounded in the current Aurora codebase (`Network/` server layout; `floatingips` / `routers` client resources as reference implementations):
 
-- **E1 — Manual refresh, no polling.** Data loads on navigation/mount and explicit Refresh. No `refetchInterval` or SSE subscription. Zone 3 shows a relative **last-fetched** timestamp from `dataUpdatedAt`. Read-only resources can change through other clients; manual refresh is therefore included. _(Resolves BRD Q-F7.)_
+- **E1 — No refresh mechanism in phase 1.** No `refetchInterval` auto-poll, no SSE subscription, and no manual refresh button. Rationale identical to the Networks/Instances scopes: `refetchInterval` is unused anywhere in Aurora; the only real-time pattern (tRPC-over-SSE) is purpose-built for upload/download progress and does not watch OpenStack resource state; and a manual refresh button is not an established pattern in the sibling list/detail views. Data loads on route navigation / component mount. The Zone-3 **last-updated timestamp is retained**, fed from the query's `dataUpdatedAt` and rendered relative. Refresh of transitional states (`creating`, `attaching`, `restoring`, …) is deferred. _(Resolves BRD Q-F7.)_
 - **E2 — No instance/volume name-resolution; IDs only + ID-based deep-links.** A volume's `attachments[].server_id`, a snapshot's `volume_id`, and a volume's `snapshot_id` / `source_volid` are shown as **plain IDs** and rendered as **deep-links** to the target detail route keyed on that ID — **no extra API call** and **no name lookup** (consistent with the Networks `device_id` → router treatment). Each deep-link **degrades gracefully to a plain ID** when the target scope/route is unavailable in the catalog. _(Copy-to-clipboard is out of scope for now; no ID-copy affordance is required.)_
-- **E3 — Status sort order (attention-first).** Volumes: `error` / all `error_*` → transitional (`creating`, `deleting`, `attaching`, `detaching`, `extending`, `backing-up`, `restoring-backup`, `maintenance`, `downloading`, `uploading`, `retyping`) → `awaiting-transfer` → `reserved` → `in-use` → `available`; unknown strings last. Snapshots: `error` / all `error_*` → transitional (`creating`, `deleting`, `restoring`, `backing-up`, `unmanaging`) → `available`; unknown last. Direction reverses the order.
+- **E3 — Status sort order (attention-first).** Volumes: `error` / `error_deleting` → transitional (`creating`, `deleting`, `attaching`, `detaching`, `extending`, `backing-up`, `restoring-backup`, `maintenance`) → `reserved` → `in-use` → `available`; unknown strings last. Snapshots: `error` / `error_deleting` → transitional (`creating`, `deleting`, `restoring`) → `available`. The sort-direction toggle flips it.
 - **E4 — tRPC namespace `volume.*`**, procedures `listVolumes`, `getVolumeById`, `listSnapshots`, `getSnapshotById`, plus a permission router. Follow the **Networks** nested-namespace convention (`network.routers`, `network.ports`) — a single `volume` server router grouping volumes and snapshots — because both resources live in one scope. Server resource objects in `server/Volume/routers/{volumeRouter,snapshotRouter,permissionRouter}.ts`; types in `server/Volume/types/{volume,snapshot}.ts`; error handlers / helpers in `server/Volume/helpers/`; registered as `buildVolumeRouters(policyDir)` in `server/routers.ts` within `buildBaseRouter()`, mirroring `buildNetworkRouters`. _(Confirm the exact Cinder list endpoints at build: `GET /volumes/detail`, `GET /snapshots/detail`.)_
-- **E5 — No UI pagination in phase 1.** Both lists render all rows; search/sort/filter is entirely client-side over the complete tRPC result. The BFF follows Cinder pages internally. Revisit UI paging/virtualization if real project counts warrant it; never silently truncate to Cinder's first page.
+- **E5 — No pagination in phase 1.** Both lists render all rows; search / sort / filter are entirely client-side over the single list response. None of the sibling network list views paginate consistently, and project-scoped volume/snapshot counts are typically small. Revisit only if real projects show large counts.
 - **E6 — Enumerated filters.** Volume Status and Snapshot Status filter `Select`s offer the known Cinder values (E3 lists) plus a graceful "other" bucket; Volume type and Availability Zone options are derived from the distinct values present in the response; Bootable is a boolean true/false `Select`. Leaving a filter unselected means "any" (no pill, no filtering).
-- **E7 — Two-tab scope and scoped volume snapshots.** Volumes and Snapshots are peer tabs, not separate navigation entries. The Snapshots tab lists all project snapshots. Volume detail includes “Snapshots of this volume”, backed by `GET /snapshots/detail?volume_id=<id>`; this filter is supported upstream and must be verified against deployment configuration. The section ships in phase 1 and fails independently of volume metadata. No per-row fan-out.
+- **E7 — Two-tab scope; snapshots are a peer tab, plus a "Snapshots of this volume" section on the volume detail.** Volumes and Snapshots are two peer tabs in one scope (UX decision 4). They are **not** two independent nav entries, and the Snapshots tab lists **all** project snapshots (not scoped to one volume). In addition, the **volume detail** shows a read-only **"Snapshots of this volume"** section, derived by filtering the project snapshot list client-side on `snapshot.volume_id` — exactly what the OpenStack CLI `openstack volume snapshot list --volume <id>` does. There is **no documented server-side `?volume_id` filter** on `GET /snapshots/detail` (see sub-issue 1 note), so this must be derived client-side and must **not** assume a server-side filter. _(Developer confirmation Q-F8: whether this section ships in phase 1 or as fast-follow; it is cheap — reuses `volume.listSnapshots`, no per-volume fan-out — and does not block the volume-detail MVP.)_
 
 ## Epic index
 
@@ -93,7 +73,7 @@ Give Aurora project members a read-only view of their project's Cinder volumes a
 
 - [ ] Confirm OpenStack **Cinder (block storage) v3** is reachable via the Keystone service catalog, and record the exact catalog **type** and **name** it registers as (`volumev3`/`cinderv3`, or `block-storage`, or `volume`) — this drives the nav gate (open item O3).
 - [ ] Confirm the list endpoints: `GET /volumes/detail` and `GET /snapshots/detail` (both project-scoped list calls).
-  - [ ] Verify `GET /snapshots/detail?volume_id=<id>` as a project reader, not only as an admin. Confirm the response contains no unrelated snapshots and continuation links preserve the filter. Cinder explicitly supports the filter; configured allowed filters can vary from microversion 3.31.
+  - [ ] **Note — snapshots-per-volume:** the Cinder v3 API reference does **not** document a server-side `?volume_id=` query filter on `GET /snapshots/detail` (the documented query params are `all_tenants`, `sort`, `sort_key`, `sort_dir`, `limit`, `offset`, `marker`, `with_count`, `consumes_quota`). Every snapshot object carries a `volume_id` **field** in the response body, so "snapshots of a given volume" must be derived by filtering the project snapshot list client-side on `snapshot.volume_id` — do **not** rely on a server-side `?volume_id` filter (generic attribute filtering is deployment/policy-dependent and can return `400` for non-admins since v3.31). Phase 1 does not need this at all (snapshots are a peer tab listing all project snapshots; volumes and snapshots are linked only by ID deep-links), but record the constraint so a later phase does not assume a server-side filter exists.
 - [ ] Confirm the test project contains the data shapes every view must render, or seed / fall back to realistic mock data for any missing shape:
   - [ ] an **attached** volume (`status = in-use`, non-empty `attachments` with a `server_id`) — ideally attached to an instance that exists in the Instances scope (to exercise the deep-link)
   - [ ] an **unattached** `available` volume
@@ -115,7 +95,7 @@ Give Aurora project members a read-only view of their project's Cinder volumes a
 **Acceptance Criteria**
 
 - [ ] A new route tree exists under `…/projects/$projectId/volumes/` — Volumes-tab list route `volumes/index.tsx`, volume detail `volumes/$volumeId/index.tsx` (**directory form**), Snapshots-tab list route `volumes/snapshots/index.tsx`, snapshot detail `volumes/snapshots/$snapshotId.tsx` (single-file form) — following the file-based routing used by the sibling network resources.
-- [ ] A `TabBar` shell with Volumes and Snapshots wraps the two list routes; Volumes is default. Detail routes do not show list tabs.
+- [ ] A **tab shell** (`TabNavigation` with `TabNavigationItem`s **Volumes** and **Snapshots**) wraps the two list routes; the Volumes tab is the default. Each tab hosts its own list (sub-issues 3 and 5); opening a row navigates to the resource's full detail route (not nested in the tab). Tab prior art: the `securitygroups` detail `TabNavigation` usage (E7).
 - [ ] A per-scope catalog guard (`volumes.tsx` layout with a `beforeLoad`) that redirects to the project landing page when the Cinder service is absent from the catalog. Use the gate that matches the deployment's catalog registration — either `serviceIndex["volumev3"]?.["cinderv3"]` (exact `[type][name]`, like compute) or `hasServiceByName(serviceIndex, "cinder"|"cinderv3")` (name-only, like the object-storage nav). _(Open item O3.)_
 - [ ] A server-side tRPC router for volumes is registered as `buildVolumeRouters(policyDir)` → `volume: auroraRouter({ ... })` in `server/Volume/routers/index.ts`, pulled into `buildBaseRouter()` via `server/routers.ts` (mirroring `buildNetworkRouters`). All procedures use `projectScopedProcedure` so the server injects `X-Auth-Token` via `signal-openstack` and the browser never holds the token. Server service handle: `ctx.openstack?.service("<cinder-type>")`.
 - [ ] A **Volumes** navigation entry is added in `buildNavSections.ts` (a single entry opening the scope on its default Volumes tab). Add it either as a new top-level section (seeded in the `sectionMap`) or within a block-storage grouping — kept **separate from** the existing object-storage `storageServices` entries (Swift/Ceph). Add a matching service card on the project landing page `projects/$projectId/index.tsx`.
@@ -124,7 +104,7 @@ Give Aurora project members a read-only view of their project's Cinder volumes a
 **Aurora / Juno implementation notes**
 
 - Pattern A built-in scope — reference the **Networks** scope end-to-end: client resources `network/routers` (single-file detail) and `network/floatingips` (directory-form detail); server `Network/routers/index.ts` (`buildNetworkRouters` nested namespace), `Network/types/*`, `Network/helpers/*`.
-- Tab shell: `TabBar` / `TabBarItem`, driving the active item from the route, including browser back/forward navigation.
+- Tab shell: `TabNavigation` / `TabNavigationItem` from Juno, driving the active tab from the route (Volumes = `volumes/`, Snapshots = `volumes/snapshots/`); reference the `securitygroups` detail tabs.
 - tRPC namespace: **`volume`** with procedures `listVolumes`, `getVolumeById`, `listSnapshots`, `getSnapshotById` (E4).
 - Route/URL state (search/sort/filter) via TanStack Router search params, Zod-validated.
 
@@ -164,7 +144,7 @@ Give Aurora project members a read-only view of their project's Cinder volumes a
 - Build the 3-zone header by composing `DataGridToolbar` + `SearchInput` + `ListToolbar/SortInput` / `FiltersInput` / `SelectedFilters` — copy the structure of `network/routers/-components/RoutersList.tsx`.
 - All search/sort/filter are **client-side** over the single `volume.listVolumes` response (`GET /volumes/detail`) — no extra API calls, no server-side query params in phase 1.
 - Copy-to-clipboard is **out of scope for now** — IDs render as plain text (and as deep-links where sub-issue 7 applies); no `ClipboardText` / copy affordance is wired in this phase.
-- **Refresh:** explicit Refresh only. Zone 3 shows count + relative last-fetched (`dataUpdatedAt`).
+- **Refresh:** none (E1). Zone 3 shows count + last-updated (`dataUpdatedAt`, relative); no refresh button.
 - Default empty-cell placeholder `- -`; for the Name column, if a volume has no name show its ID (per `datagrid.md` writing rules).
 
 **BRD Reference** — Story §5.1 Story 1 · Error/empty states §7 · Auth §8.
@@ -184,7 +164,7 @@ Give Aurora project members a read-only view of their project's Cinder volumes a
 - [ ] **Metadata section** (description list) shows all list fields plus the fields the list omits: Name, ID, Status, Size (GiB), Volume type, Bootable, Encrypted, Multiattach, Availability Zone, Description, Metadata (key/value pairs), Created / Updated timestamps
 - [ ] **Attachments sub-table:** for each attachment show `server_id`, device (e.g. `/dev/vdb`), and attachment ID / attached-at when present; an unattached volume renders an explicit empty state ("Not attached")
 - [ ] Shows the volume's **source** when present (`snapshot_id` or `source_volid`) as a plain ID (the deep-link behaviour is sub-issue 7)
-- [ ] **Snapshots of this volume:** columns Name/ID, Status, Size, Created; names link to snapshot detail when permitted. Fetch via `volume.listSnapshots({ volumeId })` using the server-side Cinder `volume_id` filter. Empty → “No snapshots for this volume”. Ships in phase 1, with independent loading/error/retry and no per-row fan-out.
+- [ ] **Snapshots of this volume** (section/sub-table): a read-only list of the project snapshots whose `volume_id` equals this volume's ID — columns Name/ID, Status, Size, Created — each row deep-linking to the snapshot detail; empty set → explicit empty state ("No snapshots for this volume"). Derived client-side from `volume.listSnapshots`; **no extra per-volume call**, no server-side `?volume_id` filter. _(Gated on Q-F8 / open item O5 — ships in phase 1 if the developer confirms the detail view may reuse the snapshot-list data; otherwise fast-follow. Does not block the rest of this sub-issue.)_
 - [ ] Description and metadata are shown when present; absent → explicit `- -` (not omitted)
 - [ ] Object-storage content is **not** shown here
 - [ ] **States:** page-scoped loading (Spinner) while the volume loads; a scoped error state with retry on failure; standard unauthorized state on 403; if the "Snapshots of this volume" section is included, a snapshot-list fetch failure is scoped to that section (inline error + retry) and does not blank the rest of the detail
@@ -192,9 +172,9 @@ Give Aurora project members a read-only view of their project's Cinder volumes a
 **Aurora / Juno implementation notes**
 
 - **Data source:** `volume.getVolumeById` (`projectScopedProcedure`); for the MVP it is acceptable to select from the already-fetched `volume.listVolumes` cache when navigating from the list, but support a standalone fetch for direct-link/refresh.
-- **Snapshots-of-this-volume (Q-F8/O5):** use `volume.listSnapshots({ volumeId })`; the BFF forwards `volume_id` to Cinder and defensively excludes unrelated results. The section ships with volume detail. Snapshot-list denial/failure does not blank volume metadata.
+- **Snapshots-of-this-volume (Q-F8/O5):** reuse `volume.listSnapshots` and filter on `snapshot.volume_id === volumeId` on the client (same mechanism as the CLI `--volume` flag). No new procedure and no server-side `?volume_id` param (not documented — see sub-issue 1). If the developer declines reusing the snapshot list here, defer the section to a fast-follow.
 - Detail layout: follow the `floatingips` directory-form detail (`$floatingIpId/index.tsx` + `-components/`) with a description list + nested table.
-- **Refresh:** explicit Refresh only; no polling/SSE.
+- **Refresh:** none (E1).
 
 **BRD Reference** — Story §5.1 Story 2 · API §7 · Auth §8.
 
@@ -227,7 +207,7 @@ Give Aurora project members a read-only view of their project's Cinder volumes a
 
 - Same toolbar composition as sub-issue 3 (`DataGridToolbar` + `SearchInput` + `ListToolbar` sub-components).
 - `volume.listSnapshots` (`GET /snapshots/detail`), single call, client-side search/sort/filter.
-- **Refresh:** explicit Refresh only; no polling/SSE.
+- **Refresh:** none (E1).
 
 **BRD Reference** — Story §5.1 Story 3 · Error/empty states §7 · Auth §8.
 
@@ -252,7 +232,7 @@ Give Aurora project members a read-only view of their project's Cinder volumes a
 
 - **Data source:** `volume.getSnapshotById` (`projectScopedProcedure`); may select from the `volume.listSnapshots` cache when navigating from the list, with a standalone fetch for direct-link/refresh.
 - Detail layout: follow the single-file `routers` / `flavors` detail form.
-- **Refresh:** explicit Refresh only; no polling/SSE.
+- **Refresh:** none (E1).
 
 **BRD Reference** — Story §5.1 Story 4 · API §7 · Auth §8.
 
@@ -274,7 +254,7 @@ Give Aurora project members a read-only view of their project's Cinder volumes a
 - [ ] **Snapshot → source volume:** the snapshot's `volume_id` (list row + detail) links to `/projects/$projectId/volumes/$volumeId`
 - [ ] **Volume → source:** a volume's `snapshot_id` links to the snapshot detail and `source_volid` links to the volume detail, when present
 - [ ] Every deep-link requires only route construction — **no extra API call** and **no name resolution** (link text is the ID; the target's name is shown once the user lands on the target detail page)
-- [ ] If the target scope/route is absent, disabled, or lacks read permission, render a plain ID without a broken link or copy affordance.
+- [ ] If the **target scope/route is unavailable** in the catalog (e.g. the Instances scope is absent), the link **degrades gracefully to showing just the ID** (plain text + copy, no broken link)
 
 **Aurora / Juno implementation notes**
 
@@ -289,8 +269,8 @@ Give Aurora project members a read-only view of their project's Cinder volumes a
 
 **Resolved during planning:**
 
-- ~~**Snapshots placement**~~ → **resolved E7:** two peer resource tabs, with a scoped snapshots section on volume detail included in phase 1.
-- ~~**Refresh mechanism**~~ → **resolved E1:** explicit Refresh and last-fetched timestamp; no polling or SSE.
+- ~~**Snapshots placement**~~ → **resolved E7:** one Volumes scope with **two peer tabs (Volumes · Snapshots)**, each a full list with its own detail view, cross-linked by ID-based deep-links. **Additionally**, the volume detail shows a read-only **"Snapshots of this volume"** section (client-side filter on `snapshot.volume_id`; no server-side `?volume_id` filter exists) — included in phase 1 pending developer confirmation (Q-F8 / O5), otherwise fast-follow.
+- ~~**Refresh mechanism**~~ → **resolved E1:** no refresh in phase 1 (no `refetchInterval`, no SSE, no manual button).
 - ~~**Name resolution**~~ → **resolved E2:** IDs only; ID-based deep-links with graceful degradation; no Nova/Cinder name lookups.
 - ~~**tRPC namespace**~~ → **resolved E4:** `volume.*` with `listVolumes` / `getVolumeById` / `listSnapshots` / `getSnapshotById`; single `volume` router grouping both resources (Networks convention).
 
@@ -300,5 +280,5 @@ Give Aurora project members a read-only view of their project's Cinder volumes a
 - **O2 — Instances scope route shape (sub-issue 7):** confirm the deep-link target `/projects/$projectId/compute/instances/$instanceId` against the read-only Instances scope route when it lands.
 - **O3 — Cinder catalog registration (sub-issues 1, 2):** confirm the exact catalog **type** and **name** (`volumev3`/`cinderv3` vs `block-storage` vs `volume`) and whether to gate via `serviceIndex[type]?.[name]` or `hasServiceByName`.
 - **O4 — Permission policy keys (sub-issue 2):** confirm the exact Cinder policy keys for list/show volumes and snapshots (e.g. `volume:get_all` / `volume:get`, `volume:get_all_snapshots` / `volume:get_snapshot`) that gate the nav entry and the unauthorized state.
-- **O5 — Resolved:** snapshots of this volume ships in phase 1 using the scoped `volume_id` filter. Deployment verification of the filter is tracked by #1474, not a reason to silently fall back to a project-wide client filter.
+- **O5 — "Snapshots of this volume" in phase 1 (sub-issue 4, Q-F8):** confirm with an Aurora developer whether the volume detail reuses the project snapshot list (`volume.listSnapshots`, filtered client-side on `snapshot.volume_id`) to show the volume's snapshots in phase 1, or whether that section is deferred to a fast-follow. Technically cheap (no extra call, no server-side `?volume_id` filter — which is undocumented); does not block the volume-detail MVP.
 - **Non-blocking BRD deferrals (not required for build):** rollout strategy & go-live comms (Q-N1), Aurora core-team sign-off for a new built-in scope (Q-N2), Document Control submitter/target quarter (Q-N4). Carried from the BRD; none block engineering.
