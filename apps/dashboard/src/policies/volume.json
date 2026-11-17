@@ -1,0 +1,8 @@
+{
+  "project_reader": "role:reader and project_id:%(project_id)s",
+  "admin_or_project_reader": "role:admin or rule:project_reader",
+  "volume:get_all": "rule:admin_or_project_reader",
+  "volume:get": "rule:admin_or_project_reader",
+  "volume:get_all_snapshots": "rule:admin_or_project_reader",
+  "volume:get_snapshot": "rule:admin_or_project_reader"
+}

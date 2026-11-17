@@ -24,6 +24,28 @@ const CUSTOM_SERVICE: ServiceExtension = {
 }
 
 describe("buildNavSections", () => {
+  it("gates the separate block-storage scope by catalog, capability, and configuration", () => {
+    const services = [...ALL_SERVICES, { type: "volumev3", name: "cinderv3" }]
+    expect(buildNavSections("proj-1", services).some((section) => section.section === "block-storage")).toBe(false)
+    const sections = buildNavSections("proj-1", services, undefined, undefined, undefined, true)
+    expect(
+      sections.find((section) => section.section === "block-storage")?.services.map((service) => service.service)
+    ).toEqual(["volumes"])
+    expect(
+      sections.find((section) => section.section === "storage")?.services.map((service) => service.service)
+    ).not.toContain("volumes")
+    expect(
+      buildNavSections("proj-1", services, undefined, undefined, ["volumes"], true).some(
+        (section) => section.section === "block-storage"
+      )
+    ).toBe(false)
+    expect(
+      buildNavSections("proj-1", ALL_SERVICES, undefined, undefined, undefined, true).some(
+        (section) => section.section === "block-storage"
+      )
+    ).toBe(false)
+  })
+
   it("returns built-in sections when all services are available", () => {
     const sections = buildNavSections("proj-1", ALL_SERVICES)
     const keys = sections.map((s) => s.section)
