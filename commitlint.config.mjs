@@ -21,7 +21,7 @@ export const scopes = [
   "clavis",
   "core",
   "dashboard",
-  "gardener",
+  "kubernetes",
   "network",
   "template",
   "aurora",
