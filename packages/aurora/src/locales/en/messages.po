@@ -717,12 +717,6 @@ msgstr "Bit Length"
 msgid "Bit length must be a positive integer"
 msgstr "Bit length must be a positive integer"
 
-msgid "Block Storage"
-msgstr "Block Storage"
-
-msgid "Block storage resources"
-msgstr "Block storage resources"
-
 msgid "Boot RAM"
 msgstr "Boot RAM"
 
@@ -2124,9 +2118,6 @@ msgstr "Failed to Load Subnets"
 msgid "Failed to Load Versions"
 msgstr "Failed to Load Versions"
 
-msgid "Failed to Load Volumes"
-msgstr "Failed to Load Volumes"
-
 msgid "Failed to Move Object"
 msgstr "Failed to Move Object"
 
@@ -2825,9 +2816,6 @@ msgstr "Loading Subnets..."
 
 msgid "Loading Versions..."
 msgstr "Loading Versions..."
-
-msgid "Loading Volumes..."
-msgstr "Loading Volumes..."
 
 msgid "Loading..."
 msgstr "Loading..."
@@ -4122,9 +4110,6 @@ msgstr "Services"
 msgid "Session Changed"
 msgstr "Session Changed"
 
-msgid "Session Expired"
-msgstr "Session Expired"
-
 msgid "Session expires in"
 msgstr "Session expires in"
 
@@ -4217,12 +4202,6 @@ msgstr "Size: {policySize} / {MAX_POLICY_SIZE} bytes"
 
 msgid "Snapshot"
 msgstr "Snapshot"
-
-msgid "Snapshots"
-msgstr "Snapshots"
-
-msgid "Snapshots View Coming Soon"
-msgstr "Snapshots View Coming Soon"
 
 msgid "SNAT"
 msgstr "SNAT"
@@ -4391,12 +4370,6 @@ msgstr "Temporary URLs"
 
 msgid "The application configuration could not be loaded. Some services and features may be unavailable."
 msgstr "The application configuration could not be loaded. Some services and features may be unavailable."
-
-msgid "The block storage scope is available. The snapshots list will be added in a follow-up release."
-msgstr "The block storage scope is available. The snapshots list will be added in a follow-up release."
-
-msgid "The block storage scope is available. The volumes list will be added in a follow-up release."
-msgstr "The block storage scope is available. The volumes list will be added in a follow-up release."
 
 msgid "The bucket could not be created. Try again or choose a different name."
 msgstr "The bucket could not be created. Try again or choose a different name."
@@ -4887,9 +4860,6 @@ msgstr "Try adjusting your filter criteria or check the Suggested Images tab."
 msgid "Try adjusting your filter criteria or create a new image."
 msgstr "Try adjusting your filter criteria or create a new image."
 
-msgid "Try again"
-msgstr "Try again"
-
 msgid "Try Again"
 msgstr "Try Again"
 
@@ -5136,12 +5106,6 @@ msgstr "Visibility"
 msgid "VM State"
 msgstr "VM State"
 
-msgid "Volumes"
-msgstr "Volumes"
-
-msgid "Volumes View Coming Soon"
-msgstr "Volumes View Coming Soon"
-
 msgid "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
 msgstr "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
 
@@ -5277,9 +5241,6 @@ msgstr "You don't have permission to remove tenant access from this flavor."
 msgid "You don't have permission to share this security group."
 msgstr "You don't have permission to share this security group."
 
-msgid "You don't have permission to view block storage in this project."
-msgstr "You don't have permission to view block storage in this project."
-
 msgid "You don't have permission to view extra specs for this flavor."
 msgstr "You don't have permission to view extra specs for this flavor."
 
@@ -5289,14 +5250,8 @@ msgstr "You don't have permission to view images in this project. Contact your a
 msgid "You don't have permission to view instances in this project. Contact your administrator to grant you the necessary permissions."
 msgstr "You don't have permission to view instances in this project. Contact your administrator to grant you the necessary permissions."
 
-msgid "You don't have permission to view snapshots in this project."
-msgstr "You don't have permission to view snapshots in this project."
-
 msgid "You don't have permission to view this flavor's details."
 msgstr "You don't have permission to view this flavor's details."
-
-msgid "You don't have permission to view volumes in this project."
-msgstr "You don't have permission to view volumes in this project."
 
 msgid "Your action is required"
 msgstr "Your action is required"
