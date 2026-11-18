@@ -77,10 +77,11 @@ describe("EditFloatingIpModal", () => {
   })
 
   describe("Rendering", () => {
-    test("renders title with floating IP address", () => {
+    test("renders title without embedding the floating IP address", () => {
       renderModal()
 
-      expect(screen.getByText("Edit Floating IP 203.0.113.10 Description")).toBeInTheDocument()
+      expect(screen.getByText("Edit Description")).toBeInTheDocument()
+      expect(screen.queryByText("Edit Floating IP 203.0.113.10 Description")).not.toBeInTheDocument()
     })
 
     test("pre-fills description from floating IP", () => {
@@ -100,7 +101,7 @@ describe("EditFloatingIpModal", () => {
     test("does not render when open is false", () => {
       renderModal({ open: false })
 
-      expect(screen.queryByText("Edit Floating IP 203.0.113.10 Description")).not.toBeInTheDocument()
+      expect(screen.queryByText("Edit Description")).not.toBeInTheDocument()
     })
   })
 
@@ -170,7 +171,32 @@ describe("EditFloatingIpModal", () => {
       await waitFor(() => {
         expect(onUpdate).not.toHaveBeenCalled()
       })
-      expect(screen.getByText("Edit Floating IP 203.0.113.10 Description")).toBeInTheDocument()
+      expect(screen.getByText("Edit Description")).toBeInTheDocument()
+    })
+
+    test("shows length error and disables Save on change when description exceeds 255 characters", async () => {
+      renderModal()
+
+      const descriptionInput = screen.getByLabelText("Description") as HTMLTextAreaElement
+      // Validates live on change — no submit needed.
+      fireEvent.change(descriptionInput, { target: { value: "a".repeat(256) } })
+
+      await waitFor(() => {
+        expect(screen.getByText("Description must be at most 255 characters.")).toBeInTheDocument()
+      })
+      expect(screen.getByRole("button", { name: "Save" })).toBeDisabled()
+    })
+
+    test("keeps Save enabled and shows no length error for a 255 character description", async () => {
+      renderModal()
+
+      const descriptionInput = screen.getByLabelText("Description") as HTMLTextAreaElement
+      fireEvent.change(descriptionInput, { target: { value: "a".repeat(255) } })
+
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: "Save" })).toBeEnabled()
+      })
+      expect(screen.queryByText("Description must be at most 255 characters.")).not.toBeInTheDocument()
     })
   })
 

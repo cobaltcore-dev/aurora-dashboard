@@ -86,10 +86,10 @@ describe("ImageMemberRow", () => {
       expect(screen.getByText("Rejected")).toBeInTheDocument()
     })
 
-    it("should display unknown status as-is", () => {
+    it("should sentence-case unknown statuses", () => {
       const member = { ...mockMember, status: "unknown_status" }
       setup(member)
-      expect(screen.getByText("unknown_status")).toBeInTheDocument()
+      expect(screen.getByText("unknown_status")).toHaveClass("lowercase", "first-letter:uppercase")
     })
   })
 

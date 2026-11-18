@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { StatusLabel } from "@/client/components/StatusLabel"
 import { useForm, useStore } from "@tanstack/react-form"
 import React from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
@@ -103,7 +104,9 @@ export const DeleteImageModal: React.FC<DeleteImageModalProps> = ({
             <DescriptionTerm>{t`Id`}</DescriptionTerm>
             <DescriptionDefinition>{image.id}</DescriptionDefinition>
             <DescriptionTerm>{t`Status`}</DescriptionTerm>
-            <DescriptionDefinition>{image.status}</DescriptionDefinition>
+            <DescriptionDefinition>
+              <StatusLabel value={image.status} />
+            </DescriptionDefinition>
             <DescriptionTerm>{t`Visibility`}</DescriptionTerm>
             <DescriptionDefinition>{image.visibility}</DescriptionDefinition>
             <DescriptionTerm>{t`Size`}</DescriptionTerm>

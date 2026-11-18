@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach } from "vitest"
-import { render, screen, act, fireEvent } from "@testing-library/react"
+import { render, screen, act, fireEvent, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
@@ -54,6 +54,12 @@ describe("IcmpSection", () => {
   })
 
   describe("Rendering", () => {
+    test("renders an ICMP section", () => {
+      render(<TestWrapper />)
+      const region = screen.getByRole("region", { name: "ICMP" })
+      expect(within(region).getByLabelText(/ICMP Type/i)).toBeInTheDocument()
+    })
+
     test("renders ICMP Type and ICMP Code inputs", () => {
       render(<TestWrapper />)
       expect(screen.getByLabelText(/ICMP Type/i)).toBeInTheDocument()

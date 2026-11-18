@@ -9,6 +9,8 @@ import { Slot } from "@/client/components/Slot"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { hasServiceByName } from "@/client/utils/serviceCatalog"
 import { STORAGE_PROVIDER, STORAGE_TYPE_BY_PROVIDER } from "@/client/utils/storageProviders"
+import { findCinderService } from "@/types/volume"
+import { useVolumePermissions } from "@/client/hooks/useVolumePermissions"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/")({
   staticData: {
@@ -56,6 +58,7 @@ function RouteComponent() {
   })
   const { t } = useLingui()
   const { enabledServices, deniedServices, serviceExtensions } = useRouteContext({ strict: false })
+  const volumePermissions = useVolumePermissions(projectId, Boolean(findCinderService(availableServices ?? [])))
   // Deny always wins and applies even without an allow/enabled list (deny-only). See buildNavSections.
   const isEnabled = (service: string) =>
     (!enabledServices || enabledServices.includes(service)) && !deniedServices?.includes(service)
@@ -65,11 +68,28 @@ function RouteComponent() {
 
   const cards: ServiceCardProps[] = []
 
+  if (
+    findCinderService(availableServices ?? []) &&
+    isEnabled("volumes") &&
+    (volumePermissions.canListVolumes || volumePermissions.canListSnapshots)
+  ) {
+    cards.push({ group: t`Block Storage`, label: t`Volumes`, to: `${base}/volumes`, service: "volumes" })
+  }
+
   if (serviceIndex["image"]?.["glance"] && isEnabled("images"))
     cards.push({ group: t`Compute`, label: t`Images`, to: `${base}/compute/images`, service: "images" })
   if (serviceIndex["compute"]?.["nova"] && isEnabled("flavors"))
     cards.push({ group: t`Compute`, label: t`Flavors`, to: `${base}/compute/flavors`, service: "flavors" })
+  if (serviceIndex["compute"]?.["nova"] && isEnabled("instances"))
+    cards.push({ group: t`Compute`, label: t`Instances`, to: `${base}/compute/instances`, service: "instances" })
   if (serviceIndex["network"]) {
+    if (isEnabled("networks"))
+      cards.push({
+        group: t`Network`,
+        label: t`Networks`,
+        to: `${base}/network/networks`,
+        service: "networks",
+      })
     if (isEnabled("securitygroups"))
       cards.push({
         group: t`Network`,
@@ -112,6 +132,14 @@ function RouteComponent() {
       label: t`Object Storage (Ceph)`,
       to: `${base}/storage/${STORAGE_PROVIDER.CEPH}/${STORAGE_TYPE_BY_PROVIDER[STORAGE_PROVIDER.CEPH]}`,
       service: "ceph-containers",
+    })
+
+  if (serviceIndex["key-manager"]?.["barbican"] && isEnabled("key-manager"))
+    cards.push({
+      group: t`Authorization`,
+      label: t`Key Manager`,
+      to: `${base}/authorization/key-manager/secrets`,
+      service: "key-manager",
     })
 
   for (const extension of serviceExtensions ?? []) {

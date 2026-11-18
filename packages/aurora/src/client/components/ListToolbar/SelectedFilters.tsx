@@ -48,6 +48,13 @@ export const SelectedFilters = ({ selectedFilters, onDelete, onClear, filters }:
             closeable
             pillKey={def?.displayName ?? filter.name}
             pillValue={resolveValueLabel(def, filter.value)}
+            className={
+              ["status", "power_state", "member_status"].includes(filter.name) &&
+              def &&
+              !Object.hasOwn(def.valueLabels ?? {}, filter.value)
+                ? "[&>.pill-value]:lowercase [&>.pill-value]:first-letter:uppercase"
+                : undefined
+            }
             onClose={() => onDelete(filter)}
           />
         )

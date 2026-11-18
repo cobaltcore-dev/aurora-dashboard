@@ -1,6 +1,6 @@
 import type { ReactNode } from "react"
 import { useLingui } from "@lingui/react/macro"
-import { TabNavigation, TabNavigationItem } from "@cloudoperators/juno-ui-components"
+import { TabBar, TabBarItem } from "@cloudoperators/juno-ui-components"
 
 export type TabType = "rules" | "rbac"
 
@@ -15,16 +15,17 @@ const isTabType = (key: ReactNode): key is TabType => key === "rules" || key ===
 export function SecurityGroupTabs({ activeTab, onTabChange, showRBACTab = true }: SecurityGroupTabsProps) {
   const { t } = useLingui()
 
-  // TabNavigation keeps its own active item once a tab is clicked, so activeItem keeps it in sync with activeTab.
+  // TabBar keeps its own active item once a tab is clicked, so activeItem keeps it in sync with activeTab.
   // `active` only covers the first render, before activeItem is applied.
   return (
-    <TabNavigation
+    <TabBar
       className="mt-4"
+      ariaLabel={t`Security group sections`}
       activeItem={activeTab}
       onActiveItemChange={(key) => isTabType(key) && onTabChange(key)}
     >
-      <TabNavigationItem value="rules" label={t`Rules`} active={activeTab === "rules"} />
-      {showRBACTab && <TabNavigationItem value="rbac" label={t`RBAC Policies`} active={activeTab === "rbac"} />}
-    </TabNavigation>
+      <TabBarItem value="rules" label={t`Rules`} active={activeTab === "rules"} />
+      {showRBACTab && <TabBarItem value="rbac" label={t`RBAC Policies`} active={activeTab === "rbac"} />}
+    </TabBar>
   )
 }

@@ -25,5 +25,7 @@ export {
   domainScopedInputSchema,
 } from "./trpc"
 export type { AuroraRouter, AuroraRouterWithCustom } from "./routers"
+export { createPermissionRouter } from "./policies"
+export type { ServicePolicyConfig, PolicyMapping, EngineDef } from "./policies"
 export { validateOpenstackService } from "./helpers/validateOpenstackService"
 export { parseOrThrow } from "./Network/helpers"

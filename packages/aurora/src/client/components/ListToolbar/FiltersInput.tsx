@@ -91,6 +91,12 @@ export const FiltersInput = ({
             value={value}
             key={value}
             label={resolveValueLabel(selectedFilterDef, value)}
+            className={
+              ["status", "power_state", "member_status"].includes(selectedFilterName) &&
+              !Object.hasOwn(selectedFilterDef?.valueLabels ?? {}, value)
+                ? "[&>span]:inline-block [&>span]:lowercase [&>span]:first-letter:uppercase"
+                : undefined
+            }
             data-testid={value}
           />
         ))}

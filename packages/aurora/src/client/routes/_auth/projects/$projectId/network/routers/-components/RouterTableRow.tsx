@@ -1,4 +1,5 @@
 import { useNavigate } from "@tanstack/react-router"
+import { StatusLabel } from "@/client/components/StatusLabel"
 import { useLingui } from "@lingui/react/macro"
 import {
   Button,
@@ -37,7 +38,9 @@ export const RouterTableRow = ({ router }: RouterTableRowProps) => {
 
   return (
     <DataGridRow key={router.id} data-testid={`router-row-${router.id}`} onClick={navigateToDetailsPage}>
-      <DataGridCell>{router.status}</DataGridCell>
+      <DataGridCell>
+        <StatusLabel value={router.status} />
+      </DataGridCell>
       <DataGridCell>
         <span className="break-all">{router.name || router.id}</span>
       </DataGridCell>

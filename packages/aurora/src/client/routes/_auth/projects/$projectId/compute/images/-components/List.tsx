@@ -35,6 +35,7 @@ interface ImagesProps {
 }
 
 type ImagesSearchParams = {
+  image_type?: string
   status?: string
   visibility?: string
   disk_format?: string
@@ -59,6 +60,7 @@ type ImagesResult = {
   next?: string
   schema: string
   listError?: string
+  listForbidden?: boolean
   totalCount?: number
 }
 
@@ -151,6 +153,16 @@ function ImagesContent({
 
   useEffect(() => () => clearTimeout(debounceTimer.current), [])
 
+  if (imagesData.listForbidden) {
+    return (
+      <Status
+        status="error"
+        title={t`Access Denied`}
+        body={t`You don't have permission to view images in this project. Contact your administrator to grant you the necessary permissions.`}
+      />
+    )
+  }
+
   if (imagesData.listError) {
     return <Status status="error" title={t`Failed to Load Images`} body={imagesData.listError} />
   }
@@ -160,7 +172,7 @@ function ImagesContent({
     .map((img) => imageOverrides.get(img.id) ?? img)
 
   // Calculate total pages from API's totalCount if available
-  const PAGE_SIZE = 50
+  const PAGE_SIZE = 30
   const hasNextPage = !!imagesData.next
   const totalItems = imagesData.totalCount ?? (hasNextPage ? PAGE_SIZE * (currentPage + 1) : images.length)
   const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE))
@@ -405,10 +417,10 @@ export const Images = ({ client, project }: ImagesProps) => {
 
   const [sortSettings, setSortSettings] = useState<RequiredSortSettings>({
     options: [
-      { label: t`Created At`, value: "created_at" },
+      { label: t`Status`, value: "status" },
       { label: t`Image Name`, value: "name" },
       { label: t`Size`, value: "size" },
-      { label: t`Status`, value: "status" },
+      { label: t`Created`, value: "created_at" },
     ],
     sortBy: searchParams.sortBy || "created_at",
     sortDirection: searchParams.sortDirection || "desc",
@@ -423,9 +435,23 @@ export const Images = ({ client, project }: ImagesProps) => {
         supportsMultiValue: true,
       },
       {
+        displayName: t`Type`,
+        filterName: "image_type",
+        values: ["snapshot", "images"],
+        valueLabels: { snapshot: t`Snapshot`, images: t`Images` },
+        supportsMultiValue: true,
+      },
+      {
         displayName: t`Visibility`,
         filterName: "visibility",
         values: Object.values(IMAGE_VISIBILITY),
+        supportsMultiValue: false,
+      },
+      {
+        displayName: t`Protected`,
+        filterName: "protected",
+        values: ["true", "false"],
+        valueLabels: { true: t`Yes`, false: t`No` },
         supportsMultiValue: false,
       },
       {
@@ -439,13 +465,6 @@ export const Images = ({ client, project }: ImagesProps) => {
         filterName: "container_format",
         values: Object.values(CONTAINER_FORMATS),
         supportsMultiValue: true,
-      },
-      {
-        displayName: t`Protected`,
-        filterName: "protected",
-        values: ["true", "false"],
-        valueLabels: { true: t`Yes`, false: t`No` },
-        supportsMultiValue: false,
       },
     ],
     selectedFilters: parseFiltersFromUrl(searchParams),
@@ -568,6 +587,7 @@ export const Images = ({ client, project }: ImagesProps) => {
       setImagesPromise(newPromise as Promise<ImagesResult>)
     })
   }, [
+    searchParams.image_type,
     searchParams.status,
     searchParams.visibility,
     searchParams.disk_format,

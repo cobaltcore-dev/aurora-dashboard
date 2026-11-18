@@ -8,6 +8,7 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import { useLingui, Trans } from "@lingui/react/macro"
 import type { SecurityGroup } from "@/server/Network/types/securityGroup"
+import { EMPTY_VALUE } from "@/client/components/TwoColumnDescriptionList"
 
 export interface SecurityGroupPermissions {
   canView: boolean
@@ -69,7 +70,7 @@ export function SecurityGroupTableRow({
         </DataGridCell>
       )}
       <DataGridCell>{sg.name}</DataGridCell>
-      <DataGridCell>{sg.description || t`—`}</DataGridCell>
+      <DataGridCell>{sg.description || EMPTY_VALUE}</DataGridCell>
       <DataGridCell>
         <BooleanValue value={sg.shared} />
         {sg.shared && (

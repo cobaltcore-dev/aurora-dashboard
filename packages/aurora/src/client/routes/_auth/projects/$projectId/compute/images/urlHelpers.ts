@@ -1,6 +1,7 @@
 import { SelectedFilter, Filter } from "@/client/components/ListToolbar/types"
 
 type ImagesSearchParams = {
+  image_type?: unknown
   status?: string
   visibility?: string
   disk_format?: string
@@ -17,6 +18,15 @@ type ImagesSearchParams = {
  */
 export const parseFiltersFromUrl = (searchParams: ImagesSearchParams): SelectedFilter[] => {
   const filters: SelectedFilter[] = []
+
+  if (typeof searchParams.image_type === "string") {
+    const values = searchParams.image_type.startsWith("in:")
+      ? searchParams.image_type.slice(3).split(",")
+      : [searchParams.image_type]
+    if (values.every((value) => value === "snapshot" || value === "images")) {
+      new Set(values).forEach((value) => filters.push({ name: "image_type", value }))
+    }
+  }
 
   // Status filter
   if (searchParams.status) {
@@ -86,6 +96,13 @@ export const buildFilterParams = (
 
   // Build parameters based on whether filter supports multiple values
   Object.entries(filterGroups).forEach(([filterName, values]) => {
+    // Both type selections cover the whole inventory; Glance/BFF needs no restriction.
+    if (filterName === "image_type") {
+      const types = [...new Set(values.filter((value) => value === "snapshot" || value === "images"))]
+      if (types.length === 1) params[filterName] = types[0]
+      return
+    }
+
     const filterDef = filterDefinitions.find((f) => f.filterName === filterName)
 
     if (filterDef?.supportsMultiValue && values.length > 1) {

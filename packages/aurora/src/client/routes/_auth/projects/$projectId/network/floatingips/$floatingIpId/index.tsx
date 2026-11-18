@@ -83,7 +83,7 @@ function RouteComponent() {
 
   // Error state
   if (isError || !floatingIp) {
-    const errorMessage = error?.message || t`Error Loading Floating IP`
+    const errorMessage = error?.message || t`Failed to Load Floating IP`
     return (
       <Status
         status="error"

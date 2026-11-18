@@ -29,6 +29,8 @@ interface SecurityGroupListContainerProps {
   hasAnyBulkAction?: boolean
   onClearUpdateError?: () => void
   onClearDeleteError?: () => void
+  /** A search term or filter is active, so an empty list means "no matches", not "no data" */
+  isFiltered?: boolean
 }
 
 export const SecurityGroupListContainer = ({
@@ -47,6 +49,7 @@ export const SecurityGroupListContainer = ({
   hasAnyBulkAction = false,
   onClearUpdateError,
   onClearDeleteError,
+  isFiltered = false,
 }: SecurityGroupListContainerProps) => {
   const { t } = useLingui()
   const navigate = useNavigate()
@@ -163,9 +166,13 @@ export const SecurityGroupListContainer = ({
           <DataGridRow>
             <DataGridCell colSpan={columnCount}>
               <Status
-                status="empty"
-                title={t`No security groups found`}
-                body={t`There are no security groups available for this project with the current filters applied. Try adjusting your filter criteria or create a new security group to get started.`}
+                status={isFiltered ? "no-matches" : "empty"}
+                title={t`No Security Groups Found`}
+                body={
+                  isFiltered
+                    ? t`No security groups match the current search or filters. Clear the search or filters to view all security groups.`
+                    : t`There are no security groups in this project.`
+                }
               />
             </DataGridCell>
           </DataGridRow>

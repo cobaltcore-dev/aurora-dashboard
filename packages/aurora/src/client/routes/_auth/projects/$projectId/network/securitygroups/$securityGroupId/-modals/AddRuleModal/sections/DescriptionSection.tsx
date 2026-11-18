@@ -1,7 +1,7 @@
 import { FormRow, Textarea } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
 import type { AddRuleFormApi } from "../AddRuleModal"
-import { useRuleFieldError, hideRuleFieldError } from "../validation/fieldErrors"
+import { useRuleFieldError, showRuleFieldError } from "../validation/fieldErrors"
 
 interface DescriptionSectionProps {
   form: AddRuleFormApi
@@ -23,7 +23,8 @@ export function DescriptionSection({ form, disabled = false }: DescriptionSectio
             value={field.state.value}
             onChange={(e) => {
               field.handleChange(e.target.value)
-              hideRuleFieldError(form, "description")
+              // #1426: the length error shows while typing, as soon as it disables "Add Rule"
+              showRuleFieldError(form, "description")
             }}
             onBlur={field.handleBlur}
             errortext={descriptionError}

@@ -70,6 +70,7 @@ export const imageSchema = z
   .object({
     id: z.string(),
     name: z.string().optional().nullable(),
+    image_type: z.string().optional().nullable(),
     status: imageStatusSchema.optional(),
     visibility: imageVisibilitySchema.optional(),
     protected: z.boolean().optional(),
@@ -208,6 +209,10 @@ const diskFormatFilterSchema = z.enum([
 
 const osTypeFilterSchema = z.enum(["linux", "windows"])
 
+// BFF-only classification: regular images may have no image_type property.
+export const imageTypeFilterSchema = z.enum(["all", "snapshot", "images"])
+export type ImageTypeFilter = z.infer<typeof imageTypeFilterSchema>
+
 // Helper to allow single value or 'in:' operator string for multi-value filters
 const multiValueFilter = <T extends z.ZodTypeAny>(enumSchema: T) =>
   z.union([
@@ -228,6 +233,7 @@ export const listImagesInputSchema = projectScopedInputSchema.extend({
 
   // Basic filtering parameters
   name: z.string().optional(),
+  image_type: imageTypeFilterSchema.optional(),
   // Multi-value filter support for status
   status: multiValueFilter(statusFilterSchema).optional(),
   visibility: imageVisibilityFilterSchema.optional(), // Single-value only

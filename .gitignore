@@ -11,6 +11,8 @@ server/dist
 public/dist
 .claude
 CLAUDE*
+.opencode/opencode.json
+docs/agent-memory/
 .out-of-code-insights
 
 .releaserc.js.bak

@@ -50,9 +50,15 @@ describe("ProtocolSection", () => {
   })
 
   describe("Rendering", () => {
+    test("renders a Protocol section whose field label doesn't repeat the title", () => {
+      render(<TestWrapper />)
+      expect(screen.getByRole("region", { name: "Protocol" })).toBeInTheDocument()
+      expect(screen.getAllByText("Protocol")).toHaveLength(1)
+    })
+
     test("renders Protocol input field", () => {
       render(<TestWrapper />)
-      expect(screen.getByLabelText(/Protocol/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/Name or number/i)).toBeInTheDocument()
     })
 
     test("explains which values are accepted", () => {
@@ -64,7 +70,7 @@ describe("ProtocolSection", () => {
 
     test("renders empty when protocol is null", () => {
       render(<TestWrapper defaultProtocol={null} />)
-      const input = screen.getByLabelText(/Protocol/i) as HTMLInputElement
+      const input = screen.getByLabelText(/Name or number/i) as HTMLInputElement
       expect(input.value).toBe("")
     })
   })
@@ -74,7 +80,7 @@ describe("ProtocolSection", () => {
       const user = userEvent.setup()
       render(<TestWrapper />)
 
-      const input = screen.getByLabelText(/Protocol/i)
+      const input = screen.getByLabelText(/Name or number/i)
       await user.type(input, "tcp")
 
       expect(input).toHaveValue("tcp")
@@ -84,7 +90,7 @@ describe("ProtocolSection", () => {
       const user = userEvent.setup()
       render(<TestWrapper />)
 
-      const input = screen.getByLabelText(/Protocol/i)
+      const input = screen.getByLabelText(/Name or number/i)
       await user.type(input, "47")
 
       expect(input).toHaveValue("47")
@@ -94,7 +100,7 @@ describe("ProtocolSection", () => {
       const user = userEvent.setup()
       render(<TestWrapper defaultProtocol="tcp" />)
 
-      const input = screen.getByLabelText(/Protocol/i)
+      const input = screen.getByLabelText(/Name or number/i)
       await user.clear(input)
 
       expect(input).toHaveValue("")
@@ -105,7 +111,7 @@ describe("ProtocolSection", () => {
     test("shows the required error when the field is left empty", async () => {
       render(<TestWrapper />)
 
-      fireEvent.blur(screen.getByLabelText(/Protocol/i))
+      fireEvent.blur(screen.getByLabelText(/Name or number/i))
 
       expect(await screen.findByText("Protocol is required")).toBeInTheDocument()
     })
@@ -114,7 +120,7 @@ describe("ProtocolSection", () => {
       const user = userEvent.setup()
       render(<TestWrapper />)
 
-      const input = screen.getByLabelText(/Protocol/i)
+      const input = screen.getByLabelText(/Name or number/i)
       await user.type(input, protocol)
       fireEvent.blur(input)
 
@@ -127,7 +133,7 @@ describe("ProtocolSection", () => {
       const user = userEvent.setup()
       render(<TestWrapper />)
 
-      const input = screen.getByLabelText(/Protocol/i)
+      const input = screen.getByLabelText(/Name or number/i)
       await user.type(input, protocol)
       fireEvent.blur(input)
 
@@ -139,7 +145,7 @@ describe("ProtocolSection", () => {
       const user = userEvent.setup()
       render(<TestWrapper />)
 
-      const input = screen.getByLabelText(/Protocol/i)
+      const input = screen.getByLabelText(/Name or number/i)
       await user.type(input, "   ")
       fireEvent.blur(input)
 
@@ -150,7 +156,7 @@ describe("ProtocolSection", () => {
       const user = userEvent.setup()
       render(<TestWrapper />)
 
-      const input = screen.getByLabelText(/Protocol/i)
+      const input = screen.getByLabelText(/Name or number/i)
       fireEvent.blur(input)
       expect(await screen.findByText("Protocol is required")).toBeInTheDocument()
 
@@ -162,7 +168,7 @@ describe("ProtocolSection", () => {
   describe("Disabled state", () => {
     test("disables input when disabled prop is true", () => {
       render(<TestWrapper disabled={true} />)
-      const input = screen.getByLabelText(/Protocol/i)
+      const input = screen.getByLabelText(/Name or number/i)
       expect(input).toBeDisabled()
     })
   })
@@ -170,7 +176,7 @@ describe("ProtocolSection", () => {
   describe("Initial values", () => {
     test("displays initial protocol value", () => {
       render(<TestWrapper defaultProtocol="udp" />)
-      const input = screen.getByLabelText(/Protocol/i)
+      const input = screen.getByLabelText(/Name or number/i)
       expect(input).toHaveValue("udp")
     })
   })

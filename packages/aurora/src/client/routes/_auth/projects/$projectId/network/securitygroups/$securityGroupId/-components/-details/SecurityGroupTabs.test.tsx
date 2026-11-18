@@ -58,4 +58,19 @@ describe("SecurityGroupTabs", () => {
     expect(screen.getByRole("button", { name: "Rules" })).toBeInTheDocument()
     expect(screen.queryByRole("button", { name: "RBAC Policies" })).not.toBeInTheDocument()
   })
+
+  it("labels the tab navigation", () => {
+    render(<SecurityGroupTabs activeTab="rules" onTabChange={vi.fn()} />, { wrapper: Wrapper })
+
+    expect(screen.getByRole("navigation", { name: "Security group sections" })).toBeInTheDocument()
+  })
+
+  it("does not render deprecated Juno tab components", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {})
+
+    render(<SecurityGroupTabs activeTab="rules" onTabChange={vi.fn()} />, { wrapper: Wrapper })
+
+    expect(warn.mock.calls.flat().some((a) => /deprecated/i.test(String(a)))).toBe(false)
+    warn.mockRestore()
+  })
 })

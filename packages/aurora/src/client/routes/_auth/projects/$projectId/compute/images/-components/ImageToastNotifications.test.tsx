@@ -593,7 +593,7 @@ describe("ImageToastNotifications", () => {
         renderNotification(getImageAccessStatusUpdatedToast("accepted"))
 
         expect(screen.getByText("Access Status")).toBeInTheDocument()
-        expect(screen.getByText(/Access status updated to "accepted"/)).toBeInTheDocument()
+        expect(screen.getByText("accepted")).toHaveClass("lowercase", "first-letter:uppercase")
       })
 
       it("should handle different status values", () => {
@@ -602,7 +602,7 @@ describe("ImageToastNotifications", () => {
         statuses.forEach((status) => {
           const { unmount } = renderNotification(getImageAccessStatusUpdatedToast(status))
 
-          expect(screen.getByText(new RegExp(status))).toBeInTheDocument()
+          expect(screen.getByText(new RegExp(status, "i"))).toBeInTheDocument()
           unmount()
         })
       })

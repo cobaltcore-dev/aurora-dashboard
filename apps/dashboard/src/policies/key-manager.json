@@ -1,0 +1,28 @@
+{
+  "context_is_cloud_keymanager_admin": "role:cloud_keymanager_admin",
+  "member": "role:member or role:Member",
+  "keymanager_viewer": "role:keymanager_viewer",
+  "keymanager_admin": "role:keymanager_admin",
+  "context_is_keymanager_admin": "rule:context_is_cloud_keymanager_admin or rule:keymanager_admin",
+  "context_is_keymanager_editor": "(rule:context_is_keymanager_admin) and not project_id:nil",
+  "context_is_keymanager_viewer": "(rule:context_is_keymanager_editor or rule:keymanager_viewer) and not project_id:nil",
+
+  "key-manager:secrets:list": "rule:context_is_keymanager_viewer",
+  "key-manager:secrets:get": "rule:context_is_keymanager_viewer",
+  "key-manager:secrets:payload": "rule:context_is_keymanager_viewer",
+  "key-manager:secrets:create": "rule:context_is_keymanager_editor",
+  "key-manager:secrets:delete": "rule:context_is_keymanager_editor",
+  "key-manager:secrets:update": "rule:context_is_keymanager_editor",
+
+  "key-manager:containers:list": "rule:context_is_keymanager_viewer",
+  "key-manager:containers:get": "rule:context_is_keymanager_viewer",
+  "key-manager:containers:create": "rule:context_is_keymanager_editor",
+  "key-manager:containers:delete": "rule:context_is_keymanager_editor",
+  "key-manager:containers:update": "rule:context_is_keymanager_editor",
+
+  "key-manager:orders:list": "rule:context_is_keymanager_viewer",
+  "key-manager:orders:get": "rule:context_is_keymanager_viewer",
+  "key-manager:orders:create": "rule:context_is_keymanager_editor",
+  "key-manager:orders:delete": "rule:context_is_keymanager_editor",
+  "key-manager:orders:update": "rule:context_is_keymanager_editor"
+}

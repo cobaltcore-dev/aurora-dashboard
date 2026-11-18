@@ -1,4 +1,5 @@
 import { ReactNode } from "react"
+import { StatusLabel } from "@/client/components/StatusLabel"
 import { NotificationOptions } from "@cloudoperators/juno-ui-components"
 import { Trans } from "@lingui/react/macro"
 
@@ -245,7 +246,12 @@ export const getBulkDeactivatePartialToast = (
 
 export const getImageAccessStatusUpdatedToast = (newStatus: string): { message: ReactNode } & NotificationOptions => ({
   message: <Trans>Access Status</Trans>,
-  description: <Trans>Access status updated to "{newStatus}".</Trans>,
+  description: (
+    <Trans>
+      Access status updated to "<StatusLabel value={newStatus} />
+      ".
+    </Trans>
+  ),
 })
 
 export const getImageAccessStatusErrorToast = (errorMessage: string): { message: ReactNode } & NotificationOptions => ({

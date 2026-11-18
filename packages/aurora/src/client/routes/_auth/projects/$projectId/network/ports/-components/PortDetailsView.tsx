@@ -1,4 +1,5 @@
 import { Trans, useLingui } from "@lingui/react/macro"
+import { StatusLabel } from "@/client/components/StatusLabel"
 import { ContentHeading, Stack } from "@cloudoperators/juno-ui-components"
 import type { PortDetails } from "@/server/Network/types/port"
 import ClipboardText from "@/client/components/ClipboardText"
@@ -51,7 +52,7 @@ export function PortDetailsView({ port }: PortDetailsViewProps) {
     { label: t`Created At`, value: port.created_at },
     { label: t`Updated At`, value: port.updated_at },
     { label: t`Project ID`, value: <ClipboardText text={port.project_id} /> },
-    { label: t`Status`, value: port.status },
+    { label: t`Status`, value: <StatusLabel value={port.status} /> },
     {
       label: t`Security Groups`,
       value:

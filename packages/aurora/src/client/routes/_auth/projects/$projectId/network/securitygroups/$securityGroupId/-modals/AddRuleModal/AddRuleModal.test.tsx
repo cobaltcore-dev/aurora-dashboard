@@ -33,13 +33,6 @@ vi.mock("./sections/RuleTypeSection", () => ({
 
 vi.mock("./sections/DirectionEthertypeSection", () => ({
   DirectionSection: () => <div data-testid="direction-section">Direction Section</div>,
-  EthertypeSection: ({ form }: { form: AddRuleFormApi }) => (
-    <div data-testid="ethertype-section">
-      <button type="button" onClick={() => form.setFieldValue("ethertype", "IPv6")}>
-        Pick IPv6
-      </button>
-    </div>
-  ),
 }))
 
 vi.mock("./sections/ProtocolSection", () => ({
@@ -101,6 +94,9 @@ vi.mock("./sections/RemoteSourceSection", () => ({
         }}
       >
         Use security group
+      </button>
+      <button type="button" onClick={() => form.setFieldValue("ethertype", "IPv6")}>
+        Pick IPv6
       </button>
     </div>
   ),
@@ -178,6 +174,19 @@ describe("AddRuleModal", () => {
       // Other sections (direction, protocol, remote-source, description) render conditionally after rule type is selected
     })
 
+    test("separates the Remote section from Description with a divider", async () => {
+      const user = userEvent.setup()
+      renderModal()
+
+      await user.selectOptions(screen.getByTestId("rule-type-select"), "ssh")
+
+      const remote = screen.getByTestId("remote-source-section")
+      const divider = screen.getByRole("separator")
+      const description = screen.getByTestId("description-section")
+      expect(remote.compareDocumentPosition(divider) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+      expect(divider.compareDocumentPosition(description) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    })
+
     test("explains what a rule consists of", () => {
       renderModal()
       expect(
@@ -239,7 +248,6 @@ describe("AddRuleModal", () => {
       renderModal({ onCreate })
 
       await user.selectOptions(screen.getByTestId("rule-type-select"), "ssh")
-      expect(screen.queryByTestId("ethertype-section")).not.toBeInTheDocument()
       await user.click(screen.getByRole("button", { name: "Use IPv6 CIDR" }))
       await user.click(getAddRuleButton())
 

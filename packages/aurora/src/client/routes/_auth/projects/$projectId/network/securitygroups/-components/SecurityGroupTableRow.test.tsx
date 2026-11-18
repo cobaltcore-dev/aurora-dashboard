@@ -126,7 +126,7 @@ describe("SecurityGroupTableRow", () => {
       expect(screen.getByText("No")).toBeInTheDocument()
     })
 
-    it("renders em dash when description is missing", async () => {
+    it("renders the empty-value placeholder when description is missing", async () => {
       const sgWithoutDescription = { ...mockSecurityGroup, description: "" }
       const router = createTestRouter(
         <SecurityGroupTableRow
@@ -139,7 +139,7 @@ describe("SecurityGroupTableRow", () => {
       render(<RouterProvider router={router} />)
 
       await waitFor(() => {
-        expect(screen.getByText("—")).toBeInTheDocument()
+        expect(screen.getByText("- -")).toBeInTheDocument()
       })
     })
 

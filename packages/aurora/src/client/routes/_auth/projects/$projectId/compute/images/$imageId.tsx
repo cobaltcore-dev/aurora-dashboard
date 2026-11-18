@@ -32,6 +32,7 @@ import {
   getImageAccessStatusErrorToast,
   getImageUpdatedToast,
   getImageActivatedToast,
+  getImageDeletedToast,
   getImageActivationErrorToast,
   getImageDeactivatedToast,
   getImageDeactivationErrorToast,
@@ -260,6 +261,10 @@ function RouteComponent() {
     try {
       await deleteImageMutation.mutateAsync({ project_id: projectId, imageId: deletedImage.id })
       setDeleteModalOpen(false)
+      // toast is Juno's app-root singleton, so it survives the navigate() back to the list.
+      // Fire it before handleBack() to match the sibling handlers and the list-view delete flow.
+      const { message, ...options } = getImageDeletedToast(String(deletedImage.name ?? deletedImage.id))
+      toast.success(message, options)
       handleBack()
     } catch {
       setDeleteModalOpen(false)

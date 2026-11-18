@@ -207,6 +207,57 @@ describe("CreateSecurityGroupModal", () => {
       expect(getConfirmButton()).toBeDisabled()
     })
 
+    test("shows the length error while typing, before the field is left", async () => {
+      const user = userEvent.setup()
+      renderModal()
+
+      await user.click(screen.getByLabelText(/Name/i))
+      await user.paste("a".repeat(256))
+
+      expect(screen.getByText("Name must be at most 255 characters long.")).toBeInTheDocument()
+      expect(getConfirmButton()).toBeDisabled()
+    })
+
+    test("shows the description length error while typing, before the field is left", async () => {
+      const user = userEvent.setup()
+      renderModal()
+
+      await user.type(screen.getByLabelText(/Name/i), "my-security-group")
+      await user.click(screen.getByLabelText(/Description/i))
+      await user.paste("d".repeat(256))
+
+      expect(screen.getByText("Description must be at most 255 characters long.")).toBeInTheDocument()
+      expect(getConfirmButton()).toBeDisabled()
+    })
+
+    test("shows the required error when the name is cleared", async () => {
+      const user = userEvent.setup()
+      renderModal()
+
+      const nameInput = screen.getByLabelText(/Name/i)
+      await user.type(nameInput, "a")
+      await user.clear(nameInput)
+
+      expect(screen.getByText("Security group name is required")).toBeInTheDocument()
+    })
+
+    test("shows the reserved-name error while typing", async () => {
+      const user = userEvent.setup()
+      renderModal()
+
+      await user.type(screen.getByLabelText(/Name/i), "default")
+
+      expect(screen.getByText('The name "default" is reserved for the default security group.')).toBeInTheDocument()
+    })
+
+    test("shows no error on an untouched form", () => {
+      renderModal()
+
+      expect(screen.queryByText("Security group name is required")).not.toBeInTheDocument()
+      expect(screen.queryByText("Name must be at most 255 characters long.")).not.toBeInTheDocument()
+      expect(screen.queryByText("Description must be at most 255 characters long.")).not.toBeInTheDocument()
+    })
+
     test("clears the field error as soon as the user edits the field", async () => {
       const user = userEvent.setup()
       renderModal()

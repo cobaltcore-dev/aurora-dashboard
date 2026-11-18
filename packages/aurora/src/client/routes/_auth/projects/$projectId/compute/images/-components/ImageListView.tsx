@@ -237,6 +237,10 @@ export function ImageListView({
       toast.success(message, options)
       setSelectedImage(updatedImage)
       onImageUpdated(updatedImage)
+      // The list/search runs server-side (listImagesWithSearch filters by name), so an optimistic
+      // override alone leaves a rename invisible to the active search until a full refresh. Rebuild
+      // the list promise so search operates on the updated names. Matches the create flow.
+      onMemberStatusChanged()
       return true
     } catch (error) {
       const errorMessage = (error as TRPCClientError<InferrableClientTypes>)?.message ?? ""
@@ -452,7 +456,10 @@ export function ImageListView({
   const closeEditMetadataModal = () => {
     setSelectedImage(null)
     setEditMetadataModalOpen(false)
-    utils.compute.listImagesWithPagination.invalidate()
+    // The list is driven by a promise built in List.tsx, not a React Query hook, so invalidating
+    // the query cache does nothing here. onMemberStatusChanged() rebuilds that promise so metadata
+    // edits are reflected in the list (and the modal's source image) without a manual refresh.
+    onMemberStatusChanged()
   }
 
   const closeDeleteModal = () => {
@@ -592,9 +599,9 @@ export function ImageListView({
   if (isLoading) {
     return (
       <div data-testid="loading">
-        <DataGrid columns={hasAnyBulkAction ? 9 : 8} className="images">
+        <DataGrid columns={hasAnyBulkAction ? 10 : 9} className="images">
           <DataGridRow>
-            <DataGridCell colSpan={hasAnyBulkAction ? 9 : 8}>
+            <DataGridCell colSpan={hasAnyBulkAction ? 10 : 9}>
               <Status status="progress" title={t`Loading...`} />
             </DataGridCell>
           </DataGridRow>
@@ -614,8 +621,8 @@ export function ImageListView({
         ) : (
           <>
             <DataGrid
-              columns={hasAnyBulkAction ? 9 : 8}
-              minContentColumns={hasAnyBulkAction ? [0, 8] : [7]}
+              columns={hasAnyBulkAction ? 10 : 9}
+              minContentColumns={hasAnyBulkAction ? [0, 9] : [8]}
               className="images"
               data-testid="images-table"
             >
@@ -627,6 +634,9 @@ export function ImageListView({
                 </DataGridHeadCell>
                 <DataGridHeadCell>
                   <Trans>Image Name</Trans>
+                </DataGridHeadCell>
+                <DataGridHeadCell>
+                  <Trans>Type</Trans>
                 </DataGridHeadCell>
                 <DataGridHeadCell>
                   <Trans>Visibility</Trans>
@@ -678,7 +688,7 @@ export function ImageListView({
                 ))
               ) : (
                 <DataGridRow>
-                  <DataGridCell colSpan={hasAnyBulkAction ? 9 : 8}>
+                  <DataGridCell colSpan={hasAnyBulkAction ? 10 : 9}>
                     <Status
                       status="empty"
                       title={
@@ -761,7 +771,7 @@ export function ImageListView({
               client={trpcClient}
               isOpen={editMetadataModalOpen}
               onClose={closeEditMetadataModal}
-              image={selectedImage}
+              image={images.find((img) => img.id === selectedImage.id) ?? selectedImage}
               projectId={projectId}
             />
             <DeleteImageModal

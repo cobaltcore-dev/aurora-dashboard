@@ -1,4 +1,5 @@
 import { useNavigate } from "@tanstack/react-router"
+import { StatusLabel } from "@/client/components/StatusLabel"
 import { useLingui } from "@lingui/react/macro"
 import {
   Button,
@@ -37,7 +38,9 @@ export const PortTableRow = ({ port, showNetwork = true }: PortTableRowProps) =>
 
   return (
     <DataGridRow key={port.id} data-testid={`port-row-${port.id}`} onClick={navigateToDetailsPage}>
-      <DataGridCell>{port.status}</DataGridCell>
+      <DataGridCell>
+        <StatusLabel value={port.status} />
+      </DataGridCell>
       <DataGridCell>
         <span className="break-all">{port.name || port.id}</span>
       </DataGridCell>

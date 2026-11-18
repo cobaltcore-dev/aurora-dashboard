@@ -17,6 +17,7 @@ import {
   Message,
   Box,
   Icon,
+  ProgressBar,
 } from "@cloudoperators/juno-ui-components"
 import { CreateImageInput } from "@/server/Compute/types/image"
 import {
@@ -430,14 +431,10 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
       {isLoading && (
         <div className="mt-4">
           {uploadProgressPercent ? (
-            <div className="bg-theme-background-lvl-2 w-full rounded-full">
-              <div
-                className="bg-theme-info text-theme-on-default flex h-4 items-center justify-center rounded-full p-0.5 text-center text-xs leading-none font-medium"
-                style={{ width: `${uploadProgressPercent}%` }}
-              >
-                {uploadProgressPercent}%
-              </div>
-            </div>
+            <Stack direction="vertical" gap="1">
+              <ProgressBar value={uploadProgressPercent} aria-label={t`Upload progress`} />
+              <span className="text-theme-light text-xs">{uploadProgressPercent}%</span>
+            </Stack>
           ) : (
             <Status
               status="progress"

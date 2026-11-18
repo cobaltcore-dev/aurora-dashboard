@@ -53,6 +53,8 @@ const NETWORK_MAPPINGS = {
   "network:floatingips:delete": { engine: "network", rule: "delete_floatingip" },
   "network:floatingips:associate": { engine: "network", rule: "update_floatingip" },
   "network:floatingips:disassociate": { engine: "network", rule: "update_floatingip" },
+  // Specifying an exact floating IP address at allocation time is admin-only (network_admin / cloud_network_admin).
+  "network:floatingips:specify_ip_address": { engine: "network", rule: "create_floatingip:floating_ip_address" },
 
   // Security Group Operations
   "network:security_groups:read": { engine: "network", rule: "get_security_group" },

@@ -67,7 +67,7 @@ export const DeleteSecurityGroupDialog: React.FC<DeleteSecurityGroupDialogProps>
       open={isOpen}
       onCancel={handleClose}
       size="small"
-      title={t`Delete Security Group "${securityGroupName}"`}
+      title={t`Delete Security Group`}
       confirmButtonLabel={isDeleting ? t`Deleting...` : t`Delete Group`}
       confirmButtonVariant="primary-danger"
       onConfirm={form.handleSubmit}
@@ -79,8 +79,10 @@ export const DeleteSecurityGroupDialog: React.FC<DeleteSecurityGroupDialogProps>
       <Stack direction="vertical" gap="4">
         {error && <Message variant="error">{error}</Message>}
 
-        <p className="text-theme-default">
-          <Trans>This action cannot be undone. The security group will be permanently deleted.</Trans>
+        <p className="text-theme-default wrap-anywhere">
+          <Trans>
+            The security group "{securityGroupName}" will be permanently deleted. This action cannot be undone.
+          </Trans>
         </p>
 
         <Form

@@ -5,13 +5,21 @@ const linkSchema = z.object({
   rel: z.string().nullable().optional(),
 })
 
-// OpenStack might return different network names than just "private"
-const addressItemSchema = z.object({
-  addr: z.string().optional(),
-  mac_addr: z.string().optional(),
-  type: z.string().optional(),
-  version: z.number().optional(),
-})
+// OpenStack might return different network names than just "private".
+// Nova emits the MAC and type under the namespaced keys "OS-EXT-IPS-MAC:mac_addr"
+// and "OS-EXT-IPS:type"; capture both and keep flat `mac_addr`/`type` as the
+// normalized output fields (populated by normalizeServerAddresses in the BFF).
+// catchall keeps any other namespaced keys from being dropped.
+const addressItemSchema = z
+  .object({
+    addr: z.string().optional(),
+    mac_addr: z.string().optional(),
+    type: z.string().optional(),
+    version: z.number().optional(),
+    "OS-EXT-IPS-MAC:mac_addr": z.string().optional(),
+    "OS-EXT-IPS:type": z.string().optional(),
+  })
+  .catchall(z.unknown())
 
 const addressesSchema = z.record(z.string(), z.array(addressItemSchema))
 
@@ -109,6 +117,8 @@ export const serverSchema = z
 
 export const serverResponseSchema = z.object({
   servers: z.array(serverSchema),
+  servers_links: z.array(linkSchema).optional(),
 })
 
 export type Server = z.infer<typeof serverSchema>
+export type ServerAddress = z.infer<typeof addressItemSchema>

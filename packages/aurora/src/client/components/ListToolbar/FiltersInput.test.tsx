@@ -109,6 +109,19 @@ describe("FiltersInput", () => {
     expect(valueComboBox).toHaveAttribute("data-headlessui-state", "disabled")
   })
 
+  it("displays sentence-case statuses while submitting the raw API value", async () => {
+    const user = userEvent.setup({ delay: 0 })
+    setup({ filters: [{ displayName: "Status", filterName: "status", values: ["ACTIVE"] }] })
+    await user.click(await screen.findByTestId("select-filterValue"))
+    await user.click(await screen.findByTestId("status"))
+    const comboBox = await screen.findByTestId("combobox-filterValue")
+    await user.click(comboBox.getElementsByClassName("juno-combobox-toggle")[0])
+    expect(await screen.findByTestId("ACTIVE")).toHaveTextContent("ACTIVE")
+    expect(screen.getByTestId("ACTIVE")).toHaveClass("[&>span]:lowercase", "[&>span]:first-letter:uppercase")
+    await user.click(await screen.findByTestId("ACTIVE"))
+    expect(mockOnChange).toHaveBeenCalledWith({ name: "status", value: "ACTIVE" })
+  })
+
   it("should enable combobox when a filter is selected", async () => {
     const user = userEvent.setup({ delay: 0 })
 

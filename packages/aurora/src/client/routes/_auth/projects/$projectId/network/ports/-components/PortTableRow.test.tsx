@@ -80,7 +80,7 @@ describe("PortTableRow", () => {
       await waitFor(() => {
         expect(screen.getByText("db-port")).toBeInTheDocument()
       })
-      expect(screen.getByText("DOWN")).toBeInTheDocument()
+      expect(screen.getByText("DOWN")).toHaveClass("lowercase", "first-letter:uppercase")
       expect(screen.queryByText("port-123")).not.toBeInTheDocument()
     })
 

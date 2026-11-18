@@ -232,6 +232,47 @@ describe("EditSecurityGroupModal", () => {
       expect(getConfirmButton()).toBeDisabled()
     })
 
+    test("shows the required error when the name is cleared, without blur", async () => {
+      const user = userEvent.setup()
+      renderModal()
+
+      await user.clear(screen.getByLabelText(/Name/i))
+
+      expect(screen.getByText("Security group name is required")).toBeInTheDocument()
+    })
+
+    test("shows the length errors while typing, without blur", async () => {
+      const user = userEvent.setup()
+      renderModal()
+
+      await user.clear(screen.getByLabelText(/Name/i))
+      await user.paste("a".repeat(256))
+      expect(screen.getByText("Name must be at most 255 characters long.")).toBeInTheDocument()
+
+      await user.clear(screen.getByLabelText(/Description/i))
+      await user.paste("d".repeat(256))
+      expect(screen.getByText("Description must be at most 255 characters long.")).toBeInTheDocument()
+    })
+
+    test('shows the reserved-name error for "Default" while typing, without blur', async () => {
+      const user = userEvent.setup()
+      renderModal()
+
+      const nameInput = screen.getByLabelText(/Name/i)
+      await user.clear(nameInput)
+      await user.type(nameInput, "Default")
+
+      expect(screen.getByText('The name "default" is reserved for the default security group.')).toBeInTheDocument()
+    })
+
+    test("shows no error on an untouched form", () => {
+      renderModal()
+
+      expect(screen.queryByText("Security group name is required")).not.toBeInTheDocument()
+      expect(screen.queryByText("Name must be at most 255 characters long.")).not.toBeInTheDocument()
+      expect(screen.queryByText("Description must be at most 255 characters long.")).not.toBeInTheDocument()
+    })
+
     test("clears the field error as soon as the user edits the field", async () => {
       const user = userEvent.setup()
       renderModal()
@@ -244,6 +285,46 @@ describe("EditSecurityGroupModal", () => {
       await user.type(nameInput, "m")
 
       expect(screen.queryByText("Security group name is required")).not.toBeInTheDocument()
+    })
+  })
+
+  describe("Unchanged values", () => {
+    test("disables Update Security Group when nothing was changed", () => {
+      renderModal()
+
+      expect(getConfirmButton()).toBeDisabled()
+    })
+
+    test("disables it again when the edits are reverted", async () => {
+      const user = userEvent.setup()
+      renderModal()
+
+      const nameInput = screen.getByLabelText(/Name/i)
+      await user.type(nameInput, "x")
+      expect(getConfirmButton()).toBeEnabled()
+
+      await user.clear(nameInput)
+      await user.type(nameInput, "existing-sg")
+
+      expect(getConfirmButton()).toBeDisabled()
+    })
+
+    test("treats whitespace-only edits as unchanged", async () => {
+      const user = userEvent.setup()
+      renderModal()
+
+      await user.type(screen.getByLabelText(/Name/i), "   ")
+
+      expect(getConfirmButton()).toBeDisabled()
+    })
+
+    test("enables it once the description changes", async () => {
+      const user = userEvent.setup()
+      renderModal()
+
+      await user.type(screen.getByLabelText(/Description/i), " more")
+
+      expect(getConfirmButton()).toBeEnabled()
     })
   })
 
@@ -315,6 +396,7 @@ describe("EditSecurityGroupModal", () => {
       const user = userEvent.setup()
       renderModal({ onUpdate: undefined })
 
+      await user.type(screen.getByLabelText(/Name/i), "-renamed")
       const submitButton = getConfirmButton()
       await user.click(submitButton)
 

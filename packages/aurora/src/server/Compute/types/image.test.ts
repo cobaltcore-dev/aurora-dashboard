@@ -96,6 +96,32 @@ describe("Glance Image Schema Validation", () => {
   }
 
   describe("Image Schema", () => {
+    it.each([
+      { source_type: "snapshot" },
+      [{ source_type: "snapshot", snapshot_id: "snapshot-id" }],
+      JSON.stringify([{ source_type: "snapshot", snapshot_id: "snapshot-id" }]),
+    ])("preserves block_device_mapping %j", (block_device_mapping) => {
+      expect(imageSchema.parse({ ...minimalValidImage, block_device_mapping }).block_device_mapping).toEqual(
+        block_device_mapping
+      )
+    })
+
+    it.each([undefined, null, "snapshot", "backup", "custom", ""])(
+      "preserves optional top-level image_type %s",
+      (image_type) => {
+        const result = imageSchema.parse({ ...minimalValidImage, image_type })
+        expect(result.image_type).toBe(image_type)
+      }
+    )
+
+    it.each(["all", "snapshot", "images"])("accepts BFF image type filter %s", (image_type) => {
+      expect(listImagesInputSchema.parse({ project_id: projectId, image_type }).image_type).toBe(image_type)
+    })
+
+    it.each(["backup", "neq:snapshot", "in:snapshot,images"])("rejects invalid type filter %s", (image_type) => {
+      expect(listImagesInputSchema.safeParse({ project_id: projectId, image_type }).success).toBe(false)
+    })
+
     it("should validate a minimal valid image", () => {
       const result = imageSchema.safeParse(minimalValidImage)
       expect(result.success).toBe(true)

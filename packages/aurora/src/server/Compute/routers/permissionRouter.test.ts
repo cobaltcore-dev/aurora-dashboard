@@ -2,9 +2,11 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 import { createCallerFactory, router } from "../../trpc"
 import { AuroraPortalContext } from "../../context"
 
+const { checkPolicy } = vi.hoisted(() => ({ checkPolicy: vi.fn(() => true) }))
+
 vi.mock("@/server/policies/policyEngineLoader", () => ({
   loadPolicyEngine: vi.fn(() => ({
-    policy: vi.fn(() => ({ check: vi.fn(() => true) })),
+    policy: vi.fn(() => ({ check: checkPolicy })),
   })),
 }))
 
@@ -22,6 +24,7 @@ describe("permissionRouter", () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    checkPolicy.mockImplementation(() => true)
 
     // Create mock context - this is the boundary between the router and the rest of the system
     const mockOpenstackSession = {
@@ -145,6 +148,17 @@ describe("permissionRouter", () => {
     })
 
     describe("Valid permission handling", () => {
+      it.each([true, false])("checks servers:detail for the Instances list when allowed=%s", async (allowed) => {
+        checkPolicy.mockImplementation((...args: unknown[]) =>
+          args[0] === "os_compute_api:servers:detail" ? allowed : !allowed
+        )
+
+        await expect(caller.canUser({ project_id: TEST_PROJECT_ID, permission: "servers:list" })).resolves.toEqual([
+          allowed,
+        ])
+        expect(checkPolicy).toHaveBeenCalledExactlyOnceWith("os_compute_api:servers:detail")
+      })
+
       it("should accept valid server permissions", async () => {
         // These should not throw BAD_REQUEST errors - the actual policy result doesn't matter for this test
         await expect(caller.canUser({ project_id: TEST_PROJECT_ID, permission: "servers:list" })).resolves.not.toThrow()

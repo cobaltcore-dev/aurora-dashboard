@@ -1,5 +1,124 @@
 # @cobaltcore-dev/aurora
 
+## 2.5.0
+
+### Minor Changes
+
+- 7e7f705: Add Neutron Networks management (BFF and read-only UI)
+
+  - Add `network.networks` tRPC BFF: `list` (the project's own networks and the networks shared with it, merged by ID and returned in full), `getById`, `create`, `update`, `delete`, `setTags`, `listSubnets` and `listPorts`
+  - `list`, `listSubnets` and `listPorts` follow Neutron's pagination links so the full collection is returned even when `pagination_max_limit` is configured
+  - Map network-specific Neutron errors (e.g. ports still in use on delete, sharing still in use, admin-only attributes, quota exceeded) to clear messages
+  - Add a "Networks" entry under Network in the side navigation and a "Networks" card on the project overview; both require `networks` in `enabledServices`
+  - Add a Networks list view (Status, Name / ID, Admin State, Subnets, Shared, External) whose search (name and ID), status/shared/external filters and sorting all run client-side over a single list response (no pagination); the subnet count comes from each network's embedded `subnets` array; status values are displayed in title case (e.g. "Active")
+  - Add a network details view with copy-to-clipboard for IDs, a Subnets tab, a Ports tab and a Routers tab
+  - Ports tab: lists all ports on the network (ID, Status, Admin State, Fixed IPs, MAC Address, Device Owner, Attached Device)
+  - Routers tab: derives the set of attached routers from `network:router_interface` ports (deduplicated); each router ID deep-links to the router detail view (with a copy affordance beside it) when the Routers scope is available in the catalog, and degrades to a plain copy affordance otherwise
+
+### Patch Changes
+
+- d91f83e: - Guard service-extension routes so a disabled extension cannot be reached by navigating directly to its URL
+  - The `/projects/$projectId/services/$serviceType` route now enforces the same visibility rules the side nav and project home page use: it honors the `enabledServices` allow list and `deniedServices` deny list, and verifies the extension's `serviceType`/`serviceName` against the project's OpenStack catalog
+  - A disabled or catalog-absent extension redirects to the project home page; an unknown `serviceType` continues to return not-found
+- 27a532b: - Remove the image column from the Instances list; image name and id are shown on the instance detail view only
+- 839fa7b: Key Manager UX improvements — validation, labels, and empty-state polish
+
+  - Add live character counters and `maxLength` to all limited text fields in Create Secret, Create Container, and Create Order modals (255 chars for name/algorithm/mode, 10,000 bytes for payload)
+  - Show validation error immediately on input when a field reaches its limit and disable the Create button while any error is present
+  - Add `min=1` validation to the Bit Length field in Create Secret modal
+  - Convert Payload Content Type in Create Order modal from a free text field to a Select with fixed options, hidden for the `asymmetric` order type
+  - Rename secrets list column headers to "Type" (secret type) and "Payload Content Type" (content type)
+  - Add a Created column to the secrets list and rename the sort label from "Created At" to "Created"
+  - Replace the `unnamed` placeholder with `"- -"` across all Key Manager list rows and the Container detail view
+  - Remove "Optional." prefix from name field helptext in Create Container and Create Order modals
+  - Move the container type description into the Type Select's `helptext`
+
+- a7f6f43: - Make `private_key_passphrase` optional when creating an RSA container (Barbican requires only `private_key` and `public_key`)
+  - Show a warning in the Delete Order modal when the order is still in PENDING state to prevent orphaned Barbican resources
+  - Make secret-ref rows in the Container detail view clickable, navigating directly to the secret detail page
+  - Hide the Mode field in the Create Order modal for asymmetric key type, where it has no effect
+  - Add a Download button to the Secret payload section, writing the payload as a `.txt`, `.pem`, or `.bin` file based on its content type
+- b3547d8: Floating IP fixes and improvements for second go-live
+
+  - Gate the floating IP list-row actions by permission, mirroring the details page: Edit Description, Attach, Detach and Release are hidden when the user lacks the matching permission, so a view-only user is left with just "Show Details"
+  - Connect the DNS Domain and DNS Name fields: entering one requires the other, validated live so the Allocate button reflects the error immediately
+  - Validate the DNS Name as a single hostname label (letters, digits and hyphens, not leading/trailing), with error precedence of required → format → length, and a clearer helptext explaining it is combined with the DNS domain to form the full record
+  - Add a "None" option to the DNS Domain select so the selection can be cleared back to the placeholder
+  - Disable the Allocate button whenever any field (required or optional) has a validation error, or while a server error from a previous attempt is present
+  - Let the user clear a failed-allocation server error by editing any field, instead of only by closing the modal (which lost their input)
+  - Surface Neutron's own reason on a failed allocation (400) instead of a generic message, so the user sees why the request was rejected
+  - Show the floating IP status as plain text in Title Case (Active / Down / Error) and remove the status icons in the list and details views
+  - Use a consistent `- -` empty-state placeholder (replacing the em dash) across the details view
+  - Refine field wording: shorten the list search placeholder to "Search…", and update help text, validation messages and field placeholders
+  - Give the Description textarea a visible label
+  - Keep the page title as a single top-level `h1` on the floating IP service and stop embedding the resource instance name in the modal title
+  - Expose `createPermissionRouter` and its `ServicePolicyConfig`, `PolicyMapping` and `EngineDef` types from `@cobaltcore-dev/aurora/server` for package consumers
+
+- 4a09880: - Add a read-only Instances section under Compute for listing and inspecting Nova servers
+  - Instances list with a Power State column, filters for power state and availability zone, and a free-text search that matches name, id, flavor, image id, created and IP
+  - Instance detail view with a two-column layout, metadata, tags in the general data, and a per-network Addresses sub-section
+  - Link the flavor name to the flavor detail, and resolve the image name to a link to the image detail; in the list, when the image is not accessible in the project the column shows "- -" instead of a dead link. The detail view shows the image name (linked when resolvable) and the raw image id (copyable) as separate rows. Add an Instances landing-page card. The Metadata section is hidden when the instance has no metadata
+  - Show "Booted from volume" for volume-booted instances instead of an empty image id
+  - Capture Nova namespaced address keys (MAC, type), request a supported servers microversion (never above the deployment max), and follow servers_links pagination; surface Nova errors and truncated/invalid responses instead of a misleading empty list
+  - Gate the Instances nav entry and routes on the compute/nova service catalog
+- a49163c: Resolve Dependabot security advisories via pnpm overrides:
+  - glob: force patched >=14.0.2 (fixes AbortSignal cancellation bypass allowing post-timeout filesystem traversal, GHSA-3g3m-2fjr-6pw4), pulled in transitively through @fastify/static
+  - minimatch: force patched >=11.0.1 (fixes potential denial of service via globparts amplification, GHSA-g3hv-75wg-m249)
+- f60d56b: - Security Group detail tabs use Juno `TabBar`/`TabBarItem` instead of the deprecated `TabNavigation`.
+  - Security Groups list, Rules and RBAC Policies empty states use title-case titles and distinguish "no data" from "no search/filter matches".
+  - The Security Groups list, Rules and RBAC Policies searches show a generic "Search..." placeholder.
+  - The Delete Security Group modal names the group in its body instead of its title.
+  - Name and description errors in the Create/Edit Security Group and Add Rule modals appear as soon as they disable the confirm button; Edit can't be saved without changes.
+  - Empty values in Security Groups (General Information, the rules table and the list) show the shared "- -" placeholder instead of "—".
+  - The Add Rule modal shows Direction, Protocol, Port Range and ICMP as titled sections and groups the remote type, the remote CIDR / Security Group and IP Version under one "Remote" section, with a divider before Description.
+- adba9d7: - Normalize the casing of the Instances Power State and Images Status labels so both read as "Running" / "Active" instead of "RUNNING" / "active" (new shared StatusLabel component)
+
+## 2.4.0
+
+### Minor Changes
+
+- 02b7171: Add the OpenStack Key Manager (Barbican) plugin: list, view, create and delete for Secrets, Containers and Orders, with server-side policy enforcement on every operation. The create modals mirror Barbican's type-driven forms — the secret payload content type is derived from the secret type (with base64 encoding handling), order algorithm/bit-length/mode options depend on the chosen algorithm, and container secret fields are filtered by secret type per container type (generic/rsa/certificate). Create and delete now surface success toasts, surface Barbican's own error description on failure, distinguish "no matches" from "no data" empty states, keep list search from refetching on every keystroke, and disable the modal close button while a mutation is in flight.
+- 599479d: Add Neutron Ports management (BFF and read-only UI)
+
+  - Add `network.ports` tRPC BFF: `list` (current project, optionally scoped to one network via `network_id`, with search), `getById`, `create`, `update`, `delete`
+  - Resolve network, subnet and security group names with batched best-effort lookups that fall back to IDs, and add the IP version of every fixed IP
+  - Map port-specific Neutron errors (e.g. IP or MAC address already in use, port owned by a router, quota exceeded) to clear messages
+  - Add a "Ports" entry under Network in the side navigation and a "Ports" card on the project overview; both require `ports` in `enabledServices`
+  - Add a Ports list view (Status, Name / ID, Description, Network, Fixed IPs, Device Owner) with search, sorting and pagination; the list can be reused for a single network, which hides the Network column
+  - Add a port details view with copy-to-clipboard for IDs, IP addresses and the MAC address
+  - Show the port and router status as plain text in the first column of the list views
+  - Add a Status filter to the Ports and Routers lists (kept in the URL as `?status=`, shown as a removable pill); Ports filters client-side, Routers via the BFF `status` parameter
+  - On an expired session (401), the Ports and Routers list and details views redirect to sign-in and return to the page after authentication; unexpected errors show a generic message instead of the raw backend text
+  - Keep the active tab of the router details view in the URL (`?tab=`), so it is preserved on reload and when sharing a link
+
+### Patch Changes
+
+- c27fded: - Align Images list sort and filter options with table column order
+  - Consistent empty-value representation ("- -") in Image detail and metadata lists
+  - Use Juno ProgressBar for image upload progress
+  - Refresh image data after metadata edits so reopening the modal shows current values
+  - Validate Edit Image fields on input, disabling Save until corrected
+  - Treat empty optional number fields as valid in Edit Image, matching Create
+  - Reduce Images list pagination to 30 items per page
+  - Show a friendly "Access Denied" message when listing images returns a 403
+  - Show a success toast after deleting an image from its detail page
+  - Refetch the Images list after a rename so search reflects the new name
+- 948bd2a: Use the Juno Label component (with required indicator) for the Create Image modal's file upload field so its accessible name and required semantics match the other form fields. Added line breaks between the sentences in the image list empty-state messages. Image table cells now use the new DataGrid `textContain` prop for overflow handling (truncate the name, break long IDs). Bumped juno-ui-components to 9.7.2.
+- 939da88: - Image Protected filter now shows Yes/No labels in the dropdown and selected-filter pills instead of raw true/false, matching the list column.
+  - Removed the non-functional "Go to Home" action button from error states; the working "Go to Project Home" button is kept where a project is in scope.
+- 8cd09bf: Resolve Dependabot security advisories via dependency bumps and pnpm overrides:
+  - zod: force patched >=4.6.6 (fixes memory exhaustion via oversized constrained collections, GHSA-mrhx-c7xc-m3w5)
+  - undici: force patched >=7.30.1 and >=8.12.2 (fixes DoS via excessive content-encodings, EventSource unbounded memory, and SRI bypass)
+  - fast-uri: force patched >=3.1.9 / >=4.2.3 (fixes scheme spoofing, host confusion, scheme injection, path equivalence)
+  - vite: force patched >=8.2.4 (fixes dev-server fs allow-list bypasses)
+  - @vitest/mocker: force patched >=4.1.12 (fixes code injection and Windows backslash traversal in manual mock registration)
+  - fastify: force patched 5.12.6 (fixes header validation bypass via case-sensitive propertyNames)
+- d2ee935: Restore the `@fastify/static@<10.1.2` pnpm override. Without it, `@fastify/vite` pulls in `@fastify/static@9.3.0`, which is affected by two advisories:
+  - GHSA (route guard bypass via non-leading `..` / `%2E%2E` path segments, `<=10.1.0`)
+  - GHSA (authorization bypass via non-canonical URL paths, `<=10.1.1`)
+
+  The override forces the patched `10.1.2`. These are dev-dependency (`@fastify/vite`) vulnerabilities, so `pnpm audit --prod` did not surface them.
+
 ## 2.3.0
 
 ### Minor Changes

@@ -198,7 +198,7 @@ describe("SecurityGroupDetailsView", () => {
     expect(screen.getByRole("button", { name: "Rules" })).toHaveAttribute("aria-current", "true")
   })
 
-  it("displays em dash for missing description", () => {
+  it("displays the empty-value placeholder for missing description", () => {
     const sgWithoutDescription = { ...mockSecurityGroup, description: null }
     render(
       <SecurityGroupDetailsView
@@ -215,10 +215,10 @@ describe("SecurityGroupDetailsView", () => {
       }
     )
 
-    expect(screen.getAllByText("—").length).toBeGreaterThan(0)
+    expect(screen.getAllByText("- -").length).toBeGreaterThan(0)
   })
 
-  it("displays em dash for empty tags", () => {
+  it("displays the empty-value placeholder for empty tags", () => {
     const sgWithoutTags = { ...mockSecurityGroup, tags: [] }
     render(
       <SecurityGroupDetailsView
@@ -235,7 +235,7 @@ describe("SecurityGroupDetailsView", () => {
       }
     )
 
-    expect(screen.getAllByText("—").length).toBeGreaterThan(0)
+    expect(screen.getAllByText("- -").length).toBeGreaterThan(0)
   })
 
   it("displays boolean values as Yes/No", () => {
@@ -501,7 +501,10 @@ describe("SecurityGroupDetailsView", () => {
         }
       )
 
-      expect(screen.getByText("There are no rules for this security group")).toBeInTheDocument()
+      expect(screen.getByText("No Rules Found")).toBeInTheDocument()
+      expect(
+        screen.getByText("No rules match the current search or filters. Clear the search or filters to view all rules.")
+      ).toBeInTheDocument()
     })
   })
 })

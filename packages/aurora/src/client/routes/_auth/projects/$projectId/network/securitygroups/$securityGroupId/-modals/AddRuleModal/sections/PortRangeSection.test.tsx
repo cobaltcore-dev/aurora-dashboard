@@ -59,6 +59,12 @@ describe("PortRangeSection", () => {
   })
 
   describe("Rendering", () => {
+    test("renders a Port Range section", () => {
+      render(<TestWrapper />)
+      const region = screen.getByRole("region", { name: "Port Range" })
+      expect(within(region).getByLabelText(/Port \(from\)/i)).toBeInTheDocument()
+    })
+
     test("renders Port (from) and Port (to) inputs", () => {
       render(<TestWrapper />)
       expect(screen.getByLabelText(/Port \(from\)/i)).toBeInTheDocument()

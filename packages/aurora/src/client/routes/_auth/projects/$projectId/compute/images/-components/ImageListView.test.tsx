@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, act } from "@testing-library/react"
+import { render, screen, fireEvent, act, within } from "@testing-library/react"
 import { describe, it, expect, vi, beforeAll, beforeEach } from "vitest"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
@@ -39,6 +39,7 @@ vi.mock("@/client/trpcClient", () => ({
       updateImageVisibility: { useMutation: () => mockMutation },
       updateImageMember: { useMutation: () => mockMutation },
       listSharedImagesByMemberStatus: { useQuery: () => ({ data: [] }) },
+      listImageMembers: { useQuery: () => ({ data: [], isLoading: false }) },
       watchUploadProgress: { useSubscription: () => ({ data: undefined }) },
     },
   },
@@ -110,6 +111,40 @@ describe("ImageListView — pagination", () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
+
+  it.each(["all", "accepted", "pending"] as const)(
+    "renders snapshot Type consistently in the %s tab",
+    async (memberStatusView) => {
+      const images = [{ ...makeImage(1), image_type: "snapshot" }, makeImage(2)]
+      await act(async () => {
+        render(<ImageListView {...defaultProps} images={images} memberStatusView={memberStatusView} />, {
+          wrapper: TestingProvider,
+        })
+      })
+
+      expect(screen.getByRole("columnheader", { name: "Type" })).toBeInTheDocument()
+      expect(within(screen.getByTestId("image-row-image-1")).getByText("Snapshot")).toBeInTheDocument()
+      expect(within(screen.getByTestId("image-row-image-2")).getByText("- -")).toBeInTheDocument()
+    }
+  )
+
+  it.each([true, false])(
+    "keeps header, rows, and empty span aligned with bulk actions=%s",
+    async (hasAnyBulkAction) => {
+      const columnCount = hasAnyBulkAction ? 10 : 9
+      const { rerender } = render(
+        <ImageListView {...defaultProps} images={[makeImage(1)]} hasAnyBulkAction={hasAnyBulkAction} />,
+        { wrapper: TestingProvider }
+      )
+
+      expect(screen.getAllByRole("columnheader")).toHaveLength(columnCount)
+      expect(within(screen.getByTestId("image-row-image-1")).getAllByRole("gridcell")).toHaveLength(columnCount)
+      expect(screen.getByTestId("images-table").style.gridTemplateColumns.trim().endsWith("min-content")).toBe(true)
+
+      rerender(<ImageListView {...defaultProps} images={[]} hasAnyBulkAction={hasAnyBulkAction} />)
+      expect(screen.getByRole("gridcell")).toHaveStyle({ gridColumn: `span ${columnCount} / span ${columnCount}` })
+    }
+  )
 
   it("renders 'no images' message when images array is empty", async () => {
     await act(async () => {
@@ -397,5 +432,72 @@ describe("ImageListView — permission-gated actions", () => {
     })
     expect(screen.getByText("Image 1")).toBeInTheDocument()
     expect(screen.getByText("Image 3")).toBeInTheDocument()
+  })
+})
+
+describe("ImageListView — rename refetch", () => {
+  beforeAll(() => {
+    // jsdom gaps that Headless UI (PopupMenu) relies on.
+    if (!Element.prototype.scrollIntoView) Element.prototype.scrollIntoView = vi.fn()
+    if (!window.matchMedia) {
+      window.matchMedia = (query: string) =>
+        ({
+          matches: false,
+          media: query,
+          onchange: null,
+          addListener: vi.fn(),
+          removeListener: vi.fn(),
+          addEventListener: vi.fn(),
+          removeEventListener: vi.fn(),
+          dispatchEvent: vi.fn(),
+        }) as unknown as MediaQueryList
+    }
+    if (!("ResizeObserver" in globalThis)) {
+      ;(globalThis as unknown as { ResizeObserver: unknown }).ResizeObserver = class {
+        observe() {}
+        unobserve() {}
+        disconnect() {}
+      }
+    }
+  })
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("rebuilds the list promise after a successful rename so search sees the new name", async () => {
+    // Owned, updatable image so the row's "Edit Details" action is available.
+    const image = { ...makeImage(1), owner: "test-project-id" } as GlanceImage
+    mockMutation.mutateAsync.mockResolvedValueOnce({ ...image, name: "renamed" })
+    const onMemberStatusChanged = vi.fn()
+
+    await act(async () => {
+      render(
+        <ImageListView
+          {...defaultProps}
+          images={[image]}
+          permissions={{ ...mockPermissions, canUpdate: true }}
+          onMemberStatusChanged={onMemberStatusChanged}
+        />,
+        { wrapper: TestingProvider }
+      )
+    })
+
+    // Open the row menu (the only button until items mount) → Edit Details.
+    fireEvent.click(screen.getByRole("button"))
+    fireEvent.click(await screen.findByText("Edit Details"))
+
+    // Rename and save.
+    const nameInput = await screen.findByLabelText("Image Name")
+    await act(async () => {
+      fireEvent.change(nameInput, { target: { value: "renamed" } })
+    })
+    fireEvent.click(await screen.findByRole("button", { name: /Save Changes/i }))
+
+    await act(async () => {})
+
+    expect(mockMutation.mutateAsync).toHaveBeenCalled()
+    // The refetch is what makes the server-side search reflect the new name.
+    expect(onMemberStatusChanged).toHaveBeenCalled()
   })
 })

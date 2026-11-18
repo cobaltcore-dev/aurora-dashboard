@@ -23,6 +23,7 @@ import { SortInput } from "@/client/components/ListToolbar/SortInput"
 import { SelectedFilters } from "@/client/components/ListToolbar/SelectedFilters"
 import { FiltersInput } from "@/client/components/ListToolbar/FiltersInput"
 import { useModal } from "@/client/utils/useModal"
+import { EMPTY_VALUE } from "@/client/components/TwoColumnDescriptionList"
 import { isIcmpProtocol } from "../../-modals/AddRuleModal/constants"
 import { getRuleRemote, useFormatRuleRemote } from "../ruleRemote"
 
@@ -115,7 +116,7 @@ export function SecurityGroupRulesTable({
       const codeValue = portRangeMax
 
       if (typeValue == null) {
-        return t`—`
+        return EMPTY_VALUE
       }
       // Neutron accepts a type without a code, meaning "any code of that type"
       if (codeValue == null) {
@@ -125,7 +126,7 @@ export function SecurityGroupRulesTable({
     }
 
     if (portRangeMin == null || portRangeMax == null) {
-      return t`—`
+      return EMPTY_VALUE
     }
 
     if (portRangeMin === portRangeMax) {
@@ -135,6 +136,7 @@ export function SecurityGroupRulesTable({
     return `${portRangeMin}-${portRangeMax}`
   }
 
+  const isFiltered = Boolean(searchTerm) || (filterSettings?.selectedFilters?.length ?? 0) > 0
   const columnCount = canDeleteRule ? 7 : 6
 
   return (
@@ -189,7 +191,7 @@ export function SecurityGroupRulesTable({
               {onSearchChange && (
                 <SearchInput
                   className="w-60 sm:w-68"
-                  placeholder={t`Search rules...`}
+                  placeholder={t`Search...`}
                   data-testid="searchbar"
                   value={localSearchTerm}
                   onInput={(e: React.FormEvent<HTMLInputElement>) => {
@@ -242,18 +244,26 @@ export function SecurityGroupRulesTable({
         {rules.length === 0 ? (
           <DataGridRow>
             <DataGridCell colSpan={columnCount}>
-              <Status status="empty" title={t`There are no rules for this security group`} />
+              <Status
+                status={isFiltered ? "no-matches" : "empty"}
+                title={t`No Rules Found`}
+                body={
+                  isFiltered
+                    ? t`No rules match the current search or filters. Clear the search or filters to view all rules.`
+                    : t`There are no Rule items to display for this Security Group.`
+                }
+              />
             </DataGridCell>
           </DataGridRow>
         ) : (
           rules.map((rule) => (
             <DataGridRow key={rule.id} data-testid={`rule-row-${rule.id}`}>
-              <DataGridCell>{rule.direction || t`—`}</DataGridCell>
+              <DataGridCell>{rule.direction || EMPTY_VALUE}</DataGridCell>
               <DataGridCell>{rule.ethertype}</DataGridCell>
-              <DataGridCell>{rule.protocol || t`—`}</DataGridCell>
+              <DataGridCell>{rule.protocol || EMPTY_VALUE}</DataGridCell>
               <DataGridCell>{formatPortRange(rule)}</DataGridCell>
               <DataGridCell>{formatRuleRemote(getRuleRemote(rule, availableSecurityGroups))}</DataGridCell>
-              <DataGridCell>{rule.description || t`—`}</DataGridCell>
+              <DataGridCell>{rule.description || EMPTY_VALUE}</DataGridCell>
               {canDeleteRule && (
                 <DataGridCell onClick={(e) => e.stopPropagation()} className="items-end pr-0">
                   <PopupMenu>

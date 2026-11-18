@@ -13,11 +13,13 @@ import {
 import { useLingui } from "@lingui/react/macro"
 import { GlanceImage, ImageVisibility, MemberStatus } from "@/server/Compute/types/image"
 import { SizeDisplay } from "./SizeDisplay"
+import { StatusLabel } from "@/client/components/StatusLabel"
 import { IMAGE_STATUSES, IMAGE_VISIBILITY, MEMBER_STATUSES } from "../../-constants/filters"
 import { trpcReact } from "@/client/trpcClient"
 import { TRPCClientError } from "@trpc/client"
 import { InferrableClientTypes } from "@trpc/server/unstable-core-do-not-import"
 import { getImageAccessStatusUpdatedToast, getImageAccessStatusErrorToast } from "./ImageToastNotifications"
+import { isSnapshotImage } from "@/types/image"
 
 interface ImageTableRowProps {
   image: GlanceImage
@@ -119,10 +121,13 @@ export function ImageTableRow({
         </DataGridCell>
       )}
 
-      <DataGridCell>{status}</DataGridCell>
+      <DataGridCell>
+        <StatusLabel value={status} />
+      </DataGridCell>
       <DataGridCell textContain="truncate-end" title={name || id}>
         {name || id}
       </DataGridCell>
+      <DataGridCell>{isSnapshotImage(image) ? t`Snapshot` : "- -"}</DataGridCell>
       <DataGridCell>{visibility}</DataGridCell>
       <DataGridCell>{image.protected ? t`Yes` : t`No`}</DataGridCell>
       <DataGridCell>

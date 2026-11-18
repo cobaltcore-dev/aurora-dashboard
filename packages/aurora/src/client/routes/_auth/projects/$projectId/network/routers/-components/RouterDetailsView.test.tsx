@@ -118,15 +118,15 @@ describe("RouterDetailsView", () => {
       expect(screen.getByText("router-1")).toBeInTheDocument()
       expect(screen.getByText("proj-1")).toBeInTheDocument()
       expect(screen.getByText("Main edge router")).toBeInTheDocument()
-      expect(screen.getByText("ACTIVE")).toBeInTheDocument()
-      expect(screen.getByText("UP")).toBeInTheDocument()
+      expect(screen.getByText("ACTIVE")).toHaveClass("lowercase", "first-letter:uppercase")
+      expect(screen.getByText("UP")).toHaveClass("lowercase", "first-letter:uppercase")
     })
 
-    it("renders DOWN for a disabled router", () => {
+    it("renders Down for a disabled router", () => {
       mockInterfacesResult()
       renderView({ ...mockRouter, admin_state_up: false })
 
-      expect(screen.getByText("DOWN")).toBeInTheDocument()
+      expect(screen.getByText("DOWN")).toHaveClass("lowercase", "first-letter:uppercase")
     })
 
     it("renders a dash for missing name and description", () => {

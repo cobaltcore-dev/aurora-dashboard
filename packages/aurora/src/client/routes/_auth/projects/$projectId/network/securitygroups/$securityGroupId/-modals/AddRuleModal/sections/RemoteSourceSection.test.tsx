@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach } from "vitest"
-import { render, screen, waitFor, act, fireEvent } from "@testing-library/react"
+import { render, screen, waitFor, act, fireEvent, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
@@ -65,9 +65,18 @@ describe("RemoteSourceSection", () => {
   })
 
   describe("Rendering", () => {
-    test("renders Remote label", () => {
+    test("groups the remote fields under a Remote section", () => {
       render(<TestWrapper />)
-      expect(screen.getByText("Remote")).toBeInTheDocument()
+      const region = screen.getByRole("region", { name: "Remote" })
+      expect(within(region).getByLabelText(/^CIDR$/i)).toBeInTheDocument()
+      expect(within(region).getByLabelText(/Remote IP Prefix/i)).toBeInTheDocument()
+    })
+
+    test("names the radio group without repeating the Remote title", () => {
+      render(<TestWrapper />)
+      expect(screen.getByRole("radiogroup", { name: "Remote type" })).toBeInTheDocument()
+      expect(screen.queryByText("Remote Type")).not.toBeInTheDocument()
+      expect(screen.getAllByText("Remote")).toHaveLength(1)
     })
 
     test("renders CIDR and Security Group radio options", () => {
@@ -257,6 +266,35 @@ describe("RemoteSourceSection", () => {
         // Verify Group 1 is now selected by checking it's visible as the button label
         expect(screen.getAllByText("Group 1").length).toBeGreaterThan(0)
       })
+    })
+  })
+
+  describe("IP Version", () => {
+    test("shows IP Version inside the section for a security group remote", () => {
+      render(<TestWrapper defaultRemoteSourceType="security_group" />)
+      const region = screen.getByRole("region", { name: "Remote" })
+      expect(within(region).getByText("IP Version")).toBeInTheDocument()
+      expect((within(region).getByLabelText("IPv4") as HTMLInputElement).checked).toBe(true)
+    })
+
+    test("hides IP Version for a CIDR remote", () => {
+      render(<TestWrapper defaultRemoteSourceType="cidr" />)
+      expect(screen.queryByText("IP Version")).not.toBeInTheDocument()
+    })
+
+    test("shows IP Version after switching from CIDR to Security Group", async () => {
+      const user = userEvent.setup()
+      render(<TestWrapper defaultRemoteSourceType="cidr" />)
+
+      await user.click(screen.getByLabelText("Security Group"))
+
+      expect(await screen.findByText("IP Version")).toBeInTheDocument()
+    })
+
+    test("disables the IP Version radios when disabled", () => {
+      render(<TestWrapper disabled={true} defaultRemoteSourceType="security_group" />)
+      expect(screen.getByLabelText("IPv4")).toBeDisabled()
+      expect(screen.getByLabelText("IPv6")).toBeDisabled()
     })
   })
 

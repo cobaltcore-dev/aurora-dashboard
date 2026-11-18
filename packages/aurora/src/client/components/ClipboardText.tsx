@@ -8,6 +8,8 @@ export interface ClipboardTextProps extends React.HTMLAttributes<HTMLDivElement>
   className?: string
   truncateAt?: number
   showTooltip?: boolean
+  /** Render only the copy icon (no text), e.g. as a copy affordance beside a link. */
+  iconOnly?: boolean
 }
 
 const ClipboardText: React.FC<ClipboardTextProps> = ({
@@ -16,6 +18,7 @@ const ClipboardText: React.FC<ClipboardTextProps> = ({
   className,
   truncateAt,
   showTooltip = true,
+  iconOnly = false,
   ...props
 }) => {
   const { t } = useLingui()
@@ -64,7 +67,7 @@ const ClipboardText: React.FC<ClipboardTextProps> = ({
         >
           <button type="button" className="group border-none bg-transparent p-0 text-inherit">
             <Stack direction="horizontal" gap="1" className="items-center hover:underline">
-              <span className="select-none">{displayText}</span>
+              {!iconOnly && <span className="select-none">{displayText}</span>}
               <Icon icon={copied ? "check" : "contentCopy"} size="18" />
             </Stack>
           </button>

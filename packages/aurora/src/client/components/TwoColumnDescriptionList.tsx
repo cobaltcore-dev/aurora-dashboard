@@ -12,9 +12,10 @@ interface TwoColumnDescriptionListProps {
 }
 
 // Placeholder shown when a detail value is empty (null, undefined, "", or [])
-const EmptyValue = () => <>- -</>
+export const EMPTY_VALUE = "- -"
+const EmptyValue = () => <>{EMPTY_VALUE}</>
 
-const isEmptyValue = (value: DetailListItem["value"]): boolean =>
+export const isEmptyValue = (value: DetailListItem["value"]): boolean =>
   value === null || value === undefined || value === "" || (Array.isArray(value) && value.length === 0)
 
 const renderValue = (value: DetailListItem["value"]) => (isEmptyValue(value) ? <EmptyValue /> : value)
