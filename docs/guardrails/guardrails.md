@@ -2,10 +2,6 @@
 
 This file collects guardrails for AI generation and validation of the Aurora UI. It contains conventions and patterns that are either specific to Aurora, or that apply more broadly but aren't yet reflected in the shared AI guidance Aurora consumes.
 
-All guidance in this document must be followed.
-
-We expect this document to change (shrink or grow) over time, as we move more guidance where it belongs in our skills and references, or as we add more rules and directives that are truly specific to Aurora.
-
 ## Scope tags
 
 Each rule carries a `[scope: …]` tag marking where its guidance is expected to live long-term. Tags are maintainer metadata for tracking and migration only — **follow every rule regardless of its tag**. Anything not tagged `aurora` is expected to leave this file.
@@ -21,8 +17,8 @@ Each rule carries a `[scope: …]` tag marking where its guidance is expected to
 ## General Rules
 
 - `[scope: aurora]` Use a ui-components component whenever possible. Never re-invent or re-create existing components from scratch. Use native props of the component, do not circumvent or overwrite existing props using className or html native attributes, css classes or style tags.
-- `[scope: aurora]` When using className to apply custom CSS to juno-ui components, do not use `jn:` or `juno-` prefixes. These are reserved and internal to Juno.
-- `[scope: aurora]` Do not use juno-internal classes to hook in additional functionality or tests, as these may be changed internally and without notice.
+- `[scope: aurora]` When using className to apply custom CSS to juno-ui components, NEVER use `jn:` or `juno-` prefixes. These are reserved and internal to Juno.
+- `[scope: aurora]` NEVER use juno-internal classes to hook in additional functionality or tests, as these may be changed internally and without notice.
 - `[scope: aurora]` Allow only exactly one `h1` heading element per page.
 
 ## List Views
@@ -34,9 +30,9 @@ Each rule carries a `[scope: …]` tag marking where its guidance is expected to
 
 ## Forms
 
-- `[scope: design-system]` Every form input element **should have a persistent label**. A placeholder should never act as a label.
+- `[scope: design-system]` Every form input element **must have a persistent label**. A placeholder should never act as a label.
 - `[scope: design-system]` A placeholder should communicate how the expected input of the element should be formed, not what it should be.
-- `[scope: design-system]` A form input should never have no label but a placeholder.
+- `[scope: design-system]` A form input with placeholder must also have a label.
 - `[scope: design-system]` Use helptext only where it supplies meaningful, additional information that neither the label nor a placeholder convey. A helptext should never just mirror or repeat the label or the placeholder.
 
 ## Displaying multiple distinct datasets
@@ -50,7 +46,8 @@ Each rule carries a `[scope: …]` tag marking where its guidance is expected to
 
 ## Messages and Notifications
 
-- `[scope: design-system]` `Message` = use for static, anchored, persistent feedback near related content; `Toast` = use for floating notifications via `NotificationManager` mounted once at app root (`toast()`, never `Toast` directly). Auto-dismiss only low-stakes `info`/`success` feedback; never auto-dismiss `error`/`warning` messages or toasts. Keep progress toasts visible until their operation finishes and dismiss them explicitly. Use an anchored `Message` for errors requiring user action. Never combine a toast and an in-page confirmation Message for the same action.
+- `[scope: design-system]` `Message` = use for static, anchored, persistent feedback near related content; Use an anchored `Message` for errors requiring user action.
+- `[scope: design-system]` `Toast` = use for floating notifications via `NotificationManager` mounted once at app root (`toast()`, never `Toast` directly). Auto-dismiss only low-stakes `info`/`success` feedback; never auto-dismiss `error`/`warning` messages or toasts. Keep progress toasts visible until their operation finishes and dismiss them explicitly. Never combine a toast and an in-page confirmation Message for the same action.
 
 ## UX Writing
 
