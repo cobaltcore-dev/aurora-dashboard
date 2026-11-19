@@ -2646,9 +2646,6 @@ msgstr "Last modified"
 msgid "Last Modified"
 msgstr "Last Modified"
 
-msgid "Last modified (UTC)"
-msgstr "Last modified (UTC)"
-
 msgid "Last update: {lastUpdated}"
 msgstr "Last update: {lastUpdated}"
 
@@ -3263,6 +3260,9 @@ msgstr "None"
 
 msgid "Note: for <0>static and dynamic large objects</0> only the manifests are deleted — their segments outside this folder prefix are not affected."
 msgstr "Note: for <0>static and dynamic large objects</0> only the manifests are deleted — their segments outside this folder prefix are not affected."
+
+msgid "Object"
+msgstr "Object"
 
 msgid "Object \"{displayName}\" was permanently deleted."
 msgstr "Object \"{displayName}\" was permanently deleted."

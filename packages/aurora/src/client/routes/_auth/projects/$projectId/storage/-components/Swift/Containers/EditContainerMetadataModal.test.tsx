@@ -179,7 +179,7 @@ describe("EditContainerMetadataModal", () => {
 
   test("renders modal with container name when open", () => {
     renderModal()
-    expect(screen.getByDisplayValue("my-container")).toBeInTheDocument()
+    expect(screen.getByText("my-container")).toBeInTheDocument()
   })
 
   // ── Loading & error states ──────────────────────────────────────────────────
