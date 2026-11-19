@@ -431,7 +431,7 @@ export const ObjectsTableView = ({
                               data-testid={`download-action-${row.name}`}
                             />
                             <PopupMenuItem
-                              label={t`Edit Object Metadata`}
+                              label={t`Edit/Preview Metadata`}
                               disabled={isStreaming}
                               onClick={() => setEditMetadataTarget(row as ObjectRow)}
                               data-testid={`edit-metadata-action-${row.name}`}

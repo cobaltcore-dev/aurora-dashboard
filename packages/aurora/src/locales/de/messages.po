@@ -1644,6 +1644,15 @@ msgstr ""
 msgid "Edit Security Group"
 msgstr "Security Group bearbeiten"
 
+msgid "Edit/Preview Container Metadata"
+msgstr ""
+
+msgid "Edit/Preview Metadata"
+msgstr ""
+
+msgid "Edit/Preview Object Metadata"
+msgstr ""
+
 msgid "Edit/View Bucket Policy"
 msgstr ""
 
@@ -3554,15 +3563,6 @@ msgstr "{rowDisplayName} vorschauen"
 
 msgid "Preview and download aren't available for older versions yet"
 msgstr "Vorschau und Download sind für ältere Versionen noch nicht verfügbar"
-
-msgid "Preview and Edit metadata"
-msgstr "Vorschau und Metadaten bearbeiten"
-
-msgid "Preview/Edit Container Metadata"
-msgstr ""
-
-msgid "Preview/Edit Object Metadata"
-msgstr ""
 
 msgid "Private"
 msgstr "Privat"

@@ -430,7 +430,7 @@ export const EditContainerMetadataModal = ({
 
   return (
     <Modal
-      title={t`Preview/Edit Container Metadata`}
+      title={t`Edit/Preview Container Metadata`}
       open={isOpen}
       onCancel={handleClose}
       confirmButtonLabel={t`Save`}

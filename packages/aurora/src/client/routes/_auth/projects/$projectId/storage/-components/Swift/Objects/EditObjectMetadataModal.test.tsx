@@ -176,17 +176,17 @@ describe("EditObjectMetadataModal", () => {
 
   test("renders nothing when closed or object is null", () => {
     renderModal({ isOpen: false })
-    expect(screen.queryByText(/Edit Object Metadata/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/Edit\/Preview Object Metadata/i)).not.toBeInTheDocument()
 
     renderModal({ isOpen: true, object: null })
-    expect(screen.queryByText(/Edit Object Metadata/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/Edit\/Preview Object Metadata/i)).not.toBeInTheDocument()
   })
 
   test("renders modal with object name when open", async () => {
     mockObjectMetadata = makeObjectMetadata()
     renderModal()
     await flushEffects()
-    expect(screen.getByText(/Edit Object Metadata/i)).toBeInTheDocument()
+    expect(screen.getByText(/Edit\/Preview Object Metadata/i)).toBeInTheDocument()
     expect(screen.getByText("sample.txt")).toBeInTheDocument()
   })
 

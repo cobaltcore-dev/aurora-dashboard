@@ -250,7 +250,7 @@ describe("ContainerHeader", () => {
       expect(screen.queryByTestId("delete-container-modal")).not.toBeInTheDocument()
     })
 
-    test("clicking 'Preview and Edit metadata' opens EditContainerMetadataModal with real count/bytes", async () => {
+    test("clicking 'Edit/Preview Metadata' opens EditContainerMetadataModal with real count/bytes", async () => {
       const user = userEvent.setup()
       renderHeader()
       await openMenu(user)

@@ -346,7 +346,7 @@ export const EditObjectMetadataModal = ({
 
   return (
     <Modal
-      title={t`Preview/Edit Object Metadata`}
+      title={t`Edit/Preview Object Metadata`}
       open={isOpen}
       onCancel={handleClose}
       confirmButtonLabel={isPending ? t`Saving...` : t`Update object`}
