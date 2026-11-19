@@ -9,6 +9,7 @@ import {
   PopupMenu,
   PopupMenuItem,
   PopupMenuOptions,
+  ProgressBar,
   Spinner,
   toast,
   Tooltip,
@@ -69,14 +70,7 @@ function RowTransferProgress({ downloadId, isPreviewing }: { downloadId: string;
           <Trans>Downloading...</Trans>
         )}
       </span>
-      {percent != null && (
-        <div className="bg-theme-background-lvl-2 h-1 w-full overflow-hidden rounded-full">
-          <div
-            className="bg-theme-accent h-1 rounded-full transition-all duration-150"
-            style={{ width: `${percent}%` }}
-          />
-        </div>
-      )}
+      {percent != null && <ProgressBar value={percent} aria-label="Download progress" />}
     </span>
   )
 }

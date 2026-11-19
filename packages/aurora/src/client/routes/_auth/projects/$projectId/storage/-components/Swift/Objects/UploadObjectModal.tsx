@@ -1,6 +1,6 @@
 import { useState, useRef } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { Modal, Stack, Spinner } from "@cloudoperators/juno-ui-components"
+import { Modal, ProgressBar, Stack, Spinner } from "@cloudoperators/juno-ui-components"
 import { MdCloudUpload } from "react-icons/md"
 import { trpcClient, trpcReact } from "@/client/trpcClient"
 import { cn } from "@/client/utils/cn"
@@ -289,14 +289,7 @@ export const UploadObjectModal = ({
               <Spinner size="small" />
               {progressPct !== null ? <Trans>Uploading... {progressPct}%</Trans> : <Trans>Uploading...</Trans>}
             </span>
-            {progressPct !== null && (
-              <div className="bg-theme-background-lvl-2 h-1.5 w-full overflow-hidden rounded-full">
-                <div
-                  className="bg-theme-accent h-1.5 rounded-full transition-all duration-150"
-                  style={{ width: `${progressPct}%` }}
-                />
-              </div>
-            )}
+            {progressPct !== null && <ProgressBar value={progressPct} aria-label="Upload progress" />}
           </div>
         )}
       </Stack>
