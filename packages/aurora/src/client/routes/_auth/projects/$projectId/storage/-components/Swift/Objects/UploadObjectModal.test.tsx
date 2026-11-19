@@ -103,12 +103,12 @@ describe("UploadObjectModal", () => {
   describe("Visibility", () => {
     test("does not render when isOpen is false", () => {
       renderModal({ isOpen: false })
-      expect(screen.queryByText(/Upload object to:/i)).not.toBeInTheDocument()
+      expect(screen.queryByText(/Upload Object/i)).not.toBeInTheDocument()
     })
 
     test("renders when isOpen is true", () => {
       renderModal()
-      expect(screen.getByText(/Upload object to:/i)).toBeInTheDocument()
+      expect(screen.getByText(/Upload Object/i)).toBeInTheDocument()
     })
 
     test("shows root prefix '/' in title when currentPrefix is empty", () => {

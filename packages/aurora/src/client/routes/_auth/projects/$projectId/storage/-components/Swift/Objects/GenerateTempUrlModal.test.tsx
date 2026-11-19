@@ -156,11 +156,10 @@ describe("GenerateTempUrlModal", () => {
       expect(screen.getByRole("dialog")).toBeInTheDocument()
     })
 
-    test("shows object displayName in modal title", () => {
+    test("shows object displayName in modal body", () => {
       renderModal()
-      expect(screen.getByTitle("report.pdf")).toBeInTheDocument()
-      // Title prefix is "Share URL:" per finding 1
-      expect(screen.getByText(/Share URL:/i)).toBeInTheDocument()
+      expect(screen.getByText("report.pdf")).toBeInTheDocument()
+      expect(screen.getByText(/Generate Temporary URL/i)).toBeInTheDocument()
     })
   })
 
@@ -184,7 +183,7 @@ describe("GenerateTempUrlModal", () => {
 
     test("does not show generated URL field before generation", () => {
       renderModal()
-      expect(screen.queryByLabelText(/Temporary URL/i)).not.toBeInTheDocument()
+      expect(screen.queryByLabelText("Temporary URL")).not.toBeInTheDocument()
     })
 
     test("shows info message about temporary URLs", () => {

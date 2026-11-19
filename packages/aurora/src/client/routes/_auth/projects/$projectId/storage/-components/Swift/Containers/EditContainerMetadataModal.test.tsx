@@ -171,15 +171,15 @@ describe("EditContainerMetadataModal", () => {
 
   test("renders nothing when closed or container is null", () => {
     renderModal({ isOpen: false })
-    expect(screen.queryByText(/Container:/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/Preview\/Edit Container Metadata/i)).not.toBeInTheDocument()
 
     renderModal({ isOpen: true, container: null })
-    expect(screen.queryByText(/Container:/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/Preview\/Edit Container Metadata/i)).not.toBeInTheDocument()
   })
 
   test("renders modal with container name when open", () => {
     renderModal()
-    expect(screen.getByText("my-container")).toBeInTheDocument()
+    expect(screen.getByDisplayValue("my-container")).toBeInTheDocument()
   })
 
   // ── Loading & error states ──────────────────────────────────────────────────

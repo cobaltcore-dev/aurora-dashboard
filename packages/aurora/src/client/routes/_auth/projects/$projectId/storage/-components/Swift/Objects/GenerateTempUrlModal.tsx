@@ -260,16 +260,7 @@ export const GenerateTempUrlModal = ({
 
   return (
     <Modal
-      title={
-        <span className="flex max-w-100 items-center gap-1">
-          <span className="shrink-0">
-            <Trans>Share URL:</Trans>
-          </span>
-          <span className="truncate" title={displayName}>
-            {displayName}
-          </span>
-        </span>
-      }
+      title={t`Generate Temporary URL`}
       open={isOpen}
       onCancel={onClose}
       confirmButtonLabel={isPending ? t`Generating...` : t`Generate URL`}
@@ -279,6 +270,9 @@ export const GenerateTempUrlModal = ({
       disableConfirmButton={isPending || noKeyError || (isCustom && (!customMinutes.trim() || !!customMinutesError))}
     >
       <Stack direction="vertical" gap="4">
+        <p className="text-theme-default">
+          <Trans>Object:</Trans> <span className="font-semibold">{displayName}</span>
+        </p>
         <p className="text-theme-default">
           <Trans>
             A temporary URL grants time-limited read access to this object without requiring authentication. Anyone with

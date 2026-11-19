@@ -295,16 +295,7 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
 
   return (
     <Modal
-      title={
-        <span className="flex max-w-125 items-center gap-1">
-          <span className="shrink-0">
-            <Trans>Copy Object:</Trans>
-          </span>
-          <span className="truncate" title={displayName}>
-            {displayName}
-          </span>
-        </span>
-      }
+      title={t`Copy Object`}
       open={isOpen}
       onCancel={handleClose}
       confirmButtonLabel={isPending ? t`Copying...` : t`Copy Object`}
@@ -319,6 +310,11 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
         <Status status="progress" title={t`Copying Object...`} className="mt-0" />
       ) : (
         <Stack direction="vertical" gap="4">
+          <p className="text-theme-default">
+            <Trans>
+              Copying <span className="font-semibold">{displayName}</span> to a new location.
+            </Trans>
+          </p>
           {copyMutation.isError &&
             (() => {
               const errorMessage = copyMutation.error.message

@@ -427,16 +427,7 @@ export const EditContainerMetadataModal = ({
 
   return (
     <Modal
-      title={
-        <span className="flex max-w-125 items-center gap-2">
-          <span className="shrink-0">
-            <Trans>Container:</Trans>
-          </span>
-          <span className="truncate" title={container.name}>
-            {container.name}
-          </span>
-        </span>
-      }
+      title={t`Preview/Edit Container Metadata`}
       open={isOpen}
       onCancel={handleClose}
       confirmButtonLabel={t`Save`}
@@ -466,6 +457,7 @@ export const EditContainerMetadataModal = ({
         <div className="max-h-[65vh] overflow-y-auto pr-1 pl-1">
           <Stack direction="vertical" gap="6">
             {/* ── Read-only stats ─────────────────────────────────────────── */}
+            <TextInput label={t`Container`} value={container.name} disabled readOnly />
             <div className="grid grid-cols-2 gap-4">
               <TextInput label={t`Object count`} value={String(container.count)} disabled readOnly />
               <TextInput

@@ -112,16 +112,7 @@ export const CreateFolderModal = ({
 
   return (
     <Modal
-      title={
-        <span className="flex max-w-100 items-center gap-1">
-          <span className="shrink-0">
-            <Trans>Create folder below:</Trans>
-          </span>
-          <span className="truncate" title={parentPath}>
-            {parentPath}
-          </span>
-        </span>
-      }
+      title={t`Create Folder`}
       open={isOpen}
       onCancel={handleClose}
       confirmButtonLabel={t`Create Folder`}
@@ -145,6 +136,9 @@ export const CreateFolderModal = ({
             {submitError}
           </Message>
         )}
+        <p className="text-theme-default">
+          <Trans>Location:</Trans> <span className="font-semibold">{parentPath}</span>
+        </p>
         <p className="text-theme-default">
           <Trans>
             Folders in object storage are virtual — they are created as zero-byte placeholder objects with a trailing

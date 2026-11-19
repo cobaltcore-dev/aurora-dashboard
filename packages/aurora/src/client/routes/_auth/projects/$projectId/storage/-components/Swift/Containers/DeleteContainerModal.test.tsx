@@ -191,7 +191,7 @@ describe("DeleteContainerModal", () => {
   describe("Case 1: container is empty — allow deletion", () => {
     test("renders warning message about permanent deletion", () => {
       renderModal()
-      expect(screen.getByText(/The container will be deleted. This action is permanent/i)).toBeInTheDocument()
+      expect(screen.getByText(/will be deleted. This action is permanent/i)).toBeInTheDocument()
     })
 
     test("renders confirmation text input", () => {
@@ -237,7 +237,7 @@ describe("DeleteContainerModal", () => {
 
     test("renders plain text message about non-empty container", () => {
       renderModal({ container: makeContainer({ count: 1 }) })
-      expect(screen.getByText(/The container cannot be deleted as it contains objects/i)).toBeInTheDocument()
+      expect(screen.getByText(/cannot be deleted as it contains objects/i)).toBeInTheDocument()
     })
 
     test("renders Close button instead of Delete", () => {
@@ -272,7 +272,7 @@ describe("DeleteContainerModal", () => {
     test("still blocks deletion when container.count > 0", () => {
       listObjectsData = []
       renderModal({ container: makeContainer({ count: 5 }) })
-      expect(screen.getByText(/The container cannot be deleted as it contains objects/i)).toBeInTheDocument()
+      expect(screen.getByText(/cannot be deleted as it contains objects/i)).toBeInTheDocument()
     })
 
     test("renders Close button when count > 0 even if listed === 0", () => {
@@ -537,7 +537,7 @@ describe("DeleteContainerModal", () => {
     test("still renders modal content below error banners", () => {
       listObjectsError = { message: "Not found" }
       renderModal()
-      expect(screen.getByText(/The container will be deleted. This action is permanent/i)).toBeInTheDocument()
+      expect(screen.getByText(/will be deleted. This action is permanent/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/Type "delete" to confirm/i)).toBeInTheDocument()
     })
 

@@ -360,9 +360,6 @@ msgstr "Accepted Images"
 msgid "Access Added"
 msgstr "Access Added"
 
-msgid "Access Control for Container:"
-msgstr "Access Control for Container:"
-
 msgid "Access Control Updated"
 msgstr "Access Control Updated"
 
@@ -539,6 +536,9 @@ msgstr "All containers"
 
 msgid "All Images"
 msgstr "All Images"
+
+msgid "All objects in <0>{containerName}</0> will be permanently deleted and this cannot be undone."
+msgstr "All objects in <0>{containerName}</0> will be permanently deleted and this cannot be undone."
 
 msgid "All objects in the selected containers will be permanently deleted. This cannot be undone."
 msgstr "All objects in the selected containers will be permanently deleted. This cannot be undone."
@@ -717,6 +717,12 @@ msgstr "Bit Length"
 msgid "Bit length must be a positive integer"
 msgstr "Bit length must be a positive integer"
 
+msgid "Block Storage"
+msgstr "Block Storage"
+
+msgid "Block storage resources"
+msgstr "Block storage resources"
+
 msgid "Boot RAM"
 msgstr "Boot RAM"
 
@@ -849,8 +855,8 @@ msgstr "certificate — Used for storing cryptographic certificates such as X.50
 msgid "Certificate is required for certificate containers"
 msgstr "Certificate is required for certificate containers"
 
-msgid "Change the name, destination container, or folder to move this object."
-msgstr "Change the name, destination container, or folder to move this object."
+msgid "Change the name, destination container, or folder for"
+msgstr "Change the name, destination container, or folder for"
 
 msgid "Changes take effect immediately after saving."
 msgstr "Changes take effect immediately after saving."
@@ -909,6 +915,9 @@ msgstr "Connection Details"
 msgid "Connection Details Unavailable"
 msgstr "Connection Details Unavailable"
 
+msgid "Container"
+msgstr "Container"
+
 msgid "Container \"{containerName}\" properties were successfully updated."
 msgstr "Container \"{containerName}\" properties were successfully updated."
 
@@ -935,6 +944,12 @@ msgstr "Container \"{name}\" was successfully created."
 
 msgid "Container \"{name}\" was successfully deleted."
 msgstr "Container \"{name}\" was successfully deleted."
+
+msgid "Container <0>{containerName}</0> cannot be deleted as it contains objects. Empty the container first."
+msgstr "Container <0>{containerName}</0> cannot be deleted as it contains objects. Empty the container first."
+
+msgid "Container <0>{containerName}</0> will be deleted. This action is permanent and cannot be undone."
+msgstr "Container <0>{containerName}</0> will be deleted. This action is permanent and cannot be undone."
 
 msgid "Container actions"
 msgstr "Container actions"
@@ -990,8 +1005,8 @@ msgstr "Container syncing"
 msgid "Container Updated"
 msgstr "Container Updated"
 
-msgid "Container:"
-msgstr "Container:"
+msgid "Container: <0>{containerName}</0>"
+msgstr "Container: <0>{containerName}</0>"
 
 msgid "Containers"
 msgstr "Containers"
@@ -1029,11 +1044,11 @@ msgstr "Copy Object"
 msgid "Copy object:"
 msgstr "Copy object:"
 
-msgid "Copy Object:"
-msgstr "Copy Object:"
-
 msgid "Copy URL"
 msgstr "Copy URL"
+
+msgid "Copying <0>{displayName}</0> to a new location."
+msgstr "Copying <0>{displayName}</0> to a new location."
 
 msgid "Copying Object..."
 msgstr "Copying Object..."
@@ -1212,9 +1227,6 @@ msgstr "Create Flavor"
 msgid "Create Folder"
 msgstr "Create Folder"
 
-msgid "Create folder below:"
-msgstr "Create folder below:"
-
 msgid "Create Image"
 msgstr "Create Image"
 
@@ -1344,9 +1356,6 @@ msgstr "Delete Bucket Policy"
 msgid "Delete Container"
 msgstr "Delete Container"
 
-msgid "Delete container:"
-msgstr "Delete container:"
-
 msgid "Delete CORS Rule"
 msgstr "Delete CORS Rule"
 
@@ -1364,9 +1373,6 @@ msgstr "Delete Folder"
 
 msgid "Delete Folder \"{displayName}\""
 msgstr "Delete Folder \"{displayName}\""
-
-msgid "Delete folder:"
-msgstr "Delete folder:"
 
 msgid "Delete Group"
 msgstr "Delete Group"
@@ -1391,9 +1397,6 @@ msgstr "Delete Marker"
 
 msgid "Delete Object"
 msgstr "Delete Object"
-
-msgid "Delete object:"
-msgstr "Delete object:"
 
 msgid "Delete Objects"
 msgstr "Delete Objects"
@@ -1466,6 +1469,9 @@ msgstr "Description must be at most 255 characters."
 
 msgid "Description must be less than 65535 characters."
 msgstr "Description must be less than 65535 characters."
+
+msgid "Destination:"
+msgstr "Destination:"
 
 msgid "Detach"
 msgstr "Detach"
@@ -1664,9 +1670,6 @@ msgstr "Empty Container"
 
 msgid "Empty the bucket"
 msgstr "Empty the bucket"
-
-msgid "Empty:"
-msgstr "Empty:"
 
 msgid "Emptying Bucket {progressCurrent} of {progressTotal}, Please Wait..."
 msgstr "Emptying Bucket {progressCurrent} of {progressTotal}, Please Wait..."
@@ -2118,6 +2121,9 @@ msgstr "Failed to Load Subnets"
 msgid "Failed to Load Versions"
 msgstr "Failed to Load Versions"
 
+msgid "Failed to Load Volumes"
+msgstr "Failed to Load Volumes"
+
 msgid "Failed to Move Object"
 msgstr "Failed to Move Object"
 
@@ -2378,6 +2384,9 @@ msgstr "General Information"
 
 msgid "General Instance Data"
 msgstr "General Instance Data"
+
+msgid "Generate Temporary URL"
+msgstr "Generate Temporary URL"
 
 msgid "Generate URL"
 msgstr "Generate URL"
@@ -2817,11 +2826,17 @@ msgstr "Loading Subnets..."
 msgid "Loading Versions..."
 msgstr "Loading Versions..."
 
+msgid "Loading Volumes..."
+msgstr "Loading Volumes..."
+
 msgid "Loading..."
 msgstr "Loading..."
 
 msgid "Loading…"
 msgstr "Loading…"
+
+msgid "Location:"
+msgstr "Location:"
 
 msgid "MAC"
 msgstr "MAC"
@@ -2834,6 +2849,9 @@ msgstr "Manage Access"
 
 msgid "Manage Access - {flavorName}"
 msgstr "Manage Access - {flavorName}"
+
+msgid "Manage Access Control"
+msgstr "Manage Access Control"
 
 msgid "Manage Access for Image - {imageName}"
 msgstr "Manage Access for Image - {imageName}"
@@ -2948,9 +2966,6 @@ msgstr "Move/Rename Object"
 
 msgid "Move/Rename object:"
 msgstr "Move/Rename object:"
-
-msgid "Move/Rename Object:"
-msgstr "Move/Rename Object:"
 
 msgid "Moving Object..."
 msgstr "Moving Object..."
@@ -3543,6 +3558,12 @@ msgstr "Preview and download aren't available for older versions yet"
 msgid "Preview and Edit metadata"
 msgstr "Preview and Edit metadata"
 
+msgid "Preview/Edit Container Metadata"
+msgstr "Preview/Edit Container Metadata"
+
+msgid "Preview/Edit Object Metadata"
+msgstr "Preview/Edit Object Metadata"
+
 msgid "Private"
 msgstr "Private"
 
@@ -4110,6 +4131,9 @@ msgstr "Services"
 msgid "Session Changed"
 msgstr "Session Changed"
 
+msgid "Session Expired"
+msgstr "Session Expired"
+
 msgid "Session expires in"
 msgstr "Session expires in"
 
@@ -4202,6 +4226,12 @@ msgstr "Size: {policySize} / {MAX_POLICY_SIZE} bytes"
 
 msgid "Snapshot"
 msgstr "Snapshot"
+
+msgid "Snapshots"
+msgstr "Snapshots"
+
+msgid "Snapshots View Coming Soon"
+msgstr "Snapshots View Coming Soon"
 
 msgid "SNAT"
 msgstr "SNAT"
@@ -4371,6 +4401,12 @@ msgstr "Temporary URLs"
 msgid "The application configuration could not be loaded. Some services and features may be unavailable."
 msgstr "The application configuration could not be loaded. Some services and features may be unavailable."
 
+msgid "The block storage scope is available. The snapshots list will be added in a follow-up release."
+msgstr "The block storage scope is available. The snapshots list will be added in a follow-up release."
+
+msgid "The block storage scope is available. The volumes list will be added in a follow-up release."
+msgstr "The block storage scope is available. The volumes list will be added in a follow-up release."
+
 msgid "The bucket could not be created. Try again or choose a different name."
 msgstr "The bucket could not be created. Try again or choose a different name."
 
@@ -4380,9 +4416,6 @@ msgstr "The compute service is currently unavailable for this project. Please tr
 msgid "The container \"{containerName}\" will be permanently deleted. This action cannot be undone."
 msgstr "The container \"{containerName}\" will be permanently deleted. This action cannot be undone."
 
-msgid "The container cannot be deleted as it contains objects. Empty the container first."
-msgstr "The container cannot be deleted as it contains objects. Empty the container first."
-
 msgid "The container could not be created. Try again or choose a different name."
 msgstr "The container could not be created. Try again or choose a different name."
 
@@ -4391,9 +4424,6 @@ msgstr "The container metadata reports objects but none were listed. This may be
 
 msgid "The container was successfully created."
 msgstr "The container was successfully created."
-
-msgid "The container will be deleted. This action is permanent and cannot be undone."
-msgstr "The container will be deleted. This action is permanent and cannot be undone."
 
 msgid "The container's settings could not be applied."
 msgstr "The container's settings could not be applied."
@@ -4659,9 +4689,6 @@ msgstr "This action cannot be undone. The target project will lose access to thi
 msgid "This action is irreversible. Deleting a bucket permanently removes it and cannot be undone. The bucket must be empty before deletion."
 msgstr "This action is irreversible. Deleting a bucket permanently removes it and cannot be undone. The bucket must be empty before deletion."
 
-msgid "This action is permanent. All objects in the container will be deleted and this cannot be undone."
-msgstr "This action is permanent. All objects in the container will be deleted and this cannot be undone."
-
 msgid "This action is permanent. The address will be removed from your project and returned to the public pool. This action cannot be undone."
 msgstr "This action is permanent. The address will be removed from your project and returned to the public pool. This action cannot be undone."
 
@@ -4859,6 +4886,9 @@ msgstr "Try adjusting your filter criteria or check the Suggested Images tab."
 
 msgid "Try adjusting your filter criteria or create a new image."
 msgstr "Try adjusting your filter criteria or create a new image."
+
+msgid "Try again"
+msgstr "Try again"
 
 msgid "Try Again"
 msgstr "Try Again"
@@ -5106,6 +5136,12 @@ msgstr "Visibility"
 msgid "VM State"
 msgstr "VM State"
 
+msgid "Volumes"
+msgstr "Volumes"
+
+msgid "Volumes View Coming Soon"
+msgstr "Volumes View Coming Soon"
+
 msgid "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
 msgstr "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
 
@@ -5241,6 +5277,9 @@ msgstr "You don't have permission to remove tenant access from this flavor."
 msgid "You don't have permission to share this security group."
 msgstr "You don't have permission to share this security group."
 
+msgid "You don't have permission to view block storage in this project."
+msgstr "You don't have permission to view block storage in this project."
+
 msgid "You don't have permission to view extra specs for this flavor."
 msgstr "You don't have permission to view extra specs for this flavor."
 
@@ -5250,8 +5289,14 @@ msgstr "You don't have permission to view images in this project. Contact your a
 msgid "You don't have permission to view instances in this project. Contact your administrator to grant you the necessary permissions."
 msgstr "You don't have permission to view instances in this project. Contact your administrator to grant you the necessary permissions."
 
+msgid "You don't have permission to view snapshots in this project."
+msgstr "You don't have permission to view snapshots in this project."
+
 msgid "You don't have permission to view this flavor's details."
 msgstr "You don't have permission to view this flavor's details."
+
+msgid "You don't have permission to view volumes in this project."
+msgstr "You don't have permission to view volumes in this project."
 
 msgid "Your action is required"
 msgstr "Your action is required"

@@ -354,16 +354,7 @@ export const EditObjectMetadataModal = ({
 
   return (
     <Modal
-      title={
-        <span className="flex max-w-100 items-center gap-1">
-          <Trans>
-            <span className="shrink-0">Edit metadata:</span>{" "}
-            <span className="truncate" title={displayName}>
-              {displayName}
-            </span>
-          </Trans>
-        </span>
-      }
+      title={t`Preview/Edit Object Metadata`}
       open={isOpen}
       onCancel={handleClose}
       confirmButtonLabel={isPending ? t`Saving...` : t`Update object`}
@@ -384,6 +375,10 @@ export const EditObjectMetadataModal = ({
               <Trans>Failed to update object: {mutationErrorMessage}</Trans>
             </p>
           )}
+
+          <p className="text-theme-default">
+            <Trans>Object:</Trans> <span className="font-semibold">{displayName}</span>
+          </p>
 
           {/* ── Large object notices ──────────────────────────────────────── */}
           {isSLO && (

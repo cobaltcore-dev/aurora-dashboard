@@ -180,16 +180,7 @@ export const UploadObjectModal = ({
 
   return (
     <Modal
-      title={
-        <span className="flex max-w-100 items-center gap-1">
-          <span className="shrink-0">
-            <Trans>Upload object to:</Trans>
-          </span>
-          <span className="truncate" title={parentPath}>
-            {parentPath}
-          </span>
-        </span>
-      }
+      title={t`Upload Object`}
       open={isOpen}
       onCancel={isPending ? handleCancelUpload : handleClose}
       confirmButtonLabel={isPending ? t`Uploading...` : t`Upload`}
@@ -206,6 +197,10 @@ export const UploadObjectModal = ({
             <Trans>Upload failed: {uploadError}</Trans>
           </p>
         )}
+
+        <p className="text-theme-default">
+          <Trans>Destination:</Trans> <span className="font-semibold">{parentPath}</span>
+        </p>
 
         {/* Object path preview */}
         {selectedFile && !isPending && (
