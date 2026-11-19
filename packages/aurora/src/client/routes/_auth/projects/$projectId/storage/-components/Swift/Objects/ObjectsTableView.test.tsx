@@ -368,7 +368,7 @@ describe("ObjectsTableView", () => {
     test("renders — for last modified on folder rows", () => {
       renderView({ rows: [makeFolder("docs")] })
       const row = screen.getByTestId("object-row-docs/")
-      expect(row).toHaveTextContent("—")
+      expect(row).toHaveTextContent("- -")
     })
 
     test("renders — for size on folder rows", () => {
@@ -385,7 +385,7 @@ describe("ObjectsTableView", () => {
     test("renders — for missing last_modified on objects", () => {
       renderView({ rows: [makeObject("file.txt", { last_modified: undefined })] })
       const row = screen.getByTestId("object-row-file.txt")
-      expect(row).toHaveTextContent("—")
+      expect(row).toHaveTextContent("- -")
     })
   })
 

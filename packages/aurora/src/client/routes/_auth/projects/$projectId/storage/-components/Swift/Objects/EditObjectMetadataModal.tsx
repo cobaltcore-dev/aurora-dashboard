@@ -85,7 +85,7 @@ const formatDate = (iso: string): string =>
     hour: "2-digit",
     minute: "2-digit",
     timeZone: "UTC",
-  }) ?? "—"
+  }) ?? "- -"
 
 // Converts a Unix timestamp (seconds) to the "YYYY-MM-DD HH:mm:ss" field format (UTC)
 const formatUnixToTimestamp = (unix: number): string => {
@@ -407,17 +407,17 @@ export const EditObjectMetadataModal = ({
               <span className="text-theme-light text-right">
                 <Trans>Content type</Trans>
               </span>
-              <span>{metadataRaw?.contentType ?? "—"}</span>
+              <span>{metadataRaw?.contentType ?? "- -"}</span>
 
               <span className="text-theme-light text-right">
                 <Trans>MD5 checksum</Trans>
               </span>
-              <span className="break-all">{metadataRaw?.etag ?? "—"}</span>
+              <span className="break-all">{metadataRaw?.etag ?? "- -"}</span>
 
               <span className="text-theme-light text-right">
                 <Trans>Size</Trans>
               </span>
-              <span>{metadataRaw?.contentLength != null ? formatBytesBinary(metadataRaw.contentLength) : "—"}</span>
+              <span>{metadataRaw?.contentLength != null ? formatBytesBinary(metadataRaw.contentLength) : "- -"}</span>
 
               <span className="text-theme-light text-right">
                 <Trans>Last modified (UTC)</Trans>
@@ -427,7 +427,7 @@ export const EditObjectMetadataModal = ({
                   ? formatDate(metadataRaw.lastModified)
                   : object.last_modified
                     ? formatDate(object.last_modified)
-                    : "—"}
+                    : "- -"}
               </span>
             </div>
           </div>

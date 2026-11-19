@@ -407,14 +407,14 @@ export const ObjectsTableView = ({
                         </button>
                       </div>
                     ) : !isFolder && row.last_modified ? (
-                      (formatSwiftDate(row.last_modified) ?? "—")
+                      (formatSwiftDate(row.last_modified) ?? "- -")
                     ) : (
-                      "—"
+                      "- -"
                     )}
                   </DataGridCell>
 
                   {/* Size */}
-                  <DataGridCell>{!isFolder ? formatBytesBinary(row.bytes) : "—"}</DataGridCell>
+                  <DataGridCell>{!isFolder ? formatBytesBinary(row.bytes) : "- -"}</DataGridCell>
 
                   {/* Actions */}
                   <DataGridCell onClick={(e) => e.stopPropagation()}>
