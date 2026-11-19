@@ -318,7 +318,7 @@ export const ManageContainerAccessModal = ({
 
   return (
     <Modal
-      title={t`Manage Access Control`}
+      title={t`Manage Container Access`}
       open={isOpen}
       onCancel={handleClose}
       confirmButtonLabel={t`Save`}
@@ -340,15 +340,15 @@ export const ManageContainerAccessModal = ({
         <div className="mb-4">
           <p className="text-theme-default mb-4">
             <Trans>
-              Container: <span className="font-semibold">{containerName}</span>
-            </Trans>
-          </p>
-          <Message variant="warning" className="mb-4">
-            <Trans>
               Ensure that the Project ID and User ID you enter are correct. The system cannot validate these values —
               incorrect IDs may apply access to wrong projects and users.
             </Trans>
-          </Message>
+          </p>
+          <p className="text-theme-default mb-4">
+            <Trans>
+              Container: <span className="font-semibold">{containerName}</span>
+            </Trans>
+          </p>
         </div>
 
         {isLoading ? (

@@ -2850,11 +2850,11 @@ msgstr "Zugriff verwalten"
 msgid "Manage Access - {flavorName}"
 msgstr "Zugriff verwalten - {flavorName}"
 
-msgid "Manage Access Control"
-msgstr ""
-
 msgid "Manage Access for Image - {imageName}"
 msgstr "Zugriff für Image verwalten - {imageName}"
+
+msgid "Manage Container Access"
+msgstr ""
 
 msgid "Manage Credentials"
 msgstr ""

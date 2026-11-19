@@ -145,12 +145,12 @@ describe("ManageContainerAccessModal", () => {
   describe("Visibility", () => {
     test("does not render when isOpen is false", () => {
       renderModal({ isOpen: false })
-      expect(screen.queryByText(/Manage Access Control/i)).not.toBeInTheDocument()
+      expect(screen.queryByText(/Manage Container Access/i)).not.toBeInTheDocument()
     })
 
     test("does not render when container is null", () => {
       renderModal({ container: null })
-      expect(screen.queryByText(/Manage Access Control/i)).not.toBeInTheDocument()
+      expect(screen.queryByText(/Manage Container Access/i)).not.toBeInTheDocument()
     })
 
     test("renders when isOpen is true and container is set", () => {
