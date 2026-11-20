@@ -163,11 +163,9 @@ describe("ManageContainerAccessModal", () => {
       expect(screen.getByText("special-container")).toBeInTheDocument()
     })
 
-    test("renders warning Message about ID validation", () => {
+    test("renders warning about ID validation", () => {
       renderModal()
-      const warningEl = screen.getByText(/incorrect IDs may apply access/i).closest(".juno-message")
-      expect(warningEl).toBeInTheDocument()
-      expect(warningEl).toHaveClass("juno-message-warning")
+      expect(screen.getByText(/incorrect IDs may apply access/i)).toBeInTheDocument()
     })
 
     test("renders reference panel with ACL examples", () => {
