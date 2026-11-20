@@ -199,7 +199,7 @@ const request = ({ method, path, options = {} }: RequestParams) => {
         if (contentType?.includes("application/json")) {
           const errorObject = await response.json()
           const parsedError = parseErrorObject(errorObject)
-          throw new SignalOpenstackApiError(parsedError || response.statusText, response.status)
+          throw new SignalOpenstackApiError(parsedError || response.statusText, response.status, errorObject)
         } else {
           const errorText = response.text ? await response.text() : ""
 
