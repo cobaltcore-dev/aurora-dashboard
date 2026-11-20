@@ -1215,6 +1215,9 @@ msgstr ""
 msgid "Create Bucket"
 msgstr ""
 
+msgid "Create Cluster"
+msgstr ""
+
 msgid "Create Container"
 msgstr "Container erstellen"
 
@@ -3096,6 +3099,9 @@ msgstr ""
 msgid "No clusters"
 msgstr ""
 
+msgid "No clusters match your current filters or search."
+msgstr ""
+
 msgid "No containers found"
 msgstr "Keine Container gefunden"
 
@@ -3149,6 +3155,9 @@ msgstr ""
 
 msgid "No limit"
 msgstr "Kein Limit"
+
+msgid "No matches"
+msgstr ""
 
 msgid "No Metadata Properties Found"
 msgstr ""

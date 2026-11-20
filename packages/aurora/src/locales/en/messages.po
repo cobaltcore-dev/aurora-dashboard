@@ -1215,6 +1215,9 @@ msgstr "Create an access key to connect an S3 client to this project."
 msgid "Create Bucket"
 msgstr "Create Bucket"
 
+msgid "Create Cluster"
+msgstr "Create Cluster"
+
 msgid "Create Container"
 msgstr "Create Container"
 
@@ -3096,6 +3099,9 @@ msgstr "No buckets found"
 msgid "No clusters"
 msgstr "No clusters"
 
+msgid "No clusters match your current filters or search."
+msgstr "No clusters match your current filters or search."
+
 msgid "No containers found"
 msgstr "No containers found"
 
@@ -3149,6 +3155,9 @@ msgstr "No Lifecycle Rules Matching the Current Search Criteria."
 
 msgid "No limit"
 msgstr "No limit"
+
+msgid "No matches"
+msgstr "No matches"
 
 msgid "No Metadata Properties Found"
 msgstr "No Metadata Properties Found"

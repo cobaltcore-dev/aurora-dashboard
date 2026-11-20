@@ -50,7 +50,7 @@ export function ClusterListRow({ cluster, projectId, landscape }: ClusterListRow
       <DataGridCell>
         <div className="flex flex-col">
           <span>{cluster.name}</span>
-          {cluster.uid && <span className="text-theme-light text-xs">{cluster.uid}</span>}
+          <span className="text-theme-light text-xs">{cluster.uid ?? "- -"}</span>
         </div>
       </DataGridCell>
       <DataGridCell>{cluster.readiness?.status ?? "- -"}</DataGridCell>
@@ -65,13 +65,12 @@ export function ClusterListRow({ cluster, projectId, landscape }: ClusterListRow
           />
           <PopupMenuOptions>
             <PopupMenuItem
+              label={t`Show Details`}
               onClick={(e: React.MouseEvent) => {
                 e.stopPropagation()
                 handleRowClick()
               }}
-            >
-              {t`Show Details`}
-            </PopupMenuItem>
+            />
           </PopupMenuOptions>
         </PopupMenu>
       </DataGridCell>

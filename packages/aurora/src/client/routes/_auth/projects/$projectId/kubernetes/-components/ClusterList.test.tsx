@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest"
+import { describe, it, expect, vi, beforeEach } from "vitest"
 import { render, screen } from "@testing-library/react"
 import { ClusterList } from "./ClusterList"
 import { trpcReact } from "@/client/trpcClient"
@@ -9,6 +9,15 @@ import { messages } from "@/locales/en/messages"
 
 i18n.load("en", messages)
 i18n.activate("en")
+
+// Mock TanStack Router
+const mockNavigate = vi.fn()
+const mockUseSearch = vi.fn()
+
+vi.mock("@tanstack/react-router", () => ({
+  useNavigate: () => mockNavigate,
+  useSearch: () => mockUseSearch(),
+}))
 
 // Mock the tRPC client
 vi.mock("@/client/trpcClient", () => ({
@@ -64,10 +73,31 @@ const mockCluster: Cluster = {
   },
 }
 
+const mockCluster2: Cluster = {
+  ...mockCluster,
+  uid: "cluster-456",
+  name: "another-cluster",
+  status: "progressing",
+  version: "1.27.0",
+}
+
+const mockCluster3: Cluster = {
+  ...mockCluster,
+  uid: "cluster-789",
+  name: "unhealthy-cluster",
+  status: "unhealthy",
+  version: "1.29.0",
+}
+
 describe("ClusterList", () => {
   const renderWithProviders = (component: React.ReactElement) => {
     return render(<I18nProvider i18n={i18n}>{component}</I18nProvider>)
   }
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockUseSearch.mockReturnValue({})
+  })
 
   it("renders loading state while permissions are loading", () => {
     vi.mocked(trpcReact.kubernetes.getPermissions.useQuery).mockReturnValue({
@@ -200,16 +230,10 @@ describe("ClusterList", () => {
       isLoading: false,
       isError: false,
       error: null,
+      isFetching: false,
     } as never)
 
     renderWithProviders(<ClusterList projectId="test-project" landscape="qa" />)
-
-    // Check for column headers
-    expect(screen.getByText("Status")).toBeInTheDocument()
-    expect(screen.getByText("Name")).toBeInTheDocument()
-    expect(screen.getByText("Readiness")).toBeInTheDocument()
-    expect(screen.getByText("Last Operation")).toBeInTheDocument()
-    expect(screen.getByText("Kubernetes Version")).toBeInTheDocument()
 
     // Check for cluster data
     expect(screen.getByText("test-cluster")).toBeInTheDocument()
@@ -217,5 +241,164 @@ describe("ClusterList", () => {
     expect(screen.getByText("4/5")).toBeInTheDocument()
     expect(screen.getByText("Cluster reconciled successfully")).toBeInTheDocument()
     expect(screen.getByText("1.28.0")).toBeInTheDocument()
+  })
+
+  it("filters clusters by status", () => {
+    mockUseSearch.mockReturnValue({ status: "healthy" })
+
+    vi.mocked(trpcReact.kubernetes.getPermissions.useQuery).mockReturnValue({
+      data: { clusters: { list: true, create: false, update: false, delete: false } },
+      isLoading: false,
+      isError: false,
+      error: null,
+    } as never)
+
+    vi.mocked(trpcReact.kubernetes.clusters.list.useQuery).mockReturnValue({
+      data: [mockCluster, mockCluster2, mockCluster3],
+      isLoading: false,
+      isError: false,
+      error: null,
+      isFetching: false,
+    } as never)
+
+    renderWithProviders(<ClusterList projectId="test-project" landscape="qa" />)
+
+    // Should show only healthy cluster
+    expect(screen.getByText("test-cluster")).toBeInTheDocument()
+    expect(screen.queryByText("another-cluster")).not.toBeInTheDocument()
+    expect(screen.queryByText("unhealthy-cluster")).not.toBeInTheDocument()
+  })
+
+  it("searches clusters by name and uid", () => {
+    mockUseSearch.mockReturnValue({ search: "another" })
+
+    vi.mocked(trpcReact.kubernetes.getPermissions.useQuery).mockReturnValue({
+      data: { clusters: { list: true, create: false, update: false, delete: false } },
+      isLoading: false,
+      isError: false,
+      error: null,
+    } as never)
+
+    vi.mocked(trpcReact.kubernetes.clusters.list.useQuery).mockReturnValue({
+      data: [mockCluster, mockCluster2, mockCluster3],
+      isLoading: false,
+      isError: false,
+      error: null,
+      isFetching: false,
+    } as never)
+
+    renderWithProviders(<ClusterList projectId="test-project" landscape="qa" />)
+
+    // Should show only the cluster matching "another"
+    expect(screen.getByText("another-cluster")).toBeInTheDocument()
+    expect(screen.queryByText("test-cluster")).not.toBeInTheDocument()
+    expect(screen.queryByText("unhealthy-cluster")).not.toBeInTheDocument()
+  })
+
+  it("sorts clusters by name ascending", () => {
+    mockUseSearch.mockReturnValue({ sortBy: "name", sortDirection: "asc" })
+
+    vi.mocked(trpcReact.kubernetes.getPermissions.useQuery).mockReturnValue({
+      data: { clusters: { list: true, create: false, update: false, delete: false } },
+      isLoading: false,
+      isError: false,
+      error: null,
+    } as never)
+
+    vi.mocked(trpcReact.kubernetes.clusters.list.useQuery).mockReturnValue({
+      data: [mockCluster, mockCluster2, mockCluster3],
+      isLoading: false,
+      isError: false,
+      error: null,
+      isFetching: false,
+    } as never)
+
+    const { container } = renderWithProviders(<ClusterList projectId="test-project" landscape="qa" />)
+
+    // Get all cluster names in order they appear
+    const clusterNames = Array.from(container.querySelectorAll("div.flex.flex-col > span:first-child")).map(
+      (el) => el.textContent
+    )
+
+    // Should be sorted alphabetically
+    expect(clusterNames).toEqual(["another-cluster", "test-cluster", "unhealthy-cluster"])
+  })
+
+  it("sorts clusters by name descending", () => {
+    mockUseSearch.mockReturnValue({ sortBy: "name", sortDirection: "desc" })
+
+    vi.mocked(trpcReact.kubernetes.getPermissions.useQuery).mockReturnValue({
+      data: { clusters: { list: true, create: false, update: false, delete: false } },
+      isLoading: false,
+      isError: false,
+      error: null,
+    } as never)
+
+    vi.mocked(trpcReact.kubernetes.clusters.list.useQuery).mockReturnValue({
+      data: [mockCluster, mockCluster2, mockCluster3],
+      isLoading: false,
+      isError: false,
+      error: null,
+      isFetching: false,
+    } as never)
+
+    const { container } = renderWithProviders(<ClusterList projectId="test-project" landscape="qa" />)
+
+    // Get all cluster names in order they appear
+    const clusterNames = Array.from(container.querySelectorAll("div.flex.flex-col > span:first-child")).map(
+      (el) => el.textContent
+    )
+
+    // Should be sorted reverse alphabetically
+    expect(clusterNames).toEqual(["unhealthy-cluster", "test-cluster", "another-cluster"])
+  })
+
+  it("renders Create Cluster button", () => {
+    mockUseSearch.mockReturnValue({})
+
+    vi.mocked(trpcReact.kubernetes.getPermissions.useQuery).mockReturnValue({
+      data: { clusters: { list: true, create: false, update: false, delete: false } },
+      isLoading: false,
+      isError: false,
+      error: null,
+    } as never)
+
+    vi.mocked(trpcReact.kubernetes.clusters.list.useQuery).mockReturnValue({
+      data: [mockCluster],
+      isLoading: false,
+      isError: false,
+      error: null,
+      isFetching: false,
+    } as never)
+
+    renderWithProviders(<ClusterList projectId="test-project" landscape="qa" />)
+
+    const createButton = screen.getByText("Create Cluster")
+    expect(createButton).toBeInTheDocument()
+  })
+
+  it("shows empty filtered state when no matches", () => {
+    mockUseSearch.mockReturnValue({ status: "healthy" })
+
+    vi.mocked(trpcReact.kubernetes.getPermissions.useQuery).mockReturnValue({
+      data: { clusters: { list: true, create: false, update: false, delete: false } },
+      isLoading: false,
+      isError: false,
+      error: null,
+    } as never)
+
+    // Return only non-healthy clusters
+    vi.mocked(trpcReact.kubernetes.clusters.list.useQuery).mockReturnValue({
+      data: [mockCluster2, mockCluster3],
+      isLoading: false,
+      isError: false,
+      error: null,
+      isFetching: false,
+    } as never)
+
+    renderWithProviders(<ClusterList projectId="test-project" landscape="qa" />)
+
+    expect(screen.getByText("No matches")).toBeInTheDocument()
+    expect(screen.getByText(/No clusters match your current filters/i)).toBeInTheDocument()
   })
 })

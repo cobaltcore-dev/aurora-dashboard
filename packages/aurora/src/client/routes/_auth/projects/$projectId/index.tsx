@@ -144,7 +144,7 @@ function RouteComponent() {
     })
 
   if (hasAnyLandscapeService(availableServices ?? []) && isEnabled("kubernetes"))
-    cards.push({ group: t`Kubernetes`, label: t`Kubernetes`, to: `${base}/kubernetes`, service: "kubernetes" })
+    cards.push({ group: t`Containers`, label: t`Kubernetes`, to: `${base}/kubernetes`, service: "kubernetes" })
 
   for (const extension of serviceExtensions ?? []) {
     // if the extension's service is in the catalog and enabled, display a card for it

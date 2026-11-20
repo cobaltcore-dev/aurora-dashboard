@@ -204,7 +204,7 @@ export function buildNavSections(
     ["network", { section: "network", label: t`Network`, services: networkServices }],
     ["storage", { section: "storage", label: t`Storage`, services: storageServices }],
     ["block-storage", { section: "block-storage", label: t`Block Storage`, services: blockStorageServices }],
-    ["kubernetes", { section: "kubernetes", label: t`Kubernetes`, services: kubernetesServices }],
+    ["kubernetes", { section: "kubernetes", label: t`Containers`, services: kubernetesServices }],
     [
       "authorization",
       {

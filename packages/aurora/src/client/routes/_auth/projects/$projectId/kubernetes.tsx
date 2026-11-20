@@ -37,6 +37,10 @@ const KubernetesErrorComponent = () => {
 
 const searchSchema = z.object({
   landscape: z.enum(KUBERNETES_LANDSCAPE_KEYS).optional(),
+  search: z.string().optional(),
+  sortBy: z.string().optional(),
+  sortDirection: z.enum(["asc", "desc"]).optional(),
+  status: z.string().optional(),
 })
 
 export const Route = createFileRoute("/_auth/projects/$projectId/kubernetes")({
