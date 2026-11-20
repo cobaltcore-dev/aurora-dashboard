@@ -10,7 +10,7 @@
 | **Date**                        | 2026-11-11                                                                                                         |
 | **Priority**                    | [ ] Critical &nbsp;&nbsp; [ ] High &nbsp;&nbsp; [x] Medium &nbsp;&nbsp; [ ] Low                                    |
 | **Target Release Date/Quarter** | <!-- fill in -->                                                                                                   |
-| **Status**                      | [ ] Draft &nbsp;&nbsp; [x] Review &nbsp;&nbsp; [ ] Approved &nbsp;&nbsp; [ ] Rejected &nbsp;&nbsp; [ ] Implemented |
+| **Status**                      | [ ] Draft &nbsp;&nbsp; [ ] Review &nbsp;&nbsp; [ ] Approved &nbsp;&nbsp; [ ] Rejected &nbsp;&nbsp; [x] Implemented |
 
 > **Note (deferred, non-blocking):** submitter and target release quarter are not yet recorded; priority is provisionally **Medium**. These are nice-to-have document-control fields and do not block engineering review.
 
@@ -27,9 +27,11 @@ affordances; mutation is a deliberately separate later phase.
 
 > **Baseline.** A first version of this scope **already exists on `main`** (merged in
 > [#1377](https://github.com/cobaltcore-dev/aurora-dashboard/pull/1377)): the Ports list, the port
-> detail page, the `portsRouter` BFF, the nav entry, and the permission keys. This BRD therefore
-> describes the **target** experience and the acceptance criteria; the accompanying spec frames the
-> remaining work as a set of **deltas** on the shipped feature, not a greenfield build.
+> detail page, the `portsRouter` BFF, the nav entry, and the permission keys. The polish deltas
+> (Device type label, Network deep-link, Device type / Network filters, attention-first status sort,
+> Zone-3 last-updated timestamp, Admin State, Port security enabled, Tags, Security Group
+> deep-links, router deep-link) have been applied on top. This BRD is therefore a
+> **post-implementation record** describing the full target experience as implemented.
 
 ---
 
@@ -132,19 +134,19 @@ assignment, and Security Group IDs. Everything is read-only.
 
 **Acceptance Criteria:**
 
-- [ ] Lists all ports in the current project (unfiltered by network). Each row shows:
-  - [ ] **Name** — with the port's **ID shown beneath the name** (no separate ID column); the ID has a **copy-to-clipboard affordance**; when a port has no name, the ID is shown as the primary cell value (per `datagrid.md` writing rules)
-  - [ ] **Status** — a visible status indicator; possible values: `ACTIVE`, `DOWN`, `BUILD`, `ERROR`
-  - [ ] **Admin State** — up / down (`admin_state_up`)
-  - [ ] **Fixed IPs** — the IP address(es) assigned to the port; when a port has multiple Fixed IPs, all are shown (e.g. as a stacked list); when none are assigned, renders `- -`
-  - [ ] **Network** — the `network_id` shown as an ID with a **deep-link to that network's detail view** in the existing Networks scope; degrades gracefully to plain ID when the Networks scope is unavailable
-  - [ ] **Device type** — a human-friendly label derived from `device_owner` (e.g. `compute:nova` → "Instance", `network:router_interface` → "Router interface", `network:dhcp` → "DHCP agent", `network:floatingip` → "Floating IP"), with a graceful fallback to the raw `device_owner` string for unrecognized values; when `device_owner` is empty, renders `- -`
-  - [ ] a **row overflow menu** (last column) listing the actions available on that row
-- [ ] The list is **searchable** by name, ID, MAC address and Fixed IP (and subnet / device fields) — this cross-network lookup by IP / MAC is the feature's core value (§2) and is already implemented; it must not be narrowed to name + ID
-- [ ] The list is **sortable** by name and status (status attention-first)
-- [ ] The list is **filterable** by status, by device type (the human-friendly label categories above), and by network (`network_id`)
-- [ ] The list uses **client-side pagination** (50 rows per page, already shipped); search / sort / filter are client-side (no server-side query params required in phase 1)
-- [ ] MAC address, Security Group IDs, and binding details are **not** shown in the list — they live in the detail view
+- [x] Lists all ports in the current project (unfiltered by network). Each row shows:
+  - [x] **Name** — with the port's **ID shown beneath the name** (no separate ID column); the ID has a **copy-to-clipboard affordance**; when a port has no name, the ID is shown as the primary cell value (per `datagrid.md` writing rules)
+  - [x] **Status** — a visible status indicator; possible values: `ACTIVE`, `DOWN`, `BUILD`, `ERROR`
+  - [x] **Admin State** — up / down (`admin_state_up`)
+  - [x] **Fixed IPs** — the IP address(es) assigned to the port; when a port has multiple Fixed IPs, all are shown (e.g. as a stacked list); when none are assigned, renders `- -`
+  - [x] **Network** — the `network_id` shown as an ID with a **deep-link to that network's detail view** in the existing Networks scope; degrades gracefully to plain ID when the Networks scope is unavailable
+  - [x] **Device type** — a human-friendly label derived from `device_owner` (e.g. `compute:nova` → "Instance", `network:router_interface` → "Router interface", `network:dhcp` → "DHCP agent", `network:floatingip` → "Floating IP"), with a graceful fallback to the raw `device_owner` string for unrecognized values; when `device_owner` is empty, renders `- -`
+  - [x] a **row overflow menu** (last column) listing the actions available on that row
+- [x] The list is **searchable** by name, ID, MAC address and Fixed IP (and subnet / device fields) — this cross-network lookup by IP / MAC is the feature's core value (§2); it is not narrowed to name + ID
+- [x] The list is **sortable** by name and status (status attention-first)
+- [x] The list is **filterable** by status, by device type (the human-friendly label categories above), and by network (`network_id`)
+- [x] The list uses **client-side pagination** (50 rows per page); search / sort / filter are client-side (no server-side query params required in phase 1)
+- [x] MAC address, Security Group IDs, and binding details are **not** shown in the list — they live in the detail view
 
 **Notes:**
 
@@ -158,12 +160,12 @@ assignment, and Security Group IDs. Everything is read-only.
 
 **Acceptance Criteria:**
 
-- [ ] Shows all list fields plus the fields the list omits: Name, ID (copy affordance), Status, Admin State, **MAC address** (copy affordance), **Fixed IPs** (each IP + subnet ID pair; subnet ID with copy affordance), **Network** (deep-link to Networks scope), **Device type** (human-friendly label), **Device ID** (`device_id`, copy affordance), **Security Groups** (list of Security Group IDs, each with a copy affordance and a deep-link to that Security Group's detail in the existing Security Groups scope), **Port security enabled** (`port_security_enabled`), Created / Updated timestamps, Description, and Tags
-- [ ] Fixed IPs are shown as a sub-table with two columns: IP address (copy affordance) and Subnet ID (copy affordance); when absent, renders an explicit empty state ("No Fixed IPs")
-- [ ] Security Groups are shown as a list of IDs with copy affordances and deep-links to the Security Groups scope; when absent, renders an explicit empty state ("No Security Groups")
-- [ ] **Exception — router deep-link:** when `device_owner = network:router_interface`, the Device ID is rendered as a **deep-link to that router's detail view** in the existing Routers scope, keyed on the router ID in `device_id`. No extra API call. Degrades gracefully to plain ID when the Routers scope is unavailable.
-- [ ] Binding attributes (`binding:host_id`, `binding:vif_type`, `binding:vnic_type`) are shown **only when the API returns them** — typically admin-only and absent under project scope; a present-but-null value renders `- -`
-- [ ] Description and tags are shown when present; when absent, renders `- -`
+- [x] Shows all list fields plus the fields the list omits: Name, ID (copy affordance), Status, Admin State, **MAC address** (copy affordance), **Fixed IPs** (each IP + subnet ID pair; subnet ID with copy affordance), **Network** (deep-link to Networks scope), **Device type** (human-friendly label), **Device ID** (`device_id`, copy affordance), **Security Groups** (list of Security Group IDs, each with a copy affordance and a deep-link to that Security Group's detail in the existing Security Groups scope), **Port security enabled** (`port_security_enabled`), Created / Updated timestamps, Description, and Tags
+- [x] Fixed IPs are shown as a sub-table with two columns: IP address (copy affordance) and Subnet ID (copy affordance); when absent, renders an explicit empty state ("No Fixed IPs")
+- [x] Security Groups are shown as a list of IDs with copy affordances and deep-links to the Security Groups scope; when absent, renders an explicit empty state ("No Security Groups")
+- [x] **Exception — router deep-link:** when `device_owner = network:router_interface`, the Device ID is rendered as a **deep-link to that router's detail view** in the existing Routers scope, keyed on the router ID in `device_id`. No extra API call. Degrades gracefully to plain ID when the Routers scope is unavailable.
+- [x] Binding attributes (`binding:host_id`, `binding:vif_type`, `binding:vnic_type`) are shown **only when the API returns them** — typically admin-only and absent under project scope; a present-but-null value renders `- -`
+- [x] Description and tags are shown when present; when absent, renders `- -`
 
 ---
 
@@ -171,12 +173,12 @@ assignment, and Security Group IDs. Everything is read-only.
 
 **Viewer (Project Member):**
 
-- [ ] View the list of ports (search, sort, filter — see Story 1)
-- [ ] View a port's details (full metadata)
-- [ ] Copy any resource ID (port, device, subnet, Security Group) or IP address / MAC address to the clipboard
-- [ ] Follow a network deep-link from a port to the Networks scope detail view
-- [ ] Follow a router deep-link from a port (when `device_owner = network:router_interface`) to the Routers scope detail view
-- [ ] Follow a Security Group deep-link from a port detail to the Security Groups scope detail view
+- [x] View the list of ports (search, sort, filter — see Story 1)
+- [x] View a port's details (full metadata)
+- [x] Copy any resource ID (port, device, subnet, Security Group) or IP address / MAC address to the clipboard
+- [x] Follow a network deep-link from a port to the Networks scope detail view
+- [x] Follow a router deep-link from a port (when `device_owner = network:router_interface`) to the Routers scope detail view
+- [x] Follow a Security Group deep-link from a port detail to the Security Groups scope detail view
 
 > There are no Admin actions in phase 1 — the scope is entirely read-only.
 
@@ -186,31 +188,15 @@ assignment, and Security Group IDs. Everything is read-only.
 
 Phase 1 is read-only; all mutation is deferred to a later phase.
 
-**Minimum shippable first release (MVP):** the **port list**. This alone delivers the core value
-— "see all my project's ports in one place, searchable and filterable" — and is independently
-releasable. A first version of the list already shipped in #1377; the MVP here is that list plus
-the remaining deltas (Device type label, Network deep-link, Device type / Network filters,
-attention-first status sort, last-updated label). The list's **row overflow
-menu** ships carrying its single phase-1 item ("Show Details"); it is the designated extension
-point for later mutation actions, and keeping it from the start avoids re-laying-out the list row
-when those actions arrive.
+**MVP:** the **port list** — all ports in the project, searchable, sortable, and filterable by status/device-type/network, with client-side pagination and a Zone-3 last-updated timestamp. The list's **row overflow menu** carries a single "Show Details" item as the designated extension point for future mutation actions.
 
-**Fast-follow (same phase, next increment):** the **port detail view** with full metadata, Fixed
-IPs sub-table, Security Group links, and the router deep-link. The detail view adds depth (MAC
-address, all Fixed IPs, Security Group IDs) that the list row cannot show without becoming
-unreadable. "Fast-follow" here means next increment within the same phase, not a lower-priority
-backlog item.
+**Fast-follow (same phase):** the **port detail view** with full metadata — Fixed IPs, Security Groups (with deep-links), router deep-link, Admin State, Port security enabled, Tags.
 
-**Sequencing dependencies:**
-
-- The port detail view must exist before the router deep-link (the detail is where `device_id` is shown as a deep-link; the list shows only the device type label).
-- The list must exist before the detail.
+Both are **implemented** as of this document.
 
 ---
 
 ## 7. API Information
-
-**CRITICAL: This information is required before UI implementation can begin**
 
 ### Details
 
@@ -234,7 +220,8 @@ project-scoped to the active project.
 The client issues one `network.ports.list` request for the active project, without a
 `network_id` filter. The BFF preserves the explicit `project_id` ownership filter and
 follows Neutron's `ports_links` until all pages are collected. Existing network/subnet
-name enrichment uses batched lookups, not per-port fan-out. No UI pagination is required.
+name enrichment uses batched lookups, not per-port fan-out. No **server-side** UI pagination
+is required; the shipped list paginates client-side at 50 rows per page.
 
 ### Error Response Shape
 
@@ -358,7 +345,7 @@ These are settled framework facts (not open requirements), recorded to orient im
 - **Scope registration:** built-in Pattern A — file-based routes under `$projectId/network/ports/…`, nav entry in the `network` section of `buildNavSections.ts`, server tRPC router via `buildBaseRouter()`. **Already in place** (#1377): the `network/ports/` route tree, `portsRouter.ts`, and the nav entry exist; reference them (and `floatingips` / `networks`) as the implementation models.
 - **Auth:** BFF; `projectScopedProcedure`; server injects `X-Auth-Token`; client never holds the token.
 - **Catalog guard:** `getServiceIndex("network")` + `beforeLoad` guard in `network.tsx` — already in place; no new guard needed.
-- **Device-owner label mapping:** `compute:nova` → "Instance", `network:router_interface` → "Router interface", `network:dhcp` → "DHCP agent", `network:floatingip` → "Floating IP", unrecognized → raw string. The mapping already exists **inline in the client component `NetworkPortsTable.tsx`** (Lingui `t` labels). To share it with the project-wide Ports list without duplication, extract it to a **client-side** helper consumed by both client components — **not** the server `Network/helpers/portHelpers.ts` (that file imports `node:net` and is server-only; the mapping is a client i18n concern).
+- **Device-owner label mapping:** `compute:nova` → "Instance", `network:router_interface` → "Router interface", `network:dhcp` → "DHCP agent", `network:floatingip` → "Floating IP", unrecognized → raw string. Implemented as a **client-side** helper shared by `NetworkPortsTable.tsx` and `PortTableRow.tsx` — not in the server `Network/helpers/portHelpers.ts` (that file imports `node:net` and is server-only; the mapping is a client i18n concern).
 - **Copy-to-clipboard:** Aurora's existing `ClipboardText` affordance satisfies all ID / IP / MAC copy requirements — no custom component.
 - **No refresh in phase 1:** consistent with all sibling network resources (Floating IPs, Routers, Security Groups, Networks). Data loads on navigation; Zone-3 last-updated timestamp fed from `dataUpdatedAt`.
-- **Relationship to Networks scope:** the Networks scope's ports sub-table (Story 4) fetches `GET /v2.0/ports?network_id=<id>` via `networksRouter.listPorts` and is scoped to one network. This scope fetches `GET /v2.0/ports` (project-scoped, no `network_id` filter) via `portsRouter.list`. The tRPC procedures are **separate** and both already exist. `networksRouter.listPorts` performs no device-owner label mapping; the shared mapping is a **client-side** helper only.
+- **Relationship to Networks scope:** the Networks scope's ports sub-table (Story 4) fetches `GET /v2.0/ports?network_id=<id>` via `networksRouter.listPorts` and is scoped to one network. This scope fetches `GET /v2.0/ports` (project-scoped, no `network_id` filter) via `portsRouter.list`. The tRPC procedures are **separate**. `networksRouter.listPorts` performs no device-owner label mapping; the shared mapping is a **client-side** helper only.

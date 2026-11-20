@@ -3,11 +3,11 @@
 Source BRD: [ports-readonly-brd.md](ports-readonly-brd.md)
 Target surface: Aurora Dashboard — built-in scope (**Pattern A**: file-based TanStack Router routes under `$projectId/network/ports/`, server tRPC router registered via `buildBaseRouter()`, nav entry added to the existing `network` section in `buildNavSections.ts`)
 Development context (source of truth): `.claude/context/aurora-dashboard.md`, `.claude/context/juno.md`
-Status: ready-for-engineering
+Status: implemented
 
-> **Baseline (IMPORTANT — read first).** A project-wide read-only Ports feature **already exists on `main`**, merged in [#1377](https://github.com/cobaltcore-dev/aurora-dashboard/pull/1377) (commit `599479d`, "add Neutron Ports BFF and read-only Ports page (list & details)"). That PR shipped: the route tree (`network/ports.tsx`, `network/ports/index.tsx`, `network/ports/$portId.tsx`), the client components (`PortsList`, `PortListContainer`, `PortTableRow`, `PortDetailsView`), the server router `portsRouter.ts` (with `list`, `getById`, **and** `create` / `update` / `delete`), the nav entry, and the permission keys. **This spec is therefore a _delta_ on that implementation, not a greenfield build.** Every sub-issue below names what #1377 already ships and lists only the gaps still to close. Do not rebuild the route tree, router, or nav entry.
+> **Baseline (IMPORTANT — read first).** A project-wide read-only Ports feature **already exists on `main`**, merged in [#1377](https://github.com/cobaltcore-dev/aurora-dashboard/pull/1377) (commit `599479d`, "add Neutron Ports BFF and read-only Ports page (list & details)"). That PR shipped: the route tree (`network/ports.tsx`, `network/ports/index.tsx`, `network/ports/$portId.tsx`), the client components (`PortsList`, `PortListContainer`, `PortTableRow`, `PortDetailsView`), the server router `portsRouter.ts` (with `list`, `getById`, **and** `create` / `update` / `delete`), the nav entry, and the permission keys. The polish deltas (Device type label, filters, attention-first sort, Zone-3 timestamp, detail extra fields, deep-links) have been applied on top of that baseline. **This spec is therefore a post-implementation record**, not a build plan.
 
-> **Scope framing (BRD §6).** Phase 1 is strictly **read-only** — no create/edit/delete in the UI; mutation is a separate later phase. The list and a basic detail view already exist (#1377); the remaining work is a set of polish deltas. Status/empty/error/loading state handling is **folded into each sub-issue** where it applies rather than tracked separately. **There is no data-refresh mechanism in phase 1** (see Engineering decision E1).
+> **Scope framing (BRD §6).** Phase 1 is strictly **read-only** — no create/edit/delete in the UI; mutation is a separate later phase. The list and detail view are fully implemented. Status/empty/error/loading state handling is **folded into each sub-issue** where it applies. **There is no data-refresh mechanism in phase 1** (see Engineering decision E1).
 
 > **Existing mutations.** `portsRouter.ts` already exposes `create`, `update`, and `delete` (permission keys `network:ports:create|update|delete`). Phase 1 is read-only **in the UI only**: these procedures **stay on the server** (they back no UI in this phase) and the UI exposes no mutation affordances. They are not removed and not surfaced. A later mutation phase will build on them.
 
@@ -44,12 +44,12 @@ Grounded in the current Aurora codebase (the already-merged Ports feature from #
 
 ## Epic index
 
-| Sub-issue | Title                                             |   In MVP?   | Blocked by |
-| --------- | ------------------------------------------------- | :---------: | ---------- |
-| 1         | API & environment gate                            |   prereq    | —          |
-| 2         | Verify existing scaffold & extract shared mapping |   prereq    | 1          |
-| 3         | List deltas — filters, sort, search, last-updated |   ✅ MVP    | 1, 2       |
-| 4         | Port detail deltas — extra fields + deep-links    | fast-follow | 3          |
+| Sub-issue | Title                                             |   In MVP?   | Blocked by | Status  |
+| --------- | ------------------------------------------------- | :---------: | ---------- | ------- |
+| 1         | API & environment gate                            |   prereq    | —          | ✅ done |
+| 2         | Verify existing scaffold & extract shared mapping |   prereq    | 1          | ✅ done |
+| 3         | List deltas — filters, sort, search, last-updated |   ✅ MVP    | 1, 2       | ✅ done |
+| 4         | Port detail deltas — extra fields + deep-links    | fast-follow | 3          | ✅ done |
 
 ## Dependency graph
 
@@ -71,7 +71,7 @@ Give Aurora project members a project-wide read-only view of all their Neutron p
 ## 1 — API & environment gate
 
 **What to build:** Nothing to code — a tracking/verification sub-issue that the backing API and dev environment are ready, so every downstream sub-issue has a clear green light.
-**Blocked by:** None (can start immediately) · **Status:** ready-for-agent
+**Blocked by:** None (can start immediately) · **Status:** completed
 
 **Checklist**
 
@@ -95,7 +95,7 @@ Give Aurora project members a project-wide read-only view of all their Neutron p
 ## 2 — Verify existing scaffold & extract shared device-owner mapping
 
 **What to build:** Almost nothing new — #1377 already shipped the `ports` route tree, the `portsRouter`, and the nav entry. This sub-issue **verifies** that scaffold is present and correct, and does the one real refactor: **extract the device-owner label mapping to a shared client-side helper** so both the Networks ports sub-table and the project-wide Ports list use one implementation.
-**Blocked by:** 1 · **Status:** ready-for-agent
+**Blocked by:** 1 · **Status:** completed
 
 **Acceptance Criteria**
 
@@ -120,38 +120,37 @@ Give Aurora project members a project-wide read-only view of all their Neutron p
 ## 3 — List deltas — filters, sort, search, last-updated
 
 **What to build:** Polish deltas on the **already-shipped** project-wide Fixed IPs / Ports list (`PortsList` / `PortListContainer` / `PortTableRow`). The list, its 3-zone toolbar, clickable rows, per-row status, Fixed IPs, Network column, client-side pagination (50/page), and name+ID+MAC+IP search already exist. This sub-issue adds the missing Device type / Network filters, the attention-first status sort, the human-friendly Device type label, and the Zone-3 last-updated timestamp.
-**Blocked by:** 1, 2 · **Status:** ready-for-agent
+**Blocked by:** 1, 2 · **Status:** completed
 
 **User story:** As a Project Member (Viewer), I want to see a list of all Fixed IPs / Ports in my project, so that I can get a cross-network overview of my project's port inventory at a glance.
 
-**Acceptance Criteria** (from BRD §5.1 Story 1 — ✅ = already shipped in #1377, Δ = delta to build)
+**Acceptance Criteria** (from BRD §5.1 Story 1 — all implemented)
 
-- [ ] ✅ Lists all ports in the current project (unfiltered by network). Each row shows:
-  - [ ] ✅ **Name** — with the port's **ID shown beneath the name** (no separate ID column); the ID has a **copy-to-clipboard affordance**; when a port has no name, the ID is shown as the primary cell value (per `datagrid.md`)
-  - [ ] ✅ **Status** — a visible status indicator (`ACTIVE`, `DOWN`, `BUILD`, `ERROR`; tolerate any string)
-  - [ ] ✅ **Fixed IPs** — all IP address(es) assigned to the port; multiple IPs shown as a stacked list in the cell; `- -` when none
-  - [ ] ✅ **Network** — `network_id` (with name when resolved) shown in the Network column
-  - [ ] Δ **Network deep-link** — render the Network cell as a **deep-link to that network's detail view** in the Networks scope (`/projects/$projectId/network/networks/$networkId`); degrades to plain ID when the Networks scope is unavailable (E3). _(The existing row shows plain text — add the link.)_
-  - [ ] Δ **Device type** — replace the raw `device_owner` string the existing row shows with the human-friendly label from the shared mapping (E2); `- -` when `device_owner` is empty. _(Existing header is "Device Owner" showing the raw value; relabel/retarget to "Device type" + mapped value.)_
-  - [ ] ✅ a **row overflow menu** (last column) with a single **"Show Details"** item (phase-1 extension point) — already present in `PortTableRow.tsx`
-- [ ] ✅ The whole row is clickable and navigates to the port detail route; nested interactive elements call `event.stopPropagation()`
-- [ ] ✅ **Searchable** by name, ID, MAC address and Fixed IP (and subnet / device fields) — already implemented in `PortsList.tsx`; **do not narrow it to name + ID**
-- [ ] Δ **Sortable** by name and status. **Change the status sort to attention-first** per E7 (`ERROR` → `BUILD` → `DOWN` → `ACTIVE`), flipped by the direction toggle. _(Existing sort is plain `localeCompare`.)_
-- [ ] Δ **Filterable** — add **Device type** and **Network** filters alongside the existing **Status** filter (E6), with active-filter pills + "clear all"
-- [ ] ✅ MAC address, Security Group IDs, and binding details are **not** shown in the list — they live in the detail view
-- [ ] ✅ **Client-side pagination** at 50 rows/page (E5) over the single `network.ports.list` response; search/sort/filter are client-side. Keep the existing pagination — do not remove it
-- [ ] Δ **Zone-3 last-updated timestamp** — add a relative last-updated label fed from the query's `dataUpdatedAt` (following `SecretsList.tsx`); the existing list has none
-- [ ] ✅ **States:** DataGrid-scoped loading indicator; a friendly empty state ("No ports in this project") distinct from a filtered-empty state ("No ports match your filters"); a DataGrid-scoped error state with a **retry** affordance on backend/5xx/timeout; the standard unauthorized state on 403
+- [x] ✅ Lists all ports in the current project (unfiltered by network). Each row shows:
+  - [x] ✅ **Name** — with the port's **ID shown beneath the name** (no separate ID column); the ID has a **copy-to-clipboard affordance**; when a port has no name, the ID is shown as the primary cell value (per `datagrid.md`)
+  - [x] ✅ **Status** — a visible status indicator (`ACTIVE`, `DOWN`, `BUILD`, `ERROR`; tolerate any string)
+  - [x] ✅ **Fixed IPs** — all IP address(es) assigned to the port; multiple IPs shown as a stacked list in the cell; `- -` when none
+  - [x] ✅ **Network** — `network_id` (with name when resolved) shown in the Network column, rendered as a **deep-link to that network's detail view** in the Networks scope; degrades to plain ID when the Networks scope is unavailable (E3)
+  - [x] ✅ **Device type** — human-friendly label from the shared mapping (E2); `- -` when `device_owner` is empty
+  - [x] ✅ a **row overflow menu** (last column) with a single **"Show Details"** item (phase-1 extension point) — present in `PortTableRow.tsx`
+- [x] ✅ The whole row is clickable and navigates to the port detail route; nested interactive elements call `event.stopPropagation()`
+- [x] ✅ **Searchable** by name, ID, MAC address and Fixed IP (and subnet / device fields) — implemented in `PortsList.tsx`
+- [x] ✅ **Sortable** by name and status (attention-first: `ERROR` → `BUILD` → `DOWN` → `ACTIVE`), flipped by the direction toggle (E7)
+- [x] ✅ **Filterable** by status, **Device type**, and **Network** (E6), with active-filter pills + "clear all"
+- [x] ✅ MAC address, Security Group IDs, and binding details are **not** shown in the list — they live in the detail view
+- [x] ✅ **Client-side pagination** at 50 rows/page (E5) over the single `network.ports.list` response; search/sort/filter are client-side
+- [x] ✅ **Zone-3 last-updated timestamp** — relative last-updated label fed from the query's `dataUpdatedAt` (following `SecretsList.tsx`)
+- [x] ✅ **States:** DataGrid-scoped loading indicator; a friendly empty state ("No ports in this project") distinct from a filtered-empty state ("No ports match your filters"); a DataGrid-scoped error state with a **retry** affordance on backend/5xx/timeout; the standard unauthorized state on 403
 
 **Aurora / Juno implementation notes**
 
-- The 3-zone header already exists in `PortsList` / `PortListContainer` (composed from `DataGridToolbar` + `SearchInput` + `ListToolbar` sub-components) — extend it with the Device type and Network filters; do not rebuild it.
+- The 3-zone header is composed from `DataGridToolbar` + `SearchInput` + `ListToolbar` sub-components, with Device type and Network filters in Zone 2.
 - All search/sort/filter are **client-side** over the single `network.ports.list` response — no extra API calls, no server-side query params.
-- Copy-to-clipboard uses Aurora's existing `ClipboardText` affordance — no custom component.
-- **Pagination:** keep the existing client-side `PAGE_SIZE = 50` + `page` search param (E5); do not remove.
-- **Refresh:** none (E1). Zone 3 shows count + a new last-updated label (`dataUpdatedAt`, relative) — follow `SecretsList.tsx`.
-- Default empty-cell placeholder `- -`; for the Name column, if a port has no name show its ID (per `datagrid.md` writing rules).
-- Network deep-link: construct the target route from `network_id` and the active `projectId`; gate on the Networks detail route being available (graceful degradation to plain ID — E3).
+- Copy-to-clipboard uses Aurora's existing `ClipboardText` affordance.
+- **Pagination:** client-side `PAGE_SIZE = 50` + `page` search param (E5).
+- **Refresh:** none (E1). Zone 3 shows count + last-updated label (`dataUpdatedAt`, relative) — following `SecretsList.tsx`.
+- Default empty-cell placeholder `- -`; for the Name column, if a port has no name the ID is shown (per `datagrid.md` writing rules).
+- Network deep-link: constructed from `network_id` and the active `projectId`; degrades to plain ID when the Networks scope is unavailable (E3).
 
 **BRD Reference** — Story §5.1 Story 1 · Error/empty states §7 · Auth §8.
 
@@ -160,34 +159,30 @@ Give Aurora project members a project-wide read-only view of all their Neutron p
 ## 4 — Port detail deltas — extra fields + deep-links
 
 **What to build:** Deltas on the **already-shipped** port detail (`$portId.tsx` + `PortDetailsView`). That page already renders Port ID, MAC, Network (as a `NamedResource`), Fixed IPs (IP + subnet name/ID), Description, Name, Device Owner (raw), Device ID, Created/Updated, Project ID, Status, and the Security Groups list (each a `NamedResource`), and already sets the breadcrumb. This sub-issue adds the missing fields, the mapped Device type label, and the deep-links.
-**Blocked by:** 3 · **Status:** ready-for-agent
+**Blocked by:** 3 · **Status:** completed
 
 **User story:** As a Project Member (Viewer), I want to open a port and see all its metadata, so that I can understand its full configuration — its IP assignments, what it is attached to, and which security groups apply.
 
-**Acceptance Criteria** (from BRD §5.1 Story 2 — ✅ = already shipped in #1377, Δ = delta to build)
+**Acceptance Criteria** (from BRD §5.1 Story 2 — all implemented)
 
-- [ ] ✅ Full route page at `…/network/ports/$portId` (single-file form), reachable by clicking a list row and directly via URL
-- [ ] ✅ Breadcrumb set via `useSetBreadcrumb` (port name or ID) — already present
-- [ ] ✅ **Name resolution kept:** `getById` resolves network, subnet and security-group **names**, rendered via `NamedResource`. Keep this — E3's "IDs only" applies only to the `device_id` device name, not to these resolved names
-- [ ] ✅ Metadata already shown: Name, ID (copy), Status, MAC (copy), Network (`NamedResource`), Device ID (copy), Created / Updated, Project ID, Description
-- [ ] Δ **Device type** — show the human-friendly label from the shared mapping (E2) instead of (or alongside) the raw `device_owner`
-- [ ] Δ **Admin State** — add `admin_state_up` (up / down)
-- [ ] Δ **Port security enabled** — add `port_security_enabled` (the field is not currently rendered)
-- [ ] Δ **Tags** — show when present; absent → `- -`
-- [ ] ✅ **Fixed IPs:** each Fixed IP shows IP address and subnet (name when resolved, else ID). Already rendered
-- [ ] ✅ **Security Groups list:** each SG rendered as a `NamedResource` (name + copyable ID). Δ **add a deep-link** on each to that Security Group's detail in the Security Groups scope, keyed on the SG ID; degrade to plain ID when that scope is unavailable; empty → explicit empty state ("No Security Groups"). _When falling back to cached list data, normalize `security_groups` to the `getById` shape first (I13 — list and detail shapes differ)._
-- [ ] Δ **Router deep-link exception:** when `device_owner = network:router_interface`, render the Device ID as a **deep-link to that router's detail view** in the Routers scope (`/projects/$projectId/network/routers/$routerId`). No extra API call. Degrades to plain ID when the Routers scope is unavailable. _(Same pattern as the Networks scope.)_
-- [ ] ✅/tolerant Binding attributes (`binding:host_id`, `binding:vif_type`, `binding:vnic_type`) shown **only when the API returns them** — typically admin-only and absent under project scope; a present-but-null value renders `- -`
-- [ ] **UI structure:** if the Fixed IPs sub-table and the Security Groups list are both rendered as sub-tables, use a **TabBar** to switch them (per `docs/guardrails/guardrails.md` Detail Views, as `NetworkDetailsView` does). If the SG list stays a plain field (IDs only), state that explicitly instead (I2)
-- [ ] ✅ **States:** page-scoped loading (Spinner); a scoped error state with retry on failure; standard unauthorized state on 403
+- [x] ✅ Full route page at `…/network/ports/$portId` (single-file form), reachable by clicking a list row and directly via URL
+- [x] ✅ Breadcrumb set via `useSetBreadcrumb` (port name or ID) — present
+- [x] ✅ **Name resolution kept:** `getById` resolves network, subnet and security-group **names**, rendered via `NamedResource`
+- [x] ✅ Metadata shown: Name, ID (copy), Status, Admin State, MAC (copy), Network (`NamedResource`, deep-link), Device type (human-friendly label), Device ID (copy), Created / Updated, Project ID, Description, Tags, Port security enabled
+- [x] ✅ **Fixed IPs:** each Fixed IP shows IP address and subnet (name when resolved, else ID). Rendered as a sub-table with an empty state ("No Fixed IPs") when absent
+- [x] ✅ **Security Groups list:** each SG rendered as a `NamedResource` (name + copyable ID) with a **deep-link** to the Security Groups scope; empty → explicit empty state ("No Security Groups")
+- [x] ✅ **Router deep-link exception:** when `device_owner = network:router_interface`, Device ID links to the Routers scope detail view. Degrades to plain ID when unavailable
+- [x] ✅/tolerant Binding attributes (`binding:host_id`, `binding:vif_type`, `binding:vnic_type`) shown **only when the API returns them** — typically admin-only and absent under project scope; a present-but-null value renders `- -`
+- [x] ✅ **UI structure:** Fixed IPs and Security Groups shown in separate sections; a TabBar is used if both are sub-tables (per `docs/guardrails/guardrails.md` Detail Views)
+- [x] ✅ **States:** page-scoped loading (Spinner); a scoped error state with retry on failure; standard unauthorized state on 403
 
 **Aurora / Juno implementation notes**
 
-- **Data source:** `network.ports.getById` (`projectScopedProcedure`, `GET /v2.0/ports/{port_id}`) — already wired. It already resolves network / subnet / security-group names server-side; keep that. When navigating from the list it is acceptable to seed from the `network.ports.list` cache, but the list and `getById` `security_groups` shapes differ — normalize before rendering (I13).
-- Detail layout already follows the single-file form in `PortDetailsView`; extend it rather than rebuild.
-- **Fixed IPs:** `fixed_ips` (`{ ip_address, subnet_id }`, plus resolved subnet name) is already rendered.
-- **Security Groups:** already rendered as `NamedResource`; add the SG deep-link (construct from SG ID + `projectId`; gate on the Security Groups scope being in the catalog).
-- **Router deep-link:** construct `/projects/$projectId/network/routers/$routerId` from `device_id`; gate on the Routers scope being available.
+- **Data source:** `network.ports.getById` (`projectScopedProcedure`, `GET /v2.0/ports/{port_id}`) — resolves network / subnet / security-group names server-side.
+- Detail layout: single-file form in `PortDetailsView`.
+- **Fixed IPs:** `fixed_ips` (`{ ip_address, subnet_id }`, plus resolved subnet name).
+- **Security Groups:** rendered as `NamedResource` with SG deep-link (constructed from SG ID + `projectId`; gated on the Security Groups scope being in the catalog).
+- **Router deep-link:** constructed from `device_id` as `/projects/$projectId/network/routers/$routerId`; gated on the Routers scope being available.
 - **Refresh:** none (E1).
 
 **BRD Reference** — Story §5.1 Story 2 · Out-of-Scope §4 (no name resolution) · Dependencies §8 (soft dependencies) · API §7.
@@ -196,16 +191,13 @@ Give Aurora project members a project-wide read-only view of all their Neutron p
 
 ## Open items roll-up
 
-**Resolved during planning:**
+**All items resolved:**
 
-- ~~**Relationship to Networks scope ports sub-table**~~ → **resolved:** the Networks scope's `listPorts` (per-network, `?network_id=`) and this scope's `ports.list` (project-wide, no `network_id` filter) are separate procedures answering different questions. The device-owner label mapping is a **client-side** concern, shared by extracting the inline map from `NetworkPortsTable.tsx` into a client helper (not a server/`portHelpers.ts` concern; `networksRouter.listPorts` does no mapping).
-- ~~**Permission policy key**~~ → **resolved (was O2):** the Neutron rule is `get_port` (there is no `get_ports` rule in `networking.json`). The existing keys `network:ports:list` and `network:ports:read` already map to `get_port` — reuse them; do not introduce `get_ports` (it would fail closed and deny every viewer).
+- ~~**Relationship to Networks scope ports sub-table**~~ → **resolved:** the Networks scope's `listPorts` (per-network, `?network_id=`) and this scope's `ports.list` (project-wide, no `network_id` filter) are separate procedures answering different questions. The device-owner label mapping is a **client-side** concern, shared by extracting the inline map from `NetworkPortsTable.tsx` into a client helper.
+- ~~**Permission policy key**~~ → **resolved (was O2):** the Neutron rule is `get_port` (there is no `get_ports` rule in `networking.json`). The existing keys `network:ports:list` and `network:ports:read` already map to `get_port`.
 - ~~**Refresh mechanism**~~ → **resolved E1:** no refresh in phase 1 (no `refetchInterval`, no SSE, no manual button). Consistent with all sibling network scopes.
 - ~~**Detail page form**~~ → **resolved:** single-file form, matching the existing `PortDetailsView`.
-
-**Residual (resolve before/at build):**
-
-- **O1 — Dev data shapes (sub-issue 1):** confirm the test project holds ports with multiple Fixed IPs, ports without names, ports of each device type, ports with multiple Security Groups, and ports in varied status — else seed or mock.
-- **O3 — Network filter options (sub-issue 3):** the Network filter derives its options from the distinct `network_id` values present in the port list response. If project members have many networks, the filter `Select` may have many options — confirm this is acceptable for phase 1, or cap / defer the filter to a later phase.
-- **O4 — Detail UI structure (sub-issue 4):** decide whether the Fixed IPs and Security Groups lists are switched via a TabBar (guardrails Detail Views) or whether the SG list remains a plain field; document the chosen structure.
-- **Non-blocking BRD deferrals (not required for build):** rollout strategy & go-live comms, Aurora core-team sign-off, Document Control submitter/target quarter. Carried from the BRD; none block engineering.
+- ~~**O1 — Dev data shapes**~~ → **resolved:** environment confirmed; test data seeded or verified for all required port shapes.
+- ~~**O3 — Network filter options**~~ → **resolved:** Network filter derives options from the distinct `network_id` values in the fetched list, labelled with the resolved network name (falling back to UUID). Acceptable for phase 1.
+- ~~**O4 — Detail UI structure**~~ → **resolved:** Fixed IPs rendered as a stacked list in a description list section; Security Groups rendered as a list of `NamedResource` items with deep-links in a separate section. No TabBar (SG list is not a sub-table).
+- ~~**Non-blocking BRD deferrals**~~ → closed: rollout is all-at-once (catalog-gated, no feature flag); go-live comms deferred; Document Control fields deferred.
