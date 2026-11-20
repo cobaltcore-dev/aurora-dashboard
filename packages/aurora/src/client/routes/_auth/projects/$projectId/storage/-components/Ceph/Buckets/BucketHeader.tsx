@@ -8,6 +8,8 @@ import { useCephPermissions } from "../hooks/useCephPermissions"
 import { BucketHeaderActions } from "./BucketHeaderActions"
 import { BucketModals, type ModalType } from "./BucketModals"
 import { BucketDetailTabs } from "./BucketDetailTabs"
+import { CliSetupModal } from "../CliSetup/CliSetupModal"
+import { ManageCredentialsModal } from "../Credentials/ManageCredentialsModal"
 
 interface BucketHeaderProps {
   bucketName: string
@@ -20,7 +22,8 @@ interface BucketHeaderProps {
  * - Bucket name as title
  * - Badges for versioning status and policy
  * - Action buttons
- * - All bucket management modals
+ * - All bucket management modals, plus the project-level CLI Setup guide and Manage Credentials
+ *   modals (kept here rather than in `BucketModals` because they are not bucket mutations)
  */
 export const BucketHeader = ({ bucketName }: BucketHeaderProps) => {
   const { projectId, provider } = useParams({
@@ -87,6 +90,14 @@ export const BucketHeader = ({ bucketName }: BucketHeaderProps) => {
       </div>
 
       <BucketModals bucketName={bucketName} provider={provider} activeModal={activeModal} onClose={closeModal} />
+
+      <CliSetupModal
+        isOpen={activeModal === "cliSetup"}
+        bucketName={bucketName}
+        onClose={closeModal}
+        onOpenCredentials={() => openModal("manageCredentials")}
+      />
+      <ManageCredentialsModal isOpen={activeModal === "manageCredentials"} onClose={closeModal} />
     </>
   )
 }

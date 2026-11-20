@@ -62,9 +62,13 @@ interface ManageCredentialsModalProps {
  * secrets server-side, and `reveal` is called through the vanilla tRPC client rather than
  * `useMutation`, so no TanStack cache sees the answer at all.
  *
- * Mounted once, outside every early `return` in `CephBuckets` (see index.tsx): deleting the last
- * credential flips the page underneath into the `NO_CEPH_CREDENTIALS` branch, and the modal must
- * survive that transition instead of being unmounted mid-operation.
+ * Mounted where deleting the last credential cannot unmount it: that flips the page underneath into
+ * the `NO_CEPH_CREDENTIALS` branch, and the modal must survive the transition instead of being
+ * unmounted mid-operation.
+ * - `CephBuckets` (see index.tsx): outside every early `return`.
+ * - `BucketHeader`: rendered unconditionally for Ceph on the objects page
+ *   (`$provider/$storageType/$containerName/objects/index.tsx`), outside the content `ErrorBoundary`,
+ *   so the same transition does not unmount it.
  */
 export const ManageCredentialsModal = ({ isOpen, onClose }: ManageCredentialsModalProps) => {
   const { t } = useLingui()

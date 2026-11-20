@@ -31,6 +31,7 @@ import {
 import { EmptyBucketsModal } from "./EmptyBucketsModal"
 import { CredentialPrompt } from "../Credentials/CredentialPrompt"
 import { ManageCredentialsModal } from "../Credentials/ManageCredentialsModal"
+import { CliSetupModal } from "../CliSetup/CliSetupModal"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { useCephPermissions } from "../hooks/useCephPermissions"
 import { Route } from "@/client/routes/_auth/projects/$projectId/storage/$provider/$storageType/index"
@@ -60,7 +61,8 @@ export const CephBuckets = () => {
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [emptyAllModalOpen, setEmptyAllModalOpen] = useState(false)
   const [selectedBuckets, setSelectedBuckets] = useState<string[]>([])
-  const [credentialsModalOpen, setCredentialsModalOpen] = useState(false)
+  // One modal at a time: the CLI guide swaps to Manage Credentials rather than stacking on it.
+  const [activeModal, setActiveModal] = useState<"none" | "cliSetup" | "credentials">("none")
 
   // Local mirror of the committed search term so typing stays responsive while
   // the URL commit is debounced (see Zone 2 SearchInput below).
@@ -223,10 +225,11 @@ export const CephBuckets = () => {
     })
   }
 
-  // Rendered below into a single unconditional return, alongside ManageCredentialsModal.
-  // Early `return`s here would unmount that modal the moment this state changes underneath
-  // it - which happens, for example, the instant the last credential is deleted from inside
-  // the (still open) modal and this query flips to the NO_CEPH_CREDENTIALS error branch.
+  // Rendered below into a single unconditional return, alongside CliSetupModal and
+  // ManageCredentialsModal. Early `return`s here would unmount ManageCredentialsModal the moment
+  // this state changes underneath it - which happens, for example, the instant the last
+  // credential is deleted from inside the (still open) modal and this query flips to the
+  // NO_CEPH_CREDENTIALS error branch.
   let content: ReactNode
 
   if (isLoading) {
@@ -235,7 +238,12 @@ export const CephBuckets = () => {
     const errorMessage = error.message
 
     if (errorMessage === "NO_CEPH_CREDENTIALS") {
-      content = <CredentialPrompt onManageCredentials={() => setCredentialsModalOpen(true)} />
+      content = (
+        <CredentialPrompt
+          onManageCredentials={() => setActiveModal("credentials")}
+          onCliSetup={() => setActiveModal("cliSetup")}
+        />
+      )
     } else {
       const isAccessDenied = errorMessage.includes("Access denied") || errorMessage.includes("AccessDenied")
       // RGW rejected a request signed with a key Keystone still holds - a key deleted from Keystone
@@ -252,7 +260,7 @@ export const CephBuckets = () => {
             body={t`The storage backend rejected the request signed with your access key. Check your keys in Manage Credentials, or contact your administrator if the problem persists.`}
             action={
               <ButtonRow>
-                <Button onClick={() => setCredentialsModalOpen(true)}>
+                <Button onClick={() => setActiveModal("credentials")}>
                   <Trans>Manage Credentials</Trans>
                 </Button>
               </ButtonRow>
@@ -317,12 +325,17 @@ export const CephBuckets = () => {
                   <Button icon="moreVert" title={t`More Actions`} aria-label={t`More Actions`} />
                 </PopupMenuToggle>
                 <PopupMenuOptions>
-                  {/* Not permission-gated: opening the modal is a read. Mutations inside it are
-                      gated (see the useCephPermissions docblock — reads are deliberately never
-                      gated). */}
+                  {/* Not permission-gated: opening either modal is a read (CLI Setup is info-only).
+                      Mutations inside Manage Credentials are gated (see the useCephPermissions
+                      docblock — reads are deliberately never gated). */}
+                  <PopupMenuItem
+                    label={t`CLI Setup`}
+                    onClick={() => setActiveModal("cliSetup")}
+                    data-testid="cli-setup-action"
+                  />
                   <PopupMenuItem
                     label={t`Manage Credentials`}
-                    onClick={() => setCredentialsModalOpen(true)}
+                    onClick={() => setActiveModal("credentials")}
                     data-testid="manage-credentials-action"
                   />
                 </PopupMenuOptions>
@@ -447,7 +460,12 @@ export const CephBuckets = () => {
   return (
     <div className="relative">
       {content}
-      <ManageCredentialsModal isOpen={credentialsModalOpen} onClose={() => setCredentialsModalOpen(false)} />
+      <CliSetupModal
+        isOpen={activeModal === "cliSetup"}
+        onClose={() => setActiveModal("none")}
+        onOpenCredentials={() => setActiveModal("credentials")}
+      />
+      <ManageCredentialsModal isOpen={activeModal === "credentials"} onClose={() => setActiveModal("none")} />
     </div>
   )
 }

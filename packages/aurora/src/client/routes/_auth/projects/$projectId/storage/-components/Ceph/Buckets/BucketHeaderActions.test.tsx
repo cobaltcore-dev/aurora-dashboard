@@ -43,6 +43,7 @@ describe("BucketHeaderActions", () => {
     expect(screen.getByRole("button", { name: "Bucket actions" })).toBeInTheDocument()
     await openMenu()
 
+    expect(screen.getByText("CLI Setup")).toBeInTheDocument()
     expect(screen.getByText("Enable Versioning")).toBeInTheDocument()
     expect(screen.getByText("Edit Policy")).toBeInTheDocument()
     expect(screen.getByText("Delete Policy")).toBeInTheDocument()
@@ -51,7 +52,17 @@ describe("BucketHeaderActions", () => {
     expect(screen.getByText("Delete Bucket")).toBeInTheDocument()
   })
 
-  it("renders nothing when all six permissions are false", () => {
+  it("clicking CLI Setup calls onOpenModal('cliSetup')", async () => {
+    const onOpenModal = vi.fn()
+    render(<BucketHeaderActions {...defaultProps} onOpenModal={onOpenModal} />, { wrapper: Wrapper })
+    await openMenu()
+
+    await userEvent.setup().click(screen.getByText("CLI Setup"))
+
+    expect(onOpenModal).toHaveBeenCalledWith("cliSetup")
+  })
+
+  it("renders only CLI Setup when all six permissions are false", async () => {
     render(
       <BucketHeaderActions
         {...defaultProps}
@@ -64,8 +75,21 @@ describe("BucketHeaderActions", () => {
       />,
       { wrapper: Wrapper }
     )
+    await openMenu()
 
-    expect(screen.queryByRole("button")).not.toBeInTheDocument()
+    expect(screen.getByText("CLI Setup")).toBeInTheDocument()
+    for (const label of [
+      "Enable Versioning",
+      "Suspend Versioning",
+      "Edit Policy",
+      "Add Policy",
+      "Delete Policy",
+      "Empty Bucket",
+      "Delete Versions",
+      "Delete Bucket",
+    ]) {
+      expect(screen.queryByText(label)).not.toBeInTheDocument()
+    }
   })
 
   it("hides Enable/Suspend Versioning when canUpdateVersioning is false", async () => {

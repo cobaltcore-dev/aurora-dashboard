@@ -24,9 +24,8 @@ interface BucketHeaderActionsProps {
  * - Policy button (primary or subdued based on whether policy exists)
  * - Actions dropdown with versioning, policy, and bucket management options
  *
- * Every item in this menu is a gated mutation with no always-visible read action, so the
- * whole menu is hidden (not just its items) when nothing is available otherwise it would
- * render as an empty popup for a read-only user.
+ * The menu always renders: "CLI Setup" is ungated, read-only info. Every other item is a gated
+ * mutation and only appears when its permission is granted.
  */
 export const BucketHeaderActions = ({
   versioningStatus,
@@ -45,21 +44,8 @@ export const BucketHeaderActions = ({
   const versioningState = canUpdateVersioning ? versioningStatus?.status : undefined
   const canEnableVersioning = versioningState === "Unversioned" || versioningState === "Suspended"
   const canSuspendVersioning = versioningState === "Enabled"
-  const canToggleVersioning = canEnableVersioning || canSuspendVersioning
   const canShowDeletePolicy = hasPolicy && canDeletePolicy
   const canShowDeleteVersions = hasOldVersionsOrDeleteMarkers && canDeleteVersions
-
-  const hasAnyAction =
-    canToggleVersioning ||
-    canUpdatePolicy ||
-    canShowDeletePolicy ||
-    canEmptyBucket ||
-    canShowDeleteVersions ||
-    canDeleteBucket
-
-  if (!hasAnyAction) {
-    return null
-  }
 
   return (
     <PopupMenu>
@@ -67,6 +53,11 @@ export const BucketHeaderActions = ({
         <Button icon="moreVert" title={t`Bucket actions`} aria-label={t`Bucket actions`} />
       </PopupMenuToggle>
       <PopupMenuOptions>
+        <PopupMenuItem
+          label={t`CLI Setup`}
+          onClick={() => onOpenModal("cliSetup")}
+          data-testid="bucket-cli-setup-action"
+        />
         {canEnableVersioning && (
           <PopupMenuItem label={t`Enable Versioning`} onClick={() => onOpenModal("enableVersioning")} />
         )}

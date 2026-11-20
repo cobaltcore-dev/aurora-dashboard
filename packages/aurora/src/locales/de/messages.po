@@ -498,6 +498,9 @@ msgstr "Regel hinzufügen"
 msgid "Add Security Group Rule"
 msgstr "Sicherheitsgruppenregel hinzufügen"
 
+msgid "Add this configuration to rclone.conf (run \"rclone config file\" to find it) and replace the placeholders with the access key ID and secret access key."
+msgstr ""
+
 msgid "Address group: {id}"
 msgstr ""
 
@@ -568,6 +571,9 @@ msgid "Allowed Origins"
 msgstr ""
 
 msgid "Also delete all versions and all delete markers"
+msgstr ""
+
+msgid "An access key ID and secret access key (see Manage Credentials)"
 msgstr ""
 
 msgid "An access key stops working the moment it is deleted. Any S3 client still configured with it loses access."
@@ -870,6 +876,15 @@ msgstr "CIDR"
 msgid "Clear all"
 msgstr "Alle Filter löschen"
 
+msgid "CLI Setup"
+msgstr ""
+
+msgid "CLI Setup Guide"
+msgstr ""
+
+msgid "CLI Tool"
+msgstr ""
+
 msgid "Click \"Add Property\" to create one."
 msgstr ""
 
@@ -907,6 +922,9 @@ msgid "Connection Details"
 msgstr ""
 
 msgid "Connection Details Unavailable"
+msgstr ""
+
+msgid "Contact your administrator if the problem persists."
 msgstr ""
 
 msgid "Container \"{containerName}\" properties were successfully updated."
@@ -1137,6 +1155,9 @@ msgstr ""
 msgid "Could Not Load Access Keys"
 msgstr ""
 
+msgid "Could not load connection details. Check the network connection and try again."
+msgstr ""
+
 msgid "Could not load the secret for access key \"{access}\". Try again."
 msgstr ""
 
@@ -1190,6 +1211,9 @@ msgstr "Container \"{containerName}\" konnte nicht geöffnet werden — er exist
 
 msgid "Create"
 msgstr "Erstellen"
+
+msgid "Create a profile. Enter the access key ID and secret access key when prompted."
+msgstr ""
 
 msgid "Create Access Key"
 msgstr ""
@@ -1547,6 +1571,9 @@ msgstr ""
 
 msgid "Download {rowDisplayName}"
 msgstr "{rowDisplayName} herunterladen"
+
+msgid "Download an object."
+msgstr ""
 
 msgid "Download Cancelled"
 msgstr "Download abgebrochen"
@@ -2535,6 +2562,15 @@ msgstr ""
 msgid "Inside a project, objects are stored in containers. Containers are where you define access permissions and quotas."
 msgstr "Innerhalb eines Projekts werden Objekte in Containern gespeichert. Container sind der Ort, an dem Sie Zugriffsberechtigungen und Quotas definieren."
 
+msgid "Install AWS CLI v2"
+msgstr ""
+
+msgid "Install rclone"
+msgstr ""
+
+msgid "Install s3cmd"
+msgstr ""
+
 msgid "Instance"
 msgstr ""
 
@@ -2679,6 +2715,12 @@ msgstr ""
 msgid "Limits"
 msgstr "Limits"
 
+msgid "List buckets."
+msgstr ""
+
+msgid "List objects in the bucket."
+msgstr ""
+
 msgid "Listing access"
 msgstr "Zugriff auflisten"
 
@@ -2698,6 +2740,9 @@ msgid "Loading buckets..."
 msgstr ""
 
 msgid "Loading Buckets..."
+msgstr ""
+
+msgid "Loading Connection Details…"
 msgstr ""
 
 msgid "Loading Container Properties..."
@@ -3528,6 +3573,9 @@ msgstr "Vorsignierte URL für \"{displayName}\" wurde in die Zwischenablage kopi
 msgid "Prefix and tag filters define which objects a rule applies to. Without them, this rule will be applied to all objects in the bucket."
 msgstr ""
 
+msgid "Prerequisites"
+msgstr ""
+
 msgid "Press Enter or click Add to add a tag"
 msgstr ""
 
@@ -3849,6 +3897,9 @@ msgstr "Änderungen speichern"
 msgid "Save Metadata"
 msgstr "Metadata speichern"
 
+msgid "Save this configuration as ~/.s3cfg and replace the placeholders with the access key ID and secret access key."
+msgstr ""
+
 msgid "Saving Image Details..."
 msgstr ""
 
@@ -4114,6 +4165,9 @@ msgid "Session expires in"
 msgstr "Sitzung läuft ab in"
 
 msgid "Set by the preset. Use a custom TCP or UDP rule to change the ports."
+msgstr ""
+
+msgid "Set the region and path-style addressing for the profile."
 msgstr ""
 
 msgid "Set to \"Shared\""
@@ -4964,6 +5018,9 @@ msgstr ""
 
 msgid "Upload"
 msgstr "Hochladen"
+
+msgid "Upload a file."
+msgstr ""
 
 msgid "Upload Cancelled"
 msgstr "Upload abgebrochen"

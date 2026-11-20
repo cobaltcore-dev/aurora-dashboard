@@ -6,11 +6,14 @@ import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
 import { CredentialPrompt } from "./CredentialPrompt"
 
-const renderCredentialPrompt = ({ onManageCredentials = vi.fn() }: { onManageCredentials?: () => void } = {}) =>
+const renderCredentialPrompt = ({
+  onManageCredentials = vi.fn(),
+  onCliSetup,
+}: { onManageCredentials?: () => void; onCliSetup?: () => void } = {}) =>
   render(
     <I18nProvider i18n={i18n}>
       <PortalProvider>
-        <CredentialPrompt onManageCredentials={onManageCredentials} />
+        <CredentialPrompt onManageCredentials={onManageCredentials} onCliSetup={onCliSetup} />
       </PortalProvider>
     </I18nProvider>
   )
@@ -65,5 +68,26 @@ describe("CredentialPrompt", () => {
     expect(container.querySelector(".juno-status-action")).toContainElement(
       screen.getByRole("button", { name: "Manage Credentials" })
     )
+  })
+
+  test("renders no CLI Setup button without onCliSetup", () => {
+    renderCredentialPrompt()
+    expect(screen.queryByRole("button", { name: "CLI Setup" })).not.toBeInTheDocument()
+  })
+
+  test("with onCliSetup both buttons sit in the action area and CLI Setup only calls its own handler", async () => {
+    const user = userEvent.setup()
+    const onManageCredentials = vi.fn()
+    const onCliSetup = vi.fn()
+    const { container } = renderCredentialPrompt({ onManageCredentials, onCliSetup })
+
+    const action = container.querySelector(".juno-status-action")
+    expect(action).toContainElement(screen.getByRole("button", { name: "Manage Credentials" }))
+    expect(action).toContainElement(screen.getByRole("button", { name: "CLI Setup" }))
+
+    await user.click(screen.getByRole("button", { name: "CLI Setup" }))
+
+    expect(onCliSetup).toHaveBeenCalledTimes(1)
+    expect(onManageCredentials).not.toHaveBeenCalled()
   })
 })
