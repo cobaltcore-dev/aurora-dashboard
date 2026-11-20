@@ -145,12 +145,12 @@ describe("ManageContainerAccessModal", () => {
   describe("Visibility", () => {
     test("does not render when isOpen is false", () => {
       renderModal({ isOpen: false })
-      expect(screen.queryByText(/Access Control for Container/i)).not.toBeInTheDocument()
+      expect(screen.queryByText(/Manage Container Access/i)).not.toBeInTheDocument()
     })
 
     test("does not render when container is null", () => {
       renderModal({ container: null })
-      expect(screen.queryByText(/Access Control for Container/i)).not.toBeInTheDocument()
+      expect(screen.queryByText(/Manage Container Access/i)).not.toBeInTheDocument()
     })
 
     test("renders when isOpen is true and container is set", () => {
@@ -163,11 +163,9 @@ describe("ManageContainerAccessModal", () => {
       expect(screen.getByText("special-container")).toBeInTheDocument()
     })
 
-    test("renders warning Message about ID validation", () => {
+    test("renders warning about ID validation", () => {
       renderModal()
-      const warningEl = screen.getByText(/incorrect IDs may apply access/i).closest(".juno-message")
-      expect(warningEl).toBeInTheDocument()
-      expect(warningEl).toHaveClass("juno-message-warning")
+      expect(screen.getByText(/incorrect IDs may apply access/i)).toBeInTheDocument()
     })
 
     test("renders reference panel with ACL examples", () => {

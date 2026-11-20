@@ -115,16 +115,7 @@ export const DeleteObjectModal = ({ isOpen, object, onClose, onSuccess, onError 
 
   return (
     <Modal
-      title={
-        <span className="flex max-w-100 items-center gap-1">
-          <span className="shrink-0">
-            <Trans>Delete object:</Trans>
-          </span>
-          <span className="truncate" title={displayName}>
-            {displayName}
-          </span>
-        </span>
-      }
+      title={t`Delete Object`}
       open={isOpen}
       onCancel={handleClose}
       confirmButtonLabel={isPending ? t`Deleting...` : t`Delete Object`}

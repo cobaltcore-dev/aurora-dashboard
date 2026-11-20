@@ -368,13 +368,13 @@ describe("ObjectsTableView", () => {
     test("renders — for last modified on folder rows", () => {
       renderView({ rows: [makeFolder("docs")] })
       const row = screen.getByTestId("object-row-docs/")
-      expect(row).toHaveTextContent("—")
+      expect(row).toHaveTextContent("- -")
     })
 
     test("renders — for size on folder rows", () => {
       renderView({ rows: [makeFolder("docs")] })
       const row = screen.getByTestId("object-row-docs/")
-      expect(row.textContent?.match(/—/g)?.length).toBeGreaterThanOrEqual(2)
+      expect(row.textContent?.match(/- -/g)?.length).toBeGreaterThanOrEqual(2)
     })
 
     test("renders formatted size for object rows", () => {
@@ -385,7 +385,7 @@ describe("ObjectsTableView", () => {
     test("renders — for missing last_modified on objects", () => {
       renderView({ rows: [makeObject("file.txt", { last_modified: undefined })] })
       const row = screen.getByTestId("object-row-file.txt")
-      expect(row).toHaveTextContent("—")
+      expect(row).toHaveTextContent("- -")
     })
   })
 

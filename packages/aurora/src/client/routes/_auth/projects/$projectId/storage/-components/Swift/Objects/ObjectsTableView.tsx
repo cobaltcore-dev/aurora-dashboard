@@ -9,6 +9,7 @@ import {
   PopupMenu,
   PopupMenuItem,
   PopupMenuOptions,
+  ProgressBar,
   Spinner,
   toast,
   Tooltip,
@@ -69,14 +70,7 @@ function RowTransferProgress({ downloadId, isPreviewing }: { downloadId: string;
           <Trans>Downloading...</Trans>
         )}
       </span>
-      {percent != null && (
-        <div className="bg-theme-background-lvl-2 h-1 w-full overflow-hidden rounded-full">
-          <div
-            className="bg-theme-accent h-1 rounded-full transition-all duration-150"
-            style={{ width: `${percent}%` }}
-          />
-        </div>
-      )}
+      {percent != null && <ProgressBar value={percent} aria-label="Download progress" />}
     </span>
   )
 }
@@ -407,14 +401,14 @@ export const ObjectsTableView = ({
                         </button>
                       </div>
                     ) : !isFolder && row.last_modified ? (
-                      (formatSwiftDate(row.last_modified) ?? "—")
+                      (formatSwiftDate(row.last_modified) ?? "- -")
                     ) : (
-                      "—"
+                      "- -"
                     )}
                   </DataGridCell>
 
                   {/* Size */}
-                  <DataGridCell>{!isFolder ? formatBytesBinary(row.bytes) : "—"}</DataGridCell>
+                  <DataGridCell>{!isFolder ? formatBytesBinary(row.bytes) : "- -"}</DataGridCell>
 
                   {/* Actions */}
                   <DataGridCell onClick={(e) => e.stopPropagation()}>
@@ -437,7 +431,7 @@ export const ObjectsTableView = ({
                               data-testid={`download-action-${row.name}`}
                             />
                             <PopupMenuItem
-                              label={t`Edit Object Metadata`}
+                              label={t`Edit/Preview Metadata`}
                               disabled={isStreaming}
                               onClick={() => setEditMetadataTarget(row as ObjectRow)}
                               data-testid={`edit-metadata-action-${row.name}`}

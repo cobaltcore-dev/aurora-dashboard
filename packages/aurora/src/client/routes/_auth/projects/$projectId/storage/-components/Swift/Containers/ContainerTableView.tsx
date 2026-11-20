@@ -252,7 +252,7 @@ export const ContainerTableView = ({
                           data-testid={`access-control-action-${container.name}`}
                         />
                         <PopupMenuItem
-                          label={t`Preview and Edit metadata`}
+                          label={t`Edit/Preview Metadata`}
                           onClick={() => setPropertiesModalContainer(container)}
                           data-testid={`properties-action-${container.name}`}
                         />

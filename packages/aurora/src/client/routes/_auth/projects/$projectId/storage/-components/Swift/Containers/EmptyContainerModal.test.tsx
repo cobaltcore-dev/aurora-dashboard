@@ -178,7 +178,7 @@ describe("EmptyContainerModal", () => {
   describe("Case 1: container has objects", () => {
     test("renders warning message (Are you sure)", () => {
       renderModal()
-      expect(screen.getByText(/This action is permanent/i)).toBeInTheDocument()
+      expect(screen.getByText(/will be permanently deleted/i)).toBeInTheDocument()
     })
 
     test("renders warning about large objects", () => {

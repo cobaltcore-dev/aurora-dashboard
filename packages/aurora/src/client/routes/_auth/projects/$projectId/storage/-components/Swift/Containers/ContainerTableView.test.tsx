@@ -425,7 +425,7 @@ describe("ContainerTableView", () => {
       const [firstMenuTrigger] = screen.getAllByRole("button", { name: "Container actions" })
       await user.click(firstMenuTrigger)
       expect(screen.getByText("Manage Access")).toBeInTheDocument()
-      expect(screen.getByText("Preview and Edit metadata")).toBeInTheDocument()
+      expect(screen.getByText("Edit/Preview Metadata")).toBeInTheDocument()
       expect(screen.getByText("Empty Container")).toBeInTheDocument()
       expect(screen.getByText("Delete Container")).toBeInTheDocument()
     })

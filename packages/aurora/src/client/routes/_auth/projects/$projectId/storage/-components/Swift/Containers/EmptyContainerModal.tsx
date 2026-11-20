@@ -97,6 +97,7 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
 
   if (!isOpen || !container) return null
 
+  const { name: containerName } = container
   const actualObjectCount = objects?.length ?? 0
 
   // ── Case 2: container.count === 0 and listed objects === 0 ────────────────
@@ -109,20 +110,9 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
 
   const showEmptyInfo = isTrulyEmpty || isConsistencyDelay
 
-  const modalTitle = (
-    <span className="flex max-w-100 items-center gap-2">
-      <span className="shrink-0">
-        <Trans>Empty:</Trans>
-      </span>
-      <span className="truncate" title={container.name}>
-        {container.name}
-      </span>
-    </span>
-  )
-
   return (
     <Modal
-      title={modalTitle}
+      title={t`Empty Container`}
       open={isOpen}
       onCancel={handleClose}
       confirmButtonLabel={showEmptyInfo ? undefined : t`Empty Container`}
@@ -169,7 +159,8 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
         <Stack direction="vertical" gap="6">
           <p className="text-theme-default">
             <Trans>
-              This action is permanent. All objects in the container will be deleted and this cannot be undone.
+              All objects in <span className="font-semibold">{containerName}</span> will be permanently deleted and this
+              cannot be undone.
             </Trans>
             <br />
             <Trans>

@@ -18,6 +18,9 @@ import {
   Icon,
   ComboBox,
   ComboBoxOption,
+  DescriptionList,
+  DescriptionTerm,
+  DescriptionDefinition,
 } from "@cloudoperators/juno-ui-components"
 import { ContainerSummary } from "@/server/Storage/types/swift"
 import { useProjectId } from "@/client/hooks/useProjectId"
@@ -427,16 +430,7 @@ export const EditContainerMetadataModal = ({
 
   return (
     <Modal
-      title={
-        <span className="flex max-w-125 items-center gap-2">
-          <span className="shrink-0">
-            <Trans>Container:</Trans>
-          </span>
-          <span className="truncate" title={container.name}>
-            {container.name}
-          </span>
-        </span>
-      }
+      title={t`Edit/Preview Container Metadata`}
       open={isOpen}
       onCancel={handleClose}
       confirmButtonLabel={t`Save`}
@@ -466,19 +460,24 @@ export const EditContainerMetadataModal = ({
         <div className="max-h-[65vh] overflow-y-auto pr-1 pl-1">
           <Stack direction="vertical" gap="6">
             {/* ── Read-only stats ─────────────────────────────────────────── */}
-            <div className="grid grid-cols-2 gap-4">
-              <TextInput label={t`Object count`} value={String(container.count)} disabled readOnly />
-              <TextInput
-                label={t`Total size`}
-                value={
-                  info?.bytesUsed != null
-                    ? `${info.bytesUsed.toLocaleString()} B`
-                    : `${container.bytes.toLocaleString()} B`
-                }
-                disabled
-                readOnly
-              />
-            </div>
+            <DescriptionList>
+              <DescriptionTerm>
+                <Trans>Container</Trans>
+              </DescriptionTerm>
+              <DescriptionDefinition>{container.name}</DescriptionDefinition>
+              <DescriptionTerm>
+                <Trans>Object count</Trans>
+              </DescriptionTerm>
+              <DescriptionDefinition>{String(container.count)}</DescriptionDefinition>
+              <DescriptionTerm>
+                <Trans>Total size</Trans>
+              </DescriptionTerm>
+              <DescriptionDefinition>
+                {info?.bytesUsed != null
+                  ? `${info.bytesUsed.toLocaleString()} B`
+                  : `${container.bytes.toLocaleString()} B`}
+              </DescriptionDefinition>
+            </DescriptionList>
 
             {/* ── Quotas ──────────────────────────────────────────────────── */}
             <div className="grid grid-cols-2 gap-4">

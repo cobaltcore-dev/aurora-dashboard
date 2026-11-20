@@ -42,7 +42,7 @@ describe("ContainerHeaderActions", () => {
     expect(screen.getByTestId("container-actions-delete")).toBeInTheDocument()
   })
 
-  test("items appear in the agreed order: Manage Access, Preview and Edit metadata, Empty Container, Delete Container", async () => {
+  test("items appear in the agreed order: Manage Access, Edit/Preview Metadata, Empty Container, Delete Container", async () => {
     const user = userEvent.setup()
     renderActions()
     await openMenu(user)
@@ -50,7 +50,7 @@ describe("ContainerHeaderActions", () => {
     const items = screen.getAllByRole("menuitem")
     expect(items.map((item) => item.textContent)).toEqual([
       "Manage Access",
-      "Preview and Edit metadata",
+      "Edit/Preview Metadata",
       "Empty Container",
       "Delete Container",
     ])

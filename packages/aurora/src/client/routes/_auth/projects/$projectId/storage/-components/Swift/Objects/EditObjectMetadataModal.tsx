@@ -12,6 +12,9 @@ import {
   DataGridHeadCell,
   DataGridCell,
   Button,
+  DescriptionList,
+  DescriptionTerm,
+  DescriptionDefinition,
 } from "@cloudoperators/juno-ui-components"
 import { useParams } from "@tanstack/react-router"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
@@ -74,18 +77,7 @@ const validateMetaKey = (key: string): MetaKeyError | null => {
   return null
 }
 
-const formatDate = (iso: string): string =>
-  // #1236: Swift timestamps are UTC without a "Z"; parse them as UTC (via
-  // formatSwiftDate) so the value is correct. This view intentionally displays
-  // in UTC (timeZone: "UTC"), unlike the list tables which show local time.
-  formatSwiftDate(iso, undefined, {
-    year: "numeric",
-    month: "short",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: "UTC",
-  }) ?? "—"
+const formatDate = (iso: string): string => formatSwiftDate(iso) ?? "- -"
 
 // Converts a Unix timestamp (seconds) to the "YYYY-MM-DD HH:mm:ss" field format (UTC)
 const formatUnixToTimestamp = (unix: number): string => {
@@ -354,16 +346,7 @@ export const EditObjectMetadataModal = ({
 
   return (
     <Modal
-      title={
-        <span className="flex max-w-100 items-center gap-1">
-          <Trans>
-            <span className="shrink-0">Edit metadata:</span>{" "}
-            <span className="truncate" title={displayName}>
-              {displayName}
-            </span>
-          </Trans>
-        </span>
-      }
+      title={t`Edit/Preview Object Metadata`}
       open={isOpen}
       onCancel={handleClose}
       confirmButtonLabel={isPending ? t`Saving...` : t`Update object`}
@@ -404,38 +387,36 @@ export const EditObjectMetadataModal = ({
           )}
 
           {/* ── Read-only properties ──────────────────────────────────────── */}
-          <div>
-            <p className="text-theme-default mb-3 text-sm font-semibold">
-              <Trans>Object properties</Trans>
-            </p>
-            <div className="grid grid-cols-[max-content_1fr] gap-x-6 gap-y-2 text-sm">
-              <span className="text-theme-light text-right">
-                <Trans>Content type</Trans>
-              </span>
-              <span>{metadataRaw?.contentType ?? "—"}</span>
-
-              <span className="text-theme-light text-right">
-                <Trans>MD5 checksum</Trans>
-              </span>
-              <span className="break-all">{metadataRaw?.etag ?? "—"}</span>
-
-              <span className="text-theme-light text-right">
-                <Trans>Size</Trans>
-              </span>
-              <span>{metadataRaw?.contentLength != null ? formatBytesBinary(metadataRaw.contentLength) : "—"}</span>
-
-              <span className="text-theme-light text-right">
-                <Trans>Last modified (UTC)</Trans>
-              </span>
-              <span>
-                {metadataRaw?.lastModified
-                  ? formatDate(metadataRaw.lastModified)
-                  : object.last_modified
-                    ? formatDate(object.last_modified)
-                    : "—"}
-              </span>
-            </div>
-          </div>
+          <DescriptionList>
+            <DescriptionTerm>
+              <Trans>Object</Trans>
+            </DescriptionTerm>
+            <DescriptionDefinition>{displayName}</DescriptionDefinition>
+            <DescriptionTerm>
+              <Trans>Content type</Trans>
+            </DescriptionTerm>
+            <DescriptionDefinition>{metadataRaw?.contentType ?? "- -"}</DescriptionDefinition>
+            <DescriptionTerm>
+              <Trans>MD5 checksum</Trans>
+            </DescriptionTerm>
+            <DescriptionDefinition className="break-all">{metadataRaw?.etag ?? "- -"}</DescriptionDefinition>
+            <DescriptionTerm>
+              <Trans>Size</Trans>
+            </DescriptionTerm>
+            <DescriptionDefinition>
+              {metadataRaw?.contentLength != null ? formatBytesBinary(metadataRaw.contentLength) : "- -"}
+            </DescriptionDefinition>
+            <DescriptionTerm>
+              <Trans>Last modified</Trans>
+            </DescriptionTerm>
+            <DescriptionDefinition>
+              {metadataRaw?.lastModified
+                ? formatDate(metadataRaw.lastModified)
+                : object.last_modified
+                  ? formatDate(object.last_modified)
+                  : "- -"}
+            </DescriptionDefinition>
+          </DescriptionList>
 
           {/* ── Expires at ───────────────────────────────────────────────── */}
           <div>

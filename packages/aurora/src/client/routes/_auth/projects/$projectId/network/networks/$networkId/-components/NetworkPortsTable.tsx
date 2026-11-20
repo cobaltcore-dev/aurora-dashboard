@@ -77,7 +77,9 @@ export function NetworkPortsTable({
             <DataGridCell>
               <ClipboardText text={port.id} truncateAt={13} />
             </DataGridCell>
-            <DataGridCell>{port.status.charAt(0) + port.status.slice(1).toLowerCase()}</DataGridCell>
+            <DataGridCell>
+              <span className="lowercase first-letter:uppercase">{port.status}</span>
+            </DataGridCell>
             <DataGridCell>{port.admin_state_up ? t`Up` : t`Down`}</DataGridCell>
             <DataGridCell>
               {port.fixed_ips.length > 0 ? (

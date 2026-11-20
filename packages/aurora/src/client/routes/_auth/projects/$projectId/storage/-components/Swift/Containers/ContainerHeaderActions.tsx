@@ -31,7 +31,7 @@ export const ContainerHeaderActions = ({ onOpenModal }: ContainerHeaderActionsPr
           data-testid="container-actions-manage-access"
         />
         <PopupMenuItem
-          label={t`Preview and Edit metadata`}
+          label={t`Edit/Preview Metadata`}
           onClick={() => onOpenModal("editMetadata")}
           data-testid="container-actions-edit-metadata"
         />

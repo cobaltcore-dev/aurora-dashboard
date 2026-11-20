@@ -348,16 +348,7 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
 
   return (
     <Modal
-      title={
-        <span className="flex max-w-125 items-center gap-1">
-          <span className="shrink-0">
-            <Trans>Move/Rename Object:</Trans>
-          </span>
-          <span className="truncate" title={object.displayName}>
-            {object.displayName}
-          </span>
-        </span>
-      }
+      title={t`Move/Rename Object`}
       open={isOpen}
       onCancel={handleClose}
       confirmButtonLabel={isPending ? t`Moving...` : t`Move/Rename Object`}
@@ -390,7 +381,8 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
           {/* New object name */}
           <div>
             <p className="mb-1">
-              <Trans>Change the name, destination container, or folder to move this object.</Trans>
+              <Trans>Change the name, destination container, or folder for</Trans>{" "}
+              <span className="font-semibold">{object.displayName}</span>.
             </p>
             <TextInput
               label={t`New object name`}

@@ -360,9 +360,6 @@ msgstr "Akzeptierte Images"
 msgid "Access Added"
 msgstr ""
 
-msgid "Access Control for Container:"
-msgstr "Zugriffskontrolle für Container:"
-
 msgid "Access Control Updated"
 msgstr "Zugriffskontrolle aktualisiert"
 
@@ -539,6 +536,9 @@ msgstr "Alle Container"
 
 msgid "All Images"
 msgstr "Alle Images"
+
+msgid "All objects in <0>{containerName}</0> will be permanently deleted and this cannot be undone."
+msgstr ""
 
 msgid "All objects in the selected containers will be permanently deleted. This cannot be undone."
 msgstr "Alle Objekte in den ausgewählten Containern werden dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden."
@@ -717,6 +717,12 @@ msgstr ""
 msgid "Bit length must be a positive integer"
 msgstr ""
 
+msgid "Block Storage"
+msgstr ""
+
+msgid "Block storage resources"
+msgstr ""
+
 msgid "Boot RAM"
 msgstr "Boot-RAM"
 
@@ -849,8 +855,8 @@ msgstr ""
 msgid "Certificate is required for certificate containers"
 msgstr ""
 
-msgid "Change the name, destination container, or folder to move this object."
-msgstr "Ändern Sie den Namen, den Ziel-Container oder den Ordner, um dieses Objekt zu verschieben."
+msgid "Change the name, destination container, or folder for"
+msgstr ""
 
 msgid "Changes take effect immediately after saving."
 msgstr "Änderungen werden sofort nach dem Speichern wirksam."
@@ -909,6 +915,9 @@ msgstr ""
 msgid "Connection Details Unavailable"
 msgstr ""
 
+msgid "Container"
+msgstr ""
+
 msgid "Container \"{containerName}\" properties were successfully updated."
 msgstr "Eigenschaften des Containers \"{containerName}\" wurden erfolgreich aktualisiert."
 
@@ -934,6 +943,12 @@ msgid "Container \"{name}\" was successfully created."
 msgstr ""
 
 msgid "Container \"{name}\" was successfully deleted."
+msgstr ""
+
+msgid "Container <0>{containerName}</0> cannot be deleted as it contains objects. Empty the container first."
+msgstr ""
+
+msgid "Container <0>{containerName}</0> will be deleted. This action is permanent and cannot be undone."
 msgstr ""
 
 msgid "Container actions"
@@ -990,8 +1005,8 @@ msgstr "Container-Synchronisierung"
 msgid "Container Updated"
 msgstr "Container aktualisiert"
 
-msgid "Container:"
-msgstr "Container:"
+msgid "Container: <0>{containerName}</0>"
+msgstr ""
 
 msgid "Containers"
 msgstr ""
@@ -1029,11 +1044,11 @@ msgstr ""
 msgid "Copy object:"
 msgstr "Objekt kopieren:"
 
-msgid "Copy Object:"
-msgstr "Objekt kopieren:"
-
 msgid "Copy URL"
 msgstr "URL kopieren"
+
+msgid "Copying <0>{displayName}</0> to a new location."
+msgstr ""
 
 msgid "Copying Object..."
 msgstr ""
@@ -1212,9 +1227,6 @@ msgstr "Flavor erstellen"
 msgid "Create Folder"
 msgstr "Ordner erstellen"
 
-msgid "Create folder below:"
-msgstr "Ordner erstellen unter:"
-
 msgid "Create Image"
 msgstr "Image erstellen"
 
@@ -1344,9 +1356,6 @@ msgstr ""
 msgid "Delete Container"
 msgstr ""
 
-msgid "Delete container:"
-msgstr "Container löschen:"
-
 msgid "Delete CORS Rule"
 msgstr ""
 
@@ -1364,9 +1373,6 @@ msgstr ""
 
 msgid "Delete Folder \"{displayName}\""
 msgstr ""
-
-msgid "Delete folder:"
-msgstr "Ordner löschen:"
 
 msgid "Delete Group"
 msgstr ""
@@ -1391,9 +1397,6 @@ msgstr ""
 
 msgid "Delete Object"
 msgstr ""
-
-msgid "Delete object:"
-msgstr "Objekt löschen:"
 
 msgid "Delete Objects"
 msgstr ""
@@ -1466,6 +1469,9 @@ msgstr "Die Beschreibung darf höchstens 255 Zeichen lang sein."
 
 msgid "Description must be less than 65535 characters."
 msgstr "Die Beschreibung muss weniger als 65535 Zeichen haben."
+
+msgid "Destination:"
+msgstr ""
 
 msgid "Detach"
 msgstr "Trennen"
@@ -1638,6 +1644,15 @@ msgstr ""
 msgid "Edit Security Group"
 msgstr "Security Group bearbeiten"
 
+msgid "Edit/Preview Container Metadata"
+msgstr ""
+
+msgid "Edit/Preview Metadata"
+msgstr ""
+
+msgid "Edit/Preview Object Metadata"
+msgstr ""
+
 msgid "Edit/View Bucket Policy"
 msgstr ""
 
@@ -1664,9 +1679,6 @@ msgstr ""
 
 msgid "Empty the bucket"
 msgstr ""
-
-msgid "Empty:"
-msgstr "Leeren:"
 
 msgid "Emptying Bucket {progressCurrent} of {progressTotal}, Please Wait..."
 msgstr ""
@@ -2118,6 +2130,9 @@ msgstr ""
 msgid "Failed to Load Versions"
 msgstr ""
 
+msgid "Failed to Load Volumes"
+msgstr ""
+
 msgid "Failed to Move Object"
 msgstr "Fehler beim Verschieben des Objekts"
 
@@ -2379,6 +2394,9 @@ msgstr ""
 msgid "General Instance Data"
 msgstr ""
 
+msgid "Generate Temporary URL"
+msgstr ""
+
 msgid "Generate URL"
 msgstr "URL generieren"
 
@@ -2637,9 +2655,6 @@ msgstr ""
 msgid "Last Modified"
 msgstr "Zuletzt geändert"
 
-msgid "Last modified (UTC)"
-msgstr "Zuletzt geändert (UTC)"
-
 msgid "Last update: {lastUpdated}"
 msgstr ""
 
@@ -2817,10 +2832,16 @@ msgstr ""
 msgid "Loading Versions..."
 msgstr ""
 
+msgid "Loading Volumes..."
+msgstr ""
+
 msgid "Loading..."
 msgstr "Lädt..."
 
 msgid "Loading…"
+msgstr ""
+
+msgid "Location:"
 msgstr ""
 
 msgid "MAC"
@@ -2837,6 +2858,9 @@ msgstr "Zugriff verwalten - {flavorName}"
 
 msgid "Manage Access for Image - {imageName}"
 msgstr "Zugriff für Image verwalten - {imageName}"
+
+msgid "Manage Container Access"
+msgstr ""
 
 msgid "Manage Credentials"
 msgstr ""
@@ -2947,9 +2971,6 @@ msgid "Move/Rename Object"
 msgstr ""
 
 msgid "Move/Rename object:"
-msgstr "Objekt verschieben/umbenennen:"
-
-msgid "Move/Rename Object:"
 msgstr "Objekt verschieben/umbenennen:"
 
 msgid "Moving Object..."
@@ -3249,6 +3270,9 @@ msgstr "Keine"
 msgid "Note: for <0>static and dynamic large objects</0> only the manifests are deleted — their segments outside this folder prefix are not affected."
 msgstr "Hinweis: Für <0>statische und dynamische große Objekte</0> werden nur die Manifeste gelöscht — ihre Segmente außerhalb dieses Ordnerpräfixes sind nicht betroffen."
 
+msgid "Object"
+msgstr ""
+
 msgid "Object \"{displayName}\" was permanently deleted."
 msgstr ""
 
@@ -3539,9 +3563,6 @@ msgstr "{rowDisplayName} vorschauen"
 
 msgid "Preview and download aren't available for older versions yet"
 msgstr "Vorschau und Download sind für ältere Versionen noch nicht verfügbar"
-
-msgid "Preview and Edit metadata"
-msgstr "Vorschau und Metadaten bearbeiten"
 
 msgid "Private"
 msgstr "Privat"
@@ -4110,6 +4131,9 @@ msgstr "Services"
 msgid "Session Changed"
 msgstr ""
 
+msgid "Session Expired"
+msgstr ""
+
 msgid "Session expires in"
 msgstr "Sitzung läuft ab in"
 
@@ -4201,6 +4225,12 @@ msgid "Size: {policySize} / {MAX_POLICY_SIZE} bytes"
 msgstr ""
 
 msgid "Snapshot"
+msgstr ""
+
+msgid "Snapshots"
+msgstr ""
+
+msgid "Snapshots View Coming Soon"
 msgstr ""
 
 msgid "SNAT"
@@ -4371,6 +4401,12 @@ msgstr "Temporäre URLs"
 msgid "The application configuration could not be loaded. Some services and features may be unavailable."
 msgstr ""
 
+msgid "The block storage scope is available. The snapshots list will be added in a follow-up release."
+msgstr ""
+
+msgid "The block storage scope is available. The volumes list will be added in a follow-up release."
+msgstr ""
+
 msgid "The bucket could not be created. Try again or choose a different name."
 msgstr ""
 
@@ -4380,9 +4416,6 @@ msgstr "Der Compute-Dienst ist für dieses Projekt derzeit nicht verfügbar. Bit
 msgid "The container \"{containerName}\" will be permanently deleted. This action cannot be undone."
 msgstr ""
 
-msgid "The container cannot be deleted as it contains objects. Empty the container first."
-msgstr "Der Container kann nicht gelöscht werden, da er Objekte enthält. Leeren Sie den Container zuerst."
-
 msgid "The container could not be created. Try again or choose a different name."
 msgstr ""
 
@@ -4391,9 +4424,6 @@ msgstr "Die Container-Metadaten melden Objekte, aber keine wurden aufgelistet. D
 
 msgid "The container was successfully created."
 msgstr ""
-
-msgid "The container will be deleted. This action is permanent and cannot be undone."
-msgstr "Der Container wird gelöscht. Diese Aktion ist dauerhaft und kann nicht rückgängig gemacht werden."
 
 msgid "The container's settings could not be applied."
 msgstr ""
@@ -4659,9 +4689,6 @@ msgstr "Diese Aktion kann nicht rückgängig gemacht werden. Das Zielprojekt ver
 msgid "This action is irreversible. Deleting a bucket permanently removes it and cannot be undone. The bucket must be empty before deletion."
 msgstr ""
 
-msgid "This action is permanent. All objects in the container will be deleted and this cannot be undone."
-msgstr "Diese Aktion ist dauerhaft. Alle Objekte im Container werden gelöscht und dies kann nicht rückgängig gemacht werden."
-
 msgid "This action is permanent. The address will be removed from your project and returned to the public pool. This action cannot be undone."
 msgstr "Diese Aktion ist dauerhaft. Die Adresse wird aus Ihrem Projekt entfernt und dem öffentlichen Pool zurückgegeben. Dies kann nicht rückgängig gemacht werden."
 
@@ -4858,6 +4885,9 @@ msgid "Try adjusting your filter criteria or check the Suggested Images tab."
 msgstr ""
 
 msgid "Try adjusting your filter criteria or create a new image."
+msgstr ""
+
+msgid "Try again"
 msgstr ""
 
 msgid "Try Again"
@@ -5106,6 +5136,12 @@ msgstr "Sichtbarkeit"
 msgid "VM State"
 msgstr ""
 
+msgid "Volumes"
+msgstr ""
+
+msgid "Volumes View Coming Soon"
+msgstr ""
+
 msgid "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
 msgstr "Wir entwickeln das Aurora-Dashboard, um Ihnen einen besseren Service zu bieten. Ihr Feedback ist von unschätzbarem Wert, um ein Werkzeug zu gestalten, das den einzigartigen Bedürfnissen von Unternehmen wie Ihrem gerecht wird. Bleiben Sie in Verbindung und begleiten Sie uns, während wir das Cloud-Management neu definieren."
 
@@ -5241,6 +5277,9 @@ msgstr "Sie haben keine Berechtigung, Projektzugriffe von diesem Flavor zu entfe
 msgid "You don't have permission to share this security group."
 msgstr "Sie haben keine Berechtigung, diese Sicherheitsgruppe zu teilen."
 
+msgid "You don't have permission to view block storage in this project."
+msgstr ""
+
 msgid "You don't have permission to view extra specs for this flavor."
 msgstr "Sie haben keine Berechtigung, Metadata für diesen Flavor anzusehen."
 
@@ -5250,8 +5289,14 @@ msgstr ""
 msgid "You don't have permission to view instances in this project. Contact your administrator to grant you the necessary permissions."
 msgstr ""
 
+msgid "You don't have permission to view snapshots in this project."
+msgstr ""
+
 msgid "You don't have permission to view this flavor's details."
 msgstr "Sie haben keine Berechtigung, die Details dieses Flavors anzuzeigen."
+
+msgid "You don't have permission to view volumes in this project."
+msgstr ""
 
 msgid "Your action is required"
 msgstr "Ihre Aktion ist erforderlich"
