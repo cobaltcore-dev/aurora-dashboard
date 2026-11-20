@@ -450,6 +450,9 @@ msgstr "Aktion"
 msgid "Actions"
 msgstr "Aktionen"
 
+msgid "Actions for {name}"
+msgstr ""
+
 msgid "Activate"
 msgstr "Aktivieren"
 
@@ -645,10 +648,22 @@ msgstr "Anhängen"
 msgid "Attach Floating IP {floating_ip_address} to the Port"
 msgstr ""
 
+msgid "Attached at"
+msgstr ""
+
 msgid "Attached Device"
 msgstr ""
 
+msgid "Attached To"
+msgstr ""
+
 msgid "Attaching Floating IP..."
+msgstr ""
+
+msgid "Attachment ID"
+msgstr ""
+
+msgid "Attachments"
 msgstr ""
 
 msgid "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
@@ -690,9 +705,6 @@ msgstr "Zurück zu Floating IPs"
 msgid "Back to Images"
 msgstr "Zurück zu Images"
 
-msgid "Back to Instances"
-msgstr ""
-
 msgid "Back to Key Manager"
 msgstr ""
 
@@ -717,11 +729,20 @@ msgstr ""
 msgid "Bit length must be a positive integer"
 msgstr ""
 
+msgid "Block Storage"
+msgstr ""
+
+msgid "Block storage resources"
+msgstr ""
+
 msgid "Boot RAM"
 msgstr "Boot-RAM"
 
 msgid "Boot size"
 msgstr "Boot-Größe"
+
+msgid "Bootable"
+msgstr ""
 
 msgid "Booted from volume"
 msgstr ""
@@ -851,6 +872,9 @@ msgstr ""
 
 msgid "Change the name, destination container, or folder to move this object."
 msgstr "Ändern Sie den Namen, den Ziel-Container oder den Ordner, um dieses Objekt zu verschieben."
+
+msgid "Change your search or filters to see more results."
+msgstr ""
 
 msgid "Changes take effect immediately after saving."
 msgstr "Änderungen werden sofort nach dem Speichern wirksam."
@@ -1479,6 +1503,9 @@ msgstr "Das Trennen dieser Floating IP hebt die Zuordnung zum aktuellen Port auf
 msgid "Detaching..."
 msgstr ""
 
+msgid "Device"
+msgstr ""
+
 msgid "Device ID"
 msgstr "Geräte-ID"
 
@@ -1693,6 +1720,9 @@ msgid "Enabled"
 msgstr ""
 
 msgid "Encode the payload according to the content encoding below."
+msgstr ""
+
+msgid "Encrypted"
 msgstr ""
 
 msgid "End of the range. Leave empty for a single port."
@@ -2094,6 +2124,9 @@ msgstr ""
 msgid "Failed to load payload."
 msgstr ""
 
+msgid "Failed to Load Permissions"
+msgstr ""
+
 msgid "Failed to Load Policy"
 msgstr ""
 
@@ -2112,10 +2145,22 @@ msgstr ""
 msgid "Failed to Load Security Groups"
 msgstr ""
 
+msgid "Failed to Load Snapshot"
+msgstr ""
+
+msgid "Failed to Load Snapshots"
+msgstr ""
+
 msgid "Failed to Load Subnets"
 msgstr ""
 
 msgid "Failed to Load Versions"
+msgstr ""
+
+msgid "Failed to Load Volume"
+msgstr ""
+
+msgid "Failed to Load Volumes"
 msgstr ""
 
 msgid "Failed to Move Object"
@@ -2631,6 +2676,9 @@ msgstr "Schlüssel muss mindestens ein alphanumerisches Zeichen enthalten"
 msgid "Key Name"
 msgstr ""
 
+msgid "Last fetched: {lastFetched}"
+msgstr ""
+
 msgid "Last modified"
 msgstr ""
 
@@ -2811,10 +2859,22 @@ msgstr ""
 msgid "Loading Security Group Details..."
 msgstr "Security Group-Details werden geladen..."
 
+msgid "Loading Snapshot Details..."
+msgstr ""
+
+msgid "Loading Snapshots..."
+msgstr ""
+
 msgid "Loading Subnets..."
 msgstr ""
 
 msgid "Loading Versions..."
+msgstr ""
+
+msgid "Loading Volume Details..."
+msgstr ""
+
+msgid "Loading Volumes..."
 msgstr ""
 
 msgid "Loading..."
@@ -2961,6 +3021,9 @@ msgstr "Wird verschoben..."
 msgid "MTU"
 msgstr ""
 
+msgid "Multiattach"
+msgstr ""
+
 msgid "Must be a valid IPv4 or IPv6 address (for example: 172.24.4.228 or 2001:db8::1)."
 msgstr "Muss eine gültige IPv4- oder IPv6-Adresse sein (z. B.: 172.24.4.228 oder 2001:db8::1)."
 
@@ -3046,6 +3109,12 @@ msgid "No addresses"
 msgstr ""
 
 msgid "No buckets found"
+msgstr ""
+
+msgid "No Completed Attachments"
+msgstr ""
+
+msgid "No completed attachments are reported by Cinder. The volume status may indicate an operation in progress."
 msgstr ""
 
 msgid "No containers found"
@@ -3219,6 +3288,15 @@ msgstr ""
 msgid "No services available for this project."
 msgstr "Keine Dienste für dieses Projekt verfügbar."
 
+msgid "No Snapshots for This Volume"
+msgstr ""
+
+msgid "No Snapshots in This Project"
+msgstr ""
+
+msgid "No Snapshots Match Your Filters"
+msgstr ""
+
 msgid "No Subnets"
 msgstr ""
 
@@ -3237,6 +3315,12 @@ msgstr ""
 msgid "No versions were deleted: {errorMessage}"
 msgstr ""
 
+msgid "No Volumes in This Project"
+msgstr ""
+
+msgid "No Volumes Match Your Filters"
+msgstr ""
+
 msgid "Noncurrent Version Transitions (Read-Only)"
 msgstr ""
 
@@ -3245,6 +3329,9 @@ msgstr ""
 
 msgid "None"
 msgstr "Keine"
+
+msgid "Not attached"
+msgstr ""
 
 msgid "Note: for <0>static and dynamic large objects</0> only the manifests are deleted — their segments outside this folder prefix are not affected."
 msgstr "Hinweis: Für <0>statische und dynamische große Objekte</0> werden nur die Manifeste gelöscht — ihre Segmente außerhalb dieses Ordnerpräfixes sind nicht betroffen."
@@ -3403,6 +3490,9 @@ msgid "Order Not Found"
 msgstr ""
 
 msgid "Orders"
+msgstr ""
+
+msgid "Other"
 msgstr ""
 
 msgid "Other Actions"
@@ -3741,6 +3831,9 @@ msgstr "Wird entfernt..."
 msgid "Reserved keys: web-index, web-listings, quota-count, quota-bytes"
 msgstr "Reservierte Schlüssel: web-index, web-listings, quota-count, quota-bytes"
 
+msgid "Resource Not Accessible"
+msgstr ""
+
 msgid "Resource Not Found"
 msgstr ""
 
@@ -3892,6 +3985,12 @@ msgid "Search ports..."
 msgstr ""
 
 msgid "Search routers..."
+msgstr ""
+
+msgid "Search snapshots by name or ID..."
+msgstr ""
+
+msgid "Search volumes by name or ID..."
 msgstr ""
 
 msgid "Search..."
@@ -4086,6 +4185,9 @@ msgstr "Serverfehler beim Abrufen der Flavor-Details. Bitte versuchen Sie es sp�
 msgid "Server error occurred while removing tenant access. Please try again later."
 msgstr "Ein Serverfehler ist aufgetreten, während der Projektzugriff entfernt wurde. Bitte versuchen Sie es später noch einmal."
 
+msgid "Server ID"
+msgstr ""
+
 msgid "Server is experiencing issues. Please try again later."
 msgstr "Der Server hat Probleme. Bitte versuchen Sie es später erneut."
 
@@ -4108,6 +4210,9 @@ msgid "Services"
 msgstr "Services"
 
 msgid "Session Changed"
+msgstr ""
+
+msgid "Session Expired"
 msgstr ""
 
 msgid "Session expires in"
@@ -4158,6 +4263,9 @@ msgstr ""
 msgid "Show more info about secret types"
 msgstr ""
 
+msgid "Showing {filteredCount} of {totalCount}"
+msgstr ""
+
 msgid "Showing {filteredCount} of {totalCount} {itemName}"
 msgstr "Zeige {filteredCount} von {totalCount} {itemName}"
 
@@ -4194,6 +4302,9 @@ msgstr ""
 msgid "Size"
 msgstr "Größe"
 
+msgid "Size (GiB)"
+msgstr ""
+
 msgid "Size:"
 msgstr ""
 
@@ -4201,6 +4312,15 @@ msgid "Size: {policySize} / {MAX_POLICY_SIZE} bytes"
 msgstr ""
 
 msgid "Snapshot"
+msgstr ""
+
+msgid "Snapshot Details"
+msgstr ""
+
+msgid "Snapshots"
+msgstr ""
+
+msgid "Snapshots of this volume"
 msgstr ""
 
 msgid "SNAT"
@@ -4219,6 +4339,12 @@ msgid "Sort by"
 msgstr "Sortieren nach"
 
 msgid "Source"
+msgstr ""
+
+msgid "Source snapshot"
+msgstr ""
+
+msgid "Source volume"
 msgstr ""
 
 msgid "Specific referrer: {host}"
@@ -4617,6 +4743,9 @@ msgstr ""
 msgid "There are no RBAC Policy items to display for this Security Group."
 msgstr "Für diese Security Group sind keine RBAC-Richtlinien zum Anzeigen vorhanden."
 
+msgid "There are no resources to display."
+msgstr ""
+
 msgid "There are no routers in this project."
 msgstr ""
 
@@ -4628,6 +4757,9 @@ msgstr ""
 
 msgid "There are no security groups in this project."
 msgstr "In diesem Projekt sind keine Sicherheitsgruppen vorhanden."
+
+msgid "There are no snapshots to display."
+msgstr ""
 
 msgid "These images are already active or you do not have permission to activate them."
 msgstr ""
@@ -4858,6 +4990,9 @@ msgid "Try adjusting your filter criteria or check the Suggested Images tab."
 msgstr ""
 
 msgid "Try adjusting your filter criteria or create a new image."
+msgstr ""
+
+msgid "Try again"
 msgstr ""
 
 msgid "Try Again"
@@ -5106,6 +5241,18 @@ msgstr "Sichtbarkeit"
 msgid "VM State"
 msgstr ""
 
+msgid "Volume Details"
+msgstr ""
+
+msgid "Volume relationships"
+msgstr ""
+
+msgid "Volume type"
+msgstr ""
+
+msgid "Volumes"
+msgstr ""
+
 msgid "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
 msgstr "Wir entwickeln das Aurora-Dashboard, um Ihnen einen besseren Service zu bieten. Ihr Feedback ist von unschätzbarem Wert, um ein Werkzeug zu gestalten, das den einzigartigen Bedürfnissen von Unternehmen wie Ihrem gerecht wird. Bleiben Sie in Verbindung und begleiten Sie uns, während wir das Cloud-Management neu definieren."
 
@@ -5241,6 +5388,9 @@ msgstr "Sie haben keine Berechtigung, Projektzugriffe von diesem Flavor zu entfe
 msgid "You don't have permission to share this security group."
 msgstr "Sie haben keine Berechtigung, diese Sicherheitsgruppe zu teilen."
 
+msgid "You don't have permission to view block storage in this project."
+msgstr ""
+
 msgid "You don't have permission to view extra specs for this flavor."
 msgstr "Sie haben keine Berechtigung, Metadata für diesen Flavor anzusehen."
 
@@ -5250,8 +5400,14 @@ msgstr ""
 msgid "You don't have permission to view instances in this project. Contact your administrator to grant you the necessary permissions."
 msgstr ""
 
+msgid "You don't have permission to view snapshots in this project."
+msgstr ""
+
 msgid "You don't have permission to view this flavor's details."
 msgstr "Sie haben keine Berechtigung, die Details dieses Flavors anzuzeigen."
+
+msgid "You don't have permission to view volumes in this project."
+msgstr ""
 
 msgid "Your action is required"
 msgstr "Ihre Aktion ist erforderlich"

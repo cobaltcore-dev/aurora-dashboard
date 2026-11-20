@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { Status } from "@cloudoperators/juno-ui-components"
 import { t } from "@lingui/core/macro"
-import { useLingui } from "@lingui/react/macro"
+import { ResourceList } from "./-components/ResourceList"
+import { volumeSearchSchema } from "./-utils/list"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/volumes/")({
@@ -10,17 +10,7 @@ export const Route = createFileRoute("/_auth/projects/$projectId/volumes/")({
     service: "volumes",
     analytics: { name: "volume.volumes.list" },
   } satisfies RouteInfo,
+  validateSearch: (search) => volumeSearchSchema.parse(search),
   head: () => ({ meta: [{ title: t`Volumes` }] }),
-  component: VolumesScaffold,
+  component: () => <ResourceList projectId={Route.useParams().projectId} />,
 })
-
-function VolumesScaffold() {
-  const { t } = useLingui()
-  return (
-    <Status
-      status="empty"
-      title={t`Volumes View Coming Soon`}
-      body={t`The block storage scope is available. The volumes list will be added in a follow-up release.`}
-    />
-  )
-}
