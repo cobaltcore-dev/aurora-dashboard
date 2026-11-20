@@ -1,5 +1,5 @@
 import * as client from "./client"
-import { SignalOpenstackError } from "./error"
+import { SignalOpenstackError, SignalOpenstackApiError } from "./error"
 import { Mock } from "vitest"
 
 // Helper to create a proper mock Response object with clone support
@@ -120,6 +120,41 @@ describe("client", () => {
         headers: { get: vi.fn().mockReturnValue(null) },
       })
       await expect(client.get("/", { host: "http://localhost" })).rejects.toThrow("error")
+    })
+
+    it("should include error body in SignalOpenstackApiError for JSON responses", async () => {
+      const errorBody = { error: { message: "Something went wrong", code: 500 } }
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: false,
+        status: 500,
+        statusText: "Internal Server Error",
+        json: vi.fn().mockResolvedValue(errorBody),
+        text: vi.fn().mockResolvedValue(JSON.stringify(errorBody)),
+        headers: { get: vi.fn().mockReturnValue("application/json") },
+      })
+      try {
+        await client.get("/", { host: "http://localhost" })
+        expect.fail("Should have thrown")
+      } catch (error: unknown) {
+        expect((error as SignalOpenstackApiError).body).toEqual(errorBody)
+      }
+    })
+
+    it("should have undefined body for text error responses", async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: false,
+        status: 502,
+        statusText: "Bad Gateway",
+        json: vi.fn(),
+        text: vi.fn().mockResolvedValue("Gateway timeout"),
+        headers: { get: vi.fn().mockReturnValue("text/html") },
+      })
+      try {
+        await client.get("/", { host: "http://localhost" })
+        expect.fail("Should have thrown")
+      } catch (error: unknown) {
+        expect((error as SignalOpenstackApiError).body).toBeUndefined()
+      }
     })
   })
 

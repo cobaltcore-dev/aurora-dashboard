@@ -1,13 +1,17 @@
 import { z } from "zod"
-import { projectScopedInputSchema } from "../../trpc"
-import { KUBERNETES_LANDSCAPE_KEYS, type KubernetesLandscape } from "@/types/kubernetes"
+import { type KubernetesLandscape } from "@/types/kubernetes"
+import { kubernetesLandscapeSchema, kubernetesInputSchema } from "./common"
 
-export const kubernetesLandscapeSchema = z.enum(KUBERNETES_LANDSCAPE_KEYS)
+// Re-export for backward compatibility
+export { kubernetesLandscapeSchema }
 
-export const gardenerInfoInputSchema = projectScopedInputSchema.extend({ landscape: kubernetesLandscapeSchema })
+export const gardenerInfoInputSchema = kubernetesInputSchema
 
 /** Loose on purpose: extra ConfigMap fields are ignored. */
-export const gardenerInfoConfigMapSchema = z.object({ data: z.record(z.string(), z.string()).nullish() })
+export const configMapSchema = z.object({ data: z.record(z.string(), z.string()).nullish() })
+
+// Alias for backward compatibility
+export const gardenerInfoConfigMapSchema = configMapSchema
 
 /** Reads the top-level `version:` line of the `gardenerAPIServer` YAML string without a YAML dependency. */
 export function parseGardenerApiServerVersion(yamlText: string | undefined): string | null {
