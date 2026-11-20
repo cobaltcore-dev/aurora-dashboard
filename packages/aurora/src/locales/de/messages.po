@@ -573,6 +573,12 @@ msgstr ""
 msgid "An access key stops working the moment it is deleted. Any S3 client still configured with it loses access."
 msgstr ""
 
+msgid "An error occurred while loading clusters."
+msgstr ""
+
+msgid "An error occurred while loading permissions."
+msgstr ""
+
 msgid "An object with this name already exists at the destination and will be overwritten."
 msgstr ""
 
@@ -694,6 +700,9 @@ msgid "Back to Instances"
 msgstr ""
 
 msgid "Back to Key Manager"
+msgstr ""
+
+msgid "Back to Kubernetes"
 msgstr ""
 
 msgid "Back to Networks"
@@ -2022,6 +2031,9 @@ msgstr ""
 msgid "Failed to Load Buckets"
 msgstr ""
 
+msgid "Failed to load clusters"
+msgstr ""
+
 msgid "Failed to Load Container"
 msgstr ""
 
@@ -2098,6 +2110,9 @@ msgid "Failed to Load Orders"
 msgstr ""
 
 msgid "Failed to load payload."
+msgstr ""
+
+msgid "Failed to load permissions"
 msgstr ""
 
 msgid "Failed to Load Policy"
@@ -2421,6 +2436,9 @@ msgstr "Zugriff für alle Benutzer aus diesem Projekt gewähren."
 msgid "Hardware Specifications"
 msgstr "Hardware-Spezifikationen"
 
+msgid "Healthy"
+msgstr ""
+
 msgid "Hi"
 msgstr "Hallo"
 
@@ -2640,6 +2658,15 @@ msgstr "Schlüssel muss mindestens ein alphanumerisches Zeichen enthalten"
 msgid "Key Name"
 msgstr ""
 
+msgid "Kubernetes"
+msgstr ""
+
+msgid "Kubernetes landscapes"
+msgstr ""
+
+msgid "Kubernetes Version"
+msgstr ""
+
 msgid "Last modified"
 msgstr ""
 
@@ -2648,6 +2675,9 @@ msgstr "Zuletzt geändert"
 
 msgid "Last modified (UTC)"
 msgstr "Zuletzt geändert (UTC)"
+
+msgid "Last Operation"
+msgstr ""
 
 msgid "Last update: {lastUpdated}"
 msgstr ""
@@ -2707,6 +2737,9 @@ msgid "Loading buckets..."
 msgstr ""
 
 msgid "Loading Buckets..."
+msgstr ""
+
+msgid "Loading clusters..."
 msgstr ""
 
 msgid "Loading Container Properties..."
@@ -3058,6 +3091,9 @@ msgid "No addresses"
 msgstr ""
 
 msgid "No buckets found"
+msgstr ""
+
+msgid "No clusters"
 msgstr ""
 
 msgid "No containers found"
@@ -3576,6 +3612,9 @@ msgstr ""
 msgid "Private Network"
 msgstr ""
 
+msgid "Progressing"
+msgstr ""
+
 msgid "Project"
 msgstr "Projekt"
 
@@ -3695,6 +3734,9 @@ msgstr "Lese-ACLs"
 
 msgid "Read ACLs — Preview"
 msgstr "Lese-ACLs — Vorschau"
+
+msgid "Readiness"
+msgstr ""
 
 msgid "Reference"
 msgstr ""
@@ -4626,6 +4668,9 @@ msgstr ""
 msgid "There are no items to display."
 msgstr "Es gibt keine Elemente zum Anzeigen."
 
+msgid "There are no Kubernetes clusters in this project for the selected landscape."
+msgstr ""
+
 msgid "There Are No Lifecycle Rules for This Bucket"
 msgstr ""
 
@@ -4956,6 +5001,12 @@ msgstr "Image-Datei kann nicht hochgeladen werden"
 msgid "Unable to verify bucket versioning status and contents. Try again."
 msgstr ""
 
+msgid "Unhealthy"
+msgstr ""
+
+msgid "Unknown"
+msgstr ""
+
 msgid "Unknown domain"
 msgstr ""
 
@@ -5204,6 +5255,9 @@ msgstr ""
 
 msgid "You can rename the object by changing the name here."
 msgstr "Sie können das Objekt umbenennen, indem Sie den Namen hier ändern."
+
+msgid "You do not have permission to list clusters."
+msgstr ""
 
 msgid "You do not have permission to view security groups"
 msgstr ""

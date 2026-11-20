@@ -19,3 +19,13 @@ export function findLandscapeService<T extends { type: string; name: string }>(
   const serviceName: string = KUBERNETES_LANDSCAPES[landscape].service
   return services.find((entry) => entry.type === serviceName || entry.name === serviceName)
 }
+
+/** Returns true if at least one Persephone service (qa/canary/prod) is present in the catalog. */
+export function hasAnyLandscapeService<T extends { type: string; name: string }>(services: T[]): boolean {
+  return KUBERNETES_LANDSCAPE_KEYS.some((landscape) => findLandscapeService(services, landscape) !== undefined)
+}
+
+/** Returns the list of available landscapes for the current project by filtering against the catalog. */
+export function getAvailableLandscapes<T extends { type: string; name: string }>(services: T[]): KubernetesLandscape[] {
+  return KUBERNETES_LANDSCAPE_KEYS.filter((landscape) => findLandscapeService(services, landscape) !== undefined)
+}

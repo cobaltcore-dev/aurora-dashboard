@@ -573,6 +573,12 @@ msgstr "Also delete all versions and all delete markers"
 msgid "An access key stops working the moment it is deleted. Any S3 client still configured with it loses access."
 msgstr "An access key stops working the moment it is deleted. Any S3 client still configured with it loses access."
 
+msgid "An error occurred while loading clusters."
+msgstr "An error occurred while loading clusters."
+
+msgid "An error occurred while loading permissions."
+msgstr "An error occurred while loading permissions."
+
 msgid "An object with this name already exists at the destination and will be overwritten."
 msgstr "An object with this name already exists at the destination and will be overwritten."
 
@@ -695,6 +701,9 @@ msgstr "Back to Instances"
 
 msgid "Back to Key Manager"
 msgstr "Back to Key Manager"
+
+msgid "Back to Kubernetes"
+msgstr "Back to Kubernetes"
 
 msgid "Back to Networks"
 msgstr "Back to Networks"
@@ -2022,6 +2031,9 @@ msgstr "Failed to Load Access"
 msgid "Failed to Load Buckets"
 msgstr "Failed to Load Buckets"
 
+msgid "Failed to load clusters"
+msgstr "Failed to load clusters"
+
 msgid "Failed to Load Container"
 msgstr "Failed to Load Container"
 
@@ -2099,6 +2111,9 @@ msgstr "Failed to Load Orders"
 
 msgid "Failed to load payload."
 msgstr "Failed to load payload."
+
+msgid "Failed to load permissions"
+msgstr "Failed to load permissions"
 
 msgid "Failed to Load Policy"
 msgstr "Failed to Load Policy"
@@ -2421,6 +2436,9 @@ msgstr "Grant access to all users from that project."
 msgid "Hardware Specifications"
 msgstr "Hardware Specifications"
 
+msgid "Healthy"
+msgstr "Healthy"
+
 msgid "Hi"
 msgstr "Hi"
 
@@ -2640,6 +2658,15 @@ msgstr "Key must contain at least one alphanumeric character"
 msgid "Key Name"
 msgstr "Key Name"
 
+msgid "Kubernetes"
+msgstr "Kubernetes"
+
+msgid "Kubernetes landscapes"
+msgstr "Kubernetes landscapes"
+
+msgid "Kubernetes Version"
+msgstr "Kubernetes Version"
+
 msgid "Last modified"
 msgstr "Last modified"
 
@@ -2648,6 +2675,9 @@ msgstr "Last Modified"
 
 msgid "Last modified (UTC)"
 msgstr "Last modified (UTC)"
+
+msgid "Last Operation"
+msgstr "Last Operation"
 
 msgid "Last update: {lastUpdated}"
 msgstr "Last update: {lastUpdated}"
@@ -2708,6 +2738,9 @@ msgstr "Loading buckets..."
 
 msgid "Loading Buckets..."
 msgstr "Loading Buckets..."
+
+msgid "Loading clusters..."
+msgstr "Loading clusters..."
 
 msgid "Loading Container Properties..."
 msgstr "Loading Container Properties..."
@@ -3059,6 +3092,9 @@ msgstr "No addresses"
 
 msgid "No buckets found"
 msgstr "No buckets found"
+
+msgid "No clusters"
+msgstr "No clusters"
 
 msgid "No containers found"
 msgstr "No containers found"
@@ -3576,6 +3612,9 @@ msgstr "Private Key Passphrase"
 msgid "Private Network"
 msgstr "Private Network"
 
+msgid "Progressing"
+msgstr "Progressing"
+
 msgid "Project"
 msgstr "Project"
 
@@ -3695,6 +3734,9 @@ msgstr "Read ACLs"
 
 msgid "Read ACLs — Preview"
 msgstr "Read ACLs — Preview"
+
+msgid "Readiness"
+msgstr "Readiness"
 
 msgid "Reference"
 msgstr "Reference"
@@ -4626,6 +4668,9 @@ msgstr "There are no instances in this project with the current filters applied.
 msgid "There are no items to display."
 msgstr "There are no items to display."
 
+msgid "There are no Kubernetes clusters in this project for the selected landscape."
+msgstr "There are no Kubernetes clusters in this project for the selected landscape."
+
 msgid "There Are No Lifecycle Rules for This Bucket"
 msgstr "There Are No Lifecycle Rules for This Bucket"
 
@@ -4956,6 +5001,12 @@ msgstr "Unable to Upload Image File"
 msgid "Unable to verify bucket versioning status and contents. Try again."
 msgstr "Unable to verify bucket versioning status and contents. Try again."
 
+msgid "Unhealthy"
+msgstr "Unhealthy"
+
+msgid "Unknown"
+msgstr "Unknown"
+
 msgid "Unknown domain"
 msgstr "Unknown domain"
 
@@ -5204,6 +5255,9 @@ msgstr "You can re-enable versioning at any time"
 
 msgid "You can rename the object by changing the name here."
 msgstr "You can rename the object by changing the name here."
+
+msgid "You do not have permission to list clusters."
+msgstr "You do not have permission to list clusters."
 
 msgid "You do not have permission to view security groups"
 msgstr "You do not have permission to view security groups"

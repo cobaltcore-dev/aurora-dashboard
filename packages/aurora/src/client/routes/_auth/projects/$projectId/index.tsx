@@ -11,6 +11,7 @@ import { hasServiceByName } from "@/client/utils/serviceCatalog"
 import { STORAGE_PROVIDER, STORAGE_TYPE_BY_PROVIDER } from "@/client/utils/storageProviders"
 import { findCinderService } from "@/types/volume"
 import { useVolumePermissions } from "@/client/hooks/useVolumePermissions"
+import { hasAnyLandscapeService } from "@/types/kubernetes"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/")({
   staticData: {
@@ -141,6 +142,9 @@ function RouteComponent() {
       to: `${base}/authorization/key-manager/secrets`,
       service: "key-manager",
     })
+
+  if (hasAnyLandscapeService(availableServices ?? []) && isEnabled("kubernetes"))
+    cards.push({ group: t`Kubernetes`, label: t`Kubernetes`, to: `${base}/kubernetes`, service: "kubernetes" })
 
   for (const extension of serviceExtensions ?? []) {
     // if the extension's service is in the catalog and enabled, display a card for it

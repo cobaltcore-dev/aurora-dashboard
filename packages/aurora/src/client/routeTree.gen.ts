@@ -17,6 +17,7 @@ import { Route as AuthAccountsIndexRouteImport } from "./routes/_auth/accounts/i
 import { Route as AuthProjectsIndexRouteImport } from "./routes/_auth/projects/index"
 import { Route as AuthProjectsProjectIdRouteImport } from "./routes/_auth/projects/$projectId"
 import { Route as AuthProjectsProjectIdIndexRouteImport } from "./routes/_auth/projects/$projectId/index"
+import { Route as AuthProjectsProjectIdKubernetesRouteImport } from "./routes/_auth/projects/$projectId/kubernetes"
 import { Route as AuthProjectsProjectIdNetworkRouteImport } from "./routes/_auth/projects/$projectId/network"
 import { Route as AuthProjectsProjectIdServicesRouteImport } from "./routes/_auth/projects/$projectId/services"
 import { Route as AuthProjectsProjectIdVolumesRouteImport } from "./routes/_auth/projects/$projectId/volumes"
@@ -25,6 +26,7 @@ import { Route as AuthProjectsProjectIdComputeIndexRouteImport } from "./routes/
 import { Route as AuthProjectsProjectIdComputeFlavorsRouteImport } from "./routes/_auth/projects/$projectId/compute/flavors"
 import { Route as AuthProjectsProjectIdComputeImagesRouteImport } from "./routes/_auth/projects/$projectId/compute/images"
 import { Route as AuthProjectsProjectIdComputeInstancesRouteImport } from "./routes/_auth/projects/$projectId/compute/instances"
+import { Route as AuthProjectsProjectIdKubernetesIndexRouteImport } from "./routes/_auth/projects/$projectId/kubernetes/index"
 import { Route as AuthProjectsProjectIdNetworkIndexRouteImport } from "./routes/_auth/projects/$projectId/network/index"
 import { Route as AuthProjectsProjectIdNetworkFloatingipsRouteImport } from "./routes/_auth/projects/$projectId/network/floatingips"
 import { Route as AuthProjectsProjectIdNetworkNetworksRouteImport } from "./routes/_auth/projects/$projectId/network/networks"
@@ -108,6 +110,12 @@ const AuthProjectsProjectIdIndexRoute =
     path: "/",
     getParentRoute: () => AuthProjectsProjectIdRoute,
   } as any)
+const AuthProjectsProjectIdKubernetesRoute =
+  AuthProjectsProjectIdKubernetesRouteImport.update({
+    id: "/kubernetes",
+    path: "/kubernetes",
+    getParentRoute: () => AuthProjectsProjectIdRoute,
+  } as any)
 const AuthProjectsProjectIdNetworkRoute =
   AuthProjectsProjectIdNetworkRouteImport.update({
     id: "/network",
@@ -155,6 +163,12 @@ const AuthProjectsProjectIdComputeInstancesRoute =
     id: "/compute/instances",
     path: "/compute/instances",
     getParentRoute: () => AuthProjectsProjectIdRoute,
+  } as any)
+const AuthProjectsProjectIdKubernetesIndexRoute =
+  AuthProjectsProjectIdKubernetesIndexRouteImport.update({
+    id: "/",
+    path: "/",
+    getParentRoute: () => AuthProjectsProjectIdKubernetesRoute,
   } as any)
 const AuthProjectsProjectIdNetworkIndexRoute =
   AuthProjectsProjectIdNetworkIndexRouteImport.update({
@@ -433,6 +447,7 @@ export interface FileRoutesByFullPath {
   "/projects/$projectId": typeof AuthProjectsProjectIdRouteWithChildren
   "/accounts/": typeof AuthAccountsIndexRoute
   "/projects/": typeof AuthProjectsIndexRoute
+  "/projects/$projectId/kubernetes": typeof AuthProjectsProjectIdKubernetesRouteWithChildren
   "/projects/$projectId/network": typeof AuthProjectsProjectIdNetworkRouteWithChildren
   "/projects/$projectId/services": typeof AuthProjectsProjectIdServicesRouteWithChildren
   "/projects/$projectId/volumes": typeof AuthProjectsProjectIdVolumesRouteWithChildren
@@ -448,6 +463,7 @@ export interface FileRoutesByFullPath {
   "/projects/$projectId/network/securitygroups": typeof AuthProjectsProjectIdNetworkSecuritygroupsRouteWithChildren
   "/projects/$projectId/services/$serviceType": typeof AuthProjectsProjectIdServicesServiceTypeRouteWithChildren
   "/projects/$projectId/compute/": typeof AuthProjectsProjectIdComputeIndexRoute
+  "/projects/$projectId/kubernetes/": typeof AuthProjectsProjectIdKubernetesIndexRoute
   "/projects/$projectId/network/": typeof AuthProjectsProjectIdNetworkIndexRoute
   "/projects/$projectId/services/": typeof AuthProjectsProjectIdServicesIndexRoute
   "/projects/$projectId/storage/": typeof AuthProjectsProjectIdStorageIndexRoute
@@ -493,6 +509,7 @@ export interface FileRoutesByTo {
   "/projects": typeof AuthProjectsIndexRoute
   "/projects/$projectId": typeof AuthProjectsProjectIdIndexRoute
   "/projects/$projectId/compute": typeof AuthProjectsProjectIdComputeIndexRoute
+  "/projects/$projectId/kubernetes": typeof AuthProjectsProjectIdKubernetesIndexRoute
   "/projects/$projectId/network": typeof AuthProjectsProjectIdNetworkIndexRoute
   "/projects/$projectId/services": typeof AuthProjectsProjectIdServicesIndexRoute
   "/projects/$projectId/storage": typeof AuthProjectsProjectIdStorageIndexRoute
@@ -535,6 +552,7 @@ export interface FileRoutesById {
   "/_auth/projects/$projectId": typeof AuthProjectsProjectIdRouteWithChildren
   "/_auth/accounts/": typeof AuthAccountsIndexRoute
   "/_auth/projects/": typeof AuthProjectsIndexRoute
+  "/_auth/projects/$projectId/kubernetes": typeof AuthProjectsProjectIdKubernetesRouteWithChildren
   "/_auth/projects/$projectId/network": typeof AuthProjectsProjectIdNetworkRouteWithChildren
   "/_auth/projects/$projectId/services": typeof AuthProjectsProjectIdServicesRouteWithChildren
   "/_auth/projects/$projectId/volumes": typeof AuthProjectsProjectIdVolumesRouteWithChildren
@@ -550,6 +568,7 @@ export interface FileRoutesById {
   "/_auth/projects/$projectId/network/securitygroups": typeof AuthProjectsProjectIdNetworkSecuritygroupsRouteWithChildren
   "/_auth/projects/$projectId/services/$serviceType": typeof AuthProjectsProjectIdServicesServiceTypeRouteWithChildren
   "/_auth/projects/$projectId/compute/": typeof AuthProjectsProjectIdComputeIndexRoute
+  "/_auth/projects/$projectId/kubernetes/": typeof AuthProjectsProjectIdKubernetesIndexRoute
   "/_auth/projects/$projectId/network/": typeof AuthProjectsProjectIdNetworkIndexRoute
   "/_auth/projects/$projectId/services/": typeof AuthProjectsProjectIdServicesIndexRoute
   "/_auth/projects/$projectId/storage/": typeof AuthProjectsProjectIdStorageIndexRoute
@@ -596,6 +615,7 @@ export interface FileRouteTypes {
     | "/projects/$projectId"
     | "/accounts/"
     | "/projects/"
+    | "/projects/$projectId/kubernetes"
     | "/projects/$projectId/network"
     | "/projects/$projectId/services"
     | "/projects/$projectId/volumes"
@@ -611,6 +631,7 @@ export interface FileRouteTypes {
     | "/projects/$projectId/network/securitygroups"
     | "/projects/$projectId/services/$serviceType"
     | "/projects/$projectId/compute/"
+    | "/projects/$projectId/kubernetes/"
     | "/projects/$projectId/network/"
     | "/projects/$projectId/services/"
     | "/projects/$projectId/storage/"
@@ -656,6 +677,7 @@ export interface FileRouteTypes {
     | "/projects"
     | "/projects/$projectId"
     | "/projects/$projectId/compute"
+    | "/projects/$projectId/kubernetes"
     | "/projects/$projectId/network"
     | "/projects/$projectId/services"
     | "/projects/$projectId/storage"
@@ -697,6 +719,7 @@ export interface FileRouteTypes {
     | "/_auth/projects/$projectId"
     | "/_auth/accounts/"
     | "/_auth/projects/"
+    | "/_auth/projects/$projectId/kubernetes"
     | "/_auth/projects/$projectId/network"
     | "/_auth/projects/$projectId/services"
     | "/_auth/projects/$projectId/volumes"
@@ -712,6 +735,7 @@ export interface FileRouteTypes {
     | "/_auth/projects/$projectId/network/securitygroups"
     | "/_auth/projects/$projectId/services/$serviceType"
     | "/_auth/projects/$projectId/compute/"
+    | "/_auth/projects/$projectId/kubernetes/"
     | "/_auth/projects/$projectId/network/"
     | "/_auth/projects/$projectId/services/"
     | "/_auth/projects/$projectId/storage/"
@@ -814,6 +838,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof AuthProjectsProjectIdIndexRouteImport
       parentRoute: typeof AuthProjectsProjectIdRoute
     }
+    "/_auth/projects/$projectId/kubernetes": {
+      id: "/_auth/projects/$projectId/kubernetes"
+      path: "/kubernetes"
+      fullPath: "/projects/$projectId/kubernetes"
+      preLoaderRoute: typeof AuthProjectsProjectIdKubernetesRouteImport
+      parentRoute: typeof AuthProjectsProjectIdRoute
+    }
     "/_auth/projects/$projectId/network": {
       id: "/_auth/projects/$projectId/network"
       path: "/network"
@@ -869,6 +900,13 @@ declare module "@tanstack/react-router" {
       fullPath: "/projects/$projectId/compute/instances"
       preLoaderRoute: typeof AuthProjectsProjectIdComputeInstancesRouteImport
       parentRoute: typeof AuthProjectsProjectIdRoute
+    }
+    "/_auth/projects/$projectId/kubernetes/": {
+      id: "/_auth/projects/$projectId/kubernetes/"
+      path: "/"
+      fullPath: "/projects/$projectId/kubernetes/"
+      preLoaderRoute: typeof AuthProjectsProjectIdKubernetesIndexRouteImport
+      parentRoute: typeof AuthProjectsProjectIdKubernetesRoute
     }
     "/_auth/projects/$projectId/network/": {
       id: "/_auth/projects/$projectId/network/"
@@ -1166,6 +1204,21 @@ declare module "@tanstack/react-router" {
     }
   }
 }
+
+interface AuthProjectsProjectIdKubernetesRouteChildren {
+  AuthProjectsProjectIdKubernetesIndexRoute: typeof AuthProjectsProjectIdKubernetesIndexRoute
+}
+
+const AuthProjectsProjectIdKubernetesRouteChildren: AuthProjectsProjectIdKubernetesRouteChildren =
+  {
+    AuthProjectsProjectIdKubernetesIndexRoute:
+      AuthProjectsProjectIdKubernetesIndexRoute,
+  }
+
+const AuthProjectsProjectIdKubernetesRouteWithChildren =
+  AuthProjectsProjectIdKubernetesRoute._addFileChildren(
+    AuthProjectsProjectIdKubernetesRouteChildren,
+  )
 
 interface AuthProjectsProjectIdNetworkFloatingipsRouteChildren {
   AuthProjectsProjectIdNetworkFloatingipsIndexRoute: typeof AuthProjectsProjectIdNetworkFloatingipsIndexRoute
@@ -1492,6 +1545,7 @@ const AuthProjectsProjectIdStorageProviderStorageTypeRouteWithChildren =
   )
 
 interface AuthProjectsProjectIdRouteChildren {
+  AuthProjectsProjectIdKubernetesRoute: typeof AuthProjectsProjectIdKubernetesRouteWithChildren
   AuthProjectsProjectIdNetworkRoute: typeof AuthProjectsProjectIdNetworkRouteWithChildren
   AuthProjectsProjectIdServicesRoute: typeof AuthProjectsProjectIdServicesRouteWithChildren
   AuthProjectsProjectIdVolumesRoute: typeof AuthProjectsProjectIdVolumesRouteWithChildren
@@ -1506,6 +1560,8 @@ interface AuthProjectsProjectIdRouteChildren {
 }
 
 const AuthProjectsProjectIdRouteChildren: AuthProjectsProjectIdRouteChildren = {
+  AuthProjectsProjectIdKubernetesRoute:
+    AuthProjectsProjectIdKubernetesRouteWithChildren,
   AuthProjectsProjectIdNetworkRoute:
     AuthProjectsProjectIdNetworkRouteWithChildren,
   AuthProjectsProjectIdServicesRoute:
