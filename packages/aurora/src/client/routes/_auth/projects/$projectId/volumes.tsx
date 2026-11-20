@@ -1,10 +1,11 @@
-import { createFileRoute, Outlet, redirect, useMatches, useNavigate, useRouter } from "@tanstack/react-router"
-import { Button, Stack, Status, TabBar, TabBarItem } from "@cloudoperators/juno-ui-components"
+import { createFileRoute, Outlet, redirect, useMatches, useRouter } from "@tanstack/react-router"
+import { Button, Stack, Status } from "@cloudoperators/juno-ui-components"
 import { msg } from "@lingui/core/macro"
 import { useLingui } from "@lingui/react/macro"
 import { useVolumePermissions } from "@/client/hooks/useVolumePermissions"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import { RouteError } from "@/client/components/Errors/RouteError"
+import { ResourceTabs } from "./volumes/-components/ResourceTabs"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/volumes")({
@@ -48,7 +49,6 @@ function VolumeScopeError({ error }: { error: unknown }) {
 function VolumeLayout() {
   const { projectId } = Route.useParams()
   const { t } = useLingui()
-  const navigate = useNavigate()
   const matches = useMatches()
   const detail = matches.some((match) => match.routeId.includes("$volumeId") || match.routeId.includes("$snapshotId"))
   const snapshots = matches.some((match) => match.routeId.includes("/snapshots"))
@@ -90,37 +90,23 @@ function VolumeLayout() {
     )
   return (
     <div>
-      {!detail && (
-        <>
-          <ContentHeader title={t`Volumes`} projectId={projectId} />
-          <TabBar
-            ariaLabel={t`Block storage resources`}
-            activeItem={snapshots ? "snapshots" : "volumes"}
-            onActiveItemChange={(value) => {
-              void navigate({
-                to: value === "snapshots" ? "/projects/$projectId/volumes/snapshots" : "/projects/$projectId/volumes",
-                params: { projectId },
-              })
-            }}
-          >
-            <TabBarItem label={t`Volumes`} value="volumes" />
-            <TabBarItem label={t`Snapshots`} value="snapshots" />
-          </TabBar>
-        </>
-      )}
+      {!detail && <ContentHeader title={t`Volumes`} projectId={projectId} />}
       <div className="mt-4">
         {canAccess ? (
           <Outlet />
         ) : (
-          <Status
-            status="error"
-            title={t`Access Denied`}
-            body={
-              snapshots
-                ? t`You don't have permission to view snapshots in this project.`
-                : t`You don't have permission to view volumes in this project.`
-            }
-          />
+          <Stack direction="vertical">
+            {!detail && <ResourceTabs projectId={projectId} snapshots={snapshots} />}
+            <Status
+              status="error"
+              title={t`Access Denied`}
+              body={
+                snapshots
+                  ? t`You don't have permission to view snapshots in this project.`
+                  : t`You don't have permission to view volumes in this project.`
+              }
+            />
+          </Stack>
         )}
       </div>
     </div>

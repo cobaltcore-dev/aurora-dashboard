@@ -163,6 +163,7 @@ describe("SelectedFilters", () => {
 
     const clearButton = screen.getByText("Clear all")
     expect(clearButton).toBeInTheDocument()
+    expect(clearButton.closest("button")).toHaveClass("juno-button-xs-size")
   })
 
   it("should call onClear when Clear all button is clicked", async () => {

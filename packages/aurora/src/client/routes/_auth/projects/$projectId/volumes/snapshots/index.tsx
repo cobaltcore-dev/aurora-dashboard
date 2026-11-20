@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { Status } from "@cloudoperators/juno-ui-components"
 import { msg, t } from "@lingui/core/macro"
-import { useLingui } from "@lingui/react/macro"
+import { ResourceList } from "../-components/ResourceList"
+import { volumeSearchSchema } from "../-utils/list"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/volumes/snapshots/")({
@@ -11,17 +11,8 @@ export const Route = createFileRoute("/_auth/projects/$projectId/volumes/snapsho
     crumb: { text: msg`Snapshots` },
     analytics: { name: "volume.snapshots.list" },
   } satisfies RouteInfo,
+  validateSearch: (search) =>
+    volumeSearchSchema.pick({ search: true, sortBy: true, sortDirection: true, status: true }).parse(search),
   head: () => ({ meta: [{ title: t`Snapshots` }] }),
-  component: SnapshotsScaffold,
+  component: () => <ResourceList projectId={Route.useParams().projectId} snapshots />,
 })
-
-function SnapshotsScaffold() {
-  const { t } = useLingui()
-  return (
-    <Status
-      status="empty"
-      title={t`Snapshots View Coming Soon`}
-      body={t`The block storage scope is available. The snapshots list will be added in a follow-up release.`}
-    />
-  )
-}
