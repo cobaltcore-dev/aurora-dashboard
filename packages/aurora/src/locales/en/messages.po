@@ -3891,9 +3891,6 @@ msgstr "Search by name or ID"
 msgid "Search by name or ID..."
 msgstr "Search by name or ID..."
 
-msgid "Search containers..."
-msgstr "Search containers..."
-
 msgid "Search CORS rules..."
 msgstr "Search CORS rules..."
 

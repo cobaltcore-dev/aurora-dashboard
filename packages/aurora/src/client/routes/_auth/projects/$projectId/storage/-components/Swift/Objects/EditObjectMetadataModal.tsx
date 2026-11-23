@@ -520,7 +520,9 @@ export const EditObjectMetadataModal = ({
                         {entry.isEditing ? (
                           <TextInput
                             value={entry.key}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleKeyChange(index, e.target.value)}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                              handleKeyChange(index, e.target.value)
+                            }
                             errortext={metaErrors[`edit-${index}`]}
                             invalid={!!metaErrors[`edit-${index}`]}
                           />
