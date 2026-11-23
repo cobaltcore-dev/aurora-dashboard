@@ -460,7 +460,7 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
           <Stack direction="vertical" gap="2">
             <Stack distribution="end" alignment="center">
               <SearchInput
-                placeholder={t`Search objects...`}
+                placeholder={t`Search...`}
                 data-testid="searchbar"
                 value={localSearchTerm}
                 onInput={(e: React.FormEvent<HTMLInputElement>) => {

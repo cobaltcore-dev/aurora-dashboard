@@ -321,7 +321,7 @@ export const SwiftContainers = () => {
           <Stack direction="vertical" gap="2">
             <Stack distribution="end" alignment="center">
               <SearchInput
-                placeholder={t`Search containers...`}
+                placeholder={t`Search...`}
                 data-testid="searchbar"
                 value={localSearchTerm}
                 onInput={(e: React.FormEvent<HTMLInputElement>) => {
