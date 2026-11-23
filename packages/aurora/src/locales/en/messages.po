@@ -717,6 +717,12 @@ msgstr "Bit Length"
 msgid "Bit length must be a positive integer"
 msgstr "Bit length must be a positive integer"
 
+msgid "Block Storage"
+msgstr "Block Storage"
+
+msgid "Block storage resources"
+msgstr "Block storage resources"
+
 msgid "Boot RAM"
 msgstr "Boot RAM"
 
@@ -2112,11 +2118,17 @@ msgstr "Failed to Load Secrets"
 msgid "Failed to Load Security Groups"
 msgstr "Failed to Load Security Groups"
 
+msgid "Failed to Load Shared File System"
+msgstr "Failed to Load Shared File System"
+
 msgid "Failed to Load Subnets"
 msgstr "Failed to Load Subnets"
 
 msgid "Failed to Load Versions"
 msgstr "Failed to Load Versions"
+
+msgid "Failed to Load Volumes"
+msgstr "Failed to Load Volumes"
 
 msgid "Failed to Move Object"
 msgstr "Failed to Move Object"
@@ -2811,11 +2823,17 @@ msgstr "Loading Secrets..."
 msgid "Loading Security Group Details..."
 msgstr "Loading Security Group Details..."
 
+msgid "Loading Shared File System..."
+msgstr "Loading Shared File System..."
+
 msgid "Loading Subnets..."
 msgstr "Loading Subnets..."
 
 msgid "Loading Versions..."
 msgstr "Loading Versions..."
+
+msgid "Loading Volumes..."
+msgstr "Loading Volumes..."
 
 msgid "Loading..."
 msgstr "Loading..."
@@ -3981,6 +3999,18 @@ msgstr "Security group was successfully shared with project \"{targetTenant}\"."
 msgid "Security Groups"
 msgstr "Security Groups"
 
+msgid "Security Service"
+msgstr "Security Service"
+
+msgid "Security Service Details Coming Soon"
+msgstr "Security Service Details Coming Soon"
+
+msgid "Security Services"
+msgstr "Security Services"
+
+msgid "Security Services View Coming Soon"
+msgstr "Security Services View Coming Soon"
+
 msgid "Segment Count"
 msgstr "Segment Count"
 
@@ -4110,6 +4140,9 @@ msgstr "Services"
 msgid "Session Changed"
 msgstr "Session Changed"
 
+msgid "Session Expired"
+msgstr "Session Expired"
+
 msgid "Session expires in"
 msgstr "Session expires in"
 
@@ -4119,14 +4152,38 @@ msgstr "Set by the preset. Use a custom TCP or UDP rule to change the ports."
 msgid "Set to \"Shared\""
 msgstr "Set to \"Shared\""
 
+msgid "Share"
+msgstr "Share"
+
+msgid "Share Details Coming Soon"
+msgstr "Share Details Coming Soon"
+
 msgid "Share Group"
 msgstr "Share Group"
+
+msgid "Share Network"
+msgstr "Share Network"
+
+msgid "Share Network Details Coming Soon"
+msgstr "Share Network Details Coming Soon"
+
+msgid "Share Networks"
+msgstr "Share Networks"
+
+msgid "Share Networks View Coming Soon"
+msgstr "Share Networks View Coming Soon"
 
 msgid "Share Object URL"
 msgstr "Share Object URL"
 
 msgid "Share Security Group"
 msgstr "Share Security Group"
+
+msgid "Share Snapshot"
+msgstr "Share Snapshot"
+
+msgid "Share Snapshot Details Coming Soon"
+msgstr "Share Snapshot Details Coming Soon"
 
 msgid "Share this security group with another project. The target project will be able to view and use this security group, but will not be able to modify or delete it."
 msgstr "Share this security group with another project. The target project will be able to view and use this security group, but will not be able to modify or delete it."
@@ -4140,8 +4197,20 @@ msgstr "Shared"
 msgid "Shared by Project"
 msgstr "Shared by Project"
 
+msgid "Shared File System"
+msgstr "Shared File System"
+
+msgid "Shared file system resources"
+msgstr "Shared file system resources"
+
 msgid "Shared:"
 msgstr "Shared:"
+
+msgid "Shares"
+msgstr "Shares"
+
+msgid "Shares View Coming Soon"
+msgstr "Shares View Coming Soon"
 
 msgid "Sharing Security Group..."
 msgstr "Sharing Security Group..."
@@ -4202,6 +4271,12 @@ msgstr "Size: {policySize} / {MAX_POLICY_SIZE} bytes"
 
 msgid "Snapshot"
 msgstr "Snapshot"
+
+msgid "Snapshots"
+msgstr "Snapshots"
+
+msgid "Snapshots View Coming Soon"
+msgstr "Snapshots View Coming Soon"
 
 msgid "SNAT"
 msgstr "SNAT"
@@ -4370,6 +4445,12 @@ msgstr "Temporary URLs"
 
 msgid "The application configuration could not be loaded. Some services and features may be unavailable."
 msgstr "The application configuration could not be loaded. Some services and features may be unavailable."
+
+msgid "The block storage scope is available. The snapshots list will be added in a follow-up release."
+msgstr "The block storage scope is available. The snapshots list will be added in a follow-up release."
+
+msgid "The block storage scope is available. The volumes list will be added in a follow-up release."
+msgstr "The block storage scope is available. The volumes list will be added in a follow-up release."
 
 msgid "The bucket could not be created. Try again or choose a different name."
 msgstr "The bucket could not be created. Try again or choose a different name."
@@ -4544,6 +4625,27 @@ msgstr "The service you're looking for doesn't exist or may have moved. Check th
 
 msgid "The session has expired. Sign in again to continue."
 msgstr "The session has expired. Sign in again to continue."
+
+msgid "The shared file system scope is available. The security service details will be added in a follow-up release."
+msgstr "The shared file system scope is available. The security service details will be added in a follow-up release."
+
+msgid "The shared file system scope is available. The security services list will be added in a follow-up release."
+msgstr "The shared file system scope is available. The security services list will be added in a follow-up release."
+
+msgid "The shared file system scope is available. The share details will be added in a follow-up release."
+msgstr "The shared file system scope is available. The share details will be added in a follow-up release."
+
+msgid "The shared file system scope is available. The share network details will be added in a follow-up release."
+msgstr "The shared file system scope is available. The share network details will be added in a follow-up release."
+
+msgid "The shared file system scope is available. The share networks list will be added in a follow-up release."
+msgstr "The shared file system scope is available. The share networks list will be added in a follow-up release."
+
+msgid "The shared file system scope is available. The share snapshot details will be added in a follow-up release."
+msgstr "The shared file system scope is available. The share snapshot details will be added in a follow-up release."
+
+msgid "The shared file system scope is available. The shares list will be added in a follow-up release."
+msgstr "The shared file system scope is available. The shares list will be added in a follow-up release."
 
 msgid "The specified project does not exist or you don't have permission to share with it."
 msgstr "The specified project does not exist or you don't have permission to share with it."
@@ -4860,6 +4962,9 @@ msgstr "Try adjusting your filter criteria or check the Suggested Images tab."
 msgid "Try adjusting your filter criteria or create a new image."
 msgstr "Try adjusting your filter criteria or create a new image."
 
+msgid "Try again"
+msgstr "Try again"
+
 msgid "Try Again"
 msgstr "Try Again"
 
@@ -5106,6 +5211,12 @@ msgstr "Visibility"
 msgid "VM State"
 msgstr "VM State"
 
+msgid "Volumes"
+msgstr "Volumes"
+
+msgid "Volumes View Coming Soon"
+msgstr "Volumes View Coming Soon"
+
 msgid "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
 msgstr "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
 
@@ -5241,6 +5352,9 @@ msgstr "You don't have permission to remove tenant access from this flavor."
 msgid "You don't have permission to share this security group."
 msgstr "You don't have permission to share this security group."
 
+msgid "You don't have permission to view block storage in this project."
+msgstr "You don't have permission to view block storage in this project."
+
 msgid "You don't have permission to view extra specs for this flavor."
 msgstr "You don't have permission to view extra specs for this flavor."
 
@@ -5250,8 +5364,26 @@ msgstr "You don't have permission to view images in this project. Contact your a
 msgid "You don't have permission to view instances in this project. Contact your administrator to grant you the necessary permissions."
 msgstr "You don't have permission to view instances in this project. Contact your administrator to grant you the necessary permissions."
 
+msgid "You don't have permission to view security services in this project."
+msgstr "You don't have permission to view security services in this project."
+
+msgid "You don't have permission to view share networks in this project."
+msgstr "You don't have permission to view share networks in this project."
+
+msgid "You don't have permission to view shared file systems in this project."
+msgstr "You don't have permission to view shared file systems in this project."
+
+msgid "You don't have permission to view shares in this project."
+msgstr "You don't have permission to view shares in this project."
+
+msgid "You don't have permission to view snapshots in this project."
+msgstr "You don't have permission to view snapshots in this project."
+
 msgid "You don't have permission to view this flavor's details."
 msgstr "You don't have permission to view this flavor's details."
+
+msgid "You don't have permission to view volumes in this project."
+msgstr "You don't have permission to view volumes in this project."
 
 msgid "Your action is required"
 msgstr "Your action is required"

@@ -10,7 +10,9 @@ import { useLingui, Trans } from "@lingui/react/macro"
 import { BreadcrumbExtensionProvider } from "@/client/context/BreadcrumbExtensionContext"
 import { useSetBreadcrumb } from "@/client/hooks/useSetBreadcrumb"
 import { useVolumePermissions } from "@/client/hooks/useVolumePermissions"
+import { useSharedFileSystemPermissions } from "@/client/hooks/useSharedFileSystemPermissions"
 import { findCinderService } from "@/types/volume"
+import { hasManilaService } from "@/types/sharedFileSystem"
 
 // Type for scope error that we catch and handle gracefully
 type ScopeError = {
@@ -108,6 +110,11 @@ function RouteComponent() {
     !loaderData.scopeError && Boolean(findCinderService(loaderData.availableServices ?? []))
   )
   const canListBlockStorage = volumePermissions.canListVolumes || volumePermissions.canListSnapshots
+  const sharedFileSystemPermissions = useSharedFileSystemPermissions(
+    loaderData.projectId,
+    !loaderData.scopeError && hasManilaService(loaderData.availableServices ?? [])
+  )
+  const canListSharedFileSystem = sharedFileSystemPermissions.canListAny
 
   const projectName = loaderData.crumbProject?.name || loaderData.projectId
   const projectLabel = loaderData.crumbDomain?.name ? `${loaderData.crumbDomain.name}/${projectName}` : projectName
@@ -189,9 +196,18 @@ function RouteComponent() {
         enabledServices,
         serviceExtensions,
         deniedServices,
-        canListBlockStorage
+        canListBlockStorage,
+        canListSharedFileSystem
       ),
-    [projectId, availableServices, enabledServices, serviceExtensions, deniedServices, canListBlockStorage]
+    [
+      projectId,
+      availableServices,
+      enabledServices,
+      serviceExtensions,
+      deniedServices,
+      canListBlockStorage,
+      canListSharedFileSystem,
+    ]
   )
 
   return (

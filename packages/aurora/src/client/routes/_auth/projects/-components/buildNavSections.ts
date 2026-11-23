@@ -5,6 +5,7 @@ import type { ServiceExtension } from "@/client/AuroraApp"
 import { hasServiceByName } from "@/client/utils/serviceCatalog"
 import { STORAGE_PROVIDER, STORAGE_TYPE_BY_PROVIDER } from "@/client/utils/storageProviders"
 import { findCinderService } from "@/types/volume"
+import { hasManilaService } from "@/types/sharedFileSystem"
 
 export type NavItem = {
   service: string
@@ -25,7 +26,8 @@ export function buildNavSections(
   enabledServices?: string[],
   serviceExtensions?: ServiceExtension[],
   deniedServices?: string[],
-  canListBlockStorage = false
+  canListBlockStorage = false,
+  canListSharedFileSystem = false
 ): NavSection[] {
   const serviceIndex = getServiceIndex(availableServices)
   // Deny always wins and applies even without an allow/enabled list, so a service can be hidden
@@ -168,6 +170,17 @@ export function buildNavSections(
               provider: STORAGE_PROVIDER.CEPH,
               storageType: STORAGE_TYPE_BY_PROVIDER[STORAGE_PROVIDER.CEPH],
             },
+          },
+        ]
+      : []),
+    ...(hasManilaService(availableServices) && isEnabled("shared-file-system") && canListSharedFileSystem
+      ? [
+          {
+            service: "shared-file-system",
+            label: t`Shared File System`,
+            navigate: (nav: NavigateFn) =>
+              nav({ to: "/projects/$projectId/shared-file-system", params: { projectId } }),
+            params: { projectId },
           },
         ]
       : []),

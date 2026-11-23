@@ -1,0 +1,16 @@
+{
+  "context_is_admin": "role:admin",
+  "admin_or_owner": "is_admin:True or project_id:%(project_id)s",
+  "share:get_all": "rule:admin_or_owner",
+  "share:get": "rule:admin_or_owner",
+  "share_export_location:index": "rule:admin_or_owner",
+  "share_snapshot:get_all_snapshots": "rule:admin_or_owner",
+  "share_snapshot:get_snapshot": "rule:admin_or_owner",
+  "share_replica:get_all": "rule:admin_or_owner",
+  "share_network:index": "rule:admin_or_owner",
+  "share_network:detail": "rule:admin_or_owner",
+  "share_network:show": "rule:admin_or_owner",
+  "security_service:index": "rule:admin_or_owner",
+  "security_service:detail": "rule:admin_or_owner",
+  "security_service:show": "rule:admin_or_owner"
+}

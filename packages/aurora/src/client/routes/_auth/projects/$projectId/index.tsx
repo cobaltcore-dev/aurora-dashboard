@@ -10,7 +10,9 @@ import type { RouteInfo } from "@/client/routes/routeInfo"
 import { hasServiceByName } from "@/client/utils/serviceCatalog"
 import { STORAGE_PROVIDER, STORAGE_TYPE_BY_PROVIDER } from "@/client/utils/storageProviders"
 import { findCinderService } from "@/types/volume"
+import { hasManilaService } from "@/types/sharedFileSystem"
 import { useVolumePermissions } from "@/client/hooks/useVolumePermissions"
+import { useSharedFileSystemPermissions } from "@/client/hooks/useSharedFileSystemPermissions"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/")({
   staticData: {
@@ -59,6 +61,10 @@ function RouteComponent() {
   const { t } = useLingui()
   const { enabledServices, deniedServices, serviceExtensions } = useRouteContext({ strict: false })
   const volumePermissions = useVolumePermissions(projectId, Boolean(findCinderService(availableServices ?? [])))
+  const sharedFileSystemPermissions = useSharedFileSystemPermissions(
+    projectId,
+    hasManilaService(availableServices ?? [])
+  )
   // Deny always wins and applies even without an allow/enabled list (deny-only). See buildNavSections.
   const isEnabled = (service: string) =>
     (!enabledServices || enabledServices.includes(service)) && !deniedServices?.includes(service)
@@ -133,6 +139,18 @@ function RouteComponent() {
       to: `${base}/storage/${STORAGE_PROVIDER.CEPH}/${STORAGE_TYPE_BY_PROVIDER[STORAGE_PROVIDER.CEPH]}`,
       service: "ceph-containers",
     })
+  if (
+    hasManilaService(availableServices ?? []) &&
+    isEnabled("shared-file-system") &&
+    sharedFileSystemPermissions.canListAny
+  ) {
+    cards.push({
+      group: t`Storage`,
+      label: t`Shared File System`,
+      to: `${base}/shared-file-system`,
+      service: "shared-file-system",
+    })
+  }
 
   if (serviceIndex["key-manager"]?.["barbican"] && isEnabled("key-manager"))
     cards.push({

@@ -46,6 +46,39 @@ describe("buildNavSections", () => {
     ).toBe(false)
   })
 
+  it("adds shared file system to storage section by catalog, capability, and configuration", () => {
+    const services = [...ALL_SERVICES, { type: "sharev2", name: "manilav2" }]
+    expect(
+      buildNavSections("proj-1", services)
+        .find((section) => section.section === "storage")
+        ?.services.map((service) => service.service)
+    ).not.toContain("shared-file-system")
+    const sections = buildNavSections("proj-1", services, undefined, undefined, undefined, false, true)
+    expect(
+      sections.find((section) => section.section === "storage")?.services.map((service) => service.service)
+    ).toContain("shared-file-system")
+    expect(sections.find((section) => section.section === "shared-file-system")).toBeUndefined()
+    expect(
+      buildNavSections("proj-1", services, undefined, undefined, ["shared-file-system"], false, true)
+        .find((section) => section.section === "storage")
+        ?.services.map((service) => service.service)
+    ).not.toContain("shared-file-system")
+    expect(
+      buildNavSections("proj-1", ALL_SERVICES, undefined, undefined, undefined, false, true)
+        .find((section) => section.section === "storage")
+        ?.services.map((service) => service.service)
+    ).not.toContain("shared-file-system")
+    const onlyManila = [
+      { type: "identity", name: "keystone" },
+      { type: "sharev2", name: "manilav2" },
+    ]
+    expect(
+      buildNavSections("proj-1", onlyManila, undefined, undefined, undefined, false, true).find(
+        (section) => section.section === "storage"
+      )?.services
+    ).toEqual([expect.objectContaining({ service: "shared-file-system" })])
+  })
+
   it("returns built-in sections when all services are available", () => {
     const sections = buildNavSections("proj-1", ALL_SERVICES)
     const keys = sections.map((s) => s.section)
