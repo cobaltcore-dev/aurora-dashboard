@@ -4,6 +4,7 @@ import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import {
   Modal,
+  DateTimePicker,
   TextInput,
   Stack,
   Status,
@@ -42,28 +43,6 @@ interface EditObjectMetadataModalProps {
 // Using a positive allowlist avoids the ESLint no-control-regex rule.
 const VALID_KEY_RE = /^[a-zA-Z0-9!#$%&'*+\-.^_`|~]+$/
 
-// Expected format: "YYYY-MM-DD HH:mm:ss" (UTC).
-// Checks shape first, then rejects semantically invalid dates (e.g. month 13, day 30 in Feb)
-// by parsing as UTC and verifying the parts round-trip back to the same values.
-const TIMESTAMP_RE = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/
-
-const isValidTimestamp = (value: string): boolean => {
-  if (!TIMESTAMP_RE.test(value)) return false
-  const d = new Date(value.replace(" ", "T") + "Z")
-  if (isNaN(d.getTime())) return false
-  const [datePart, timePart] = value.split(" ")
-  const [y, mo, day] = datePart.split("-").map(Number)
-  const [h, min, s] = timePart.split(":").map(Number)
-  return (
-    d.getUTCFullYear() === y &&
-    d.getUTCMonth() + 1 === mo &&
-    d.getUTCDate() === day &&
-    d.getUTCHours() === h &&
-    d.getUTCMinutes() === min &&
-    d.getUTCSeconds() === s
-  )
-}
-
 type MetaKeyError = "required" | "invalid-chars" | "no-alnum"
 
 const validateMetaKey = (key: string): MetaKeyError | null => {
@@ -74,13 +53,6 @@ const validateMetaKey = (key: string): MetaKeyError | null => {
 }
 
 const formatDate = (iso: string): string => formatSwiftDate(iso) ?? "- -"
-
-// Converts a Unix timestamp (seconds) to the "YYYY-MM-DD HH:mm:ss" field format (UTC)
-const formatUnixToTimestamp = (unix: number): string => {
-  const d = new Date(unix * 1000)
-  const pad = (n: number) => String(n).padStart(2, "0")
-  return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}`
-}
 
 // ── Component ──────────────────────────────────────────────────────────────────
 
@@ -115,7 +87,6 @@ export const EditObjectMetadataModal = ({
 
   // ── Form state ─────────────────────────────────────────────────────────────
   const [expiresAt, setExpiresAt] = useState("")
-  const [expiresAtError, setExpiresAtError] = useState<string | null>(null)
   const [metadata, setMetadata] = useState<MetadataEntry[]>([])
   const [metaErrors, setMetaErrors] = useState<Record<string, string>>({})
   const [isAddingNew, setIsAddingNew] = useState(false)
@@ -130,13 +101,12 @@ export const EditObjectMetadataModal = ({
   // Survives reset() inside handleClose() before onSuccess/onError fire
   const displayNameRef = useRef("")
   const objectNameRef = useRef("")
-  const expiresAtDebounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // ── Populate form when data arrives ───────────────────────────────────────
   useEffect(() => {
     if (!metadataRaw) return
 
-    const rawExpires = metadataRaw.deleteAt != null ? formatUnixToTimestamp(metadataRaw.deleteAt) : ""
+    const rawExpires = metadataRaw.deleteAt != null ? new Date(metadataRaw.deleteAt * 1000).toISOString() : ""
     setExpiresAt(rawExpires)
     originalExpiresAtRef.current = rawExpires
 
@@ -158,9 +128,7 @@ export const EditObjectMetadataModal = ({
   }, [isOpen])
 
   const resetForm = () => {
-    if (expiresAtDebounceTimer.current) clearTimeout(expiresAtDebounceTimer.current)
     setExpiresAt("")
-    setExpiresAtError(null)
     setMetadata([])
     setMetaErrors({})
     setIsAddingNew(false)
@@ -206,12 +174,6 @@ export const EditObjectMetadataModal = ({
   const handleSubmit = () => {
     if (!object) return
 
-    if (expiresAt.trim() && !isValidTimestamp(expiresAt.trim())) {
-      setExpiresAtError("invalid")
-      return
-    }
-    setExpiresAtError(null)
-
     displayNameRef.current = object.displayName
     objectNameRef.current = object.name
 
@@ -228,9 +190,7 @@ export const EditObjectMetadataModal = ({
       container: containerName,
       object: object.name,
       metadata: metadataRecord,
-      ...(expiresAt.trim()
-        ? { deleteAt: Math.floor(new Date(expiresAt.trim().replace(" ", "T") + "Z").getTime() / 1000) }
-        : {}),
+      ...(expiresAt ? { deleteAt: Math.floor(new Date(expiresAt).getTime() / 1000) } : {}),
     })
   }
 
@@ -416,27 +376,15 @@ export const EditObjectMetadataModal = ({
 
           {/* ── Expires at ───────────────────────────────────────────────── */}
           <div>
-            <p className="text-theme-light mb-1">
-              <Trans>Enter a timestamp like "YYYY-MM-DD HH:mm:ss" to schedule automatic deletion.</Trans>
-            </p>
-            <TextInput
-              label={t`Expires at (UTC)`}
-              value={expiresAt}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                const value = e.target.value
-                setExpiresAt(value)
-                if (expiresAtDebounceTimer.current) clearTimeout(expiresAtDebounceTimer.current)
-                expiresAtDebounceTimer.current = setTimeout(() => {
-                  if (value.trim() && !isValidTimestamp(value.trim())) {
-                    setExpiresAtError("invalid")
-                  } else {
-                    setExpiresAtError(null)
-                  }
-                }, 600)
-              }}
-              invalid={!!expiresAtError}
-              errortext={expiresAtError ? t`Expected format: YYYY-MM-DD HH:mm:ss` : undefined}
-              placeholder={t`YYYY-MM-DD HH:mm:ss`}
+            <DateTimePicker
+              label={t`Expires at`}
+              helptext={t`When set, the object is automatically deleted at this date and time.`}
+              enableTime
+              enableSeconds
+              time_24hr
+              value={expiresAt || undefined}
+              onChange={(dates) => setExpiresAt(dates?.[0] ? dates[0].toISOString() : "")}
+              onClear={() => setExpiresAt("")}
               disabled={isBusy}
             />
           </div>

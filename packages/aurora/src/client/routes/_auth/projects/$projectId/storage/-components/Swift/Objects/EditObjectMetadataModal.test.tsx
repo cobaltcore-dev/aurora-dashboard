@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach } from "vitest"
-import { render, screen, waitFor, act } from "@testing-library/react"
+import { render, screen, waitFor, act, fireEvent } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
@@ -14,6 +14,51 @@ const mockProjectId = "test-project-123"
 vi.mock("@/client/hooks/useProjectId", () => ({
   useProjectId: () => mockProjectId,
 }))
+
+// ─── DateTimePicker mock ──────────────────────────────────────────────────────
+// Flatpickr does not initialise correctly in JSDOM; replace with a plain
+// controlled input so tests can fire change events directly.
+
+vi.mock("@cloudoperators/juno-ui-components", async () => {
+  const actual = await vi.importActual<typeof import("@cloudoperators/juno-ui-components")>(
+    "@cloudoperators/juno-ui-components"
+  )
+  return {
+    ...actual,
+    DateTimePicker: ({
+      value,
+      onChange,
+      onClear,
+      label,
+      disabled,
+    }: {
+      value?: string | number | Date
+      onChange?: (dates: Date[], dateStr: string) => void
+      onClear?: (dates: Date[], dateStr: string) => void
+      label?: string
+      disabled?: boolean
+      [key: string]: unknown
+    }) => {
+      const strValue = typeof value === "string" ? value : value instanceof Date ? value.toISOString() : ""
+      return (
+        <input
+          aria-label={typeof label === "string" ? label : undefined}
+          value={strValue}
+          disabled={disabled}
+          onChange={(e) => {
+            const val = e.target.value
+            const d = val ? new Date(val) : null
+            if (d && !isNaN(d.getTime())) {
+              onChange?.([d], val)
+            } else {
+              onClear?.([], "")
+            }
+          }}
+        />
+      )
+    },
+  }
+})
 
 // ─── tRPC mock ────────────────────────────────────────────────────────────────
 
@@ -258,32 +303,21 @@ describe("EditObjectMetadataModal", () => {
     })
   })
 
-  // ── Expires at validation ───────────────────────────────────────────────────
+  // ── Expires at ─────────────────────────────────────────────────────────────
 
-  test("validates expires at timestamp format", async () => {
-    vi.useFakeTimers({ shouldAdvanceTime: true })
-    mockObjectMetadata = makeObjectMetadata()
-    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
-    renderModal()
-    await flushEffects()
-    await user.type(screen.getByLabelText(/Expires at/i), "not-a-date")
-    act(() => vi.advanceTimersByTime(700))
-    await waitFor(() => {
-      expect(screen.getByText(/Expected format: YYYY-MM-DD HH:mm:ss/i)).toBeInTheDocument()
-    })
-    vi.useRealTimers()
-  }, 10000)
-
-  test("blocks submission when expires at format is invalid", async () => {
+  test("submits deleteAt when expires at is set", async () => {
     mockObjectMetadata = makeObjectMetadata()
     const user = userEvent.setup()
     renderModal()
     await flushEffects()
-    const input = screen.getByLabelText(/Expires at/i)
-    await user.clear(input)
-    await user.type(input, "bad-format")
+    // DateTimePicker is mocked; fire a change event with a valid ISO date string
+    fireEvent.change(screen.getByLabelText(/Expires at/i), {
+      target: { value: "2026-05-16T18:14:57.000Z" },
+    })
     await user.click(getModalSaveButton())
-    expect(mockMutate).not.toHaveBeenCalled()
+    expect(mockMutate).toHaveBeenCalledWith(
+      expect.objectContaining({ project_id: mockProjectId, deleteAt: expect.any(Number) })
+    )
   })
 
   // ── Metadata CRUD ───────────────────────────────────────────────────────────
@@ -366,18 +400,6 @@ describe("EditObjectMetadataModal", () => {
     )
   })
 
-  test("submits deleteAt when expires at is set", async () => {
-    mockObjectMetadata = makeObjectMetadata()
-    const user = userEvent.setup()
-    renderModal()
-    await flushEffects()
-    await user.type(screen.getByLabelText(/Expires at/i), "2026-05-16 18:14:57")
-    await user.click(getModalSaveButton())
-    expect(mockMutate).toHaveBeenCalledWith(
-      expect.objectContaining({ project_id: mockProjectId, deleteAt: expect.any(Number) })
-    )
-  })
-
   test("calls onSuccess and invalidates cache after successful mutation", async () => {
     const onSuccess = vi.fn()
     mockObjectMetadata = makeObjectMetadata({ customMetadata: { k: "v" } })
@@ -430,8 +452,9 @@ describe("EditObjectMetadataModal", () => {
         </PortalProvider>
       </I18nProvider>
     )
-    const user = userEvent.setup()
-    await user.type(screen.getByLabelText(/Expires at/i), "2026-05-16 18:14:57")
+    fireEvent.change(screen.getByLabelText(/Expires at/i), {
+      target: { value: "2026-05-16T18:14:57.000Z" },
+    })
     rerender(
       <I18nProvider i18n={i18n}>
         <PortalProvider>
