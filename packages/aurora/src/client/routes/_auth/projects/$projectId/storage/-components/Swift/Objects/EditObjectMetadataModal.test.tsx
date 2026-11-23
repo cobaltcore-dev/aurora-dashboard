@@ -123,7 +123,7 @@ const makeObjectMetadata = (overrides: Partial<ObjectMetadata> = {}): ObjectMeta
 const getIconButton = (name: RegExp) =>
   screen.getAllByRole("button").find((btn) => name.test(btn.getAttribute("title") ?? ""))!
 
-const getModalUpdateButton = () => screen.getByRole("button", { name: /Update object/i })
+const getModalSaveButton = () => screen.getByRole("button", { name: /^Save$/i })
 
 const flushEffects = () => act(async () => {})
 
@@ -213,10 +213,9 @@ describe("EditObjectMetadataModal", () => {
     renderModal()
     await flushEffects()
     await user.click(screen.getByRole("button", { name: /Add Property/i }))
-    await user.click(getIconButton(/^Save$/i))
-    await waitFor(() => {
-      expect(screen.getByText(/Key is required/i)).toBeInTheDocument()
-    })
+    // Save is disabled while key is empty — matches images modal pattern
+    const saveBtn = screen.getAllByRole("button").find((btn) => /^Save$/i.test(btn.getAttribute("title") ?? ""))!
+    expect(saveBtn).toBeDisabled()
   })
 
   test("validates metadata key contains only valid characters", async () => {
@@ -283,7 +282,7 @@ describe("EditObjectMetadataModal", () => {
     const input = screen.getByLabelText(/Expires at/i)
     await user.clear(input)
     await user.type(input, "bad-format")
-    await user.click(getModalUpdateButton())
+    await user.click(getModalSaveButton())
     expect(mockMutate).not.toHaveBeenCalled()
   })
 
@@ -356,7 +355,7 @@ describe("EditObjectMetadataModal", () => {
     await user.type(screen.getByPlaceholderText(/Property Key/i), "owner")
     await user.type(screen.getByPlaceholderText(/Value/i), "Alice")
     await user.click(getIconButton(/^Save$/i))
-    await user.click(getModalUpdateButton())
+    await user.click(getModalSaveButton())
     expect(mockMutate).toHaveBeenCalledWith(
       expect.objectContaining({
         project_id: mockProjectId,
@@ -373,7 +372,7 @@ describe("EditObjectMetadataModal", () => {
     renderModal()
     await flushEffects()
     await user.type(screen.getByLabelText(/Expires at/i), "2026-05-16 18:14:57")
-    await user.click(getModalUpdateButton())
+    await user.click(getModalSaveButton())
     expect(mockMutate).toHaveBeenCalledWith(
       expect.objectContaining({ project_id: mockProjectId, deleteAt: expect.any(Number) })
     )
@@ -386,7 +385,7 @@ describe("EditObjectMetadataModal", () => {
     renderModal({ onSuccess })
     await flushEffects()
     await user.click(getIconButton(/^Delete$/i))
-    await user.click(getModalUpdateButton())
+    await user.click(getModalSaveButton())
     await waitFor(() => {
       expect(onSuccess).toHaveBeenCalledWith("sample.txt")
       expect(mockInvalidateObjectMetadata).toHaveBeenCalled()
@@ -402,7 +401,7 @@ describe("EditObjectMetadataModal", () => {
     renderModal({ onError })
     await flushEffects()
     await user.click(getIconButton(/^Delete$/i))
-    await user.click(getModalUpdateButton())
+    await user.click(getModalSaveButton())
     await waitFor(() => {
       expect(onError).toHaveBeenCalledWith("sample.txt", "Forbidden")
       expect(screen.getByText(/Failed to update object/i)).toBeInTheDocument()

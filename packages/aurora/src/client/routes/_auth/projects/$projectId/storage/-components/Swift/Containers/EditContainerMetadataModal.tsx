@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react"
+import React, { useState, useEffect, useRef, useCallback } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import {
@@ -6,10 +6,6 @@ import {
   TextInput,
   Stack,
   Status,
-  DataGrid,
-  DataGridRow,
-  DataGridHeadCell,
-  DataGridCell,
   Button,
   Checkbox,
   Tooltip,
@@ -433,10 +429,10 @@ export const EditContainerMetadataModal = ({
       title={t`Edit/Preview Container Metadata`}
       open={isOpen}
       onCancel={handleClose}
-      confirmButtonLabel={t`Save`}
+      confirmButtonLabel={updateMutation.isPending ? t`Saving...` : t`Save`}
       onConfirm={handleSubmit}
       cancelButtonLabel={t`Cancel`}
-      size="large"
+      size="xl"
       disableConfirmButton={isBusy || isAddingNew || hasEditing || isUnchanged || isMetaFailed}
     >
       {updateMutation.isError && (
@@ -661,7 +657,7 @@ export const EditContainerMetadataModal = ({
 
             {/* ── Custom Metadata ──────────────────────────────────────────── */}
             <div>
-              <Stack direction="horizontal" alignment="center" distribution="between" className="mb-3">
+              <Stack direction="horizontal" alignment="center" distribution="between" className="mb-2">
                 <p className="text-theme-default text-sm font-semibold">
                   <Trans>Metadata</Trans>
                 </p>
@@ -670,160 +666,149 @@ export const EditContainerMetadataModal = ({
                 </p>
               </Stack>
 
-              {/* Add Property button */}
-              <Stack direction="horizontal" className="jn:bg-theme-background-lvl-1 justify-end p-2">
+              <Stack direction="horizontal" className="mb-4 justify-end p-2">
                 <Button
                   label={t`Add Property`}
                   onClick={() => setIsAddingNew(true)}
-                  variant="primary"
-                  icon="addCircle"
-                  size="small"
                   disabled={isAddingNew || hasEditing || isBusy}
                 />
               </Stack>
 
-              <DataGrid columns={3}>
-                <DataGridRow>
-                  <DataGridHeadCell>
-                    <Trans>Key</Trans>
-                  </DataGridHeadCell>
-                  <DataGridHeadCell>
-                    <Trans>Value</Trans>
-                  </DataGridHeadCell>
-                  <DataGridHeadCell>
-                    <Trans>Actions</Trans>
-                  </DataGridHeadCell>
-                </DataGridRow>
-
-                {/* New row input */}
-                {isAddingNew && (
-                  <DataGridRow>
-                    <DataGridCell>
-                      <TextInput
-                        value={newKey}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                          setNewKey(e.target.value)
-                          if (newKeyError) setNewKeyError(null)
-                        }}
-                        placeholder={t`property_key`}
-                        errortext={newKeyError ?? undefined}
-                        invalid={!!newKeyError}
-                        autoFocus
-                      />
-                    </DataGridCell>
-                    <DataGridCell>
-                      <TextInput
-                        value={newValue}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                          setNewValue(e.target.value)
-                          if (newValueError) setNewValueError(null)
-                        }}
-                        placeholder={t`Value`}
-                        errortext={newValueError ?? undefined}
-                        invalid={!!newValueError}
-                      />
-                    </DataGridCell>
-                    <DataGridCell>
-                      <Stack direction="horizontal" gap="2">
-                        <Button size="small" variant="primary" onClick={handleAddNew} icon="check" title={t`Save`} />
-                        <Button
-                          size="small"
-                          variant="subdued"
-                          onClick={handleCancelAdd}
-                          icon="close"
-                          title={t`Discard`}
-                        />
-                      </Stack>
-                    </DataGridCell>
-                  </DataGridRow>
-                )}
-
-                {/* Existing metadata rows */}
-                {metadata.map((entry, index) => (
-                  <DataGridRow key={index}>
-                    <DataGridCell>
-                      {entry.isEditing ? (
-                        <TextInput
-                          value={entry.key}
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleKeyChange(index, e.target.value)}
-                          errortext={metaErrors[`edit-${index}`]}
-                          invalid={!!metaErrors[`edit-${index}`]}
-                        />
-                      ) : (
-                        <span className="block max-w-xs truncate text-sm" title={entry.key}>
-                          {entry.key}
-                        </span>
-                      )}
-                    </DataGridCell>
-                    <DataGridCell>
-                      {entry.isEditing ? (
-                        <TextInput
-                          value={entry.value}
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                            handleValueChange(index, e.target.value)
-                          }
-                        />
-                      ) : (
-                        <span className="block max-w-md truncate text-sm" title={entry.value}>
-                          {entry.value}
-                        </span>
-                      )}
-                    </DataGridCell>
-                    <DataGridCell>
-                      {entry.isEditing ? (
-                        <Stack direction="horizontal" gap="2">
-                          <Button
-                            size="small"
-                            variant="primary"
-                            onClick={() => handleSaveEdit(index)}
-                            icon="check"
-                            title={t`Save`}
+              {metadata.length === 0 && !isAddingNew ? (
+                <p className="jn:text-theme-light py-8 text-center">
+                  <Trans>No custom metadata. Click "Add Property" to create one.</Trans>
+                </p>
+              ) : (
+                <DescriptionList className="mb-6" alignTerms="left">
+                  <>
+                    {isAddingNew && (
+                      <>
+                        <DescriptionTerm>
+                          <TextInput
+                            value={newKey}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                              setNewKey(e.target.value)
+                              if (newKeyError) setNewKeyError(null)
+                            }}
+                            placeholder={t`property_key`}
+                            errortext={newKeyError ?? undefined}
+                            invalid={!!newKeyError}
+                            autoFocus
                           />
-                          <Button
-                            size="small"
-                            variant="subdued"
-                            onClick={() => handleCancelEdit(index)}
-                            icon="close"
-                            title={t`Discard`}
-                          />
-                        </Stack>
-                      ) : (
-                        <Stack direction="horizontal" gap="2">
-                          <Button
-                            size="small"
-                            variant="subdued"
-                            onClick={() => handleEdit(index)}
-                            icon="edit"
-                            title={t`Edit`}
-                            disabled={isAddingNew || hasEditing || isBusy}
-                          />
-                          <Button
-                            size="small"
-                            variant="default"
-                            onClick={() => handleDeleteMeta(index)}
-                            icon="deleteForever"
-                            title={t`Delete`}
-                            disabled={isAddingNew || hasEditing || isBusy}
-                          />
-                        </Stack>
-                      )}
-                    </DataGridCell>
-                  </DataGridRow>
-                ))}
-
-                {/* Empty state */}
-                {metadata.length === 0 && !isAddingNew && (
-                  <DataGridRow>
-                    <DataGridCell colSpan={3} className="py-6 text-center">
-                      <Stack alignment="center">
-                        <span className="text-theme-light text-sm">
-                          <Trans>No custom metadata. Click "Add Property" to create one.</Trans>
-                        </span>
-                      </Stack>
-                    </DataGridCell>
-                  </DataGridRow>
-                )}
-              </DataGrid>
+                        </DescriptionTerm>
+                        <DescriptionDefinition>
+                          <Stack direction="horizontal" gap="2" alignment="center" className="justify-between">
+                            <div className="flex-1">
+                              <TextInput
+                                value={newValue}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                  setNewValue(e.target.value)
+                                  if (newValueError) setNewValueError(null)
+                                }}
+                                placeholder={t`Value`}
+                                errortext={newValueError ?? undefined}
+                                invalid={!!newValueError}
+                              />
+                            </div>
+                            <Stack direction="horizontal" gap="2" className="shrink-0">
+                              <Button
+                                size="small"
+                                variant="primary"
+                                onClick={handleAddNew}
+                                icon="check"
+                                title={t`Save`}
+                                disabled={!newKey.trim()}
+                              />
+                              <Button
+                                size="small"
+                                variant="subdued"
+                                onClick={handleCancelAdd}
+                                icon="close"
+                                title={t`Discard`}
+                              />
+                            </Stack>
+                          </Stack>
+                        </DescriptionDefinition>
+                      </>
+                    )}
+                  </>
+                  <>
+                    {metadata.map((entry, index) => (
+                      <React.Fragment key={`${entry.originalKey ?? entry.key}-${index}`}>
+                        <DescriptionTerm>
+                          {entry.isEditing ? (
+                            <TextInput
+                              value={entry.key}
+                              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                                handleKeyChange(index, e.target.value)
+                              }
+                              errortext={metaErrors[`edit-${index}`]}
+                              invalid={!!metaErrors[`edit-${index}`]}
+                            />
+                          ) : (
+                            <span className="jn:text-theme-high block max-w-xs truncate" title={entry.key}>
+                              {entry.key}
+                            </span>
+                          )}
+                        </DescriptionTerm>
+                        <DescriptionDefinition className="flex items-center justify-between gap-2">
+                          {entry.isEditing ? (
+                            <>
+                              <div className="flex-1">
+                                <TextInput
+                                  value={entry.value}
+                                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                                    handleValueChange(index, e.target.value)
+                                  }
+                                />
+                              </div>
+                              <Stack direction="horizontal" gap="2" className="shrink-0">
+                                <Button
+                                  size="small"
+                                  variant="primary"
+                                  onClick={() => handleSaveEdit(index)}
+                                  icon="check"
+                                  title={t`Save`}
+                                />
+                                <Button
+                                  size="small"
+                                  variant="subdued"
+                                  onClick={() => handleCancelEdit(index)}
+                                  icon="close"
+                                  title={t`Discard`}
+                                />
+                              </Stack>
+                            </>
+                          ) : (
+                            <>
+                              <span className="jn:text-theme-default block max-w-md truncate" title={entry.value}>
+                                {entry.value}
+                              </span>
+                              <Stack direction="horizontal" gap="2">
+                                <Button
+                                  size="small"
+                                  variant="subdued"
+                                  onClick={() => handleEdit(index)}
+                                  icon="edit"
+                                  title={t`Edit`}
+                                  disabled={isAddingNew || hasEditing || isBusy}
+                                />
+                                <Button
+                                  size="small"
+                                  onClick={() => handleDeleteMeta(index)}
+                                  icon="deleteForever"
+                                  title={t`Delete`}
+                                  disabled={isAddingNew || hasEditing || isBusy}
+                                />
+                              </Stack>
+                            </>
+                          )}
+                        </DescriptionDefinition>
+                      </React.Fragment>
+                    ))}
+                  </>
+                </DescriptionList>
+              )}
             </div>
           </Stack>
         </div>

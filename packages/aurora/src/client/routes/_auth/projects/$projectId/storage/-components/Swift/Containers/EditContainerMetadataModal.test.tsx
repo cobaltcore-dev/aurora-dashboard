@@ -203,10 +203,9 @@ describe("EditContainerMetadataModal", () => {
     const user = userEvent.setup()
     renderModal()
     await user.click(screen.getByRole("button", { name: /Add Property/i }))
-    await user.click(getIconButton(/Save/i))
-    await waitFor(() => {
-      expect(screen.getByText(/Key is required/i)).toBeInTheDocument()
-    })
+    // Save is disabled while key is empty — matches images modal pattern
+    const saveBtn = screen.getAllByRole("button").find((btn) => /Save/i.test(btn.getAttribute("title") ?? ""))!
+    expect(saveBtn).toBeDisabled()
   })
 
   test("validates metadata key contains only valid characters", async () => {
