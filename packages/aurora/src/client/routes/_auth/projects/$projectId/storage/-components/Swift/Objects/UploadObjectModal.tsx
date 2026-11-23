@@ -1,6 +1,6 @@
 import { useState, useRef } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { Modal, ProgressBar, Stack, Spinner } from "@cloudoperators/juno-ui-components"
+import { Message, Modal, ProgressBar, Stack, Spinner } from "@cloudoperators/juno-ui-components"
 import { MdCloudUpload } from "react-icons/md"
 import { trpcClient, trpcReact } from "@/client/trpcClient"
 import { cn } from "@/client/utils/cn"
@@ -193,9 +193,9 @@ export const UploadObjectModal = ({
       <Stack direction="vertical" gap="4">
         {/* Upload error */}
         {uploadError && (
-          <p className="text-theme-error">
+          <Message variant="error">
             <Trans>Upload failed: {uploadError}</Trans>
-          </p>
+          </Message>
         )}
 
         <p className="text-theme-default">

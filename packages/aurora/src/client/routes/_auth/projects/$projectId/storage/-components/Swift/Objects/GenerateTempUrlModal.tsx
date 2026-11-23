@@ -293,16 +293,14 @@ export const GenerateTempUrlModal = ({
 
         {/* General error */}
         {generalError && (
-          <p className="text-theme-error" role="alert" aria-live="assertive">
+          <Message variant="error">
             <Trans>Failed to generate temporary URL: {generalError}</Trans>
-          </p>
+          </Message>
         )}
 
         {/* Clipboard copy error */}
         {copyError && (
-          <p className="text-theme-error" role="alert" aria-live="assertive">
-            {copyError}
-          </p>
+          <Message variant="error">{copyError}</Message>
         )}
 
         {/* Expiry selector */}

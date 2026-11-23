@@ -12,6 +12,7 @@ import {
   DescriptionList,
   DescriptionTerm,
   DescriptionDefinition,
+  Message,
 } from "@cloudoperators/juno-ui-components"
 import { useParams } from "@tanstack/react-router"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
@@ -319,9 +320,9 @@ export const EditObjectMetadataModal = ({
         <Stack direction="vertical" gap="6">
           {/* Mutation error */}
           {updateMutation.isError && (
-            <p className="text-theme-error">
+            <Message variant="error">
               <Trans>Failed to update object: {mutationErrorMessage}</Trans>
-            </p>
+            </Message>
           )}
 
           {/* ── Large object notices ──────────────────────────────────────── */}

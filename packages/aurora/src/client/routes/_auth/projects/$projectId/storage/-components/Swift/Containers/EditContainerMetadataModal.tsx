@@ -17,6 +17,7 @@ import {
   DescriptionList,
   DescriptionTerm,
   DescriptionDefinition,
+  Message,
 } from "@cloudoperators/juno-ui-components"
 import { ContainerSummary } from "@/server/Storage/types/swift"
 import { useProjectId } from "@/client/hooks/useProjectId"
@@ -423,6 +424,7 @@ export const EditContainerMetadataModal = ({
 
   // ── Render ────────────────────────────────────────────────────────────────
   const displayedQuotaBytes = info?.quotaBytes != null ? `${info.quotaBytes} B` : null
+  const updateErrorMessage = updateMutation.error?.message ?? ""
 
   return (
     <Modal
@@ -436,12 +438,9 @@ export const EditContainerMetadataModal = ({
       disableConfirmButton={isBusy || isAddingNew || hasEditing || isUnchanged || isMetaFailed}
     >
       {updateMutation.isError && (
-        <p className="text-theme-error mb-4">
-          {(() => {
-            const errorMessage = updateMutation.error.message
-            return <Trans>Failed to update container: {errorMessage}</Trans>
-          })()}
-        </p>
+        <Message variant="error">
+          <Trans>Failed to update container: {updateErrorMessage}</Trans>
+        </Message>
       )}
       {isLoading ? (
         <Status status="progress" title={t`Loading Container Properties...`} className="mt-0" />

@@ -4,6 +4,7 @@ import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import {
   Modal,
+  Message,
   Stack,
   Status,
   Spinner,
@@ -345,6 +346,8 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
     targetContainer === sourceContainer &&
     currentPrefix === initialPrefix &&
     newObjectName.trim() === object.displayName
+  const copyErrorMessage = copyMutation.error?.message ?? ""
+  const deleteErrorMessage = deleteMutation.error?.message ?? ""
 
   return (
     <Modal
@@ -363,20 +366,18 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
         <Status status="progress" title={t`Moving Object...`} className="mt-0" />
       ) : (
         <Stack direction="vertical" gap="4">
-          {(copyMutation.isError || deleteMutation.isError) &&
-            (() => {
-              const copyErrorMessage = copyMutation.error?.message ?? ""
-              const deleteErrorMessage = deleteMutation.error?.message ?? ""
-              return (
-                <p className="text-theme-error">
-                  {copyMutation.isError ? (
-                    <Trans>Failed to move object: {copyErrorMessage}</Trans>
-                  ) : (
-                    <Trans>Object was copied but could not be deleted from the source: {deleteErrorMessage}</Trans>
-                  )}
-                </p>
-              )
-            })()}
+          {(copyMutation.isError || deleteMutation.isError) && (
+            <Message variant="error">
+              {copyMutation.isError ? (
+                <Trans>Failed to move object: {copyErrorMessage}</Trans>
+              ) : (
+                <Trans>
+                  Object was copied but could not be deleted from the source:{" "}
+                  {deleteErrorMessage}
+                </Trans>
+              )}
+            </Message>
+          )}
 
           {/* New object name */}
           <div>
