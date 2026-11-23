@@ -1,5 +1,4 @@
 import { Button, DataGridToolbar, SearchInput, Stack, Status } from "@cloudoperators/juno-ui-components"
-import { useEffect, useState } from "react"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
@@ -15,15 +14,9 @@ import { ResourceTabs } from "./ResourceTabs"
 import { RouteError } from "@/client/components/Errors/RouteError"
 
 export function ResourceList({ projectId, snapshots = false }: { projectId: string; snapshots?: boolean }) {
-  const { t, i18n } = useLingui()
+  const { t } = useLingui()
   const navigate = useNavigate()
   const search = useSearch({ strict: false }) as VolumeSearch
-  const [now, setNow] = useState(Date.now)
-  useEffect(() => {
-    // Update only the relative timestamp text, never the resource query.
-    const timer = setInterval(() => setNow(Date.now()), 60_000)
-    return () => clearInterval(timer)
-  }, [])
   const permissions = useVolumePermissions(projectId)
   const canList = snapshots ? permissions.canListSnapshots : permissions.canListVolumes
   const canRead = snapshots ? permissions.canReadSnapshots : permissions.canReadVolumes
@@ -78,12 +71,6 @@ export function ResourceList({ projectId, snapshots = false }: { projectId: stri
       : []),
   ]
   const hasActiveFilters = Boolean(search.search?.trim() || selectedFilters.length)
-  const lastFetched = query.dataUpdatedAt
-    ? new Intl.RelativeTimeFormat(i18n.locale, { numeric: "auto" }).format(
-        -Math.floor(Math.max(0, now - query.dataUpdatedAt) / 60_000),
-        "minute"
-      )
-    : "- -"
 
   if (permissions.isPending) return <Status status="progress" title={t`Loading Permissions...`} />
   if (permissions.error?.data?.code === "FORBIDDEN" || (!permissions.error && !canList))
@@ -164,14 +151,11 @@ export function ResourceList({ projectId, snapshots = false }: { projectId: stri
           </Stack>
         </DataGridToolbar>
         <DataGridToolbar>
-          <Stack distribution="between" alignment="center" wrap className="text-sm">
+          <Stack alignment="center" wrap className="text-sm">
             <span className="text-theme-light">
               <Trans>
                 Showing {filteredCount} of {totalCount}
               </Trans>
-            </span>
-            <span>
-              <Trans>Last fetched: {lastFetched}</Trans>
             </span>
           </Stack>
         </DataGridToolbar>

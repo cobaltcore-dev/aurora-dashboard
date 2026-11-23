@@ -70,6 +70,10 @@ beforeEach(() => {
 })
 
 describe("volume scope routing", () => {
+  it("identifies volumes as part of Storage navigation", () => {
+    expect(Route.options.staticData).toMatchObject({ section: "storage", service: "volumes" })
+  })
+
   it("redirects to the project when Cinder is absent", async () => {
     await expect(
       guard({

@@ -729,9 +729,6 @@ msgstr ""
 msgid "Bit length must be a positive integer"
 msgstr ""
 
-msgid "Block Storage"
-msgstr ""
-
 msgid "Block storage resources"
 msgstr ""
 
@@ -2674,9 +2671,6 @@ msgid "Key must contain at least one alphanumeric character"
 msgstr "Schlüssel muss mindestens ein alphanumerisches Zeichen enthalten"
 
 msgid "Key Name"
-msgstr ""
-
-msgid "Last fetched: {lastFetched}"
 msgstr ""
 
 msgid "Last modified"

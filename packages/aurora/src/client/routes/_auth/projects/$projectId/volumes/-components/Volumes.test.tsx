@@ -202,6 +202,12 @@ beforeEach(() => {
 })
 
 describe("block storage lists", () => {
+  it.each([false, true])("shows counts without fetch timestamps (snapshots: %s)", (snapshots) => {
+    render(<ResourceList projectId="project-1" snapshots={snapshots} />, { wrapper })
+    expect(screen.getByText("Showing 1 of 1")).toBeInTheDocument()
+    expect(screen.queryByText(/Last fetched:/)).not.toBeInTheDocument()
+  })
+
   it.each([undefined, "", volumeId])("does not repeat the ID below an ID used as the name (%s)", (name) => {
     render(
       <ResourceTable

@@ -9,7 +9,7 @@ import { ResourceTabs } from "./volumes/-components/ResourceTabs"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/volumes")({
-  staticData: { section: "block-storage", service: "volumes", crumb: { text: msg`Volumes` } } satisfies RouteInfo,
+  staticData: { section: "storage", service: "volumes", crumb: { text: msg`Volumes` } } satisfies RouteInfo,
   beforeLoad: async ({ context, params }) => {
     const enabled =
       (!context.enabledServices || context.enabledServices.includes("volumes")) &&

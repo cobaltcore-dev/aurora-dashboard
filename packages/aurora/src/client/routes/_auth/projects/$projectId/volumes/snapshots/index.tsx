@@ -6,7 +6,7 @@ import type { RouteInfo } from "@/client/routes/routeInfo"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/volumes/snapshots/")({
   staticData: {
-    section: "block-storage",
+    section: "storage",
     service: "volumes",
     crumb: { text: msg`Snapshots` },
     analytics: { name: "volume.snapshots.list" },
