@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { MANILA_SERVICE_NAME, MANILA_SERVICE_TYPE, hasManilaService } from "./sharedFileSystem"
+import { MANILA_API_VERSION, MANILA_SERVICE_NAME, MANILA_SERVICE_TYPE, hasManilaService } from "./sharedFileSystem"
 
 describe("hasManilaService", () => {
   it("returns true when both type and name match exactly", () => {
@@ -31,5 +31,9 @@ describe("hasManilaService", () => {
       { type: "compute", name: "nova" },
     ]
     expect(hasManilaService(services)).toBe(false)
+  })
+
+  it("pins the Manila microversion to 2.65", () => {
+    expect(MANILA_API_VERSION).toBe("2.65")
   })
 })

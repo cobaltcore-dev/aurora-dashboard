@@ -2,6 +2,9 @@
 export const MANILA_SERVICE_TYPE = "sharev2"
 export const MANILA_SERVICE_NAME = "manilav2"
 
+/** Fixed Manila microversion sent on every BFF call (#1484): clears share_type_name 2.6, preferred 2.14, replicas 2.11/non-experimental 2.56, share_network_subnets 2.51. */
+export const MANILA_API_VERSION = "2.65"
+
 /**
  * Check if the given services array includes the Manila service.
  * Returns true only if both type and name match exactly.
