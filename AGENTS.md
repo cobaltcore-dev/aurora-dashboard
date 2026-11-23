@@ -12,4 +12,4 @@ Before editing files for a substantial task:
 
 ## Guardrails
 
-For project-specific guardrails not yet covered by a skill or other reference, see docs/guardrails/guardrails.md
+Before building or reviewing Aurora UI, read and follow docs/guardrails/guardrails.md — its guidance is mandatory.

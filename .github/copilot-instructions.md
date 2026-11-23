@@ -6,6 +6,9 @@ Aurora is an AWS-style cloud management dashboard backed by OpenStack. It provid
 
 ---
 
+> [!IMPORTANT]
+> **Before applying any guidance in this file, read `docs/guardrails/guardrails.md`.** That file is the authoritative source for Aurora UI rules. If any rule here conflicts with a rule there, **guardrails wins**.
+
 A PR reviewer or AI assistant **must reject** code that violates these rules unless the PR author provides an explicit justification.
 
 ### Review Scope — What NOT to Review
@@ -28,7 +31,7 @@ Focus review effort on **semantics, structure, and consistency** that no compile
 
 1. **Security & Data** — B.7 (Data Fetching), B.8 (Permissions/RBAC), B.15 (DataGrid/Row Interaction)
 2. **UI Correctness** — B.1 (Component Library), B.4 (Color Tokens), B.5 (Modal Structure), B.6 (Empty/Loading/Error), B.9 (URL State), B.11 (Form Validation)
-3. **Style & Consistency** — B.2 (List Page Zones), B.3 (Spacing), B.10 (Toast Notifications), B.12 (Naming), B.13 (Import Order), B.14 (Accessibility/i18n), B.16 (Messages vs. Toast), B.17 (Utility Hooks), B.18 (PopupMenu Ordering), B.19 (UX Writing)
+3. **Style & Consistency** — B.2 (List Page Zones), B.3 (Spacing), B.10 (Toast Notifications), B.12 (Naming), B.13 (Import Order), B.14 (Accessibility/i18n), B.16 (Messages vs. Toast), B.17 (Utility Hooks), B.19 (UX Writing)
 
 ---
 
@@ -49,7 +52,6 @@ Focus review effort on **semantics, structure, and consistency** that no compile
 - [ ] Custom `modalFooter` without explicit `disableCloseButton` on the `Modal` itself
 - [ ] Destructive modal without `confirmButtonVariant="primary-danger"`
 - [ ] Destructive modal with alarmist/vague title (`"Danger!"`, `"Are You Sure?"`)
-- [ ] "Delete" action not the last item in its menu group, or a single-entity menu missing the divider before it (multi-entity menus need no extra divider — group dividers suffice)
 - [ ] URL-worthy state held in `useState` instead of search params
 - [ ] User-facing string not wrapped in `<Trans>` or `` t`...` `` (skip in `packages/aurora` — enforced by `eslint-plugin-lingui`)
 - [ ] Error element without `role="alert"` and `aria-live="assertive"`
@@ -489,32 +491,6 @@ Authoritative rules: the `datagrid` skill in `@cloudoperators/juno-ui-components
 | `useVirtualizedTableBody()` | Virtual scroll for large tables                           |
 
 **Reject** any re-implementation of the above logic inline in a component.
-
-### B.18 [STANDARD] PopupMenu / Overflow Menu Item Ordering
-
-- Sort items **alphabetically** within each group — with one exception: **"Delete [Entity]"** is always **last** in its menu or group.
-- **Single-entity menus** (all actions target one entity type): separate the Delete action from the rest with a divider.
-- **Multi-entity menus** (multiple groups): put a divider **between groups**. The group dividers already provide separation — do **not** add an extra divider before Delete within a group.
-- Include the referenced entity in labels where it aids clarity (`"Edit Bucket"`, not `"Edit"`).
-
-```
-// Single entity — divider before Delete
-Copy Item
-Download Item
-View Item
-──────────────
-Delete Item
-
-// Multiple entities — group dividers only, no extra divider before Delete
-Edit Bucket
-Empty Bucket
-Delete Bucket
-──────────────
-Edit Policy
-Delete Policy
-```
-
-**Reject** any menu where "Delete" is not last in its group, a single-entity menu lacking a divider before Delete, or a multi-entity menu with a redundant extra divider before Delete inside a group.
 
 ### B.19 [STYLE] UX Writing & Content Standards
 
