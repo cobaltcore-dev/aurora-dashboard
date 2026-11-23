@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach } from "vitest"
-import { render, screen, waitFor, act, within } from "@testing-library/react"
+import { render, screen, waitFor, act } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
@@ -95,12 +95,14 @@ const renderModal = ({
   currentPrefix = "",
   onClose = vi.fn(),
   onSuccess = vi.fn(),
+  onError = vi.fn(),
   existingRows = [],
 }: {
   isOpen?: boolean
   currentPrefix?: string
   onClose?: () => void
   onSuccess?: (name: string) => void
+  onError?: (name: string, errorMessage: string) => void
   existingRows?: BrowserRow[]
 } = {}) =>
   render(
@@ -111,6 +113,7 @@ const renderModal = ({
           currentPrefix={currentPrefix}
           onClose={onClose}
           onSuccess={onSuccess}
+          onError={onError}
           existingRows={existingRows}
         />
       </PortalProvider>
@@ -357,77 +360,18 @@ describe("CreateFolderModal", () => {
   })
 
   describe("Error handling", () => {
-    test("shows a persistent error banner for a non-CONFLICT failure", async () => {
+    test("reports a non-CONFLICT failure via onError and closes the modal", async () => {
       mutationError = "Internal Server Error"
-      const user = userEvent.setup()
-      renderModal()
-      await user.type(screen.getByLabelText(/Folder name/i), "my-folder")
-      await user.click(screen.getByRole("button", { name: /Create folder/i }))
-      await waitFor(() => {
-        expect(screen.getByTestId("create-folder-error")).toHaveTextContent("Internal Server Error")
-      })
-    })
-
-    test("error banner carries role=alert and aria-live=assertive", async () => {
-      mutationError = "Creation failed"
-      const user = userEvent.setup()
-      renderModal()
-      await user.type(screen.getByLabelText(/Folder name/i), "my-folder")
-      await user.click(screen.getByRole("button", { name: /Create folder/i }))
-
-      const banner = await screen.findByTestId("create-folder-error")
-      expect(banner).toHaveAttribute("role", "alert")
-      expect(banner).toHaveAttribute("aria-live", "assertive")
-    })
-
-    test("stays open on a non-CONFLICT error so the user can retry", async () => {
-      mutationError = "Creation failed"
+      const onError = vi.fn()
       const onClose = vi.fn()
       const user = userEvent.setup()
-      renderModal({ onClose })
+      renderModal({ onError, onClose })
       await user.type(screen.getByLabelText(/Folder name/i), "my-folder")
       await user.click(screen.getByRole("button", { name: /Create folder/i }))
       await waitFor(() => {
-        expect(screen.getByTestId("create-folder-error")).toBeInTheDocument()
+        expect(onError).toHaveBeenCalledWith("my-folder", "Internal Server Error")
       })
-      expect(onClose).not.toHaveBeenCalled()
-      expect(screen.getByLabelText(/Folder name/i)).toHaveValue("my-folder")
-    })
-
-    test("clears the error banner when the folder name is edited", async () => {
-      mutationError = "Creation failed"
-      const user = userEvent.setup()
-      renderModal()
-      const input = screen.getByLabelText(/Folder name/i)
-      await user.type(input, "my-folder")
-      await user.click(screen.getByRole("button", { name: /Create folder/i }))
-      await waitFor(() => {
-        expect(screen.getByTestId("create-folder-error")).toBeInTheDocument()
-      })
-
-      await user.type(input, "-2")
-
-      expect(screen.queryByTestId("create-folder-error")).not.toBeInTheDocument()
-    })
-
-    test("a dismiss-then-new-failure cycle re-shows a fresh banner", async () => {
-      mutationError = "Creation failed"
-      const user = userEvent.setup()
-      renderModal()
-      const input = screen.getByLabelText(/Folder name/i)
-      await user.type(input, "my-folder")
-      const createButton = screen.getByRole("button", { name: /Create folder/i })
-      await user.click(createButton)
-
-      const banner = await screen.findByTestId("create-folder-error")
-      const dismissButton = within(banner).getByRole("button")
-      await user.click(dismissButton)
-
-      expect(screen.queryByTestId("create-folder-error")).not.toBeInTheDocument()
-
-      await user.click(createButton)
-
-      expect(await screen.findByTestId("create-folder-error")).toBeInTheDocument()
+      expect(onClose).toHaveBeenCalled()
     })
 
     test("on a CONFLICT (folder already exists on server) error, keeps the modal open and shows an inline field error instead of a banner", async () => {

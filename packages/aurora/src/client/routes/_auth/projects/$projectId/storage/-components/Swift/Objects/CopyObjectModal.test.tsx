@@ -500,7 +500,7 @@ describe("CopyObjectModal", () => {
       expect(onError).toHaveBeenCalledWith("report.pdf", "Forbidden")
     })
 
-    test("does not call onClose after failed copy", async () => {
+    test("closes the modal after a failed copy so the error surfaces via toast", async () => {
       trpcState.copyIsError = true
       trpcState.copyError = { message: "Forbidden" }
       const user = userEvent.setup()
@@ -508,7 +508,7 @@ describe("CopyObjectModal", () => {
       renderModal({ onClose })
       await user.click(screen.getByText("docs"))
       await user.click(screen.getByRole("button", { name: /^Copy Object$/i }))
-      expect(onClose).not.toHaveBeenCalled()
+      expect(onClose).toHaveBeenCalled()
     })
 
     test("includes current prefix in destination when navigated into folder", async () => {

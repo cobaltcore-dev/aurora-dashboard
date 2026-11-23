@@ -311,15 +311,16 @@ describe("UploadObjectModal", () => {
   // ── Error handling ────────────────────────────────────────────────────────
 
   describe("Error handling", () => {
-    test("shows error message when upload fails", async () => {
+    test("closes the modal when upload fails so the error surfaces via toast", async () => {
       mutationError = "Quota exceeded"
+      const onClose = vi.fn()
       const user = userEvent.setup()
-      renderModal()
+      renderModal({ onClose })
       const fileInput = document.querySelector("input[type=file]") as HTMLInputElement
       await user.upload(fileInput, makeFile())
       await user.click(screen.getByRole("button", { name: /^Upload$/i }))
       await waitFor(() => {
-        expect(screen.getByText(/Quota exceeded/i)).toBeInTheDocument()
+        expect(onClose).toHaveBeenCalled()
       })
     })
 

@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach } from "vitest"
-import { render, screen, waitFor, act, within } from "@testing-library/react"
+import { render, screen, waitFor, act } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
@@ -103,6 +103,7 @@ const renderModal = ({
   onClose = vi.fn(),
   onSuccess = vi.fn(),
   onPartialSuccess = vi.fn(),
+  onError = vi.fn(),
   maxContainerNameLength,
   existingContainerNames = [],
 }: {
@@ -110,6 +111,7 @@ const renderModal = ({
   onClose?: () => void
   onSuccess?: (name: string) => void
   onPartialSuccess?: (name: string, reason: string) => void
+  onError?: (name: string, errorMessage: string) => void
   maxContainerNameLength?: number
   existingContainerNames?: string[]
 } = {}) =>
@@ -121,6 +123,7 @@ const renderModal = ({
           onClose={onClose}
           onSuccess={onSuccess}
           onPartialSuccess={onPartialSuccess}
+          onError={onError}
           maxContainerNameLength={maxContainerNameLength}
           existingContainers={existingContainerNames.map((name): ContainerSummary => ({ name, count: 0, bytes: 0 }))}
         />
@@ -334,96 +337,36 @@ describe("CreateContainerModal", () => {
   })
 
   describe("Error handling", () => {
-    test("shows a persistent error banner instead of calling onPartialSuccess for a non-CONFLICT failure", async () => {
-      mutationError = "Container already exists"
-      const onPartialSuccess = vi.fn()
-      const user = userEvent.setup()
-      renderModal({ onPartialSuccess })
-      await user.type(screen.getByLabelText(/Container name/i), "my-container")
-      await user.click(screen.getByRole("button", { name: /Create/i }))
-      await waitFor(() => {
-        expect(screen.getByTestId("create-container-error")).toHaveTextContent("Container already exists")
-      })
-      expect(onPartialSuccess).not.toHaveBeenCalled()
-    })
-
-    test("error banner carries role=alert and aria-live=assertive", async () => {
-      mutationError = "Creation failed"
-      const user = userEvent.setup()
-      renderModal()
-      await user.type(screen.getByLabelText(/Container name/i), "my-container")
-      await user.click(screen.getByRole("button", { name: /Create/i }))
-
-      const banner = await screen.findByTestId("create-container-error")
-      expect(banner).toHaveAttribute("role", "alert")
-      expect(banner).toHaveAttribute("aria-live", "assertive")
-    })
-
-    test("stays open on a non-CONFLICT error so the user can retry", async () => {
-      mutationError = "Creation failed"
+    test("reports a non-CONFLICT failure via onError and closes the modal", async () => {
+      mutationError = "Internal Server Error"
+      const onError = vi.fn()
       const onClose = vi.fn()
       const onPartialSuccess = vi.fn()
       const user = userEvent.setup()
-      renderModal({ onClose, onPartialSuccess })
+      renderModal({ onError, onClose, onPartialSuccess })
       await user.type(screen.getByLabelText(/Container name/i), "my-container")
       await user.click(screen.getByRole("button", { name: /Create/i }))
       await waitFor(() => {
-        expect(screen.getByTestId("create-container-error")).toBeInTheDocument()
+        expect(onError).toHaveBeenCalledWith("my-container", "Internal Server Error")
       })
-      expect(onClose).not.toHaveBeenCalled()
+      expect(onClose).toHaveBeenCalled()
       expect(onPartialSuccess).not.toHaveBeenCalled()
-      expect(screen.getByText("Create Container")).toBeInTheDocument()
     })
 
-    test("clears the error banner when the container name is edited", async () => {
-      mutationError = "Creation failed"
-      const user = userEvent.setup()
-      renderModal()
-      const input = screen.getByLabelText(/Container name/i)
-      await user.type(input, "my-container")
-      await user.click(screen.getByRole("button", { name: /Create/i }))
-      await waitFor(() => {
-        expect(screen.getByTestId("create-container-error")).toBeInTheDocument()
-      })
-
-      await user.type(input, "-2")
-
-      expect(screen.queryByTestId("create-container-error")).not.toBeInTheDocument()
-    })
-
-    test("a dismiss-then-new-failure cycle re-shows a fresh banner", async () => {
-      mutationError = "Creation failed"
-      const user = userEvent.setup()
-      renderModal()
-      const input = screen.getByLabelText(/Container name/i)
-      await user.type(input, "my-container")
-      const createButton = screen.getByRole("button", { name: /Create/i })
-      await user.click(createButton)
-
-      const banner = await screen.findByTestId("create-container-error")
-      const dismissButton = within(banner).getByRole("button")
-      await user.click(dismissButton)
-
-      expect(screen.queryByTestId("create-container-error")).not.toBeInTheDocument()
-
-      await user.click(createButton)
-
-      expect(await screen.findByTestId("create-container-error")).toBeInTheDocument()
-    })
-
-    test("on a CONFLICT (name taken) error, keeps the modal open and shows an inline field error instead of a banner or the toast callback", async () => {
+    test("on a CONFLICT (name taken) error, keeps the modal open and shows an inline field error instead of calling onError or the toast callback", async () => {
       mutationError = "Container already exists"
       mutationErrorCode = "CONFLICT"
       const onClose = vi.fn()
+      const onError = vi.fn()
       const onPartialSuccess = vi.fn()
       const user = userEvent.setup()
-      renderModal({ onClose, onPartialSuccess })
+      renderModal({ onClose, onError, onPartialSuccess })
       await user.type(screen.getByLabelText(/Container name/i), "taken-on-server")
       await user.click(screen.getByRole("button", { name: /Create/i }))
       await waitFor(() => {
         expect(screen.getByText(/A container with this name already exists/i)).toBeInTheDocument()
       })
-      expect(screen.queryByTestId("create-container-error")).not.toBeInTheDocument()
+      expect(onError).not.toHaveBeenCalled()
       expect(onClose).not.toHaveBeenCalled()
       expect(onPartialSuccess).not.toHaveBeenCalled()
     })

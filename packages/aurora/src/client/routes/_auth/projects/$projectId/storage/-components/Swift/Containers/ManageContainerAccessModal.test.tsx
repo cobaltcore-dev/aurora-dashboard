@@ -617,7 +617,7 @@ describe("ManageContainerAccessModal", () => {
       })
     })
 
-    test("does not close the modal on mutation failure", async () => {
+    test("closes the modal on mutation failure so the error surfaces via toast", async () => {
       mutationError = "Server error"
       const onClose = vi.fn()
       const user = userEvent.setup()
@@ -627,20 +627,7 @@ describe("ManageContainerAccessModal", () => {
       await user.type(textareas[0], ".r:*")
       await user.click(screen.getByRole("button", { name: /Save/i }))
       await waitFor(() => {
-        expect(onClose).not.toHaveBeenCalled()
-      })
-    })
-
-    test("shows inline mutation error message after failed save", async () => {
-      mutationError = "Permission denied"
-      const user = userEvent.setup()
-      mockContainerInfo = makeContainerInfo()
-      renderModal()
-      const textareas = screen.getAllByRole("textbox") as HTMLTextAreaElement[]
-      await user.type(textareas[0], ".r:*")
-      await user.click(screen.getByRole("button", { name: /Save/i }))
-      await waitFor(() => {
-        expect(screen.getByText(/Failed to update ACLs/i)).toBeInTheDocument()
+        expect(onClose).toHaveBeenCalled()
       })
     })
   })

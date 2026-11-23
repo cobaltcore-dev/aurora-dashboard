@@ -340,12 +340,13 @@ describe("ScheduleObjectDeletionModal", () => {
     })
   })
 
-  test("calls onError and shows error message on mutation failure", async () => {
+  test("reports a mutation failure via onError and closes the modal", async () => {
     mutationError = "Forbidden"
     const onError = vi.fn()
+    const onClose = vi.fn()
     mockObjectMetadata = makeObjectMetadata()
     const user = userEvent.setup()
-    renderModal({ onError })
+    renderModal({ onError, onClose })
     await flushEffects()
     fireEvent.change(screen.getByLabelText(/Expires at/i), {
       target: { value: "2027-06-01T12:00:00.000Z" },
@@ -353,9 +354,8 @@ describe("ScheduleObjectDeletionModal", () => {
     await user.click(getModalSaveButton())
     await waitFor(() => {
       expect(onError).toHaveBeenCalledWith("sample.txt", "Forbidden")
-      expect(screen.getByText(/Failed to schedule deletion/i)).toBeInTheDocument()
-      expect(screen.getByText(/Forbidden/)).toBeInTheDocument()
     })
+    expect(onClose).toHaveBeenCalled()
   })
 
   // ── Modal lifecycle ─────────────────────────────────────────────────────────

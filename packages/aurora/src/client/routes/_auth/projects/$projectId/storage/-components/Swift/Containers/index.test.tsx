@@ -288,12 +288,11 @@ vi.mock("./DeleteContainerModal", () => ({
 }))
 
 vi.mock("./EditContainerMetadataModal", () => ({
-  EditContainerMetadataModal: vi.fn(({ isOpen, container, onClose, onSuccess, onError }) =>
+  EditContainerMetadataModal: vi.fn(({ isOpen, container, onClose, onSuccess }) =>
     isOpen && container ? (
       <div data-testid="edit-container-modal">
         <button onClick={onClose}>CloseEdit</button>
         <button onClick={() => onSuccess?.(container.name)}>SimulateEditSuccess</button>
-        <button onClick={() => onError?.(container.name, "Update failed")}>SimulateEditError</button>
       </div>
     ) : null
   ),
@@ -884,23 +883,6 @@ describe("SwiftContainers (List)", () => {
           expect.anything(),
           expect.objectContaining({
             description: expect.stringContaining('Container "alpha" properties were successfully updated'),
-          })
-        )
-      })
-    })
-
-    test("shows error toast when updating container properties fails", async () => {
-      const user = userEvent.setup()
-      renderList()
-      await openMenu(user, "alpha")
-      await user.click(screen.getByTestId("properties-action-alpha"))
-      await waitFor(() => expect(screen.getByTestId("edit-container-modal")).toBeInTheDocument())
-      await user.click(screen.getByRole("button", { name: "SimulateEditError" }))
-      await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledWith(
-          expect.anything(),
-          expect.objectContaining({
-            description: expect.stringContaining('Could not update container "alpha": Update failed'),
           })
         )
       })
