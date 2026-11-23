@@ -573,6 +573,12 @@ msgstr "Also delete all versions and all delete markers"
 msgid "An access key stops working the moment it is deleted. Any S3 client still configured with it loses access."
 msgstr "An access key stops working the moment it is deleted. Any S3 client still configured with it loses access."
 
+msgid "An error occurred while loading clusters."
+msgstr "An error occurred while loading clusters."
+
+msgid "An error occurred while loading permissions."
+msgstr "An error occurred while loading permissions."
+
 msgid "An object with this name already exists at the destination and will be overwritten."
 msgstr "An object with this name already exists at the destination and will be overwritten."
 
@@ -696,6 +702,9 @@ msgstr "Back to Instances"
 msgid "Back to Key Manager"
 msgstr "Back to Key Manager"
 
+msgid "Back to Kubernetes"
+msgstr "Back to Kubernetes"
+
 msgid "Back to Networks"
 msgstr "Back to Networks"
 
@@ -716,6 +725,12 @@ msgstr "Bit Length"
 
 msgid "Bit length must be a positive integer"
 msgstr "Bit length must be a positive integer"
+
+msgid "Block Storage"
+msgstr "Block Storage"
+
+msgid "Block storage resources"
+msgstr "Block storage resources"
 
 msgid "Boot RAM"
 msgstr "Boot RAM"
@@ -1199,6 +1214,9 @@ msgstr "Create an access key to connect an S3 client to this project."
 
 msgid "Create Bucket"
 msgstr "Create Bucket"
+
+msgid "Create Cluster"
+msgstr "Create Cluster"
 
 msgid "Create Container"
 msgstr "Create Container"
@@ -2016,6 +2034,9 @@ msgstr "Failed to Load Access"
 msgid "Failed to Load Buckets"
 msgstr "Failed to Load Buckets"
 
+msgid "Failed to load clusters"
+msgstr "Failed to load clusters"
+
 msgid "Failed to Load Container"
 msgstr "Failed to Load Container"
 
@@ -2094,6 +2115,9 @@ msgstr "Failed to Load Orders"
 msgid "Failed to load payload."
 msgstr "Failed to load payload."
 
+msgid "Failed to load permissions"
+msgstr "Failed to load permissions"
+
 msgid "Failed to Load Policy"
 msgstr "Failed to Load Policy"
 
@@ -2117,6 +2141,9 @@ msgstr "Failed to Load Subnets"
 
 msgid "Failed to Load Versions"
 msgstr "Failed to Load Versions"
+
+msgid "Failed to Load Volumes"
+msgstr "Failed to Load Volumes"
 
 msgid "Failed to Move Object"
 msgstr "Failed to Move Object"
@@ -2412,6 +2439,9 @@ msgstr "Grant access to all users from that project."
 msgid "Hardware Specifications"
 msgstr "Hardware Specifications"
 
+msgid "Healthy"
+msgstr "Healthy"
+
 msgid "Hi"
 msgstr "Hi"
 
@@ -2631,6 +2661,15 @@ msgstr "Key must contain at least one alphanumeric character"
 msgid "Key Name"
 msgstr "Key Name"
 
+msgid "Kubernetes"
+msgstr "Kubernetes"
+
+msgid "Kubernetes landscapes"
+msgstr "Kubernetes landscapes"
+
+msgid "Kubernetes Version"
+msgstr "Kubernetes Version"
+
 msgid "Last modified"
 msgstr "Last modified"
 
@@ -2639,6 +2678,9 @@ msgstr "Last Modified"
 
 msgid "Last modified (UTC)"
 msgstr "Last modified (UTC)"
+
+msgid "Last Operation"
+msgstr "Last Operation"
 
 msgid "Last update: {lastUpdated}"
 msgstr "Last update: {lastUpdated}"
@@ -2699,6 +2741,9 @@ msgstr "Loading buckets..."
 
 msgid "Loading Buckets..."
 msgstr "Loading Buckets..."
+
+msgid "Loading clusters..."
+msgstr "Loading clusters..."
 
 msgid "Loading Container Properties..."
 msgstr "Loading Container Properties..."
@@ -2816,6 +2861,9 @@ msgstr "Loading Subnets..."
 
 msgid "Loading Versions..."
 msgstr "Loading Versions..."
+
+msgid "Loading Volumes..."
+msgstr "Loading Volumes..."
 
 msgid "Loading..."
 msgstr "Loading..."
@@ -3048,6 +3096,12 @@ msgstr "No addresses"
 msgid "No buckets found"
 msgstr "No buckets found"
 
+msgid "No clusters"
+msgstr "No clusters"
+
+msgid "No clusters match your current filters or search."
+msgstr "No clusters match your current filters or search."
+
 msgid "No containers found"
 msgstr "No containers found"
 
@@ -3101,6 +3155,9 @@ msgstr "No Lifecycle Rules Matching the Current Search Criteria."
 
 msgid "No limit"
 msgstr "No limit"
+
+msgid "No matches"
+msgstr "No matches"
 
 msgid "No Metadata Properties Found"
 msgstr "No Metadata Properties Found"
@@ -3564,6 +3621,9 @@ msgstr "Private Key Passphrase"
 msgid "Private Network"
 msgstr "Private Network"
 
+msgid "Progressing"
+msgstr "Progressing"
+
 msgid "Project"
 msgstr "Project"
 
@@ -3683,6 +3743,9 @@ msgstr "Read ACLs"
 
 msgid "Read ACLs — Preview"
 msgstr "Read ACLs — Preview"
+
+msgid "Readiness"
+msgstr "Readiness"
 
 msgid "Reference"
 msgstr "Reference"
@@ -4110,6 +4173,9 @@ msgstr "Services"
 msgid "Session Changed"
 msgstr "Session Changed"
 
+msgid "Session Expired"
+msgstr "Session Expired"
+
 msgid "Session expires in"
 msgstr "Session expires in"
 
@@ -4202,6 +4268,12 @@ msgstr "Size: {policySize} / {MAX_POLICY_SIZE} bytes"
 
 msgid "Snapshot"
 msgstr "Snapshot"
+
+msgid "Snapshots"
+msgstr "Snapshots"
+
+msgid "Snapshots View Coming Soon"
+msgstr "Snapshots View Coming Soon"
 
 msgid "SNAT"
 msgstr "SNAT"
@@ -4370,6 +4442,12 @@ msgstr "Temporary URLs"
 
 msgid "The application configuration could not be loaded. Some services and features may be unavailable."
 msgstr "The application configuration could not be loaded. Some services and features may be unavailable."
+
+msgid "The block storage scope is available. The snapshots list will be added in a follow-up release."
+msgstr "The block storage scope is available. The snapshots list will be added in a follow-up release."
+
+msgid "The block storage scope is available. The volumes list will be added in a follow-up release."
+msgstr "The block storage scope is available. The volumes list will be added in a follow-up release."
 
 msgid "The bucket could not be created. Try again or choose a different name."
 msgstr "The bucket could not be created. Try again or choose a different name."
@@ -4598,6 +4676,9 @@ msgstr "There are no instances in this project with the current filters applied.
 
 msgid "There are no items to display."
 msgstr "There are no items to display."
+
+msgid "There are no Kubernetes clusters in this project for the selected landscape."
+msgstr "There are no Kubernetes clusters in this project for the selected landscape."
 
 msgid "There Are No Lifecycle Rules for This Bucket"
 msgstr "There Are No Lifecycle Rules for This Bucket"
@@ -4860,6 +4941,9 @@ msgstr "Try adjusting your filter criteria or check the Suggested Images tab."
 msgid "Try adjusting your filter criteria or create a new image."
 msgstr "Try adjusting your filter criteria or create a new image."
 
+msgid "Try again"
+msgstr "Try again"
+
 msgid "Try Again"
 msgstr "Try Again"
 
@@ -4925,6 +5009,12 @@ msgstr "Unable to Upload Image File"
 
 msgid "Unable to verify bucket versioning status and contents. Try again."
 msgstr "Unable to verify bucket versioning status and contents. Try again."
+
+msgid "Unhealthy"
+msgstr "Unhealthy"
+
+msgid "Unknown"
+msgstr "Unknown"
 
 msgid "Unknown domain"
 msgstr "Unknown domain"
@@ -5106,6 +5196,12 @@ msgstr "Visibility"
 msgid "VM State"
 msgstr "VM State"
 
+msgid "Volumes"
+msgstr "Volumes"
+
+msgid "Volumes View Coming Soon"
+msgstr "Volumes View Coming Soon"
+
 msgid "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
 msgstr "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
 
@@ -5168,6 +5264,9 @@ msgstr "You can re-enable versioning at any time"
 
 msgid "You can rename the object by changing the name here."
 msgstr "You can rename the object by changing the name here."
+
+msgid "You do not have permission to list clusters."
+msgstr "You do not have permission to list clusters."
 
 msgid "You do not have permission to view security groups"
 msgstr "You do not have permission to view security groups"
@@ -5241,6 +5340,9 @@ msgstr "You don't have permission to remove tenant access from this flavor."
 msgid "You don't have permission to share this security group."
 msgstr "You don't have permission to share this security group."
 
+msgid "You don't have permission to view block storage in this project."
+msgstr "You don't have permission to view block storage in this project."
+
 msgid "You don't have permission to view extra specs for this flavor."
 msgstr "You don't have permission to view extra specs for this flavor."
 
@@ -5250,8 +5352,14 @@ msgstr "You don't have permission to view images in this project. Contact your a
 msgid "You don't have permission to view instances in this project. Contact your administrator to grant you the necessary permissions."
 msgstr "You don't have permission to view instances in this project. Contact your administrator to grant you the necessary permissions."
 
+msgid "You don't have permission to view snapshots in this project."
+msgstr "You don't have permission to view snapshots in this project."
+
 msgid "You don't have permission to view this flavor's details."
 msgstr "You don't have permission to view this flavor's details."
+
+msgid "You don't have permission to view volumes in this project."
+msgstr "You don't have permission to view volumes in this project."
 
 msgid "Your action is required"
 msgstr "Your action is required"

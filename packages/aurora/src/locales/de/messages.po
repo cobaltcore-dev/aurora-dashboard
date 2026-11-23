@@ -573,6 +573,12 @@ msgstr ""
 msgid "An access key stops working the moment it is deleted. Any S3 client still configured with it loses access."
 msgstr ""
 
+msgid "An error occurred while loading clusters."
+msgstr ""
+
+msgid "An error occurred while loading permissions."
+msgstr ""
+
 msgid "An object with this name already exists at the destination and will be overwritten."
 msgstr ""
 
@@ -696,6 +702,9 @@ msgstr ""
 msgid "Back to Key Manager"
 msgstr ""
 
+msgid "Back to Kubernetes"
+msgstr ""
+
 msgid "Back to Networks"
 msgstr ""
 
@@ -715,6 +724,12 @@ msgid "Bit Length"
 msgstr ""
 
 msgid "Bit length must be a positive integer"
+msgstr ""
+
+msgid "Block Storage"
+msgstr ""
+
+msgid "Block storage resources"
 msgstr ""
 
 msgid "Boot RAM"
@@ -1198,6 +1213,9 @@ msgid "Create an access key to connect an S3 client to this project."
 msgstr ""
 
 msgid "Create Bucket"
+msgstr ""
+
+msgid "Create Cluster"
 msgstr ""
 
 msgid "Create Container"
@@ -2016,6 +2034,9 @@ msgstr ""
 msgid "Failed to Load Buckets"
 msgstr ""
 
+msgid "Failed to load clusters"
+msgstr ""
+
 msgid "Failed to Load Container"
 msgstr ""
 
@@ -2094,6 +2115,9 @@ msgstr ""
 msgid "Failed to load payload."
 msgstr ""
 
+msgid "Failed to load permissions"
+msgstr ""
+
 msgid "Failed to Load Policy"
 msgstr ""
 
@@ -2116,6 +2140,9 @@ msgid "Failed to Load Subnets"
 msgstr ""
 
 msgid "Failed to Load Versions"
+msgstr ""
+
+msgid "Failed to Load Volumes"
 msgstr ""
 
 msgid "Failed to Move Object"
@@ -2412,6 +2439,9 @@ msgstr "Zugriff für alle Benutzer aus diesem Projekt gewähren."
 msgid "Hardware Specifications"
 msgstr "Hardware-Spezifikationen"
 
+msgid "Healthy"
+msgstr ""
+
 msgid "Hi"
 msgstr "Hallo"
 
@@ -2631,6 +2661,15 @@ msgstr "Schlüssel muss mindestens ein alphanumerisches Zeichen enthalten"
 msgid "Key Name"
 msgstr ""
 
+msgid "Kubernetes"
+msgstr ""
+
+msgid "Kubernetes landscapes"
+msgstr ""
+
+msgid "Kubernetes Version"
+msgstr ""
+
 msgid "Last modified"
 msgstr ""
 
@@ -2639,6 +2678,9 @@ msgstr "Zuletzt geändert"
 
 msgid "Last modified (UTC)"
 msgstr "Zuletzt geändert (UTC)"
+
+msgid "Last Operation"
+msgstr ""
 
 msgid "Last update: {lastUpdated}"
 msgstr ""
@@ -2698,6 +2740,9 @@ msgid "Loading buckets..."
 msgstr ""
 
 msgid "Loading Buckets..."
+msgstr ""
+
+msgid "Loading clusters..."
 msgstr ""
 
 msgid "Loading Container Properties..."
@@ -2815,6 +2860,9 @@ msgid "Loading Subnets..."
 msgstr ""
 
 msgid "Loading Versions..."
+msgstr ""
+
+msgid "Loading Volumes..."
 msgstr ""
 
 msgid "Loading..."
@@ -3048,6 +3096,12 @@ msgstr ""
 msgid "No buckets found"
 msgstr ""
 
+msgid "No clusters"
+msgstr ""
+
+msgid "No clusters match your current filters or search."
+msgstr ""
+
 msgid "No containers found"
 msgstr "Keine Container gefunden"
 
@@ -3101,6 +3155,9 @@ msgstr ""
 
 msgid "No limit"
 msgstr "Kein Limit"
+
+msgid "No matches"
+msgstr ""
 
 msgid "No Metadata Properties Found"
 msgstr ""
@@ -3564,6 +3621,9 @@ msgstr ""
 msgid "Private Network"
 msgstr ""
 
+msgid "Progressing"
+msgstr ""
+
 msgid "Project"
 msgstr "Projekt"
 
@@ -3683,6 +3743,9 @@ msgstr "Lese-ACLs"
 
 msgid "Read ACLs — Preview"
 msgstr "Lese-ACLs — Vorschau"
+
+msgid "Readiness"
+msgstr ""
 
 msgid "Reference"
 msgstr ""
@@ -4110,6 +4173,9 @@ msgstr "Services"
 msgid "Session Changed"
 msgstr ""
 
+msgid "Session Expired"
+msgstr ""
+
 msgid "Session expires in"
 msgstr "Sitzung läuft ab in"
 
@@ -4201,6 +4267,12 @@ msgid "Size: {policySize} / {MAX_POLICY_SIZE} bytes"
 msgstr ""
 
 msgid "Snapshot"
+msgstr ""
+
+msgid "Snapshots"
+msgstr ""
+
+msgid "Snapshots View Coming Soon"
 msgstr ""
 
 msgid "SNAT"
@@ -4369,6 +4441,12 @@ msgid "Temporary URLs"
 msgstr "Temporäre URLs"
 
 msgid "The application configuration could not be loaded. Some services and features may be unavailable."
+msgstr ""
+
+msgid "The block storage scope is available. The snapshots list will be added in a follow-up release."
+msgstr ""
+
+msgid "The block storage scope is available. The volumes list will be added in a follow-up release."
 msgstr ""
 
 msgid "The bucket could not be created. Try again or choose a different name."
@@ -4598,6 +4676,9 @@ msgstr ""
 
 msgid "There are no items to display."
 msgstr "Es gibt keine Elemente zum Anzeigen."
+
+msgid "There are no Kubernetes clusters in this project for the selected landscape."
+msgstr ""
 
 msgid "There Are No Lifecycle Rules for This Bucket"
 msgstr ""
@@ -4860,6 +4941,9 @@ msgstr ""
 msgid "Try adjusting your filter criteria or create a new image."
 msgstr ""
 
+msgid "Try again"
+msgstr ""
+
 msgid "Try Again"
 msgstr "Erneut versuchen"
 
@@ -4924,6 +5008,12 @@ msgid "Unable to Upload Image File"
 msgstr "Image-Datei kann nicht hochgeladen werden"
 
 msgid "Unable to verify bucket versioning status and contents. Try again."
+msgstr ""
+
+msgid "Unhealthy"
+msgstr ""
+
+msgid "Unknown"
 msgstr ""
 
 msgid "Unknown domain"
@@ -5106,6 +5196,12 @@ msgstr "Sichtbarkeit"
 msgid "VM State"
 msgstr ""
 
+msgid "Volumes"
+msgstr ""
+
+msgid "Volumes View Coming Soon"
+msgstr ""
+
 msgid "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
 msgstr "Wir entwickeln das Aurora-Dashboard, um Ihnen einen besseren Service zu bieten. Ihr Feedback ist von unschätzbarem Wert, um ein Werkzeug zu gestalten, das den einzigartigen Bedürfnissen von Unternehmen wie Ihrem gerecht wird. Bleiben Sie in Verbindung und begleiten Sie uns, während wir das Cloud-Management neu definieren."
 
@@ -5168,6 +5264,9 @@ msgstr ""
 
 msgid "You can rename the object by changing the name here."
 msgstr "Sie können das Objekt umbenennen, indem Sie den Namen hier ändern."
+
+msgid "You do not have permission to list clusters."
+msgstr ""
 
 msgid "You do not have permission to view security groups"
 msgstr ""
@@ -5241,6 +5340,9 @@ msgstr "Sie haben keine Berechtigung, Projektzugriffe von diesem Flavor zu entfe
 msgid "You don't have permission to share this security group."
 msgstr "Sie haben keine Berechtigung, diese Sicherheitsgruppe zu teilen."
 
+msgid "You don't have permission to view block storage in this project."
+msgstr ""
+
 msgid "You don't have permission to view extra specs for this flavor."
 msgstr "Sie haben keine Berechtigung, Metadata für diesen Flavor anzusehen."
 
@@ -5250,8 +5352,14 @@ msgstr ""
 msgid "You don't have permission to view instances in this project. Contact your administrator to grant you the necessary permissions."
 msgstr ""
 
+msgid "You don't have permission to view snapshots in this project."
+msgstr ""
+
 msgid "You don't have permission to view this flavor's details."
 msgstr "Sie haben keine Berechtigung, die Details dieses Flavors anzuzeigen."
+
+msgid "You don't have permission to view volumes in this project."
+msgstr ""
 
 msgid "Your action is required"
 msgstr "Ihre Aktion ist erforderlich"

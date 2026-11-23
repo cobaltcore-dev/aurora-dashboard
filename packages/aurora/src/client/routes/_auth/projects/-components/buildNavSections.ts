@@ -5,6 +5,7 @@ import type { ServiceExtension } from "@/client/AuroraApp"
 import { hasServiceByName } from "@/client/utils/serviceCatalog"
 import { STORAGE_PROVIDER, STORAGE_TYPE_BY_PROVIDER } from "@/client/utils/storageProviders"
 import { findCinderService } from "@/types/volume"
+import { hasAnyLandscapeService } from "@/types/kubernetes"
 
 export type NavItem = {
   service: string
@@ -185,12 +186,25 @@ export function buildNavSections(
         ]
       : []
 
+  const kubernetesServices: NavItem[] =
+    hasAnyLandscapeService(availableServices) && isEnabled("kubernetes")
+      ? [
+          {
+            service: "kubernetes",
+            label: t`Kubernetes`,
+            navigate: (nav: NavigateFn) => nav({ to: "/projects/$projectId/kubernetes", params: { projectId } }),
+            params: { projectId },
+          },
+        ]
+      : []
+
   // Seed the section map with built-in sections
   const sectionMap = new Map<string, NavSection>([
     ["compute", { section: "compute", label: t`Compute`, services: computeServices }],
     ["network", { section: "network", label: t`Network`, services: networkServices }],
     ["storage", { section: "storage", label: t`Storage`, services: storageServices }],
     ["block-storage", { section: "block-storage", label: t`Block Storage`, services: blockStorageServices }],
+    ["kubernetes", { section: "kubernetes", label: t`Containers`, services: kubernetesServices }],
     [
       "authorization",
       {

@@ -42,4 +42,13 @@ describe("SignalOpenstackApiError", () => {
   it("should respond to statusCode with a value", async () => {
     expect(new SignalOpenstackApiError("test", 500).statusCode).toBe(500)
   })
+
+  it("should respond to body", async () => {
+    expect(new SignalOpenstackApiError("test").body).toBeUndefined()
+  })
+
+  it("should respond to body with a value", async () => {
+    const bodyObj = { error: { message: "test error" } }
+    expect(new SignalOpenstackApiError("test", 500, bodyObj).body).toEqual(bodyObj)
+  })
 })
