@@ -16,7 +16,7 @@ Each rule carries a `[scope: …]` tag marking where its guidance is expected to
 
 ## General Rules
 
-- `[scope: aurora]` Use a ui-components component whenever possible. Never re-invent or re-create existing components from scratch. Use native props of the component, do not circumvent or overwrite existing props using className or html native attributes, css classes or style tags.
+- `[scope: aurora]` Use a ui-components component whenever possible. Never re-invent or re-create existing components from scratch. Use the component's own props to achieve any effect the props support — never reproduce or override that effect with custom CSS, className, inline styles, or HTML-native attributes.
 - `[scope: aurora]` When using className to apply custom CSS to juno-ui components, NEVER use `jn:` or `juno-` prefixes. These are reserved and internal to Juno.
 - `[scope: aurora]` NEVER use juno-internal classes to hook in additional functionality or tests, as these may be changed internally and without notice.
 - `[scope: aurora]` A page must have exactly one **visual** `h1` — the large page title. Additional `<h1>` elements are valid HTML only where the HTML5 spec permits them (scoped to sectioning content: `<section>`, `<article>`, `<aside>`, `<nav>`); such nested `<h1>`s must never be styled to look like a second page title.
@@ -26,7 +26,12 @@ Each rule carries a `[scope: …]` tag marking where its guidance is expected to
 
 - `[scope: aurora]` Use DataGrid exclusively to render list/tabular data on list views. Do not use or add alternating row backgrounds.
 - `[scope: aurora]` Render the individual items' IDs in the name column underneath the name in a subdued text style if possible. In the corresponding column header, use `"Name / ID"` in that exact spelling, unless something else is explicitly specified.
-- `[scope: aurora]` When a list item has a detail view, its row's overflow menu must contain a "Show Details" entry, and it must be the first item in the menu.
+
+## Popup / Overflow Menus
+
+- `[scope: design-system]` Use an overflow (⋮) menu to group actions bound to a specific item — when an item has multiple actions, or an action is secondary, rarely used, or destructive. Prefer it to crowding the UI with inline controls.
+- `[scope: design-system]` Order overflow menu items by importance, never alphabetically: the most relevant/most-used actions first, destructive actions last.
+- `[scope: aurora]` When a list item has a detail view, its row's overflow menu must contain a "Show Details" (not "View Details"!) entry, and it must be the first item in the menu.
 - `[scope: aurora]` In overflow menus, "Delete [Entity]" must always be the last item in its group. For single-entity menus (all actions target one entity type), separate the Delete action from the rest with a divider. For multi-entity menus (multiple groups separated by dividers), no additional divider before Delete is needed — the group divider already provides separation.
 
 ## Forms
@@ -35,6 +40,9 @@ Each rule carries a `[scope: …]` tag marking where its guidance is expected to
 - `[scope: design-system]` A placeholder should communicate how the expected input of the element should be formed, not what it should be.
 - `[scope: design-system]` A form input with placeholder must also have a label.
 - `[scope: design-system]` Use helptext only where it supplies meaningful, additional information that neither the label nor a placeholder convey. A helptext should never just mirror or repeat the label or the placeholder.
+- `[scope: design-system]` Set a field's label, help text, and error text through the component's own `label` / `helptext` / `errortext` props — never via a manually placed adjacent `<p>`. Using the props also wires up `aria-describedby` automatically.
+- `[scope: design-system]` Mark required fields with a visible indicator, not color alone.
+- `[scope: design-system]` Keep validation and error wording consistent across forms: the same failure must produce the same message everywhere (e.g. one agreed phrasing for a required-field error), not ad-hoc per-field variations.
 
 ## Displaying multiple distinct datasets
 
@@ -49,6 +57,12 @@ Each rule carries a `[scope: …]` tag marking where its guidance is expected to
 
 - `[scope: design-system]` `Message` = use for static, anchored, persistent feedback near related content; Use an anchored `Message` for errors requiring user action.
 - `[scope: design-system]` `Toast` = use for floating notifications via `NotificationManager` mounted once at app root (`toast()`, never `Toast` directly). Auto-dismiss only low-stakes `info`/`success` feedback; never auto-dismiss `error`/`warning` messages or toasts. Keep progress toasts visible until their operation finishes and dismiss them explicitly. Never combine a toast and an in-page confirmation Message for the same action.
+- `[scope: aurora]` Extract all toast messages into a dedicated `<Resource>ToastNotifications.tsx` file; never pass an inline string or JSX to `toast.*`. Each helper returns a `{ message, description }` object; the call site destructures it and spreads the rest as options:
+
+  ```tsx
+  const { message, ...options } = getResourceDeletedToast(name)
+  toast.success(message, options)
+  ```
 
 ## UX Writing
 

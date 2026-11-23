@@ -7,7 +7,9 @@ Aurora is an AWS-style cloud management dashboard backed by OpenStack. It provid
 ---
 
 > [!IMPORTANT]
-> **Before applying any guidance in this file, read `docs/guardrails/guardrails.md`.** That file is the authoritative source for Aurora UI rules. If any rule here conflicts with a rule there, **guardrails wins**.
+> **This guidance is being consolidated.** Aurora's UI rules are in the process of being merged and moved to their most appropriate long-term home — `docs/guardrails/guardrails.md` for Aurora-specific rules, and the Intent-loaded skills in `@cloudoperators/juno-ui-components` for design-system, pattern, and component rules. This file will eventually hold references only, not rules of its own.
+>
+> **Read `docs/guardrails/guardrails.md` first and respect it.** It is the authoritative source for Aurora UI rules. Wherever this file and the guardrails overlap, or whenever you are in doubt or find a conflict, **the guardrails take precedence.**
 
 A PR reviewer or AI assistant **must reject** code that violates these rules unless the PR author provides an explicit justification.
 
@@ -23,15 +25,15 @@ Do **not** flag anything the toolchain already enforces. These are caught before
 Focus review effort on **semantics, structure, and consistency** that no compiler or linter can verify: correct pattern/zone usage, permission fail-closed behavior, security boundaries, `error`/`danger` intent, empty-state reasoning, ARIA presence, import ordering, and UX writing — none of which are enforced by tooling in this repo.
 
 > [!NOTE]
-> **Some rules below defer to Intent-loaded skills.** DataGrid and Status guidance (B.15, B.2, B.6, and parts of B.1) is owned by the `datagrid` / `status` skills shipped in `@cloudoperators/juno-ui-components` and loaded via Intent (see `AGENTS.md`). Those skills are the authoritative source; the summaries here are review aids that cite skill rule IDs (e.g. `DT-2`, `INV-4`), and on any conflict **the skill wins**.
+> **Some rules below defer to Intent-loaded skills.** DataGrid and Status guidance (B.14, B.2, B.6, and parts of B.1) is owned by the `datagrid` / `status` skills shipped in `@cloudoperators/juno-ui-components` and loaded via Intent (see `AGENTS.md`). Those skills are the authoritative source; the summaries here are review aids that cite skill rule IDs (e.g. `DT-2`, `INV-4`), and on any conflict **the skill wins**.
 >
 > **If you cannot load the skills** (e.g. a PR-review environment with no `node_modules` and no Intent), you will see rule-ID citations you cannot resolve. That is expected, not a defect: treat the summaries here as the best available guidance, do not flag an unresolvable citation as an error, and leave verification of skill-specific details to a human or a skill-capable agent. These summaries are kept deliberately thin to avoid duplicating — and drifting from — the skills; closing this gap (making skill content readable by non-tool agents) is tracked separately.
 
 **Review in three passes — report all findings from all passes before submitting:**
 
-1. **Security & Data** — B.7 (Data Fetching), B.8 (Permissions/RBAC), B.15 (DataGrid/Row Interaction)
-2. **UI Correctness** — B.1 (Component Library), B.4 (Color Tokens), B.5 (Modal Structure), B.6 (Empty/Loading/Error), B.9 (URL State), B.11 (Form Validation)
-3. **Style & Consistency** — B.2 (List Page Zones), B.3 (Spacing), B.10 (Toast Notifications), B.12 (Naming), B.13 (Import Order), B.14 (Accessibility/i18n), B.16 (Messages vs. Toast), B.17 (Utility Hooks), B.19 (UX Writing)
+1. **Security & Data** — B.7 (Data Fetching), B.8 (Permissions/RBAC), B.14 (DataGrid/Row Interaction)
+2. **UI Correctness** — B.1 (Component Library), B.4 (Color Tokens), B.5 (Modal Structure), B.6 (Empty/Loading/Error), B.9 (URL State), B.10 (Form Validation)
+3. **Style & Consistency** — B.2 (List Page Zones), B.3 (Spacing), B.11 (Naming), B.12 (Import Order), B.13 (Accessibility/i18n), B.15 (Messages vs. Toast), B.16 (Utility Hooks), B.17 (UX Writing)
 
 ---
 
@@ -45,7 +47,6 @@ Focus review effort on **semantics, structure, and consistency** that no compile
 - [ ] UI control shown before permissions are resolved (not fail-closed)
 - [ ] Bulk-action controls or "Create" button rendered without permission check
 - [ ] Nested interactive element in a clickable row without `event.stopPropagation()`
-- [ ] `toast.success/error` with inline string instead of delegating to `*ToastNotifications`
 - [ ] `toast.error` used for a persistent/actionable error (use `<Message>` instead)
 - [ ] `<Message>` variant conflicting with the modal's primary button variant
 - [ ] Modal without `disableCancelButton` / `disableCloseButton` during async operations
@@ -59,7 +60,7 @@ Focus review effort on **semantics, structure, and consistency** that no compile
 - [ ] `outline-none` suppressing focus ring without replacement
 - [ ] File named with lowercase-dash convention or generic name
 - [ ] Import using `../../` traversal beyond one level instead of `@/`
-- [ ] Re-implementation of a utility hook from B.17
+- [ ] Re-implementation of a utility hook from B.16
 - [ ] String using "Please", "Thanks", "We", exclamation marks, all-caps, or `"Sign In"`/`"Log in"` (use `"Sign in"`)
 
 ---
@@ -259,7 +260,7 @@ All modals **must** follow this skeleton:
 <p className="text-theme-error" role="alert" aria-live="assertive">{error}</p>
 ```
 
-- **DataGrid loading / empty / error rows** defer to the `datagrid` skill (its state-row fragments, correctly wrapped in `DataGridRow`; see B.15). The rest of this section covers non-DataGrid states.
+- **DataGrid loading / empty / error rows** defer to the `datagrid` skill (its state-row fragments, correctly wrapped in `DataGridRow`; see B.14). The rest of this section covers non-DataGrid states.
 - Use `Status` as the default for any error, loading, or empty state not covered by a more specific pattern. Its `status` prop is a typed union — do not review which values are valid (TypeScript enforces that); review only whether the chosen state fits the situation.
 - Distinguish empty reasons: "no data" → suggest creating; "no filter results" → suggest clearing filters.
 - Scope loading states to the affected component, not the whole page. Prefer the tightest sensible boundary, but do not multiply spinners — one busy indicator per busy scope (e.g. one on the DataGrid, not one per row).
@@ -274,7 +275,7 @@ All modals **must** follow this skeleton:
 | 403 Unauthorized (page)                    | Error page reflecting the route in breadcrumb + title, SideNav if applicable, plus an **info** `Message` explaining lack of access.          |
 | Component/API render error                 | Feedback scoped to the affected component; render the rest of the page.                                                                      |
 | Operation/CRUD error                       | Non-blocking `Message` with detail; offer retry where feasible; use a toast only when no user action is required; don't block other actions. |
-| Validation error                           | Inline per field (see B.11), or a `Message` at form/section top for cross-field.                                                             |
+| Validation error                           | Inline per field (see B.10), or a `Message` at form/section top for cross-field.                                                             |
 | Network/connectivity                       | Clear offline/timeout state with a manual retry option.                                                                                      |
 
 Recommended copy (impersonal, no exclamation): 401 `"Authentication failed. Verify your credentials and try again."`; 403 `"You do not have the required permissions to access this resource."`; 404 `"The requested URL does not exist or may have moved."`; 500 `"An internal error occurred. Try again."`
@@ -348,25 +349,7 @@ Use a local mirror state for debounced search inputs; sync back on external navi
 
 **Reject** any `useState` for state that should survive a page refresh or be shareable via URL.
 
-### B.10 [STANDARD] Toast Notifications
-
-All toast messages **must** be extracted to a dedicated `<Resource>ToastNotifications.tsx` file.
-
-```tsx
-// In *ToastNotifications.tsx
-export const getResourceDeletedToast = (name: string): ToastReturnType => ({
-  message: <Trans>Resource deleted</Trans>,
-  description: <Trans>"{name}" was successfully deleted.</Trans>,
-})
-
-// At the call site — invariant pattern
-const { message, ...options } = getResourceDeletedToast(name)
-toast.success(message, options)
-```
-
-**Reject** any `toast.success/error/warning(...)` call with an inline string or JSX not delegated to a `*ToastNotifications` helper.
-
-### B.11 [STANDARD] Form Validation
+### B.10 [STANDARD] Form Validation
 
 Preferred: `@tanstack/react-form` with Zod schema validators.
 
@@ -397,14 +380,13 @@ const form = useForm({
 - Inline errors below the field for single-field failures; `<Message variant="error">` at form top for cross-field or multi-field failures. Never use both for the same error.
 - Cross-field errors go on the dependent field, not the first field filled in.
 - `autoFocus` on the primary input. `disabled={isMutating}` on all inputs during in-flight mutations.
-- **Use a real `label`, not `placeholder`, as the field label** (via the component API's `label`/`helptext`/`errortext` props — never a manual adjacent `<p>`). Mark required fields with a visible indicator, not color alone.
 - **Submit button:** primary action rightmost, cancel to its left; show a busy state and disable both on submit to prevent duplicate submissions. Use `primary-danger` when the submit is destructive.
 - **On success:** navigate to the new/edited entity's detail view, **or** (modal) close and show a confirming toast, **or** show an inline confirmation — never combine a toast with an inline confirmation for the same action.
 - **Distinguish failures:** validation errors stay inline and keep the form open; server-side errors show a `Message` at form top (or inside the modal) explaining what went wrong and whether retry helps.
 
-**Reject** any form that mutates without validation, shows no error state on failure, shows errors on untouched fields before submit, uses `placeholder` as a substitute for a label, or combines a success toast with an inline confirmation for the same action.
+**Reject** any form that mutates without validation, shows no error state on failure, shows errors on untouched fields before submit, or combines a success toast with an inline confirmation for the same action.
 
-### B.12 [STYLE] File & Component Naming
+### B.11 [STYLE] File & Component Naming
 
 | Artifact       | Convention                                         | Example                        |
 | -------------- | -------------------------------------------------- | ------------------------------ |
@@ -423,7 +405,7 @@ const form = useForm({
 
 **Reject** any file using lowercase-dash convention (`create-flavor-modal.tsx`), generic names (`Modal.tsx`, `Table.tsx`), or tests placed outside the source directory.
 
-### B.13 [STYLE] Import Order
+### B.12 [STYLE] Import Order
 
 1. React / framework (`react`, `@tanstack/react-router`, `@tanstack/react-form`, `zod`)
 2. i18n (`@lingui/react/macro`, `@lingui/core/macro`)
@@ -436,19 +418,19 @@ const form = useForm({
 
 All imports **must** use `@/` path aliases. No relative `../../` traversal beyond one level.
 
-### B.14 [STANDARD] Accessibility & Internationalisation
+### B.13 [STANDARD] Accessibility & Internationalisation
 
 - All user-facing strings **must** be wrapped in `<Trans>` (JSX) or `` t`...` `` (strings) from `@lingui/react/macro` / `@lingui/core/macro`. In `packages/aurora` this is already enforced by `eslint-plugin-lingui` — only review it manually in `packages/signal-openstack`, `packages/policy-engine`, and `apps/dashboard`.
 - Error messages **must** use `role="alert"` and `aria-live="assertive"`. Non-urgent status updates use `role="status"`.
 - `DataGrid` header cells must use `DataGridHeadCell`, never plain `<th>`.
 - **Icon-only buttons** must carry `aria-label` describing the action (e.g. `aria-label="Delete item"`).
-- **Form inputs with help text or error messages** must link them via `aria-describedby`. Juno's `TextInput` handles this automatically when `helptext`/`errortext` props are used — always use the component API, never place adjacent `<p>` text manually.
+- **Form inputs with help text or error messages** must link them via `aria-describedby`. Juno's `TextInput` handles this automatically when `helptext`/`errortext` props are used.
 - **Do not suppress focus rings.** Juno provides focus ring styles; never override them with `outline-none` without replacement.
 - Do not rely on color alone to convey information — pair color with a text label or icon.
 
 **Reject** any hardcoded English string in JSX (outside `packages/aurora`, where lingui lint already covers it), any error element without appropriate ARIA attributes, or any icon-only button without `aria-label`.
 
-### B.15 [CRITICAL] DataGrid composition
+### B.14 [CRITICAL] DataGrid composition
 
 Authoritative rules: the `datagrid` skill in `@cloudoperators/juno-ui-components` (loaded via Intent — see `AGENTS.md`). Load it and review against its Decision Trees and Invariants, citing rule IDs. The summary below is a review aid only; if it and the skill ever differ, **the skill wins**.
 
@@ -460,7 +442,7 @@ Authoritative rules: the `datagrid` skill in `@cloudoperators/juno-ui-components
 
 **Reject** any DataGrid that renders bulk-action or create UI without checking permissions, any nested interactive element in a clickable row without `stopPropagation()`, bulk actions enabled with nothing selected, or a select-all checkbox that is not tri-state.
 
-### B.16 [STANDARD] Messages vs. Toast Notifications — When to Use Which
+### B.15 [STANDARD] Messages vs. Toast Notifications — When to Use Which
 
 | Situation                                        | Use                                       |
 | ------------------------------------------------ | ----------------------------------------- |
@@ -479,7 +461,7 @@ Authoritative rules: the `datagrid` skill in `@cloudoperators/juno-ui-components
 
 **Reject** any `toast.error` for a persistent or actionable error, or any `<Message>` variant conflicting with the modal's primary button.
 
-### B.17 [STANDARD] Recurring Utility Hooks (Do Not Reinvent)
+### B.16 [STANDARD] Recurring Utility Hooks (Do Not Reinvent)
 
 | Hook                        | Purpose                                                   |
 | --------------------------- | --------------------------------------------------------- |
@@ -492,7 +474,7 @@ Authoritative rules: the `datagrid` skill in `@cloudoperators/juno-ui-components
 
 **Reject** any re-implementation of the above logic inline in a component.
 
-### B.19 [STYLE] UX Writing & Content Standards
+### B.17 [STYLE] UX Writing & Content Standards
 
 - **Title case** for modal titles, page headings, column headers, button labels, toast/message titles, tab labels, lists.
   - **Capitalize:** first and last word (always), nouns, verbs, pronouns, adjectives, adverbs, numbers, and **subordinating conjunctions** (`Although`, `Because`, `If`, `When`).
