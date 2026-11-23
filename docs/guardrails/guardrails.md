@@ -21,11 +21,18 @@ Each rule carries a `[scope: …]` tag marking where its guidance is expected to
 - `[scope: aurora]` NEVER use juno-internal classes to hook in additional functionality or tests, as these may be changed internally and without notice.
 - `[scope: aurora]` A page must have exactly one **visual** `h1` — the large page title. Additional `<h1>` elements are valid HTML only where the HTML5 spec permits them (scoped to sectioning content: `<section>`, `<article>`, `<aside>`, `<nav>`); such nested `<h1>`s must never be styled to look like a second page title.
 - `[scope: aurora]` Within a given heading outline, don't skip levels (`h1` → `h2` → `h3`, not `h1` → `h3`).
+- `[scope: aurora]` When a value is unknown, missing, or not applicable, display `- -` (two hyphens, space-separated) — never `null`, an empty string, `—` (em dash), or `N/A`. This applies anywhere structured data is shown: DataGrid cells, `DescriptionList`s, detail views, and the like.
 
 ## List Views
 
 - `[scope: aurora]` Use DataGrid exclusively to render list/tabular data on list views. Do not use or add alternating row backgrounds.
 - `[scope: aurora]` Render the individual items' IDs in the name column underneath the name in a subdued text style if possible. In the corresponding column header, use `"Name / ID"` in that exact spelling, unless something else is explicitly specified.
+- `[scope: aurora]` DataGrid pagination: page size 30; show pagination only when there is more than one page. Choose the `Pagination` variant by API count precision — no count → `default`; rough count → `number`; exact count ≤ 8 pages → `select`; exact count ≥ 9 pages → `input`.
+
+## Detail Views
+
+- `[scope: aurora]` Build key-value detail data as a single `DescriptionList`, never as separate lists or plain tables. Keep term alignment and columns consistent.
+- `[scope: aurora]` From 8 rows upward, lay the `DescriptionList` out in two columns with `gap-6`; with an odd number of rows, put the extra row on the left column. (Juno has no column prop, so this is composed app-side.)
 
 ## Popup / Overflow Menus
 

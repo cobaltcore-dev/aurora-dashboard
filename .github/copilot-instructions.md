@@ -123,7 +123,7 @@ Use Juno UI components for UI primitives; use the application components listed 
 | Section headings in detail    | `ContentHeading`                                                               |
 | Loading / empty / error state | `Status`                                                                       |
 | Inline banner messages        | `Message`                                                                      |
-| Pagination                    | `Pagination` (`variant="input"`)                                               |
+| Pagination                    | `Pagination`                                                                   |
 | Primary layout primitive      | `Stack`                                                                        |
 | All modals / dialogs          | `Modal`                                                                        |
 | Form layout                   | `Form`, `FormRow`, `FormSection`                                               |
