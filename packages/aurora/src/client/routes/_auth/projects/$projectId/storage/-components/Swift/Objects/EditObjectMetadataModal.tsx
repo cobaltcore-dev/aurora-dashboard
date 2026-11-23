@@ -56,13 +56,7 @@ const formatDate = (iso: string): string => formatSwiftDate(iso) ?? "- -"
 
 // ── Component ──────────────────────────────────────────────────────────────────
 
-export const EditObjectMetadataModal = ({
-  isOpen,
-  object,
-  onClose,
-  onSuccess,
-  onError,
-}: EditObjectMetadataModalProps) => {
+export const EditObjectMetadataModal = ({ isOpen, object, onClose, onSuccess }: EditObjectMetadataModalProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
   const { containerName } = useParams({
@@ -151,9 +145,6 @@ export const EditObjectMetadataModal = ({
       utils.storage.swift.listObjects.invalidate({ project_id: projectId, container: containerName })
       onSuccess?.(displayNameRef.current)
       handleClose()
-    },
-    onError: (error) => {
-      onError?.(displayNameRef.current, error.message)
     },
   })
 

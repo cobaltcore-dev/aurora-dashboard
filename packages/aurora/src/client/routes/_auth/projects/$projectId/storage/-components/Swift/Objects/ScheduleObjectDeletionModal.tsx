@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
-import { DateTimePicker, Message, Modal, Stack, Status } from "@cloudoperators/juno-ui-components"
+import { DateTimePicker, Modal, Stack, Status } from "@cloudoperators/juno-ui-components"
 import { useParams } from "@tanstack/react-router"
 import { ObjectRow } from "./"
 
@@ -77,6 +77,7 @@ export const ScheduleObjectDeletionModal = ({
     },
     onError: (error) => {
       onError?.(displayNameRef.current, error.message)
+      handleClose()
     },
   })
 
@@ -114,7 +115,6 @@ export const ScheduleObjectDeletionModal = ({
   const isPending = updateMutation.isPending
   const isBusy = isPending || isLoading
   const metadataErrorMessage = metaError?.message ?? ""
-  const mutationErrorMessage = updateMutation.error?.message ?? ""
 
   return (
     <Modal
@@ -133,12 +133,6 @@ export const ScheduleObjectDeletionModal = ({
         <Status status="error" title={t`Failed to Load Object Metadata`} body={metadataErrorMessage} className="mt-0" />
       ) : (
         <Stack direction="vertical" gap="4" className={isPickerOpen ? "min-h-[380px]" : ""}>
-          {updateMutation.isError && (
-            <Message variant="error">
-              <Trans>Failed to schedule deletion: {mutationErrorMessage}</Trans>
-            </Message>
-          )}
-
           <p className="text-theme-default">
             <Trans>Object:</Trans> <span className="font-semibold">{displayName}</span>
           </p>

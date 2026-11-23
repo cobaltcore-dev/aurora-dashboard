@@ -15,7 +15,6 @@ import {
   Tooltip,
   TooltipTrigger,
   TooltipContent,
-  Message,
   DescriptionList,
   DescriptionTerm,
   DescriptionDefinition,
@@ -255,6 +254,7 @@ export const ManageContainerAccessModal = ({
     },
     onError: (error) => {
       onError?.(container!.name, error.message)
+      handleClose()
     },
   })
 
@@ -327,14 +327,6 @@ export const ManageContainerAccessModal = ({
       size="xl"
       disableConfirmButton={isBusy || isMetaError}
     >
-      {updateMutation.isError && (
-        <Message variant="error" className="mb-4">
-          {(() => {
-            const errorMessage = updateMutation.error.message
-            return <Trans>Failed to update ACLs: {errorMessage}</Trans>
-          })()}
-        </Message>
-      )}
       <div className="max-h-[70vh] overflow-y-auto pr-1 pl-1">
         {/* ── Info message ─────────────────────────────────────────────────── */}
         <div className="mb-4">

@@ -149,7 +149,6 @@ const renderView = ({
   onDeleteSuccess = vi.fn(),
   onDeleteError = vi.fn(),
   onPropertiesSuccess = vi.fn(),
-  onPropertiesError = vi.fn(),
   onAclSuccess = vi.fn(),
   onAclError = vi.fn(),
   selectedContainers = [],
@@ -166,7 +165,6 @@ const renderView = ({
   onDeleteSuccess?: (containerName: string) => void
   onDeleteError?: (containerName: string, errorMessage: string) => void
   onPropertiesSuccess?: (containerName: string) => void
-  onPropertiesError?: (containerName: string, errorMessage: string) => void
   onAclSuccess?: (containerName: string) => void
   onAclError?: (containerName: string, errorMessage: string) => void
   selectedContainers?: string[]
@@ -187,7 +185,6 @@ const renderView = ({
           onDeleteSuccess={onDeleteSuccess}
           onDeleteError={onDeleteError}
           onPropertiesSuccess={onPropertiesSuccess}
-          onPropertiesError={onPropertiesError}
           onAclSuccess={onAclSuccess}
           onAclError={onAclError}
           selectedContainers={selectedContainers}
@@ -521,17 +518,6 @@ describe("ContainerTableView", () => {
       await user.click(screen.getByTestId("properties-action-alpha"))
       await user.click(screen.getByRole("button", { name: "SimulateEditSuccess" }))
       expect(onPropertiesSuccess).toHaveBeenCalledWith("alpha")
-    })
-
-    test("calls onPropertiesError when edit modal fires error", async () => {
-      const onPropertiesError = vi.fn()
-      const user = userEvent.setup()
-      renderView({ onPropertiesError })
-      const row = screen.getByTestId("container-row-alpha")
-      await user.click(row.querySelector("button") as HTMLElement)
-      await user.click(screen.getByTestId("properties-action-alpha"))
-      await user.click(screen.getByRole("button", { name: "SimulateEditError" }))
-      expect(onPropertiesError).toHaveBeenCalledWith("alpha", "Update failed")
     })
 
     test("calls onAclSuccess when manage access modal fires success", async () => {

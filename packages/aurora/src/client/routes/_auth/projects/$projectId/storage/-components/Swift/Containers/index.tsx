@@ -23,13 +23,13 @@ import { parseSwiftDate } from "@/client/utils/formatSwiftDate"
 import { ContainerTableView } from "./ContainerTableView"
 import {
   getContainerCreatedToast,
+  getContainerCreateErrorToast,
   getContainerCreatedWithWarningToast,
   getContainerEmptiedToast,
   getContainerEmptyErrorToast,
   getContainerDeletedToast,
   getContainerDeleteErrorToast,
   getContainerUpdatedToast,
-  getContainerUpdateErrorToast,
   getContainerAclUpdatedToast,
   getContainerAclUpdateErrorToast,
   getContainersEmptyCompleteToast,
@@ -87,6 +87,11 @@ export const SwiftContainers = () => {
     toast.warning(message, options)
   }
 
+  const handleCreateContainerError = (containerName: string, errorMessage: string) => {
+    const { message, ...options } = getContainerCreateErrorToast(containerName, errorMessage)
+    toast.error(message, options)
+  }
+
   const handleEmptySuccess = (containerName: string, deletedCount: number) => {
     const { message, ...options } = getContainerEmptiedToast(containerName, deletedCount)
     toast.success(message, options)
@@ -110,11 +115,6 @@ export const SwiftContainers = () => {
   const handlePropertiesSuccess = (containerName: string) => {
     const { message, ...options } = getContainerUpdatedToast(containerName)
     toast.success(message, options)
-  }
-
-  const handlePropertiesError = (containerName: string, errorMessage: string) => {
-    const { message, ...options } = getContainerUpdateErrorToast(containerName, errorMessage)
-    toast.error(message, options)
   }
 
   const handleAclSuccess = (containerName: string) => {
@@ -417,12 +417,12 @@ export const SwiftContainers = () => {
         existingContainers={containers}
         onCreateSuccess={handleCreateSuccess}
         onCreatePartialSuccess={handleCreatePartialSuccess}
+        onCreateContainerError={handleCreateContainerError}
         onEmptySuccess={handleEmptySuccess}
         onEmptyError={handleEmptyError}
         onDeleteSuccess={handleDeleteSuccess}
         onDeleteError={handleDeleteError}
         onPropertiesSuccess={handlePropertiesSuccess}
-        onPropertiesError={handlePropertiesError}
         onAclSuccess={handleAclSuccess}
         onAclError={handleAclError}
         selectedContainers={selectedContainers}

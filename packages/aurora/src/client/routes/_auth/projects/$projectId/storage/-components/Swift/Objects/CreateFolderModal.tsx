@@ -2,7 +2,7 @@ import { useState, useRef } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
-import { Modal, TextInput, Stack, Message } from "@cloudoperators/juno-ui-components"
+import { Modal, TextInput, Stack } from "@cloudoperators/juno-ui-components"
 import { useParams } from "@tanstack/react-router"
 import { BrowserRow } from "./"
 
@@ -11,6 +11,7 @@ interface CreateFolderModalProps {
   currentPrefix: string
   onClose: () => void
   onSuccess?: (folderName: string) => void
+  onError?: (folderName: string, errorMessage: string) => void
   existingRows?: BrowserRow[]
 }
 
@@ -19,6 +20,7 @@ export const CreateFolderModal = ({
   currentPrefix,
   onClose,
   onSuccess,
+  onError,
   existingRows = [],
 }: CreateFolderModalProps) => {
   const { t } = useLingui()
@@ -29,7 +31,6 @@ export const CreateFolderModal = ({
 
   const [folderName, setFolderName] = useState("")
   const [nameError, setNameError] = useState<string | null>(null)
-  const [submitError, setSubmitError] = useState<string | null>(null)
 
   const utils = trpcReact.useUtils()
 
@@ -46,9 +47,9 @@ export const CreateFolderModal = ({
     onError: (error) => {
       if (error.data?.code === "CONFLICT") {
         setNameError(t`A folder with this name already exists`)
-        setSubmitError(null)
       } else {
-        setSubmitError(error.message || t`The folder could not be created. Try again.`)
+        onError?.(submittedNameRef.current, error.message)
+        handleClose()
       }
     },
   })
@@ -56,7 +57,6 @@ export const CreateFolderModal = ({
   const handleClose = () => {
     setFolderName("")
     setNameError(null)
-    setSubmitError(null)
     createFolderMutation.reset()
     onClose()
   }
@@ -89,13 +89,11 @@ export const CreateFolderModal = ({
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     setFolderName(value)
-    setSubmitError(null)
     if (nameError) validateName(value)
   }
 
   const handleSubmit = () => {
     if (!validateName(folderName)) return
-    setSubmitError(null)
     submittedNameRef.current = folderName.trim()
     const folderPath = `${currentPrefix}${submittedNameRef.current}/`
     createFolderMutation.mutate({ project_id: projectId, container: containerName, folderPath })
@@ -124,18 +122,6 @@ export const CreateFolderModal = ({
       disableCloseButton={createFolderMutation.isPending}
     >
       <Stack direction="vertical" gap="6">
-        {submitError && (
-          <Message
-            variant="error"
-            dismissible
-            onDismiss={() => setSubmitError(null)}
-            role="alert"
-            aria-live="assertive"
-            data-testid="create-folder-error"
-          >
-            {submitError}
-          </Message>
-        )}
         <p className="text-theme-default">
           <Trans>Location:</Trans> <span className="font-semibold">{parentPath}</span>
         </p>

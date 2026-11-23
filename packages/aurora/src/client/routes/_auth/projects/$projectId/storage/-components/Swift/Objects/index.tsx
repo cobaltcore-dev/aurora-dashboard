@@ -31,6 +31,7 @@ import { DeleteObjectsModal } from "./DeleteObjectsModal"
 import {
   getContainerAccessErrorToast,
   getFolderCreatedToast,
+  getFolderCreateErrorToast,
   getFolderDeletedToast,
   getFolderDeleteErrorToast,
   getObjectDownloadErrorToast,
@@ -42,7 +43,6 @@ import {
   getObjectMoveErrorToast,
   getTempUrlCopiedToast,
   getObjectMetadataUpdatedToast,
-  getObjectMetadataUpdateErrorToast,
   getObjectUploadedToast,
   getObjectUploadCancelledToast,
   getObjectUploadErrorToast,
@@ -235,13 +235,13 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
     const { message, ...options } = getTempUrlCopiedToast(objectName)
     toast.success(message, options)
   }
+  const handleCreateFolderError = (folderName: string, errorMessage: string) => {
+    const { message, ...options } = getFolderCreateErrorToast(folderName, errorMessage)
+    toast.error(message, options)
+  }
   const handleEditMetadataSuccess = (objectName: string) => {
     const { message, ...options } = getObjectMetadataUpdatedToast(objectName)
     toast.success(message, options)
-  }
-  const handleEditMetadataError = (objectName: string, errorMessage: string) => {
-    const { message, ...options } = getObjectMetadataUpdateErrorToast(objectName, errorMessage)
-    toast.error(message, options)
   }
 
   const handleScheduleDeletionSuccess = (objectName: string) => {
@@ -571,7 +571,6 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
         onMoveObjectError={handleMoveObjectError}
         onTempUrlCopySuccess={handleTempUrlCopySuccess}
         onEditMetadataSuccess={handleEditMetadataSuccess}
-        onEditMetadataError={handleEditMetadataError}
         onScheduleDeletionSuccess={handleScheduleDeletionSuccess}
         onScheduleDeletionError={handleScheduleDeletionError}
         selectedObjects={selectedObjects}
@@ -594,6 +593,7 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
         currentPrefix={currentPrefix}
         onClose={() => setCreateFolderModalOpen(false)}
         onSuccess={handleCreateFolderSuccess}
+        onError={handleCreateFolderError}
         existingRows={allRows}
       />
 

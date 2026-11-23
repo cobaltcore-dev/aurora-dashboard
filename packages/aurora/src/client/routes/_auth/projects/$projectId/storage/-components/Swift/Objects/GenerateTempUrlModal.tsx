@@ -270,16 +270,6 @@ export const GenerateTempUrlModal = ({
       disableConfirmButton={isPending || noKeyError || (isCustom && (!customMinutes.trim() || !!customMinutesError))}
     >
       <Stack direction="vertical" gap="4">
-        <p className="text-theme-default">
-          <Trans>Object:</Trans> <span className="font-semibold">{displayName}</span>
-        </p>
-        <p className="text-theme-default">
-          <Trans>
-            A temporary URL grants time-limited read access to this object without requiring authentication. Anyone with
-            the link can download it until it expires.
-          </Trans>
-        </p>
-
         {/* No key configured error */}
         {noKeyError && (
           <Message variant="warning">
@@ -300,6 +290,16 @@ export const GenerateTempUrlModal = ({
 
         {/* Clipboard copy error */}
         {copyError && <Message variant="error">{copyError}</Message>}
+
+        <p className="text-theme-default">
+          <Trans>Object:</Trans> <span className="font-semibold">{displayName}</span>
+        </p>
+        <p className="text-theme-default">
+          <Trans>
+            A temporary URL grants time-limited read access to this object without requiring authentication. Anyone with
+            the link can download it until it expires.
+          </Trans>
+        </p>
 
         {/* Expiry selector */}
         <Select label={t`Expires in`} value={selectedPreset} onChange={handlePresetChange} disabled={isPending}>

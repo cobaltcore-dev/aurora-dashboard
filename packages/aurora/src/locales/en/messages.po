@@ -1086,6 +1086,9 @@ msgstr "Could not copy \"{objectName}\": {errorMessage}"
 msgid "Could not create bucket \"{bucketName}\": {errorMessage}"
 msgstr "Could not create bucket \"{bucketName}\": {errorMessage}"
 
+msgid "Could not create container \"{containerName}\": {errorMessage}"
+msgstr "Could not create container \"{containerName}\": {errorMessage}"
+
 msgid "Could not create folder \"{folderName}\": {errorMessage}"
 msgstr "Could not create folder \"{folderName}\": {errorMessage}"
 
@@ -1148,6 +1151,9 @@ msgstr "Could not empty container \"{containerName}\": {errorMessage}"
 
 msgid "Could not enable versioning for bucket \"{bucketName}\": {errorMessage}"
 msgstr "Could not enable versioning for bucket \"{bucketName}\": {errorMessage}"
+
+msgid "Could not generate temporary URL for \"{objectName}\": {errorMessage}"
+msgstr "Could not generate temporary URL for \"{objectName}\": {errorMessage}"
 
 msgid "Could Not Load Access Keys"
 msgstr "Could Not Load Access Keys"
@@ -1899,9 +1905,6 @@ msgstr "Failed to Check Bucket Contents"
 msgid "Failed to Copy Object"
 msgstr "Failed to Copy Object"
 
-msgid "Failed to copy object: {copyErrorMessage}"
-msgstr "Failed to copy object: {copyErrorMessage}"
-
 msgid "Failed to copy object: {errorMessage}"
 msgstr "Failed to copy object: {errorMessage}"
 
@@ -1913,6 +1916,9 @@ msgstr "Failed to copy the temporary URL to the clipboard"
 
 msgid "Failed to Create Bucket"
 msgstr "Failed to Create Bucket"
+
+msgid "Failed to Create Container"
+msgstr "Failed to Create Container"
 
 msgid "Failed to create extra specs. Please try again."
 msgstr "Failed to create extra specs. Please try again."
@@ -2024,6 +2030,9 @@ msgstr "Failed to fetch flavors from server."
 
 msgid "Failed to generate pre-signed URL: {generalError}"
 msgstr "Failed to generate pre-signed URL: {generalError}"
+
+msgid "Failed to Generate Temporary URL"
+msgstr "Failed to Generate Temporary URL"
 
 msgid "Failed to generate temporary URL: {generalError}"
 msgstr "Failed to generate temporary URL: {generalError}"
@@ -2184,9 +2193,6 @@ msgstr "Failed to Save Policy"
 msgid "Failed to Schedule Deletion"
 msgstr "Failed to Schedule Deletion"
 
-msgid "Failed to schedule deletion: {mutationErrorMessage}"
-msgstr "Failed to schedule deletion: {mutationErrorMessage}"
-
 msgid "Failed to Suspend Versioning"
 msgstr "Failed to Suspend Versioning"
 
@@ -2195,9 +2201,6 @@ msgstr "Failed to Update Access Control"
 
 msgid "Failed to update access status"
 msgstr "Failed to update access status"
-
-msgid "Failed to update ACLs: {errorMessage}"
-msgstr "Failed to update ACLs: {errorMessage}"
 
 msgid "Failed to Update Container"
 msgstr "Failed to Update Container"
@@ -4427,9 +4430,6 @@ msgstr "The compute service is currently unavailable for this project. Please tr
 
 msgid "The container \"{containerName}\" will be permanently deleted. This action cannot be undone."
 msgstr "The container \"{containerName}\" will be permanently deleted. This action cannot be undone."
-
-msgid "The container could not be created. Try again or choose a different name."
-msgstr "The container could not be created. Try again or choose a different name."
 
 msgid "The container metadata reports objects but none were listed. This may be a temporary synchronization delay — please wait a moment and try again."
 msgstr "The container metadata reports objects but none were listed. This may be a temporary synchronization delay — please wait a moment and try again."

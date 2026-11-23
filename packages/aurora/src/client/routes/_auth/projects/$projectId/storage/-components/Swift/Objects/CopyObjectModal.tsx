@@ -4,10 +4,9 @@ import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import {
   Modal,
-  Message,
   Stack,
-  Status,
   Spinner,
+  Status,
   ComboBox,
   ComboBoxOption,
   TextInput,
@@ -152,6 +151,7 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
     },
     onError: (error) => {
       onError?.(submittedNameRef.current, error.message)
+      handleClose()
     },
   })
 
@@ -293,7 +293,6 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
   // Disable submit when the destination is identical to the source location —
   // copying an object on top of itself is a no-op and would overwrite metadata.
   const isUnchanged = targetContainer === sourceContainer && currentPrefix === initialPrefix
-  const copyErrorMessage = copyMutation.error?.message ?? ""
 
   return (
     <Modal
@@ -317,11 +316,6 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
               Copying <span className="font-semibold">{displayName}</span> to a new location.
             </Trans>
           </p>
-          {copyMutation.isError && (
-            <Message variant="error">
-              <Trans>Failed to copy object: {copyErrorMessage}</Trans>
-            </Message>
-          )}
 
           {/* Target container — ComboBox with debounced search to handle large lists */}
           <ComboBox

@@ -98,7 +98,6 @@ interface ObjectsTableViewProps {
   onMoveObjectError: (objectName: string, errorMessage: string) => void
   onTempUrlCopySuccess: (objectName: string) => void
   onEditMetadataSuccess: (objectName: string) => void
-  onEditMetadataError: (objectName: string, errorMessage: string) => void
   onScheduleDeletionSuccess: (objectName: string) => void
   onScheduleDeletionError: (objectName: string, errorMessage: string) => void
   selectedObjects: string[]
@@ -126,7 +125,6 @@ export const ObjectsTableView = ({
   onMoveObjectError,
   onTempUrlCopySuccess,
   onEditMetadataSuccess,
-  onEditMetadataError,
   onScheduleDeletionSuccess,
   onScheduleDeletionError,
   selectedObjects,
@@ -529,7 +527,6 @@ export const ObjectsTableView = ({
         object={editMetadataTarget}
         onClose={() => setEditMetadataTarget(null)}
         onSuccess={onEditMetadataSuccess}
-        onError={onEditMetadataError}
       />
 
       <ScheduleObjectDeletionModal

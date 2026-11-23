@@ -32,12 +32,12 @@ interface ContainerTableViewProps {
   existingContainers?: ContainerSummary[]
   onCreateSuccess: (containerName: string) => void
   onCreatePartialSuccess: (containerName: string, reason: string) => void
+  onCreateContainerError?: (containerName: string, errorMessage: string) => void
   onEmptySuccess: (containerName: string, deletedCount: number) => void
   onEmptyError: (containerName: string, errorMessage: string) => void
   onDeleteSuccess: (containerName: string) => void
   onDeleteError: (containerName: string, errorMessage: string) => void
   onPropertiesSuccess: (containerName: string) => void
-  onPropertiesError: (containerName: string, errorMessage: string) => void
   onAclSuccess: (containerName: string) => void
   onAclError: (containerName: string, errorMessage: string) => void
   selectedContainers: string[]
@@ -56,12 +56,12 @@ export const ContainerTableView = ({
   existingContainers = [],
   onCreateSuccess,
   onCreatePartialSuccess,
+  onCreateContainerError,
   onEmptySuccess,
   onEmptyError,
   onDeleteSuccess,
   onDeleteError,
   onPropertiesSuccess,
-  onPropertiesError,
   onAclSuccess,
   onAclError,
   selectedContainers,
@@ -281,6 +281,7 @@ export const ContainerTableView = ({
         onClose={() => setCreateModalOpen(false)}
         onSuccess={onCreateSuccess}
         onPartialSuccess={onCreatePartialSuccess}
+        onError={onCreateContainerError}
         maxContainerNameLength={maxContainerNameLength}
         existingContainers={existingContainers}
       />
@@ -306,7 +307,6 @@ export const ContainerTableView = ({
         container={propertiesModalContainer}
         onClose={() => setPropertiesModalContainer(null)}
         onSuccess={onPropertiesSuccess}
-        onError={onPropertiesError}
       />
 
       <ManageContainerAccessModal

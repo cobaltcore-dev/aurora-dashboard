@@ -7,6 +7,18 @@ export const getContainerCreatedToast = (containerName: string): { message: Reac
   description: <Trans>Container "{containerName}" was successfully created.</Trans>,
 })
 
+export const getContainerCreateErrorToast = (
+  containerName: string,
+  errorMessage: string
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Failed to Create Container</Trans>,
+  description: (
+    <Trans>
+      Could not create container "{containerName}": {errorMessage}
+    </Trans>
+  ),
+})
+
 export const getContainerCreatedWithWarningToast = (
   containerName: string,
   reason: string

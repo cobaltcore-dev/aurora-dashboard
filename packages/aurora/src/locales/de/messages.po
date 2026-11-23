@@ -1086,6 +1086,9 @@ msgstr "\"{objectName}\" konnte nicht kopiert werden: {errorMessage}"
 msgid "Could not create bucket \"{bucketName}\": {errorMessage}"
 msgstr ""
 
+msgid "Could not create container \"{containerName}\": {errorMessage}"
+msgstr ""
+
 msgid "Could not create folder \"{folderName}\": {errorMessage}"
 msgstr "Ordner \"{folderName}\" konnte nicht erstellt werden: {errorMessage}"
 
@@ -1147,6 +1150,9 @@ msgid "Could not empty container \"{containerName}\": {errorMessage}"
 msgstr "Container \"{containerName}\" konnte nicht geleert werden: {errorMessage}"
 
 msgid "Could not enable versioning for bucket \"{bucketName}\": {errorMessage}"
+msgstr ""
+
+msgid "Could not generate temporary URL for \"{objectName}\": {errorMessage}"
 msgstr ""
 
 msgid "Could Not Load Access Keys"
@@ -1899,9 +1905,6 @@ msgstr ""
 msgid "Failed to Copy Object"
 msgstr "Fehler beim Kopieren des Objekts"
 
-msgid "Failed to copy object: {copyErrorMessage}"
-msgstr ""
-
 msgid "Failed to copy object: {errorMessage}"
 msgstr "Fehler beim Kopieren des Objekts: {errorMessage}"
 
@@ -1912,6 +1915,9 @@ msgid "Failed to copy the temporary URL to the clipboard"
 msgstr "Fehler beim Kopieren der temporären URL in die Zwischenablage"
 
 msgid "Failed to Create Bucket"
+msgstr ""
+
+msgid "Failed to Create Container"
 msgstr ""
 
 msgid "Failed to create extra specs. Please try again."
@@ -2024,6 +2030,9 @@ msgstr "Fehler beim Abrufen der Flavors vom Server."
 
 msgid "Failed to generate pre-signed URL: {generalError}"
 msgstr "Fehler beim Generieren der vorsignierten URL: {generalError}"
+
+msgid "Failed to Generate Temporary URL"
+msgstr ""
 
 msgid "Failed to generate temporary URL: {generalError}"
 msgstr "Fehler beim Generieren der temporären URL: {generalError}"
@@ -2184,9 +2193,6 @@ msgstr ""
 msgid "Failed to Schedule Deletion"
 msgstr ""
 
-msgid "Failed to schedule deletion: {mutationErrorMessage}"
-msgstr ""
-
 msgid "Failed to Suspend Versioning"
 msgstr ""
 
@@ -2195,9 +2201,6 @@ msgstr "Fehler beim Aktualisieren der Zugriffskontrolle"
 
 msgid "Failed to update access status"
 msgstr "Fehler beim Aktualisieren des Zugriffsstatus"
-
-msgid "Failed to update ACLs: {errorMessage}"
-msgstr "Fehler beim Aktualisieren der ACLs: {errorMessage}"
 
 msgid "Failed to Update Container"
 msgstr "Fehler beim Aktualisieren des Containers"
@@ -4426,9 +4429,6 @@ msgid "The compute service is currently unavailable for this project. Please try
 msgstr "Der Compute-Dienst ist für dieses Projekt derzeit nicht verfügbar. Bitte versuchen Sie es später erneut."
 
 msgid "The container \"{containerName}\" will be permanently deleted. This action cannot be undone."
-msgstr ""
-
-msgid "The container could not be created. Try again or choose a different name."
 msgstr ""
 
 msgid "The container metadata reports objects but none were listed. This may be a temporary synchronization delay — please wait a moment and try again."

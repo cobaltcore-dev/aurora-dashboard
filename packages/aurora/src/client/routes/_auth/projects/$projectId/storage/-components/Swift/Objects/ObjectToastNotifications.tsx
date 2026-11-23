@@ -200,6 +200,18 @@ export const getTempUrlCopiedToast = (objectName: string): { message: ReactNode 
   description: <Trans>Temporary URL for "{objectName}" was copied to clipboard.</Trans>,
 })
 
+export const getTempUrlGenerateErrorToast = (
+  objectName: string,
+  errorMessage: string
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Failed to Generate Temporary URL</Trans>,
+  description: (
+    <Trans>
+      Could not generate temporary URL for "{objectName}": {errorMessage}
+    </Trans>
+  ),
+})
+
 // ── Object metadata update ─────────────────────────────────────────────────────
 
 export const getObjectMetadataUpdatedToast = (objectName: string): { message: ReactNode } & NotificationOptions => ({
