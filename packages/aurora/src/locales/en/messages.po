@@ -1734,9 +1734,6 @@ msgstr "Enter a name for the new folder."
 msgid "Enter a tag and press Enter or click Add"
 msgstr "Enter a tag and press Enter or click Add"
 
-msgid "Enter a timestamp like \"YYYY-MM-DD HH:mm:ss\" to schedule automatic deletion."
-msgstr "Enter a timestamp like \"YYYY-MM-DD HH:mm:ss\" to schedule automatic deletion."
-
 msgid "Enter a URL and press Enter. Use * to allow all origins."
 msgstr "Enter a URL and press Enter. Use * to allow all origins."
 
@@ -1824,9 +1821,6 @@ msgstr "Ethertype"
 msgid "Existing versions remain accessible"
 msgstr "Existing versions remain accessible"
 
-msgid "Expected format: YYYY-MM-DD HH:mm:ss"
-msgstr "Expected format: YYYY-MM-DD HH:mm:ss"
-
 msgid "Expiration"
 msgstr "Expiration"
 
@@ -1842,8 +1836,8 @@ msgstr "Expire non-current versions"
 msgid "Expire objects"
 msgstr "Expire objects"
 
-msgid "Expires at (UTC)"
-msgstr "Expires at (UTC)"
+msgid "Expires at"
+msgstr "Expires at"
 
 msgid "Expires in"
 msgstr "Expires in"
@@ -5151,6 +5145,9 @@ msgstr "What happens when suspended:"
 msgid "When checked, all tenants can use this flavor. Otherwise, grant access explicitly."
 msgstr "When checked, all tenants can use this flavor. Otherwise, grant access explicitly."
 
+msgid "When set, the object is automatically deleted at this date and time."
+msgstr "When set, the object is automatically deleted at this date and time."
+
 msgid "Whether the rule applies to IPv4 or IPv6 traffic."
 msgstr "Whether the rule applies to IPv4 or IPv6 traffic."
 
@@ -5306,6 +5303,3 @@ msgstr "Your session has expired. Please log in again."
 
 msgid "Your session was changed or ended in another browser tab. This can happen if you logged out or switched to a different account or domain elsewhere. Log in again to continue."
 msgstr "Your session was changed or ended in another browser tab. This can happen if you logged out or switched to a different account or domain elsewhere. Log in again to continue."
-
-msgid "YYYY-MM-DD HH:mm:ss"
-msgstr "YYYY-MM-DD HH:mm:ss"

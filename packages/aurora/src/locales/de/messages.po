@@ -1734,9 +1734,6 @@ msgstr ""
 msgid "Enter a tag and press Enter or click Add"
 msgstr "Geben Sie ein Tag ein und drücken Sie Enter oder klicken Sie auf Hinzufügen"
 
-msgid "Enter a timestamp like \"YYYY-MM-DD HH:mm:ss\" to schedule automatic deletion."
-msgstr "Geben Sie einen Zeitstempel wie \"YYYY-MM-DD HH:mm:ss\" ein, um die automatische Löschung zu planen."
-
 msgid "Enter a URL and press Enter. Use * to allow all origins."
 msgstr ""
 
@@ -1824,9 +1821,6 @@ msgstr "Ethertype"
 msgid "Existing versions remain accessible"
 msgstr ""
 
-msgid "Expected format: YYYY-MM-DD HH:mm:ss"
-msgstr "Erwartetes Format: JJJJ-MM-TT HH:mm:ss"
-
 msgid "Expiration"
 msgstr ""
 
@@ -1842,8 +1836,8 @@ msgstr ""
 msgid "Expire objects"
 msgstr ""
 
-msgid "Expires at (UTC)"
-msgstr "Läuft ab um (UTC)"
+msgid "Expires at"
+msgstr ""
 
 msgid "Expires in"
 msgstr "Läuft ab in"
@@ -5151,6 +5145,9 @@ msgstr ""
 msgid "When checked, all tenants can use this flavor. Otherwise, grant access explicitly."
 msgstr ""
 
+msgid "When set, the object is automatically deleted at this date and time."
+msgstr ""
+
 msgid "Whether the rule applies to IPv4 or IPv6 traffic."
 msgstr ""
 
@@ -5306,6 +5303,3 @@ msgstr "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an."
 
 msgid "Your session was changed or ended in another browser tab. This can happen if you logged out or switched to a different account or domain elsewhere. Log in again to continue."
 msgstr ""
-
-msgid "YYYY-MM-DD HH:mm:ss"
-msgstr "YYYY-MM-DD HH:mm:ss"
