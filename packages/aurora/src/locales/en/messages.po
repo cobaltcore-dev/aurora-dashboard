@@ -1191,6 +1191,9 @@ msgstr "Could not update ACLs for container \"{containerName}\": {errorMessage}"
 msgid "Could not update container \"{containerName}\": {errorMessage}"
 msgstr "Could not update container \"{containerName}\": {errorMessage}"
 
+msgid "Could not update deletion schedule for \"{objectName}\": {errorMessage}"
+msgstr "Could not update deletion schedule for \"{objectName}\": {errorMessage}"
+
 msgid "Could not upload \"{objectName}\": {errorMessage}"
 msgstr "Could not upload \"{objectName}\": {errorMessage}"
 
@@ -1451,6 +1454,12 @@ msgstr "Deleting the policy will remove all access restrictions defined by it. T
 
 msgid "Deleting..."
 msgstr "Deleting..."
+
+msgid "Deletion schedule for \"{objectName}\" was successfully updated."
+msgstr "Deletion schedule for \"{objectName}\" was successfully updated."
+
+msgid "Deletion Scheduled"
+msgstr "Deletion Scheduled"
 
 msgid "Denied referrer: {host}"
 msgstr "Denied referrer: {host}"
@@ -1890,6 +1899,9 @@ msgstr "Failed to Check Bucket Contents"
 msgid "Failed to Copy Object"
 msgstr "Failed to Copy Object"
 
+msgid "Failed to copy object: {copyErrorMessage}"
+msgstr "Failed to copy object: {copyErrorMessage}"
+
 msgid "Failed to copy object: {errorMessage}"
 msgstr "Failed to copy object: {errorMessage}"
 
@@ -2169,6 +2181,12 @@ msgstr "Failed to Save Lifecycle Rule"
 msgid "Failed to Save Policy"
 msgstr "Failed to Save Policy"
 
+msgid "Failed to Schedule Deletion"
+msgstr "Failed to Schedule Deletion"
+
+msgid "Failed to schedule deletion: {mutationErrorMessage}"
+msgstr "Failed to schedule deletion: {mutationErrorMessage}"
+
 msgid "Failed to Suspend Versioning"
 msgstr "Failed to Suspend Versioning"
 
@@ -2184,8 +2202,8 @@ msgstr "Failed to update ACLs: {errorMessage}"
 msgid "Failed to Update Container"
 msgstr "Failed to Update Container"
 
-msgid "Failed to update container: {errorMessage}"
-msgstr "Failed to update container: {errorMessage}"
+msgid "Failed to update container: {updateErrorMessage}"
+msgstr "Failed to update container: {updateErrorMessage}"
 
 msgid "Failed to Update Object"
 msgstr "Failed to Update Object"
@@ -3870,6 +3888,9 @@ msgstr "Saving Image Details..."
 msgid "Saving..."
 msgstr "Saving..."
 
+msgid "Schedule Deletion"
+msgstr "Schedule Deletion"
+
 msgid "Scope"
 msgstr "Scope"
 
@@ -5145,8 +5166,8 @@ msgstr "What happens when suspended:"
 msgid "When checked, all tenants can use this flavor. Otherwise, grant access explicitly."
 msgstr "When checked, all tenants can use this flavor. Otherwise, grant access explicitly."
 
-msgid "When set, the object is automatically deleted at this date and time."
-msgstr "When set, the object is automatically deleted at this date and time."
+msgid "When set, the object is automatically deleted at this date and time. Clear the field to remove an existing expiry."
+msgstr "When set, the object is automatically deleted at this date and time. Clear the field to remove an existing expiry."
 
 msgid "Whether the rule applies to IPv4 or IPv6 traffic."
 msgstr "Whether the rule applies to IPv4 or IPv6 traffic."

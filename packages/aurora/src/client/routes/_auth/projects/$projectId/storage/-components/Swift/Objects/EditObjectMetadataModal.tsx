@@ -4,7 +4,6 @@ import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import {
   Modal,
-  DateTimePicker,
   TextInput,
   Stack,
   Status,
@@ -87,7 +86,6 @@ export const EditObjectMetadataModal = ({
   const nextUid = () => ++uidRef.current
 
   // ── Form state ─────────────────────────────────────────────────────────────
-  const [expiresAt, setExpiresAt] = useState("")
   const [metadata, setMetadata] = useState<MetadataEntry[]>([])
   const [metaErrors, setMetaErrors] = useState<Record<string, string>>({})
   const [isAddingNew, setIsAddingNew] = useState(false)
@@ -96,7 +94,6 @@ export const EditObjectMetadataModal = ({
   const [newKeyError, setNewKeyError] = useState<string | null>(null)
 
   // Track original state for change detection and cancel-edit rollback
-  const originalExpiresAtRef = useRef("")
   const originalMetadataRef = useRef<MetadataEntry[]>([])
 
   // Survives reset() inside handleClose() before onSuccess/onError fire
@@ -106,10 +103,6 @@ export const EditObjectMetadataModal = ({
   // ── Populate form when data arrives ───────────────────────────────────────
   useEffect(() => {
     if (!metadataRaw) return
-
-    const rawExpires = metadataRaw.deleteAt != null ? new Date(metadataRaw.deleteAt * 1000).toISOString() : ""
-    setExpiresAt(rawExpires)
-    originalExpiresAtRef.current = rawExpires
 
     const entries: MetadataEntry[] = Object.entries(metadataRaw.customMetadata ?? {}).map(([key, value]) => ({
       uid: nextUid(),
@@ -129,7 +122,6 @@ export const EditObjectMetadataModal = ({
   }, [isOpen])
 
   const resetForm = () => {
-    setExpiresAt("")
     setMetadata([])
     setMetaErrors({})
     setIsAddingNew(false)
@@ -141,7 +133,6 @@ export const EditObjectMetadataModal = ({
 
   // ── Change detection ───────────────────────────────────────────────────────
   const hasChanges = (() => {
-    if (expiresAt !== originalExpiresAtRef.current) return true
     if (metadata.length !== originalMetadataRef.current.length) return true
     const originalMetadataByKey = new Map(originalMetadataRef.current.map((entry) => [entry.key, entry.value]))
     return metadata.some((entry) => originalMetadataByKey.get(entry.key) !== entry.value)
@@ -191,7 +182,6 @@ export const EditObjectMetadataModal = ({
       container: containerName,
       object: object.name,
       metadata: metadataRecord,
-      ...(expiresAt ? { deleteAt: Math.floor(new Date(expiresAt).getTime() / 1000) } : {}),
     })
   }
 
@@ -374,21 +364,6 @@ export const EditObjectMetadataModal = ({
                   : "- -"}
             </DescriptionDefinition>
           </DescriptionList>
-
-          {/* ── Expires at ───────────────────────────────────────────────── */}
-          <div>
-            <DateTimePicker
-              label={t`Expires at`}
-              helptext={t`When set, the object is automatically deleted at this date and time.`}
-              enableTime
-              enableSeconds
-              time_24hr
-              value={expiresAt || undefined}
-              onChange={(dates) => setExpiresAt(dates?.[0] ? dates[0].toISOString() : "")}
-              onClear={() => setExpiresAt("")}
-              disabled={isBusy}
-            />
-          </div>
 
           {/* ── Custom metadata ───────────────────────────────────────────── */}
           <div>

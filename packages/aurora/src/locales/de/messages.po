@@ -1191,6 +1191,9 @@ msgstr "ACLs für Container \"{containerName}\" konnten nicht aktualisiert werde
 msgid "Could not update container \"{containerName}\": {errorMessage}"
 msgstr "Container \"{containerName}\" konnte nicht aktualisiert werden: {errorMessage}"
 
+msgid "Could not update deletion schedule for \"{objectName}\": {errorMessage}"
+msgstr ""
+
 msgid "Could not upload \"{objectName}\": {errorMessage}"
 msgstr "\"{objectName}\" konnte nicht hochgeladen werden: {errorMessage}"
 
@@ -1451,6 +1454,12 @@ msgstr ""
 
 msgid "Deleting..."
 msgstr "Wird gelöscht..."
+
+msgid "Deletion schedule for \"{objectName}\" was successfully updated."
+msgstr ""
+
+msgid "Deletion Scheduled"
+msgstr ""
 
 msgid "Denied referrer: {host}"
 msgstr "Abgelehnter Referrer: {host}"
@@ -1890,6 +1899,9 @@ msgstr ""
 msgid "Failed to Copy Object"
 msgstr "Fehler beim Kopieren des Objekts"
 
+msgid "Failed to copy object: {copyErrorMessage}"
+msgstr ""
+
 msgid "Failed to copy object: {errorMessage}"
 msgstr "Fehler beim Kopieren des Objekts: {errorMessage}"
 
@@ -2169,6 +2181,12 @@ msgstr ""
 msgid "Failed to Save Policy"
 msgstr ""
 
+msgid "Failed to Schedule Deletion"
+msgstr ""
+
+msgid "Failed to schedule deletion: {mutationErrorMessage}"
+msgstr ""
+
 msgid "Failed to Suspend Versioning"
 msgstr ""
 
@@ -2184,8 +2202,8 @@ msgstr "Fehler beim Aktualisieren der ACLs: {errorMessage}"
 msgid "Failed to Update Container"
 msgstr "Fehler beim Aktualisieren des Containers"
 
-msgid "Failed to update container: {errorMessage}"
-msgstr "Fehler beim Aktualisieren des Containers: {errorMessage}"
+msgid "Failed to update container: {updateErrorMessage}"
+msgstr ""
 
 msgid "Failed to Update Object"
 msgstr "Fehler beim Aktualisieren des Objekts"
@@ -3870,6 +3888,9 @@ msgstr ""
 msgid "Saving..."
 msgstr "Wird gespeichert..."
 
+msgid "Schedule Deletion"
+msgstr ""
+
 msgid "Scope"
 msgstr ""
 
@@ -5145,7 +5166,7 @@ msgstr ""
 msgid "When checked, all tenants can use this flavor. Otherwise, grant access explicitly."
 msgstr ""
 
-msgid "When set, the object is automatically deleted at this date and time."
+msgid "When set, the object is automatically deleted at this date and time. Clear the field to remove an existing expiry."
 msgstr ""
 
 msgid "Whether the rule applies to IPv4 or IPv6 traffic."

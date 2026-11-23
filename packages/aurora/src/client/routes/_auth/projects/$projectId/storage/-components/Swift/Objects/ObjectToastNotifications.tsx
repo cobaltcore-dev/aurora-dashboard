@@ -219,6 +219,25 @@ export const getObjectMetadataUpdateErrorToast = (
   ),
 })
 
+// ── Object deletion scheduling ────────────────────────────────────────────────
+
+export const getObjectDeletionScheduledToast = (objectName: string): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Deletion Scheduled</Trans>,
+  description: <Trans>Deletion schedule for "{objectName}" was successfully updated.</Trans>,
+})
+
+export const getObjectDeletionScheduleErrorToast = (
+  objectName: string,
+  errorMessage: string
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Failed to Schedule Deletion</Trans>,
+  description: (
+    <Trans>
+      Could not update deletion schedule for "{objectName}": {errorMessage}
+    </Trans>
+  ),
+})
+
 // ── Object upload ──────────────────────────────────────────────────────────────
 
 export const getObjectUploadedToast = (objectName: string): { message: ReactNode } & NotificationOptions => ({

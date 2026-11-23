@@ -31,6 +31,7 @@ import { CopyObjectModal } from "./CopyObjectModal"
 import { MoveRenameObjectModal } from "./MoveRenameObjectModal"
 import { GenerateTempUrlModal } from "./GenerateTempUrlModal"
 import { EditObjectMetadataModal } from "./EditObjectMetadataModal"
+import { ScheduleObjectDeletionModal } from "./ScheduleObjectDeletionModal"
 import { getObjectDownloadCancelledToast } from "./ObjectToastNotifications"
 import {
   startObjectDownload,
@@ -98,6 +99,8 @@ interface ObjectsTableViewProps {
   onTempUrlCopySuccess: (objectName: string) => void
   onEditMetadataSuccess: (objectName: string) => void
   onEditMetadataError: (objectName: string, errorMessage: string) => void
+  onScheduleDeletionSuccess: (objectName: string) => void
+  onScheduleDeletionError: (objectName: string, errorMessage: string) => void
   selectedObjects: string[]
   setSelectedObjects: (objects: string[]) => void
   // When false, the selection column (header select-all + per-row checkboxes) is
@@ -124,6 +127,8 @@ export const ObjectsTableView = ({
   onTempUrlCopySuccess,
   onEditMetadataSuccess,
   onEditMetadataError,
+  onScheduleDeletionSuccess,
+  onScheduleDeletionError,
   selectedObjects,
   setSelectedObjects,
   hasAnyBulkAction = true,
@@ -141,6 +146,7 @@ export const ObjectsTableView = ({
   const [moveRenameObjectTarget, setMoveRenameObjectTarget] = useState<ObjectRow | null>(null)
   const [tempUrlTarget, setTempUrlTarget] = useState<ObjectRow | null>(null)
   const [editMetadataTarget, setEditMetadataTarget] = useState<ObjectRow | null>(null)
+  const [scheduleDeletionTarget, setScheduleDeletionTarget] = useState<ObjectRow | null>(null)
 
   // The "Downloading..." notification is raised by the store (one toast for all
   // in-flight transfers, dismissed when the last finishes), so starting a
@@ -437,6 +443,12 @@ export const ObjectsTableView = ({
                               data-testid={`edit-metadata-action-${row.name}`}
                             />
                             <PopupMenuItem
+                              label={t`Schedule Deletion`}
+                              disabled={isStreaming}
+                              onClick={() => setScheduleDeletionTarget(row as ObjectRow)}
+                              data-testid={`schedule-deletion-action-${row.name}`}
+                            />
+                            <PopupMenuItem
                               label={t`Copy Object`}
                               disabled={isStreaming}
                               onClick={() => setCopyObjectTarget(row as ObjectRow)}
@@ -518,6 +530,14 @@ export const ObjectsTableView = ({
         onClose={() => setEditMetadataTarget(null)}
         onSuccess={onEditMetadataSuccess}
         onError={onEditMetadataError}
+      />
+
+      <ScheduleObjectDeletionModal
+        isOpen={scheduleDeletionTarget !== null}
+        object={scheduleDeletionTarget}
+        onClose={() => setScheduleDeletionTarget(null)}
+        onSuccess={onScheduleDeletionSuccess}
+        onError={onScheduleDeletionError}
       />
     </>
   )

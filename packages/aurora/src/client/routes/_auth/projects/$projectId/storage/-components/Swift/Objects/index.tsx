@@ -48,6 +48,8 @@ import {
   getObjectUploadErrorToast,
   getObjectsBulkDeletedToast,
   getObjectsBulkDeleteErrorToast,
+  getObjectDeletionScheduledToast,
+  getObjectDeletionScheduleErrorToast,
 } from "./ObjectToastNotifications"
 import { encodePrefix, decodePrefix } from "../../utils/prefixEncoding"
 
@@ -239,6 +241,16 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
   }
   const handleEditMetadataError = (objectName: string, errorMessage: string) => {
     const { message, ...options } = getObjectMetadataUpdateErrorToast(objectName, errorMessage)
+    toast.error(message, options)
+  }
+
+  const handleScheduleDeletionSuccess = (objectName: string) => {
+    const { message, ...options } = getObjectDeletionScheduledToast(objectName)
+    toast.success(message, options)
+  }
+
+  const handleScheduleDeletionError = (objectName: string, errorMessage: string) => {
+    const { message, ...options } = getObjectDeletionScheduleErrorToast(objectName, errorMessage)
     toast.error(message, options)
   }
 
@@ -560,6 +572,8 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
         onTempUrlCopySuccess={handleTempUrlCopySuccess}
         onEditMetadataSuccess={handleEditMetadataSuccess}
         onEditMetadataError={handleEditMetadataError}
+        onScheduleDeletionSuccess={handleScheduleDeletionSuccess}
+        onScheduleDeletionError={handleScheduleDeletionError}
         selectedObjects={selectedObjects}
         setSelectedObjects={setSelectedObjects}
         hasAnyBulkAction={hasAnyBulkAction}

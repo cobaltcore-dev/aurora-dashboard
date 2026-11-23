@@ -300,6 +300,7 @@ export const updateObjectMetadataInputSchema = baseObjectInputSchema.extend({
   contentDisposition: z.string().optional(),
   deleteAt: z.number().optional(),
   deleteAfter: z.number().optional(),
+  removeDeleteAt: z.boolean().optional(),
 })
 
 // Copy object input schema
