@@ -371,10 +371,7 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
               {copyMutation.isError ? (
                 <Trans>Failed to move object: {copyErrorMessage}</Trans>
               ) : (
-                <Trans>
-                  Object was copied but could not be deleted from the source:{" "}
-                  {deleteErrorMessage}
-                </Trans>
+                <Trans>Object was copied but could not be deleted from the source: {deleteErrorMessage}</Trans>
               )}
             </Message>
           )}

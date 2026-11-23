@@ -299,9 +299,7 @@ export const GenerateTempUrlModal = ({
         )}
 
         {/* Clipboard copy error */}
-        {copyError && (
-          <Message variant="error">{copyError}</Message>
-        )}
+        {copyError && <Message variant="error">{copyError}</Message>}
 
         {/* Expiry selector */}
         <Select label={t`Expires in`} value={selectedPreset} onChange={handlePresetChange} disabled={isPending}>
