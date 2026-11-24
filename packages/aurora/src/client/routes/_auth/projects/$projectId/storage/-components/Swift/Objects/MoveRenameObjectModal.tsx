@@ -14,6 +14,7 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import { useParams } from "@tanstack/react-router"
 import { MdFolder, MdDescription, MdCreateNewFolder, MdArrowBack } from "react-icons/md"
+import { formatBytesBinary } from "@/client/utils/formatBytes"
 import { useVirtualizer } from "@tanstack/react-virtual"
 import { ObjectRow, buildRows, BrowserRow } from "./"
 import { ObjectSummary } from "@/server/Storage/types/swift"
@@ -331,7 +332,7 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
   const isLoading = isLoadingObjects
 
   // ── Read-only target path preview ──────────────────────────────────────────
-  const targetPathDisplay = `/${targetContainer}/${currentPrefix}${newObjectName.trim() || object.displayName}`
+  const targetPathDisplay = `${targetContainer}/${currentPrefix}${newObjectName.trim() || object.displayName}`
 
   // The initial prefix is the folder the source object lives in —
   // strip the displayName from the end of the full object name to get it.
@@ -353,7 +354,7 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
       confirmButtonLabel={isPending ? t`Moving...` : t`Move/Rename Object`}
       onConfirm={handleMove}
       cancelButtonLabel={t`Cancel`}
-      size="xl"
+      size="large"
       disableConfirmButton={isPending || isLoadingContainers || isUnchanged}
       disableCancelButton={isPending || isLoadingContainers}
     >
@@ -548,12 +549,25 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
             </div>
           </div>
 
-          {/* Read-only target path preview */}
-          <div>
-            <p className="mb-1">
-              <Trans>The object will be moved to this path. Navigate folders above to change the destination.</Trans>
-            </p>
-            <p className="text-sm">{targetPathDisplay}</p>
+          {/* Source + Target info box */}
+          <div className="bg-theme-background-lvl-2 rounded p-3">
+            <Stack direction="vertical" gap="2">
+              <div>
+                <div className="text-theme-light mb-1 text-sm">
+                  <Trans>Source</Trans>
+                </div>
+                <div className="text-sm break-all">{`${sourceContainer}/${object.name}`}</div>
+                {object.bytes != null && (
+                  <div className="text-theme-light mt-1 text-xs">{formatBytesBinary(object.bytes)}</div>
+                )}
+              </div>
+              <div>
+                <div className="text-theme-light mb-1 text-sm">
+                  <Trans>Target path</Trans>
+                </div>
+                <div className="text-sm break-all">{targetPathDisplay}</div>
+              </div>
+            </Stack>
           </div>
         </Stack>
       )}

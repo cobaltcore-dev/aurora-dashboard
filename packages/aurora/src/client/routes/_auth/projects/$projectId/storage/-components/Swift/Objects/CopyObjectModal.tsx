@@ -14,6 +14,7 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import { useParams } from "@tanstack/react-router"
 import { MdFolder, MdDescription, MdCreateNewFolder, MdArrowBack } from "react-icons/md"
+import { formatBytesBinary } from "@/client/utils/formatBytes"
 import { useVirtualizer } from "@tanstack/react-virtual"
 import { ObjectRow, buildRows, BrowserRow } from "./"
 import { ObjectSummary } from "@/server/Storage/types/swift"
@@ -282,7 +283,7 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
   const isLoading = isLoadingObjects
 
   // ── Read-only target path field value ─────────────────────────────────────
-  const targetPathDisplay = `/${targetContainer}/${currentPrefix}${displayName}`
+  const targetPathDisplay = `${targetContainer}/${currentPrefix}${displayName}`
 
   // The initial prefix is the folder the source object lives in —
   // strip the displayName from the end of the full object name to get it.
@@ -302,7 +303,7 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
       confirmButtonLabel={isPending ? t`Copying...` : t`Copy Object`}
       onConfirm={handleCopy}
       cancelButtonLabel={t`Cancel`}
-      size="xl"
+      size="large"
       disableConfirmButton={isPending || isLoadingContainers || isUnchanged}
       disableCancelButton={isPending || isLoadingContainers}
     >
@@ -485,12 +486,25 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
             </div>
           </div>
 
-          {/* Read-only target path */}
-          <div>
-            <p className="mb-1">
-              <Trans>The object will be copied to this path. Navigate folders above to change the destination.</Trans>
-            </p>
-            <p className="text-sm">{targetPathDisplay}</p>
+          {/* Source + Target info box */}
+          <div className="bg-theme-background-lvl-2 rounded p-3">
+            <Stack direction="vertical" gap="2">
+              <div>
+                <div className="text-theme-light mb-1 text-sm">
+                  <Trans>Source</Trans>
+                </div>
+                <div className="text-sm break-all">{`${sourceContainer}/${object.name}`}</div>
+                {object.bytes != null && (
+                  <div className="text-theme-light mt-1 text-xs">{formatBytesBinary(object.bytes)}</div>
+                )}
+              </div>
+              <div>
+                <div className="text-theme-light mb-1 text-sm">
+                  <Trans>Target path</Trans>
+                </div>
+                <div className="text-sm break-all">{targetPathDisplay}</div>
+              </div>
+            </Stack>
           </div>
 
           {/* Copy metadata checkbox */}

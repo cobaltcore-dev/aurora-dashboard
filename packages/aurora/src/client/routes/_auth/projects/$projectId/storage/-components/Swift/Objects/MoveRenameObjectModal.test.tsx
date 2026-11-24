@@ -249,7 +249,8 @@ describe("MoveRenameObjectModal", () => {
 
     test("target path shows root path with object name by default", () => {
       renderModal({ object: makeObject("report.pdf", "report.pdf") })
-      expect(screen.getByText("/source-container/report.pdf")).toBeInTheDocument()
+      const targetPath = screen.getAllByText("source-container/report.pdf")[1]
+      expect(targetPath).toBeInTheDocument()
     })
 
     test("shows Root breadcrumb when at root level", () => {
@@ -341,7 +342,7 @@ describe("MoveRenameObjectModal", () => {
       const nameInput = screen.getByDisplayValue("report.pdf")
       await user.clear(nameInput)
       await user.type(nameInput, "renamed.pdf")
-      expect(screen.getByText("/source-container/renamed.pdf")).toBeInTheDocument()
+      expect(screen.getByText("source-container/renamed.pdf")).toBeInTheDocument()
     })
 
     test("shows error when name is cleared and Move is clicked", async () => {
@@ -400,7 +401,7 @@ describe("MoveRenameObjectModal", () => {
       const user = userEvent.setup()
       renderModal({ object: makeObject("report.pdf", "report.pdf") })
       await user.click(screen.getByText("docs"))
-      expect(screen.getByText("/source-container/docs/report.pdf")).toBeInTheDocument()
+      expect(screen.getByText("source-container/docs/report.pdf")).toBeInTheDocument()
     })
 
     test("navigates back to root when Back is clicked", async () => {

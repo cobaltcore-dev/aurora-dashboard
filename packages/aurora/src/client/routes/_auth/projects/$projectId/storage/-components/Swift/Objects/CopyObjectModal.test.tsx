@@ -214,7 +214,8 @@ describe("CopyObjectModal", () => {
 
     test("target path shows root path with object name by default", () => {
       renderModal({ object: makeObject("report.pdf", "report.pdf") })
-      expect(screen.getByText("/source-container/report.pdf")).toBeInTheDocument()
+      const targetPath = screen.getAllByText("source-container/report.pdf")[1]
+      expect(targetPath).toBeInTheDocument()
     })
 
     test("Copy metadata checkbox is checked by default", () => {
@@ -309,7 +310,7 @@ describe("CopyObjectModal", () => {
       const user = userEvent.setup()
       renderModal({ object: makeObject("report.pdf", "report.pdf") })
       await user.click(screen.getByText("docs"))
-      expect(screen.getByText("/source-container/docs/report.pdf")).toBeInTheDocument()
+      expect(screen.getByText("source-container/docs/report.pdf")).toBeInTheDocument()
     })
 
     test("navigates back to root when Back is clicked", async () => {

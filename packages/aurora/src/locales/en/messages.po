@@ -4605,12 +4605,6 @@ msgstr "The network could not be loaded."
 msgid "The network could not be loaded. Try again."
 msgstr "The network could not be loaded. Try again."
 
-msgid "The object will be copied to this path. Navigate folders above to change the destination."
-msgstr "The object will be copied to this path. Navigate folders above to change the destination."
-
-msgid "The object will be moved to this path. Navigate folders above to change the destination."
-msgstr "The object will be moved to this path. Navigate folders above to change the destination."
-
 msgid "The object will be permanently deleted. This action cannot be undone."
 msgstr "The object will be permanently deleted. This action cannot be undone."
 
