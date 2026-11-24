@@ -361,7 +361,23 @@ describe("ClipboardText", () => {
       expect(trigger).not.toHaveClass("opacity-0")
     })
 
-    it("keeps the icon visible when iconOnly, regardless of iconVisible='hover'", async () => {
+    it("keeps the icon visible when iconOnly (default iconVisible='always')", async () => {
+      await act(async () => {
+        render(
+          <TestingProvider>
+            <ClipboardText text="Test text" iconOnly />
+          </TestingProvider>
+        )
+      })
+
+      const trigger = screen.getByTestId("clipboard-copy-trigger")
+      expect(trigger).toHaveClass("opacity-100")
+      expect(trigger).not.toHaveClass("opacity-0")
+      // iconOnly must not render the display text
+      expect(screen.queryByText("Test text")).not.toBeInTheDocument()
+    })
+
+    it("reveals the icon on hover when iconOnly and iconVisible='hover'", async () => {
       await act(async () => {
         render(
           <TestingProvider>
@@ -371,8 +387,10 @@ describe("ClipboardText", () => {
       })
 
       const trigger = screen.getByTestId("clipboard-copy-trigger")
-      expect(trigger).toHaveClass("opacity-100")
-      expect(trigger).not.toHaveClass("opacity-0")
+      // Hidden by default, revealed via group-hover / group-focus-within
+      expect(trigger).toHaveClass("opacity-0")
+      expect(trigger).toHaveClass("group-hover:opacity-100")
+      expect(trigger).toHaveClass("group-focus-within:opacity-100")
       // iconOnly must not render the display text
       expect(screen.queryByText("Test text")).not.toBeInTheDocument()
     })

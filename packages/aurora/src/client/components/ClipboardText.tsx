@@ -31,10 +31,11 @@ const ClipboardText: React.FC<ClipboardTextProps> = ({
 
   const combinedClassName = `copyableTooltip group inline-flex items-center gap-1 ${className || ""}`
 
-  // The copy icon is always visible when explicitly configured, when there is no
-  // text (iconOnly), or right after copying (check icon). Otherwise it is only
-  // revealed when hovering the wrapper.
-  const iconAlwaysVisible = iconVisible === "always" || iconOnly || copied
+  // The copy icon is revealed on hover when iconVisible="hover" is requested.
+  // Otherwise it is always visible: when explicitly configured, when there is no
+  // text (iconOnly), or right after copying (check icon). When reveal-on-hover is
+  // active it still stays visible after copying so the check icon is seen.
+  const iconAlwaysVisible = iconVisible === "hover" ? copied : iconVisible === "always" || iconOnly || copied
 
   const handleCopy = async (e: React.MouseEvent) => {
     e.preventDefault()

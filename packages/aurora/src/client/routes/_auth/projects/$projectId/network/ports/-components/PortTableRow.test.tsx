@@ -74,14 +74,16 @@ describe("PortTableRow", () => {
       })
     })
 
-    it("renders the status and the port name", async () => {
+    it("renders the status and the port name with its ID beneath as a copy affordance", async () => {
       renderComponent()
 
       await waitFor(() => {
         expect(screen.getByText("db-port")).toBeInTheDocument()
       })
       expect(screen.getByText("DOWN")).toHaveClass("lowercase", "first-letter:uppercase")
-      expect(screen.queryByText("port-123")).not.toBeInTheDocument()
+      // ID is now shown beneath the name with a copy affordance
+      expect(screen.getByText("port-123")).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: /copy port-123 to clipboard/i })).toBeInTheDocument()
     })
 
     it("renders only the ID when the port has no name", async () => {
@@ -113,13 +115,15 @@ describe("PortTableRow", () => {
   })
 
   describe("Network column", () => {
-    it("renders the network name without its ID", async () => {
+    it("renders the network name with its ID beneath as a copy affordance", async () => {
       renderComponent()
 
       await waitFor(() => {
         expect(screen.getByText("dualstack-test")).toBeInTheDocument()
       })
-      expect(screen.queryByText("net-1")).not.toBeInTheDocument()
+      // network_id is now shown beneath the name with a copy affordance
+      expect(screen.getByText("net-1")).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: /copy net-1 to clipboard/i })).toBeInTheDocument()
     })
 
     it("falls back to the network ID when the name is unknown", async () => {
@@ -150,16 +154,18 @@ describe("PortTableRow", () => {
   })
 
   describe("Fixed IPs column", () => {
-    it("renders every fixed IP without the subnet name or ID", async () => {
+    it("renders every fixed IP with its subnet ID beneath as a copy affordance", async () => {
       renderComponent()
 
       await waitFor(() => {
         expect(screen.getByText("10.180.242.42")).toBeInTheDocument()
       })
       expect(screen.getByText("fd00:1234:feed:cafe::328")).toBeInTheDocument()
+      // subnet name is not shown, but the subnet_id is a copy affordance beneath each IP
       expect(screen.queryByText("dualstack-v4")).not.toBeInTheDocument()
       expect(screen.queryByText("dualstack-v6")).not.toBeInTheDocument()
-      expect(screen.queryByText("subnet-v4")).not.toBeInTheDocument()
+      expect(screen.getByRole("button", { name: /copy subnet-v4 to clipboard/i })).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: /copy subnet-v6 to clipboard/i })).toBeInTheDocument()
     })
   })
 

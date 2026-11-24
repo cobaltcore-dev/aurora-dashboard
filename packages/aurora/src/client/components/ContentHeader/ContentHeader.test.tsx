@@ -35,9 +35,9 @@ describe("ContentHeader", () => {
       expect(screen.getByText("proj-123")).toBeInTheDocument()
     })
 
-    it("truncates a long project ID", () => {
+    it("renders a long project ID in full (untruncated)", () => {
       render(<ContentHeader title="Flavors" projectId="a-very-long-project-id-value" />, { wrapper: Wrapper })
-      expect(screen.getByText("a-very-long-pro...")).toBeInTheDocument()
+      expect(screen.getByText("a-very-long-project-id-value")).toBeInTheDocument()
     })
 
     it("renders actions when provided", () => {

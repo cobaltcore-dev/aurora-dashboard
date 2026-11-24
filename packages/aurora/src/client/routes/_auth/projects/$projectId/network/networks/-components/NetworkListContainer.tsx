@@ -29,7 +29,7 @@ export const NetworkListContainer = ({ networks, isFiltered = false }: NetworkLi
             <Trans>Status</Trans>
           </DataGridHeadCell>
           <DataGridHeadCell>
-            <Trans>Name</Trans>
+            <Trans>Name / ID</Trans>
           </DataGridHeadCell>
           <DataGridHeadCell>
             <Trans>Admin State</Trans>

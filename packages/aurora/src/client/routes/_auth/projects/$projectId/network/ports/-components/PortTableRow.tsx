@@ -13,6 +13,7 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import type { PortListItem } from "@/server/Network/types/port"
 import { useProjectId } from "@/client/hooks"
+import ClipboardText from "@/client/components/ClipboardText"
 
 interface PortTableRowProps {
   port: PortListItem
@@ -21,8 +22,9 @@ interface PortTableRowProps {
 }
 
 /**
- * Col 1: status as plain text. Col 2: name (or ID as fallback).
- * Network shows its name and falls back to the ID only when the name can't be resolved.
+ * Col 1: status as plain text. Col 2: name with the ID shown beneath it as a copy affordance
+ * (ID only when no name is resolvable). The Network column shows its name with the ID beneath,
+ * or just the ID when the name can't be resolved. Fixed IPs stack the IP over its subnet ID.
  */
 export const PortTableRow = ({ port, showNetwork = true }: PortTableRowProps) => {
   const { t } = useLingui()
@@ -42,21 +44,45 @@ export const PortTableRow = ({ port, showNetwork = true }: PortTableRowProps) =>
         <StatusLabel value={port.status} />
       </DataGridCell>
       <DataGridCell>
-        <span className="break-all">{port.name || port.id}</span>
+        <Stack direction="vertical" gap="0.5" className="min-w-0">
+          {port.name ? (
+            <>
+              <span className="break-all">{port.name}</span>
+              <ClipboardText text={port.id} className="text-theme-light text-sm" iconVisible="hover" />
+            </>
+          ) : (
+            <ClipboardText text={port.id} iconVisible="hover" />
+          )}
+        </Stack>
       </DataGridCell>
       <DataGridCell>{port.description ? <span className="break-all">{port.description}</span> : "- -"}</DataGridCell>
       {showNetwork && (
         <DataGridCell>
-          <span className="break-all">{port.network_name || port.network_id}</span>
+          <Stack direction="vertical" gap="0.5" className="min-w-0">
+            {port.network_name ? (
+              <>
+                <span className="break-all">{port.network_name}</span>
+                <ClipboardText text={port.network_id} className="text-theme-light text-sm" iconVisible="hover" />
+              </>
+            ) : (
+              <ClipboardText text={port.network_id} iconVisible="hover" />
+            )}
+          </Stack>
         </DataGridCell>
       )}
       <DataGridCell>
         {port.fixed_ips.length > 0 ? (
           <Stack direction="vertical" gap="2">
             {port.fixed_ips.map((fixedIp) => (
-              <span key={`${fixedIp.subnet_id}-${fixedIp.ip_address}`} className="break-all">
-                {fixedIp.ip_address}
-              </span>
+              <Stack
+                key={`${fixedIp.subnet_id}-${fixedIp.ip_address}`}
+                direction="vertical"
+                gap="0.5"
+                className="min-w-0"
+              >
+                <span className="break-all">{fixedIp.ip_address}</span>
+                <ClipboardText text={fixedIp.subnet_id} className="text-theme-light text-sm" iconVisible="hover" />
+              </Stack>
             ))}
           </Stack>
         ) : (
