@@ -472,7 +472,7 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
                       </Button>
                       <Button
                         size="small"
-                        variant="primary"
+                        variant="default"
                         onClick={handleCreateFolder}
                         disabled={!newFolderName.trim()}
                       >

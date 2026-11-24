@@ -353,7 +353,7 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
       confirmButtonLabel={isPending ? t`Moving...` : t`Move/Rename Object`}
       onConfirm={handleMove}
       cancelButtonLabel={t`Cancel`}
-      size="large"
+      size="xl"
       disableConfirmButton={isPending || isLoadingContainers || isUnchanged}
       disableCancelButton={isPending || isLoadingContainers}
     >
@@ -535,7 +535,7 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
                       </Button>
                       <Button
                         size="small"
-                        variant="primary"
+                        variant="default"
                         onClick={handleCreateFolder}
                         disabled={!newFolderName.trim()}
                       >
