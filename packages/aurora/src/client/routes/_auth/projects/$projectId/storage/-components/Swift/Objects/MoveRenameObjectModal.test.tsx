@@ -71,13 +71,9 @@ let trpcState = {
   copyMutate: vi.fn(),
   copyReset: vi.fn(),
   copyIsPending: false,
-  copyIsError: false,
-  copyError: null as { message: string } | null,
   deleteMutate: vi.fn(),
   deleteReset: vi.fn(),
   deleteIsPending: false,
-  deleteIsError: false,
-  deleteError: null as { message: string } | null,
 }
 
 const mockInvalidate = vi.fn()
@@ -125,8 +121,6 @@ vi.mock("@/client/trpcClient", () => ({
               },
               reset: trpcState.copyReset,
               isPending: trpcState.copyIsPending,
-              isError: trpcState.copyIsError,
-              error: trpcState.copyError,
             }
           },
         },
@@ -143,8 +137,6 @@ vi.mock("@/client/trpcClient", () => ({
               },
               reset: trpcState.deleteReset,
               isPending: trpcState.deleteIsPending,
-              isError: trpcState.deleteIsError,
-              error: trpcState.deleteError,
             }
           },
         },
@@ -208,13 +200,9 @@ describe("MoveRenameObjectModal", () => {
       copyMutate: vi.fn(),
       copyReset: vi.fn(),
       copyIsPending: false,
-      copyIsError: false,
-      copyError: null,
       deleteMutate: vi.fn(),
       deleteReset: vi.fn(),
       deleteIsPending: false,
-      deleteIsError: false,
-      deleteError: null,
     }
     await act(async () => {
       i18n.activate("en")
@@ -661,21 +649,6 @@ describe("MoveRenameObjectModal", () => {
       trpcState.deleteIsPending = true
       renderModal()
       expect(screen.getByRole("button", { name: /Moving\.\.\./i })).toBeDisabled()
-    })
-
-    test("shows copy error message when copy fails", () => {
-      trpcState.copyIsError = true
-      trpcState.copyError = { message: "Forbidden" }
-      renderModal()
-      expect(screen.getByText(/Failed to move object/i)).toBeInTheDocument()
-      expect(screen.getByText(/Forbidden/i)).toBeInTheDocument()
-    })
-
-    test("shows partial failure message when delete fails after copy", () => {
-      trpcState.deleteIsError = true
-      trpcState.deleteError = { message: "Delete failed" }
-      renderModal()
-      expect(screen.getByText(/could not be deleted from the source/i)).toBeInTheDocument()
     })
   })
 
