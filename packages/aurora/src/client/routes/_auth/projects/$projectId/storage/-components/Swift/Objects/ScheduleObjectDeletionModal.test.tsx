@@ -235,7 +235,7 @@ describe("ScheduleObjectDeletionModal", () => {
     await flushEffects()
     expect(screen.getByText("image/png")).toBeInTheDocument()
     expect(screen.getByText("deadbeef")).toBeInTheDocument()
-    expect(screen.getByText("2.0 KiB")).toBeInTheDocument()
+    expect(screen.getByText("2 KiB")).toBeInTheDocument()
   })
 
   // ── Loading & error states ──────────────────────────────────────────────────
