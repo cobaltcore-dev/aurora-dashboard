@@ -192,6 +192,9 @@ msgstr ""
 msgid "{matchingCount} of {totalCount} networks"
 msgstr ""
 
+msgid "{matchingCount} of {totalCount} shares"
+msgstr ""
+
 msgid "{name} (this group)"
 msgstr ""
 
@@ -251,6 +254,9 @@ msgstr "{totalCount, plural, one {Bucket leeren} other {Buckets leeren}}"
 
 msgid "{totalCount, plural, one {Empty Container} other {Empty # Containers}}"
 msgstr "{totalCount, plural, one {Container leeren} other {# Container leeren}}"
+
+msgid "{totalCount} shares"
+msgstr ""
 
 msgid "{totalItemCount, plural, one {{filteredItemCount} of {totalItemCount} item} other {{filteredItemCount} of {totalItemCount} items}}"
 msgstr "{totalItemCount, plural, one {{filteredItemCount} von {totalItemCount} Element} other {{filteredItemCount} von {totalItemCount} Elementen}}"
@@ -2121,6 +2127,9 @@ msgstr ""
 msgid "Failed to Load Shared File System"
 msgstr ""
 
+msgid "Failed to Load Shares"
+msgstr ""
+
 msgid "Failed to Load Subnets"
 msgstr ""
 
@@ -2826,6 +2835,9 @@ msgstr "Security Group-Details werden geladen..."
 msgid "Loading Shared File System..."
 msgstr ""
 
+msgid "Loading Shares..."
+msgstr ""
+
 msgid "Loading Subnets..."
 msgstr ""
 
@@ -3120,6 +3132,9 @@ msgstr ""
 msgid "No limit"
 msgstr "Kein Limit"
 
+msgid "No Matching Shares"
+msgstr ""
+
 msgid "No Metadata Properties Found"
 msgstr ""
 
@@ -3236,6 +3251,15 @@ msgstr ""
 
 msgid "No services available for this project."
 msgstr "Keine Dienste für dieses Projekt verfügbar."
+
+msgid "No Shares Found"
+msgstr ""
+
+msgid "No shares in this project"
+msgstr ""
+
+msgid "No shares match your filters"
+msgstr ""
 
 msgid "No Subnets"
 msgstr ""
@@ -3421,6 +3445,9 @@ msgid "Order Not Found"
 msgstr ""
 
 msgid "Orders"
+msgstr ""
+
+msgid "Other"
 msgstr ""
 
 msgid "Other Actions"
@@ -4188,6 +4215,9 @@ msgstr ""
 msgid "Share this security group with another project. The target project will be able to view and use this security group, but will not be able to modify or delete it."
 msgstr "Teilen Sie diese Sicherheitsgruppe mit einem anderen Projekt. Das Zielprojekt kann diese Sicherheitsgruppe ansehen und verwenden, aber nicht ändern oder löschen."
 
+msgid "Share Type"
+msgstr ""
+
 msgid "Share URL:"
 msgstr "URL teilen:"
 
@@ -4207,9 +4237,6 @@ msgid "Shared:"
 msgstr "Geteilt:"
 
 msgid "Shares"
-msgstr ""
-
-msgid "Shares View Coming Soon"
 msgstr ""
 
 msgid "Sharing Security Group..."
@@ -4262,6 +4289,9 @@ msgstr ""
 
 msgid "Size"
 msgstr "Größe"
+
+msgid "Size (GiB)"
+msgstr ""
 
 msgid "Size:"
 msgstr ""
@@ -4642,9 +4672,6 @@ msgid "The shared file system scope is available. The share networks list will b
 msgstr ""
 
 msgid "The shared file system scope is available. The share snapshot details will be added in a follow-up release."
-msgstr ""
-
-msgid "The shared file system scope is available. The shares list will be added in a follow-up release."
 msgstr ""
 
 msgid "The specified project does not exist or you don't have permission to share with it."
@@ -5313,6 +5340,9 @@ msgstr ""
 msgid "You do not have the required permissions to view routers in this project."
 msgstr ""
 
+msgid "You do not have the required permissions to view shares in this project."
+msgstr ""
+
 msgid "You don't have permission to access flavor access information for this flavor."
 msgstr "Sie haben keine Berechtigung, auf die Zugriffsinformationen für diesen Flavor zuzugreifen."
 
@@ -5393,6 +5423,9 @@ msgstr ""
 
 msgid "Your session has expired. Please log in again."
 msgstr "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an."
+
+msgid "Your session has expired. Sign in again to view shares."
+msgstr ""
 
 msgid "Your session was changed or ended in another browser tab. This can happen if you logged out or switched to a different account or domain elsewhere. Log in again to continue."
 msgstr ""

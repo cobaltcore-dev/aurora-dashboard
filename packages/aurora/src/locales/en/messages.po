@@ -192,6 +192,9 @@ msgstr "{matchingCount} networks"
 msgid "{matchingCount} of {totalCount} networks"
 msgstr "{matchingCount} of {totalCount} networks"
 
+msgid "{matchingCount} of {totalCount} shares"
+msgstr "{matchingCount} of {totalCount} shares"
+
 msgid "{name} (this group)"
 msgstr "{name} (this group)"
 
@@ -251,6 +254,9 @@ msgstr "{totalCount, plural, one {Empty Bucket} other {Empty Buckets}}"
 
 msgid "{totalCount, plural, one {Empty Container} other {Empty # Containers}}"
 msgstr "{totalCount, plural, one {Empty Container} other {Empty # Containers}}"
+
+msgid "{totalCount} shares"
+msgstr "{totalCount} shares"
 
 msgid "{totalItemCount, plural, one {{filteredItemCount} of {totalItemCount} item} other {{filteredItemCount} of {totalItemCount} items}}"
 msgstr "{totalItemCount, plural, one {{filteredItemCount} of {totalItemCount} item} other {{filteredItemCount} of {totalItemCount} items}}"
@@ -2121,6 +2127,9 @@ msgstr "Failed to Load Security Groups"
 msgid "Failed to Load Shared File System"
 msgstr "Failed to Load Shared File System"
 
+msgid "Failed to Load Shares"
+msgstr "Failed to Load Shares"
+
 msgid "Failed to Load Subnets"
 msgstr "Failed to Load Subnets"
 
@@ -2826,6 +2835,9 @@ msgstr "Loading Security Group Details..."
 msgid "Loading Shared File System..."
 msgstr "Loading Shared File System..."
 
+msgid "Loading Shares..."
+msgstr "Loading Shares..."
+
 msgid "Loading Subnets..."
 msgstr "Loading Subnets..."
 
@@ -3120,6 +3132,9 @@ msgstr "No Lifecycle Rules Matching the Current Search Criteria."
 msgid "No limit"
 msgstr "No limit"
 
+msgid "No Matching Shares"
+msgstr "No Matching Shares"
+
 msgid "No Metadata Properties Found"
 msgstr "No Metadata Properties Found"
 
@@ -3236,6 +3251,15 @@ msgstr "No segmentation data available."
 
 msgid "No services available for this project."
 msgstr "No services available for this project."
+
+msgid "No Shares Found"
+msgstr "No Shares Found"
+
+msgid "No shares in this project"
+msgstr "No shares in this project"
+
+msgid "No shares match your filters"
+msgstr "No shares match your filters"
 
 msgid "No Subnets"
 msgstr "No Subnets"
@@ -3422,6 +3446,9 @@ msgstr "Order Not Found"
 
 msgid "Orders"
 msgstr "Orders"
+
+msgid "Other"
+msgstr "Other"
 
 msgid "Other Actions"
 msgstr "Other Actions"
@@ -4188,6 +4215,9 @@ msgstr "Share Snapshot Details Coming Soon"
 msgid "Share this security group with another project. The target project will be able to view and use this security group, but will not be able to modify or delete it."
 msgstr "Share this security group with another project. The target project will be able to view and use this security group, but will not be able to modify or delete it."
 
+msgid "Share Type"
+msgstr "Share Type"
+
 msgid "Share URL:"
 msgstr "Share URL:"
 
@@ -4208,9 +4238,6 @@ msgstr "Shared:"
 
 msgid "Shares"
 msgstr "Shares"
-
-msgid "Shares View Coming Soon"
-msgstr "Shares View Coming Soon"
 
 msgid "Sharing Security Group..."
 msgstr "Sharing Security Group..."
@@ -4262,6 +4289,9 @@ msgstr "Single port or start of a range, 1-65535."
 
 msgid "Size"
 msgstr "Size"
+
+msgid "Size (GiB)"
+msgstr "Size (GiB)"
 
 msgid "Size:"
 msgstr "Size:"
@@ -4643,9 +4673,6 @@ msgstr "The shared file system scope is available. The share networks list will 
 
 msgid "The shared file system scope is available. The share snapshot details will be added in a follow-up release."
 msgstr "The shared file system scope is available. The share snapshot details will be added in a follow-up release."
-
-msgid "The shared file system scope is available. The shares list will be added in a follow-up release."
-msgstr "The shared file system scope is available. The shares list will be added in a follow-up release."
 
 msgid "The specified project does not exist or you don't have permission to share with it."
 msgstr "The specified project does not exist or you don't have permission to share with it."
@@ -5313,6 +5340,9 @@ msgstr "You do not have the required permissions to view ports in this project."
 msgid "You do not have the required permissions to view routers in this project."
 msgstr "You do not have the required permissions to view routers in this project."
 
+msgid "You do not have the required permissions to view shares in this project."
+msgstr "You do not have the required permissions to view shares in this project."
+
 msgid "You don't have permission to access flavor access information for this flavor."
 msgstr "You don't have permission to access flavor access information for this flavor."
 
@@ -5393,6 +5423,9 @@ msgstr "Your credentials are valid but you don't have permission to perform this
 
 msgid "Your session has expired. Please log in again."
 msgstr "Your session has expired. Please log in again."
+
+msgid "Your session has expired. Sign in again to view shares."
+msgstr "Your session has expired. Sign in again to view shares."
 
 msgid "Your session was changed or ended in another browser tab. This can happen if you logged out or switched to a different account or domain elsewhere. Log in again to continue."
 msgstr "Your session was changed or ended in another browser tab. This can happen if you logged out or switched to a different account or domain elsewhere. Log in again to continue."
