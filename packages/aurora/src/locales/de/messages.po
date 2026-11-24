@@ -1827,6 +1827,9 @@ msgstr ""
 msgid "Error Loading Share"
 msgstr ""
 
+msgid "Error Loading Share Snapshot"
+msgstr ""
+
 msgid "Error:"
 msgstr ""
 
@@ -2872,6 +2875,9 @@ msgid "Loading Security Group Details..."
 msgstr "Security Group-Details werden geladen..."
 
 msgid "Loading Share Details..."
+msgstr ""
+
+msgid "Loading Share Snapshot Details..."
 msgstr ""
 
 msgid "Loading Shared File System..."
@@ -4287,7 +4293,7 @@ msgstr "Sicherheitsgruppe teilen"
 msgid "Share Snapshot"
 msgstr ""
 
-msgid "Share Snapshot Details Coming Soon"
+msgid "Share Snapshot Not Found"
 msgstr ""
 
 msgid "Share this security group with another project. The target project will be able to view and use this security group, but will not be able to modify or delete it."
@@ -4405,6 +4411,9 @@ msgid "Sort by"
 msgstr "Sortieren nach"
 
 msgid "Source"
+msgstr ""
+
+msgid "Source Share"
 msgstr ""
 
 msgid "Source Snapshot"
@@ -4749,6 +4758,9 @@ msgstr ""
 msgid "The share could not be loaded. Try again."
 msgstr ""
 
+msgid "The share snapshot could not be loaded. Try again."
+msgstr ""
+
 msgid "The shared file system scope is available. The security service details will be added in a follow-up release."
 msgstr ""
 
@@ -4759,9 +4771,6 @@ msgid "The shared file system scope is available. The share network details will
 msgstr ""
 
 msgid "The shared file system scope is available. The share networks list will be added in a follow-up release."
-msgstr ""
-
-msgid "The shared file system scope is available. The share snapshot details will be added in a follow-up release."
 msgstr ""
 
 msgid "The snapshots could not be loaded."
@@ -5050,6 +5059,9 @@ msgid "This share has no replicas."
 msgstr ""
 
 msgid "This share has no snapshots."
+msgstr ""
+
+msgid "This share snapshot does not exist or is not accessible in this project."
 msgstr ""
 
 msgid "This tenant already has access to the flavor."
@@ -5525,6 +5537,9 @@ msgstr ""
 
 msgid "You don't have permission to view this flavor's details."
 msgstr "Sie haben keine Berechtigung, die Details dieses Flavors anzuzeigen."
+
+msgid "You don't have permission to view this share snapshot."
+msgstr ""
 
 msgid "You don't have permission to view this share."
 msgstr ""

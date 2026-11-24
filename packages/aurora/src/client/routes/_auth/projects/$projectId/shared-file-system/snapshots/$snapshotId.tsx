@@ -1,9 +1,18 @@
-import { createFileRoute } from "@tanstack/react-router"
-import { Status } from "@cloudoperators/juno-ui-components"
+import { createFileRoute, useRouter, type ErrorComponentProps } from "@tanstack/react-router"
 import { t } from "@lingui/core/macro"
-import { useLingui } from "@lingui/react/macro"
-import { useSetBreadcrumb } from "@/client/hooks/useSetBreadcrumb"
 import type { RouteInfo } from "@/client/routes/routeInfo"
+import { ShareSnapshotDetail, ShareSnapshotLoadError } from "./-components/ShareSnapshotDetail"
+
+function ShareSnapshotDetailErrorComponent({ error, reset }: ErrorComponentProps) {
+  const router = useRouter()
+
+  const handleRetry = () => {
+    reset()
+    void router.invalidate()
+  }
+
+  return <ShareSnapshotLoadError error={error} onRetry={handleRetry} />
+}
 
 export const Route = createFileRoute("/_auth/projects/$projectId/shared-file-system/snapshots/$snapshotId")({
   staticData: {
@@ -12,18 +21,11 @@ export const Route = createFileRoute("/_auth/projects/$projectId/shared-file-sys
     analytics: { name: "shared-file-system.snapshots.detail" },
   } satisfies RouteInfo,
   head: () => ({ meta: [{ title: t`Share Snapshot` }] }),
-  component: ShareSnapshotDetailScaffold,
+  component: ShareSnapshotDetailRoute,
+  errorComponent: ShareSnapshotDetailErrorComponent,
 })
 
-function ShareSnapshotDetailScaffold() {
-  const { t } = useLingui()
-  const { snapshotId } = Route.useParams()
-  useSetBreadcrumb(Route.id, snapshotId)
-  return (
-    <Status
-      status="empty"
-      title={t`Share Snapshot Details Coming Soon`}
-      body={t`The shared file system scope is available. The share snapshot details will be added in a follow-up release.`}
-    />
-  )
+function ShareSnapshotDetailRoute() {
+  const { projectId, snapshotId } = Route.useParams()
+  return <ShareSnapshotDetail key={snapshotId} projectId={projectId} snapshotId={snapshotId} routeId={Route.id} />
 }

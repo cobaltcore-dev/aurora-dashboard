@@ -1827,6 +1827,9 @@ msgstr "Error Loading Security Group"
 msgid "Error Loading Share"
 msgstr "Error Loading Share"
 
+msgid "Error Loading Share Snapshot"
+msgstr "Error Loading Share Snapshot"
+
 msgid "Error:"
 msgstr "Error:"
 
@@ -2873,6 +2876,9 @@ msgstr "Loading Security Group Details..."
 
 msgid "Loading Share Details..."
 msgstr "Loading Share Details..."
+
+msgid "Loading Share Snapshot Details..."
+msgstr "Loading Share Snapshot Details..."
 
 msgid "Loading Shared File System..."
 msgstr "Loading Shared File System..."
@@ -4287,8 +4293,8 @@ msgstr "Share Security Group"
 msgid "Share Snapshot"
 msgstr "Share Snapshot"
 
-msgid "Share Snapshot Details Coming Soon"
-msgstr "Share Snapshot Details Coming Soon"
+msgid "Share Snapshot Not Found"
+msgstr "Share Snapshot Not Found"
 
 msgid "Share this security group with another project. The target project will be able to view and use this security group, but will not be able to modify or delete it."
 msgstr "Share this security group with another project. The target project will be able to view and use this security group, but will not be able to modify or delete it."
@@ -4406,6 +4412,9 @@ msgstr "Sort by"
 
 msgid "Source"
 msgstr "Source"
+
+msgid "Source Share"
+msgstr "Source Share"
 
 msgid "Source Snapshot"
 msgstr "Source Snapshot"
@@ -4749,6 +4758,9 @@ msgstr "The session has expired. Sign in again to continue."
 msgid "The share could not be loaded. Try again."
 msgstr "The share could not be loaded. Try again."
 
+msgid "The share snapshot could not be loaded. Try again."
+msgstr "The share snapshot could not be loaded. Try again."
+
 msgid "The shared file system scope is available. The security service details will be added in a follow-up release."
 msgstr "The shared file system scope is available. The security service details will be added in a follow-up release."
 
@@ -4760,9 +4772,6 @@ msgstr "The shared file system scope is available. The share network details wil
 
 msgid "The shared file system scope is available. The share networks list will be added in a follow-up release."
 msgstr "The shared file system scope is available. The share networks list will be added in a follow-up release."
-
-msgid "The shared file system scope is available. The share snapshot details will be added in a follow-up release."
-msgstr "The shared file system scope is available. The share snapshot details will be added in a follow-up release."
 
 msgid "The snapshots could not be loaded."
 msgstr "The snapshots could not be loaded."
@@ -5051,6 +5060,9 @@ msgstr "This share has no replicas."
 
 msgid "This share has no snapshots."
 msgstr "This share has no snapshots."
+
+msgid "This share snapshot does not exist or is not accessible in this project."
+msgstr "This share snapshot does not exist or is not accessible in this project."
 
 msgid "This tenant already has access to the flavor."
 msgstr "This tenant already has access to the flavor."
@@ -5525,6 +5537,9 @@ msgstr "You don't have permission to view the snapshots of this share."
 
 msgid "You don't have permission to view this flavor's details."
 msgstr "You don't have permission to view this flavor's details."
+
+msgid "You don't have permission to view this share snapshot."
+msgstr "You don't have permission to view this share snapshot."
 
 msgid "You don't have permission to view this share."
 msgstr "You don't have permission to view this share."
