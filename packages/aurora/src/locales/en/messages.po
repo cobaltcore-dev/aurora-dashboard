@@ -4245,9 +4245,6 @@ msgstr "Show Metadata"
 msgid "Show more info about secret types"
 msgstr "Show more info about secret types"
 
-msgid "Showing {filteredCount} of {totalCount}"
-msgstr "Showing {filteredCount} of {totalCount}"
-
 msgid "Showing {filteredCount} of {totalCount} {itemName}"
 msgstr "Showing {filteredCount} of {totalCount} {itemName}"
 
