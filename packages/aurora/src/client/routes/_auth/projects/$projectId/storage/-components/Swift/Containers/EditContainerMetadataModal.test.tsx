@@ -327,17 +327,19 @@ describe("EditContainerMetadataModal", () => {
     })
   })
 
-  test("shows error message on mutation failure", async () => {
+  test("reports mutation failure via onError and closes the modal", async () => {
     mutationError = "Forbidden"
     mockContainerInfo = makeContainerInfo({ metadata: { k: "v" } })
+    const onError = vi.fn()
+    const onClose = vi.fn()
     const user = userEvent.setup()
-    renderModal()
+    renderModal({ onError, onClose })
     await user.click(getIconButton(/Delete/i))
     await user.click(getModalSaveButton())
     await waitFor(() => {
-      expect(screen.getByText(/Failed to update container/i)).toBeInTheDocument()
+      expect(onError).toHaveBeenCalledWith("my-container", "Forbidden")
     })
-    expect(screen.getByText(/Forbidden/)).toBeInTheDocument()
+    expect(onClose).toHaveBeenCalled()
   })
 
   // ── Modal lifecycle ─────────────────────────────────────────────────────────

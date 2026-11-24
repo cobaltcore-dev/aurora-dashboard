@@ -353,18 +353,20 @@ describe("EditObjectMetadataModal", () => {
     })
   })
 
-  test("shows inline error message on mutation failure", async () => {
+  test("reports mutation failure via onError and closes the modal", async () => {
     mutationError = "Forbidden"
     mockObjectMetadata = makeObjectMetadata({ customMetadata: { k: "v" } })
+    const onError = vi.fn()
+    const onClose = vi.fn()
     const user = userEvent.setup()
-    renderModal()
+    renderModal({ onError, onClose })
     await flushEffects()
     await user.click(getIconButton(/^Delete$/i))
     await user.click(getModalSaveButton())
     await waitFor(() => {
-      expect(screen.getByText(/Failed to update object/i)).toBeInTheDocument()
-      expect(screen.getByText(/Forbidden/)).toBeInTheDocument()
+      expect(onError).toHaveBeenCalledWith("sample.txt", "Forbidden")
     })
+    expect(onClose).toHaveBeenCalled()
   })
 
   // ── Modal lifecycle ─────────────────────────────────────────────────────────

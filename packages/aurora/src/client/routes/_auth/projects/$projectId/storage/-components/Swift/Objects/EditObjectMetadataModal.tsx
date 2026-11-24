@@ -11,7 +11,6 @@ import {
   DescriptionList,
   DescriptionTerm,
   DescriptionDefinition,
-  Message,
 } from "@cloudoperators/juno-ui-components"
 import { useParams } from "@tanstack/react-router"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
@@ -56,7 +55,13 @@ const formatDate = (iso: string): string => formatSwiftDate(iso) ?? "- -"
 
 // ── Component ──────────────────────────────────────────────────────────────────
 
-export const EditObjectMetadataModal = ({ isOpen, object, onClose, onSuccess }: EditObjectMetadataModalProps) => {
+export const EditObjectMetadataModal = ({
+  isOpen,
+  object,
+  onClose,
+  onSuccess,
+  onError,
+}: EditObjectMetadataModalProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
   const { containerName } = useParams({
@@ -144,6 +149,10 @@ export const EditObjectMetadataModal = ({ isOpen, object, onClose, onSuccess }: 
       })
       utils.storage.swift.listObjects.invalidate({ project_id: projectId, container: containerName })
       onSuccess?.(displayNameRef.current)
+      handleClose()
+    },
+    onError: (error) => {
+      onError?.(displayNameRef.current, error.message)
       handleClose()
     },
   })
@@ -280,7 +289,6 @@ export const EditObjectMetadataModal = ({ isOpen, object, onClose, onSuccess }: 
   const isSLO = metadataRaw?.staticLargeObject === true
   const isDLO = !!metadataRaw?.objectManifest
   const metadataErrorMessage = metaError?.message ?? ""
-  const mutationErrorMessage = updateMutation.error?.message ?? ""
 
   return (
     <Modal
@@ -299,13 +307,6 @@ export const EditObjectMetadataModal = ({ isOpen, object, onClose, onSuccess }: 
         <Status status="error" title={t`Failed to Load Object Metadata`} body={metadataErrorMessage} className="mt-0" />
       ) : (
         <Stack direction="vertical" gap="6">
-          {/* Mutation error */}
-          {updateMutation.isError && (
-            <Message variant="error">
-              <Trans>Failed to update object: {mutationErrorMessage}</Trans>
-            </Message>
-          )}
-
           {/* ── Large object notices ──────────────────────────────────────── */}
           {isSLO && (
             <p className="text-theme-default">

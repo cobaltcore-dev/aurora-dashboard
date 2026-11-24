@@ -38,6 +38,7 @@ interface ContainerTableViewProps {
   onDeleteSuccess: (containerName: string) => void
   onDeleteError: (containerName: string, errorMessage: string) => void
   onPropertiesSuccess: (containerName: string) => void
+  onPropertiesError?: (containerName: string, errorMessage: string) => void
   onAclSuccess: (containerName: string) => void
   onAclError: (containerName: string, errorMessage: string) => void
   selectedContainers: string[]
@@ -62,6 +63,7 @@ export const ContainerTableView = ({
   onDeleteSuccess,
   onDeleteError,
   onPropertiesSuccess,
+  onPropertiesError,
   onAclSuccess,
   onAclError,
   selectedContainers,
@@ -307,6 +309,7 @@ export const ContainerTableView = ({
         container={propertiesModalContainer}
         onClose={() => setPropertiesModalContainer(null)}
         onSuccess={onPropertiesSuccess}
+        onError={onPropertiesError}
       />
 
       <ManageContainerAccessModal

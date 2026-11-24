@@ -43,6 +43,7 @@ import {
   getObjectMoveErrorToast,
   getTempUrlCopiedToast,
   getObjectMetadataUpdatedToast,
+  getObjectMetadataUpdateErrorToast,
   getObjectUploadedToast,
   getObjectUploadCancelledToast,
   getObjectUploadErrorToast,
@@ -242,6 +243,11 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
   const handleEditMetadataSuccess = (objectName: string) => {
     const { message, ...options } = getObjectMetadataUpdatedToast(objectName)
     toast.success(message, options)
+  }
+
+  const handleEditMetadataError = (objectName: string, errorMessage: string) => {
+    const { message, ...options } = getObjectMetadataUpdateErrorToast(objectName, errorMessage)
+    toast.error(message, options)
   }
 
   const handleScheduleDeletionSuccess = (objectName: string) => {
@@ -571,6 +577,7 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
         onMoveObjectError={handleMoveObjectError}
         onTempUrlCopySuccess={handleTempUrlCopySuccess}
         onEditMetadataSuccess={handleEditMetadataSuccess}
+        onEditMetadataError={handleEditMetadataError}
         onScheduleDeletionSuccess={handleScheduleDeletionSuccess}
         onScheduleDeletionError={handleScheduleDeletionError}
         selectedObjects={selectedObjects}

@@ -17,7 +17,6 @@ import {
   DescriptionList,
   DescriptionTerm,
   DescriptionDefinition,
-  Message,
 } from "@cloudoperators/juno-ui-components"
 import { ContainerSummary } from "@/server/Storage/types/swift"
 import { useProjectId } from "@/client/hooks/useProjectId"
@@ -63,6 +62,7 @@ export const EditContainerMetadataModal = ({
   container,
   onClose,
   onSuccess,
+  onError,
 }: EditContainerMetadataModalProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
@@ -202,11 +202,9 @@ export const EditContainerMetadataModal = ({
       onSuccess?.(container!.name)
       handleClose()
     },
-    onError: () => {
-      // #1162: container-metadata update is recoverable, so we surface the
-      // failure via the inline banner in the modal body (updateMutation.isError)
-      // and deliberately do NOT also fire a toast. The modal stays open so the
-      // user can adjust and retry. Showing both was the double-error bug.
+    onError: (error) => {
+      onError?.(container!.name, error.message)
+      handleClose()
     },
   })
 
@@ -424,7 +422,6 @@ export const EditContainerMetadataModal = ({
 
   // ── Render ────────────────────────────────────────────────────────────────
   const displayedQuotaBytes = info?.quotaBytes != null ? `${info.quotaBytes} B` : null
-  const updateErrorMessage = updateMutation.error?.message ?? ""
 
   return (
     <Modal
@@ -437,11 +434,6 @@ export const EditContainerMetadataModal = ({
       size="xl"
       disableConfirmButton={isBusy || isAddingNew || hasEditing || isUnchanged || isMetaFailed}
     >
-      {updateMutation.isError && (
-        <Message variant="error">
-          <Trans>Failed to update container: {updateErrorMessage}</Trans>
-        </Message>
-      )}
       {isLoading ? (
         <Status status="progress" title={t`Loading Container Properties...`} className="mt-0" />
       ) : isMetaFailed ? (

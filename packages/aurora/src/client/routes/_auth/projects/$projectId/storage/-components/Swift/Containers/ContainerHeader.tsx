@@ -15,6 +15,7 @@ import {
   getContainerAclUpdatedToast,
   getContainerAclUpdateErrorToast,
   getContainerUpdatedToast,
+  getContainerUpdateErrorToast,
   getContainerEmptiedToast,
   getContainerEmptyErrorToast,
   getContainerDeletedToast,
@@ -80,9 +81,11 @@ export const ContainerHeader = ({ containerName }: ContainerHeaderProps) => {
     const { message, ...options } = getContainerUpdatedToast(containerName)
     toast.success(message, options)
   }
-  // No onError handler wired for EditContainerMetadataModal: the modal declares
-  // the prop for API compatibility but never calls it - update errors are shown
-  // inline in the modal (see #1162 / #1191), not via toast.
+
+  const handlePropertiesError = (containerName: string, errorMessage: string) => {
+    const { message, ...options } = getContainerUpdateErrorToast(containerName, errorMessage)
+    toast.error(message, options)
+  }
 
   const handleEmptySuccess = (containerName: string, deletedCount: number) => {
     const { message, ...options } = getContainerEmptiedToast(containerName, deletedCount)
@@ -140,6 +143,7 @@ export const ContainerHeader = ({ containerName }: ContainerHeaderProps) => {
         container={container}
         onClose={closeModal}
         onSuccess={handlePropertiesSuccess}
+        onError={handlePropertiesError}
       />
 
       <EmptyContainerModal

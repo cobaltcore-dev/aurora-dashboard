@@ -2205,9 +2205,6 @@ msgstr "Failed to update access status"
 msgid "Failed to Update Container"
 msgstr "Failed to Update Container"
 
-msgid "Failed to update container: {updateErrorMessage}"
-msgstr "Failed to update container: {updateErrorMessage}"
-
 msgid "Failed to Update Object"
 msgstr "Failed to Update Object"
 

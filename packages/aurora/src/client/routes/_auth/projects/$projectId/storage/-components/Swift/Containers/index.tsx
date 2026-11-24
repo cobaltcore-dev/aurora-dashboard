@@ -30,6 +30,7 @@ import {
   getContainerDeletedToast,
   getContainerDeleteErrorToast,
   getContainerUpdatedToast,
+  getContainerUpdateErrorToast,
   getContainerAclUpdatedToast,
   getContainerAclUpdateErrorToast,
   getContainersEmptyCompleteToast,
@@ -115,6 +116,11 @@ export const SwiftContainers = () => {
   const handlePropertiesSuccess = (containerName: string) => {
     const { message, ...options } = getContainerUpdatedToast(containerName)
     toast.success(message, options)
+  }
+
+  const handlePropertiesError = (containerName: string, errorMessage: string) => {
+    const { message, ...options } = getContainerUpdateErrorToast(containerName, errorMessage)
+    toast.error(message, options)
   }
 
   const handleAclSuccess = (containerName: string) => {
@@ -423,6 +429,7 @@ export const SwiftContainers = () => {
         onDeleteSuccess={handleDeleteSuccess}
         onDeleteError={handleDeleteError}
         onPropertiesSuccess={handlePropertiesSuccess}
+        onPropertiesError={handlePropertiesError}
         onAclSuccess={handleAclSuccess}
         onAclError={handleAclError}
         selectedContainers={selectedContainers}

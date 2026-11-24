@@ -2205,9 +2205,6 @@ msgstr "Fehler beim Aktualisieren des Zugriffsstatus"
 msgid "Failed to Update Container"
 msgstr "Fehler beim Aktualisieren des Containers"
 
-msgid "Failed to update container: {updateErrorMessage}"
-msgstr ""
-
 msgid "Failed to Update Object"
 msgstr "Fehler beim Aktualisieren des Objekts"
 
