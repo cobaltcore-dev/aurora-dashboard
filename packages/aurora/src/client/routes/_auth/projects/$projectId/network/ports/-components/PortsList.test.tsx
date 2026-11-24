@@ -146,11 +146,12 @@ describe("Ports", () => {
       expect(screen.queryByTestId("port-list-container")).not.toBeInTheDocument()
     })
 
-    it("renders the loaded ports", async () => {
+    it("renders the loaded ports and shows the count in the toolbar", async () => {
       await renderList()
 
       expect(await screen.findByTestId("port-port-1")).toHaveTextContent("edge-port")
       expect(screen.getByTestId("port-port-2")).toHaveTextContent("internal-port")
+      expect(screen.getByText("Showing 2 ports")).toBeInTheDocument()
     })
 
     it("fetches the full list for the project once, without sort or search params", async () => {

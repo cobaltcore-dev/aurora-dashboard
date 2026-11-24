@@ -186,12 +186,6 @@ msgstr ""
 msgid "{filteredCount, plural, one {{filteredCount} of {totalCount} container} other {{filteredCount} of {totalCount} containers}}"
 msgstr "{filteredCount, plural, one {{filteredCount} von {totalCount} Container} other {{filteredCount} von {totalCount} Containern}}"
 
-msgid "{matchingCount} networks"
-msgstr ""
-
-msgid "{matchingCount} of {totalCount} networks"
-msgstr ""
-
 msgid "{name} (this group)"
 msgstr ""
 
@@ -2259,6 +2253,9 @@ msgstr "Feste IP-Adresse"
 msgid "Fixed IPs"
 msgstr ""
 
+msgid "Fixed IPs / Ports"
+msgstr ""
+
 msgid "Flavor"
 msgstr ""
 
@@ -4262,6 +4259,21 @@ msgstr ""
 
 msgid "Showing {filteredCount} of {totalCount} {itemName}"
 msgstr "Zeige {filteredCount} von {totalCount} {itemName}"
+
+msgid "Showing {matchingCount} networks"
+msgstr ""
+
+msgid "Showing {matchingCount} of {totalCount} networks"
+msgstr ""
+
+msgid "Showing {matchingCount} of {totalCount} ports"
+msgstr ""
+
+msgid "Showing {matchingCount} ports"
+msgstr ""
+
+msgid "Showing {routerCount} routers"
+msgstr ""
 
 msgid "Showing {totalCount} containers"
 msgstr ""

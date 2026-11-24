@@ -190,6 +190,10 @@ function PortsContent({
   const safePage = Math.min(currentPage, totalPages)
   const paginatedPorts = visiblePorts.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
 
+  const isFiltered = Boolean(localSearchTerm.trim()) || Boolean(statusFilter)
+  const matchingCount = visiblePorts.length
+  const totalCount = ports.length
+
   // Reset to page 1 when the URL's page is past the end of the current (filtered) result
   useEffect(() => {
     if (currentPage > totalPages) onPageChange(1)
@@ -225,7 +229,8 @@ function PortsContent({
         />
       </Stack>
 
-      {/* Zone 2 — status filter + search + active filter pills */}
+      {/* Zone 2+3 — status filter, search, active filter pills (Zone 2) and item count (Zone 3)
+          share a single DataGridToolbar per the Juno DataGrid header pattern. */}
       <DataGridToolbar>
         <Stack direction="vertical" gap="2">
           <Stack distribution="between" alignment="center">
@@ -260,6 +265,18 @@ function PortsContent({
               onClear={() => onStatusChange(undefined)}
             />
           )}
+          {/* Zone 3 — item count */}
+          <Stack distribution="between" alignment="center" className="text-theme-light text-sm">
+            <span>
+              {isFiltered ? (
+                <Trans>
+                  Showing {matchingCount} of {totalCount} ports
+                </Trans>
+              ) : (
+                <Trans>Showing {matchingCount} ports</Trans>
+              )}
+            </span>
+          </Stack>
         </Stack>
       </DataGridToolbar>
 

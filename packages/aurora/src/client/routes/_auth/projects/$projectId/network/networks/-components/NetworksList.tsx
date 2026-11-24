@@ -232,7 +232,8 @@ function NetworksContent({
         />
       </Stack>
 
-      {/* Zone 2 — filters, search bar and active filter pills */}
+      {/* Zone 2+3 — filters, search, active filter pills (Zone 2) and item count + last-updated (Zone 3)
+          share a single DataGridToolbar per the Juno DataGrid header pattern. */}
       <DataGridToolbar>
         <Stack direction="vertical" gap="2">
           <Stack distribution="between" alignment="center">
@@ -267,26 +268,25 @@ function NetworksContent({
               onClear={onFiltersClear}
             />
           )}
+          {/* Zone 3 — item count + last-updated; no refresh button (E1) */}
+          <Stack distribution="between" alignment="center" className="text-theme-light text-sm">
+            <span>
+              {isFiltered ? (
+                <Trans>
+                  Showing {matchingCount} of {totalCount} networks
+                </Trans>
+              ) : (
+                <Trans>Showing {matchingCount} networks</Trans>
+              )}
+            </span>
+            {lastUpdatedText && (
+              <span>
+                <Trans>Last updated: {lastUpdatedText}</Trans>
+              </span>
+            )}
+          </Stack>
         </Stack>
       </DataGridToolbar>
-
-      {/* Zone 3 — item count + last-updated; no refresh button (E1) */}
-      <Stack distribution="between" alignment="center" className="text-theme-light text-sm">
-        <span>
-          {isFiltered ? (
-            <Trans>
-              {matchingCount} of {totalCount} networks
-            </Trans>
-          ) : (
-            <Trans>{matchingCount} networks</Trans>
-          )}
-        </span>
-        {lastUpdatedText && (
-          <span>
-            <Trans>Last updated: {lastUpdatedText}</Trans>
-          </span>
-        )}
-      </Stack>
 
       <NetworkListContainer networks={visibleNetworks} isFiltered={isFiltered} />
     </>

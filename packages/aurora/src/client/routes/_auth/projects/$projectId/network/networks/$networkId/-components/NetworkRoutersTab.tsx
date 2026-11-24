@@ -60,18 +60,24 @@ export function NetworkRoutersTab({
       {routerIds.map((id) =>
         routersAvailable ? (
           // Copy affordance sits beside the link, not inside the anchor (I12)
-          <Stack key={id} direction="horizontal" gap="1" className="items-center" data-testid={`router-item-${id}`}>
+          <Stack
+            key={id}
+            direction="horizontal"
+            gap="1"
+            className="group items-center"
+            data-testid={`router-item-${id}`}
+          >
             <Link
               to="/projects/$projectId/network/routers/$routerId"
               params={{ projectId, routerId: id }}
-              className="text-theme-link hover:text-theme-default"
+              className="text-theme-link hover:text-theme-default break-all"
             >
               {id}
             </Link>
-            <ClipboardText text={id} iconOnly />
+            <ClipboardText text={id} iconOnly iconVisible="hover" />
           </Stack>
         ) : (
-          <ClipboardText key={id} text={id} data-testid={`router-item-${id}`} />
+          <ClipboardText key={id} text={id} data-testid={`router-item-${id}`} iconVisible="hover" />
         )
       )}
     </Stack>

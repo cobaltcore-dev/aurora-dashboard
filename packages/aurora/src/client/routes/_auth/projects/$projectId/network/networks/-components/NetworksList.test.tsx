@@ -211,7 +211,7 @@ describe("Networks", () => {
 
       await screen.findByTestId("network-list-container")
 
-      expect(screen.getByText("3 networks")).toBeInTheDocument()
+      expect(screen.getByText("Showing 3 networks")).toBeInTheDocument()
     })
   })
 
@@ -267,7 +267,7 @@ describe("Networks", () => {
 
       await screen.findByTestId("network-list-container")
 
-      expect(screen.getByText("1 of 3 networks")).toBeInTheDocument()
+      expect(screen.getByText("Showing 1 of 3 networks")).toBeInTheDocument()
     })
   })
 

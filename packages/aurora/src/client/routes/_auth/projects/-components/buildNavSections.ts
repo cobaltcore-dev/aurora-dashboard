@@ -117,7 +117,7 @@ export function buildNavSections(
           ? [
               {
                 service: "ports",
-                label: t`Ports`,
+                label: t`Fixed IPs / Ports`,
                 navigate: (nav: NavigateFn) => nav({ to: "/projects/$projectId/network/ports", params: { projectId } }),
                 params: { projectId },
               },

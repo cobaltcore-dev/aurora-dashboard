@@ -68,13 +68,15 @@ describe("RouterTableRow", () => {
       })
     })
 
-    it("renders the router name", async () => {
+    it("renders the router name with its ID beneath as a copy affordance", async () => {
       renderComponent()
 
       await waitFor(() => {
         expect(screen.getByText("edge-router")).toBeInTheDocument()
       })
-      expect(screen.queryByText("router-123")).not.toBeInTheDocument()
+      // ID is now shown beneath the name with a copy affordance
+      expect(screen.getByText("router-123")).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: /copy router-123 to clipboard/i })).toBeInTheDocument()
     })
 
     it("renders only the ID when the router has no name", async () => {
@@ -229,11 +231,10 @@ describe("RouterTableRow", () => {
       const user = userEvent.setup()
       renderComponent()
 
-      const row = await screen.findByTestId("router-row-router-123")
-      const menuButton = row.querySelector("button")
+      const menuButton = await screen.findByRole("button", { name: /router actions/i })
       expect(menuButton).toBeInTheDocument()
 
-      await user.click(menuButton!)
+      await user.click(menuButton)
       await user.click(await screen.findByText("Show Details"))
 
       await waitFor(() => {
@@ -245,8 +246,8 @@ describe("RouterTableRow", () => {
       const user = userEvent.setup()
       renderComponent()
 
-      const row = await screen.findByTestId("router-row-router-123")
-      await user.click(row.querySelector("button")!)
+      const menuButton = await screen.findByRole("button", { name: /router actions/i })
+      await user.click(menuButton)
 
       expect(mockNavigate).not.toHaveBeenCalled()
     })
@@ -255,8 +256,8 @@ describe("RouterTableRow", () => {
       const user = userEvent.setup()
       renderComponent()
 
-      const row = await screen.findByTestId("router-row-router-123")
-      await user.click(row.querySelector("button")!)
+      const menuButton = await screen.findByRole("button", { name: /router actions/i })
+      await user.click(menuButton)
 
       expect(await screen.findByText("Show Details")).toBeInTheDocument()
       expect(screen.getAllByRole("menuitem")).toHaveLength(1)
