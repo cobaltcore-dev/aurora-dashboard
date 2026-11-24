@@ -186,12 +186,6 @@ msgstr "{errorCount} item(s) could not be deleted"
 msgid "{filteredCount, plural, one {{filteredCount} of {totalCount} container} other {{filteredCount} of {totalCount} containers}}"
 msgstr "{filteredCount, plural, one {{filteredCount} of {totalCount} container} other {{filteredCount} of {totalCount} containers}}"
 
-msgid "{matchingCount} networks"
-msgstr "{matchingCount} networks"
-
-msgid "{matchingCount} of {totalCount} networks"
-msgstr "{matchingCount} of {totalCount} networks"
-
 msgid "{name} (this group)"
 msgstr "{name} (this group)"
 
@@ -447,6 +441,9 @@ msgstr "Action"
 msgid "Actions"
 msgstr "Actions"
 
+msgid "Actions for {name}"
+msgstr "Actions for {name}"
+
 msgid "Activate"
 msgstr "Activate"
 
@@ -645,11 +642,23 @@ msgstr "Attach"
 msgid "Attach Floating IP {floating_ip_address} to the Port"
 msgstr "Attach Floating IP {floating_ip_address} to the Port"
 
+msgid "Attached at"
+msgstr "Attached at"
+
 msgid "Attached Device"
 msgstr "Attached Device"
 
+msgid "Attached To"
+msgstr "Attached To"
+
 msgid "Attaching Floating IP..."
 msgstr "Attaching Floating IP..."
+
+msgid "Attachment ID"
+msgstr "Attachment ID"
+
+msgid "Attachments"
+msgstr "Attachments"
 
 msgid "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 msgstr "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
@@ -690,9 +699,6 @@ msgstr "Back to Floating IPs"
 msgid "Back to Images"
 msgstr "Back to Images"
 
-msgid "Back to Instances"
-msgstr "Back to Instances"
-
 msgid "Back to Key Manager"
 msgstr "Back to Key Manager"
 
@@ -717,9 +723,6 @@ msgstr "Bit Length"
 msgid "Bit length must be a positive integer"
 msgstr "Bit length must be a positive integer"
 
-msgid "Block Storage"
-msgstr "Block Storage"
-
 msgid "Block storage resources"
 msgstr "Block storage resources"
 
@@ -728,6 +731,9 @@ msgstr "Boot RAM"
 
 msgid "Boot size"
 msgstr "Boot size"
+
+msgid "Bootable"
+msgstr "Bootable"
 
 msgid "Booted from volume"
 msgstr "Booted from volume"
@@ -857,6 +863,9 @@ msgstr "Certificate is required for certificate containers"
 
 msgid "Change the name, destination container, or folder for"
 msgstr "Change the name, destination container, or folder for"
+
+msgid "Change your search or filters to see more results."
+msgstr "Change your search or filters to see more results."
 
 msgid "Changes take effect immediately after saving."
 msgstr "Changes take effect immediately after saving."
@@ -1500,6 +1509,9 @@ msgstr "Detaching this Floating IP will remove its association with the current 
 msgid "Detaching..."
 msgstr "Detaching..."
 
+msgid "Device"
+msgstr "Device"
+
 msgid "Device ID"
 msgstr "Device ID"
 
@@ -1721,6 +1733,9 @@ msgstr "Enabled"
 
 msgid "Encode the payload according to the content encoding below."
 msgstr "Encode the payload according to the content encoding below."
+
+msgid "Encrypted"
+msgstr "Encrypted"
 
 msgid "End of the range. Leave empty for a single port."
 msgstr "End of the range. Leave empty for a single port."
@@ -2121,6 +2136,9 @@ msgstr "Failed to Load Orders"
 msgid "Failed to load payload."
 msgstr "Failed to load payload."
 
+msgid "Failed to Load Permissions"
+msgstr "Failed to Load Permissions"
+
 msgid "Failed to Load Policy"
 msgstr "Failed to Load Policy"
 
@@ -2139,11 +2157,20 @@ msgstr "Failed to Load Secrets"
 msgid "Failed to Load Security Groups"
 msgstr "Failed to Load Security Groups"
 
+msgid "Failed to Load Snapshot"
+msgstr "Failed to Load Snapshot"
+
+msgid "Failed to Load Snapshots"
+msgstr "Failed to Load Snapshots"
+
 msgid "Failed to Load Subnets"
 msgstr "Failed to Load Subnets"
 
 msgid "Failed to Load Versions"
 msgstr "Failed to Load Versions"
+
+msgid "Failed to Load Volume"
+msgstr "Failed to Load Volume"
 
 msgid "Failed to Load Volumes"
 msgstr "Failed to Load Volumes"
@@ -2243,6 +2270,9 @@ msgstr "Fixed IP Address"
 
 msgid "Fixed IPs"
 msgstr "Fixed IPs"
+
+msgid "Fixed IPs / Ports"
+msgstr "Fixed IPs / Ports"
 
 msgid "Flavor"
 msgstr "Flavor"
@@ -2838,11 +2868,20 @@ msgstr "Loading Secrets..."
 msgid "Loading Security Group Details..."
 msgstr "Loading Security Group Details..."
 
+msgid "Loading Snapshot Details..."
+msgstr "Loading Snapshot Details..."
+
+msgid "Loading Snapshots..."
+msgstr "Loading Snapshots..."
+
 msgid "Loading Subnets..."
 msgstr "Loading Subnets..."
 
 msgid "Loading Versions..."
 msgstr "Loading Versions..."
+
+msgid "Loading Volume Details..."
+msgstr "Loading Volume Details..."
 
 msgid "Loading Volumes..."
 msgstr "Loading Volumes..."
@@ -2994,6 +3033,9 @@ msgstr "Moving..."
 msgid "MTU"
 msgstr "MTU"
 
+msgid "Multiattach"
+msgstr "Multiattach"
+
 msgid "Must be a valid IPv4 or IPv6 address (for example: 172.24.4.228 or 2001:db8::1)."
 msgstr "Must be a valid IPv4 or IPv6 address (for example: 172.24.4.228 or 2001:db8::1)."
 
@@ -3080,6 +3122,12 @@ msgstr "No addresses"
 
 msgid "No buckets found"
 msgstr "No buckets found"
+
+msgid "No Completed Attachments"
+msgstr "No Completed Attachments"
+
+msgid "No completed attachments are reported by Cinder. The volume status may indicate an operation in progress."
+msgstr "No completed attachments are reported by Cinder. The volume status may indicate an operation in progress."
 
 msgid "No containers found"
 msgstr "No containers found"
@@ -3252,6 +3300,15 @@ msgstr "No segmentation data available."
 msgid "No services available for this project."
 msgstr "No services available for this project."
 
+msgid "No Snapshots for This Volume"
+msgstr "No Snapshots for This Volume"
+
+msgid "No Snapshots in This Project"
+msgstr "No Snapshots in This Project"
+
+msgid "No Snapshots Match Your Filters"
+msgstr "No Snapshots Match Your Filters"
+
 msgid "No Subnets"
 msgstr "No Subnets"
 
@@ -3270,6 +3327,12 @@ msgstr "No versions to delete in bucket \"{bucketName}\"."
 msgid "No versions were deleted: {errorMessage}"
 msgstr "No versions were deleted: {errorMessage}"
 
+msgid "No Volumes in This Project"
+msgstr "No Volumes in This Project"
+
+msgid "No Volumes Match Your Filters"
+msgstr "No Volumes Match Your Filters"
+
 msgid "Noncurrent Version Transitions (Read-Only)"
 msgstr "Noncurrent Version Transitions (Read-Only)"
 
@@ -3278,6 +3341,9 @@ msgstr "Noncurrent Versions"
 
 msgid "None"
 msgstr "None"
+
+msgid "Not attached"
+msgstr "Not attached"
 
 msgid "Note: for <0>static and dynamic large objects</0> only the manifests are deleted — their segments outside this folder prefix are not affected."
 msgstr "Note: for <0>static and dynamic large objects</0> only the manifests are deleted — their segments outside this folder prefix are not affected."
@@ -3440,6 +3506,9 @@ msgstr "Order Not Found"
 
 msgid "Orders"
 msgstr "Orders"
+
+msgid "Other"
+msgstr "Other"
 
 msgid "Other Actions"
 msgstr "Other Actions"
@@ -3774,6 +3843,9 @@ msgstr "Removing..."
 msgid "Reserved keys: web-index, web-listings, quota-count, quota-bytes"
 msgstr "Reserved keys: web-index, web-listings, quota-count, quota-bytes"
 
+msgid "Resource Not Accessible"
+msgstr "Resource Not Accessible"
+
 msgid "Resource Not Found"
 msgstr "Resource Not Found"
 
@@ -3926,6 +3998,12 @@ msgstr "Search ports..."
 
 msgid "Search routers..."
 msgstr "Search routers..."
+
+msgid "Search snapshots by name or ID..."
+msgstr "Search snapshots by name or ID..."
+
+msgid "Search volumes by name or ID..."
+msgstr "Search volumes by name or ID..."
 
 msgid "Search..."
 msgstr "Search..."
@@ -4119,6 +4197,9 @@ msgstr "Server error occurred while fetching flavor details. Please try again la
 msgid "Server error occurred while removing tenant access. Please try again later."
 msgstr "Server error occurred while removing tenant access. Please try again later."
 
+msgid "Server ID"
+msgstr "Server ID"
+
 msgid "Server is experiencing issues. Please try again later."
 msgstr "Server is experiencing issues. Please try again later."
 
@@ -4194,8 +4275,26 @@ msgstr "Show Metadata"
 msgid "Show more info about secret types"
 msgstr "Show more info about secret types"
 
+msgid "Showing {filteredCount} of {totalCount}"
+msgstr "Showing {filteredCount} of {totalCount}"
+
 msgid "Showing {filteredCount} of {totalCount} {itemName}"
 msgstr "Showing {filteredCount} of {totalCount} {itemName}"
+
+msgid "Showing {matchingCount} networks"
+msgstr "Showing {matchingCount} networks"
+
+msgid "Showing {matchingCount} of {totalCount} networks"
+msgstr "Showing {matchingCount} of {totalCount} networks"
+
+msgid "Showing {matchingCount} of {totalCount} ports"
+msgstr "Showing {matchingCount} of {totalCount} ports"
+
+msgid "Showing {matchingCount} ports"
+msgstr "Showing {matchingCount} ports"
+
+msgid "Showing {routerCount} routers"
+msgstr "Showing {routerCount} routers"
 
 msgid "Showing {totalCount} containers"
 msgstr "Showing {totalCount} containers"
@@ -4230,6 +4329,9 @@ msgstr "Single port or start of a range, 1-65535."
 msgid "Size"
 msgstr "Size"
 
+msgid "Size (GiB)"
+msgstr "Size (GiB)"
+
 msgid "Size:"
 msgstr "Size:"
 
@@ -4239,11 +4341,14 @@ msgstr "Size: {policySize} / {MAX_POLICY_SIZE} bytes"
 msgid "Snapshot"
 msgstr "Snapshot"
 
+msgid "Snapshot Details"
+msgstr "Snapshot Details"
+
 msgid "Snapshots"
 msgstr "Snapshots"
 
-msgid "Snapshots View Coming Soon"
-msgstr "Snapshots View Coming Soon"
+msgid "Snapshots of this volume"
+msgstr "Snapshots of this volume"
 
 msgid "SNAT"
 msgstr "SNAT"
@@ -4262,6 +4367,12 @@ msgstr "Sort by"
 
 msgid "Source"
 msgstr "Source"
+
+msgid "Source snapshot"
+msgstr "Source snapshot"
+
+msgid "Source volume"
+msgstr "Source volume"
 
 msgid "Specific referrer: {host}"
 msgstr "Specific referrer: {host}"
@@ -4412,12 +4523,6 @@ msgstr "Temporary URLs"
 
 msgid "The application configuration could not be loaded. Some services and features may be unavailable."
 msgstr "The application configuration could not be loaded. Some services and features may be unavailable."
-
-msgid "The block storage scope is available. The snapshots list will be added in a follow-up release."
-msgstr "The block storage scope is available. The snapshots list will be added in a follow-up release."
-
-msgid "The block storage scope is available. The volumes list will be added in a follow-up release."
-msgstr "The block storage scope is available. The volumes list will be added in a follow-up release."
 
 msgid "The bucket could not be created. Try again or choose a different name."
 msgstr "The bucket could not be created. Try again or choose a different name."
@@ -4656,6 +4761,9 @@ msgstr "There are no ports on this network."
 msgid "There are no RBAC Policy items to display for this Security Group."
 msgstr "There are no RBAC Policy items to display for this Security Group."
 
+msgid "There are no resources to display."
+msgstr "There are no resources to display."
+
 msgid "There are no routers in this project."
 msgstr "There are no routers in this project."
 
@@ -4667,6 +4775,9 @@ msgstr "There are no secrets in this project. Create one to get started."
 
 msgid "There are no security groups in this project."
 msgstr "There are no security groups in this project."
+
+msgid "There are no snapshots to display."
+msgstr "There are no snapshots to display."
 
 msgid "These images are already active or you do not have permission to activate them."
 msgstr "These images are already active or you do not have permission to activate them."
@@ -5145,11 +5256,17 @@ msgstr "Visibility"
 msgid "VM State"
 msgstr "VM State"
 
+msgid "Volume Details"
+msgstr "Volume Details"
+
+msgid "Volume relationships"
+msgstr "Volume relationships"
+
+msgid "Volume type"
+msgstr "Volume type"
+
 msgid "Volumes"
 msgstr "Volumes"
-
-msgid "Volumes View Coming Soon"
-msgstr "Volumes View Coming Soon"
 
 msgid "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
 msgstr "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."

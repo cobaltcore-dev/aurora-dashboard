@@ -122,6 +122,7 @@ function RoutersContent({
   const totalPages = Math.max(1, Math.ceil(routers.length / PAGE_SIZE))
   const safePage = Math.min(currentPage, totalPages)
   const paginatedRouters = routers.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
+  const routerCount = routers.length
 
   useEffect(() => () => clearTimeout(debounceTimer.current), [])
 
@@ -168,7 +169,8 @@ function RoutersContent({
         />
       </Stack>
 
-      {/* Zone 2 — status filter + search + active filter pills */}
+      {/* Zone 2+3 — status filter, search, active filter pills (Zone 2) and item count (Zone 3)
+          share a single DataGridToolbar per the Juno DataGrid header pattern. */}
       <DataGridToolbar>
         <Stack direction="vertical" gap="2">
           <Stack distribution="between" alignment="center">
@@ -203,6 +205,13 @@ function RoutersContent({
               onClear={() => onStatusChange(undefined)}
             />
           )}
+          {/* Zone 3 — item count; the list is server-paginated/filtered, so only the current
+              result size is known (no reliable unfiltered total), hence "Showing N routers". */}
+          <Stack distribution="between" alignment="center" className="text-theme-light text-sm">
+            <span>
+              <Trans>Showing {routerCount} routers</Trans>
+            </span>
+          </Stack>
         </Stack>
       </DataGridToolbar>
 

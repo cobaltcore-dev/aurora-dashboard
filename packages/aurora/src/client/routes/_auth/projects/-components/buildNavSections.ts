@@ -117,7 +117,7 @@ export function buildNavSections(
           ? [
               {
                 service: "ports",
-                label: t`Ports`,
+                label: t`Fixed IPs / Ports`,
                 navigate: (nav: NavigateFn) => nav({ to: "/projects/$projectId/network/ports", params: { projectId } }),
                 params: { projectId },
               },
@@ -171,10 +171,7 @@ export function buildNavSections(
           },
         ]
       : []),
-  ]
-
-  const blockStorageServices: NavItem[] =
-    findCinderService(availableServices) && isEnabled("volumes") && canListBlockStorage
+    ...(findCinderService(availableServices) && isEnabled("volumes") && canListBlockStorage
       ? [
           {
             service: "volumes",
@@ -183,14 +180,14 @@ export function buildNavSections(
             params: { projectId },
           },
         ]
-      : []
+      : []),
+  ]
 
   // Seed the section map with built-in sections
   const sectionMap = new Map<string, NavSection>([
     ["compute", { section: "compute", label: t`Compute`, services: computeServices }],
     ["network", { section: "network", label: t`Network`, services: networkServices }],
     ["storage", { section: "storage", label: t`Storage`, services: storageServices }],
-    ["block-storage", { section: "block-storage", label: t`Block Storage`, services: blockStorageServices }],
     [
       "authorization",
       {

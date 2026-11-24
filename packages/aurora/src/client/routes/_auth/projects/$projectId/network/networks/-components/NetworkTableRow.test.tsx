@@ -60,7 +60,7 @@ describe("NetworkTableRow", () => {
       renderComponent()
 
       expect(screen.getByText("private")).toBeInTheDocument()
-      // ID is shown as ClipboardText (truncated to 13 chars: "net-123" is 7 chars, no truncation)
+      // ID is shown in full (untruncated) as ClipboardText
       expect(screen.getByText("net-123")).toBeInTheDocument()
     })
 

@@ -1,15 +1,18 @@
 import React, { useState } from "react"
-import { Tooltip, TooltipTrigger, TooltipContent, Icon, Stack } from "@cloudoperators/juno-ui-components"
+import { Tooltip, TooltipTrigger, TooltipContent, Icon } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
 
 export interface ClipboardTextProps extends React.HTMLAttributes<HTMLDivElement> {
   tooltipContent?: string
   text: string
   className?: string
+  /** Truncate the displayed text to this many characters (optional). The full text is always copied. */
   truncateAt?: number
   showTooltip?: boolean
   /** Render only the copy icon (no text), e.g. as a copy affordance beside a link. */
   iconOnly?: boolean
+  /** Whether the copy icon is always visible or only revealed on hover. Defaults to "always". */
+  iconVisible?: "always" | "hover"
 }
 
 const ClipboardText: React.FC<ClipboardTextProps> = ({
@@ -19,13 +22,20 @@ const ClipboardText: React.FC<ClipboardTextProps> = ({
   truncateAt,
   showTooltip = true,
   iconOnly = false,
+  iconVisible = "always",
   ...props
 }) => {
   const { t } = useLingui()
   const [copied, setCopied] = useState(false)
   const [isHovering, setIsHovering] = useState(false)
 
-  const combinedClassName = `copyableTooltip  inline-flex items-center ${className || ""}`
+  const combinedClassName = `copyableTooltip group inline-flex items-center gap-1 ${className || ""}`
+
+  // The copy icon is revealed on hover when iconVisible="hover" is requested.
+  // Otherwise it is always visible: when explicitly configured, when there is no
+  // text (iconOnly), or right after copying (check icon). When reveal-on-hover is
+  // active it still stays visible after copying so the check icon is seen.
+  const iconAlwaysVisible = iconVisible === "hover" ? copied : iconVisible === "always" || iconOnly || copied
 
   const handleCopy = async (e: React.MouseEvent) => {
     e.preventDefault()
@@ -55,6 +65,7 @@ const ClipboardText: React.FC<ClipboardTextProps> = ({
 
   return (
     <div {...props} className={combinedClassName}>
+      {!iconOnly && <span className="select-none">{displayText}</span>}
       <Tooltip open={tooltipIsOpen}>
         <TooltipTrigger
           onClick={handleCopy}
@@ -65,11 +76,13 @@ const ClipboardText: React.FC<ClipboardTextProps> = ({
           asChild
           data-testid="clipboard-copy-trigger"
         >
-          <button type="button" className="group border-none bg-transparent p-0 text-inherit">
-            <Stack direction="horizontal" gap="1" className="items-center hover:underline">
-              {!iconOnly && <span className="select-none">{displayText}</span>}
-              <Icon icon={copied ? "check" : "contentCopy"} size="18" />
-            </Stack>
+          <button
+            type="button"
+            className={`inline-flex items-center border-none bg-transparent p-0 text-inherit transition-opacity ${
+              iconAlwaysVisible ? "opacity-100" : "opacity-0 group-focus-within:opacity-100 group-hover:opacity-100"
+            } `}
+          >
+            <Icon icon={copied ? "check" : "contentCopy"} size="18" />
           </button>
         </TooltipTrigger>
         <TooltipContent>{getTooltipContent()}</TooltipContent>

@@ -101,7 +101,7 @@ describe("RouterInterfacesTable", () => {
       expect(screen.getByTestId("router-interface-row-port-2")).toBeInTheDocument()
     })
 
-    it("renders network name with ID, fixed IP, type and admin state", () => {
+    it("renders network name with ID (copy affordance), fixed IP, type and admin state", () => {
       renderTable()
 
       const row = screen.getByTestId("router-interface-row-port-1")
@@ -110,6 +110,9 @@ describe("RouterInterfacesTable", () => {
       expect(row).toHaveTextContent("10.180.1.1")
       expect(row).toHaveTextContent("network:router_interface")
       expect(row).toHaveTextContent("UP")
+      // network_id and subnet_id are copyable
+      expect(screen.getByRole("button", { name: /copy net-1 to clipboard/i })).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: /copy subnet-1 to clipboard/i })).toBeInTheDocument()
     })
 
     it("falls back to the network ID when the name is unknown", () => {
@@ -133,6 +136,9 @@ describe("RouterInterfacesTable", () => {
 
       expect(screen.getByText("10.180.1.1")).toBeInTheDocument()
       expect(screen.getByText("2001:db8::1")).toBeInTheDocument()
+      // each fixed IP exposes its subnet_id as a copy affordance
+      expect(screen.getByRole("button", { name: /copy subnet-1 to clipboard/i })).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: /copy subnet-v6 to clipboard/i })).toBeInTheDocument()
     })
 
     it.each([

@@ -41,10 +41,10 @@ export const NetworkTableRow = ({ network }: NetworkTableRowProps) => {
           {network.name ? (
             <>
               <span className="break-all">{network.name}</span>
-              <ClipboardText text={network.id} className="text-theme-light text-sm" truncateAt={13} />
+              <ClipboardText text={network.id} className="text-theme-light text-sm" iconVisible="hover" />
             </>
           ) : (
-            <ClipboardText text={network.id} truncateAt={13} />
+            <ClipboardText text={network.id} iconVisible="hover" />
           )}
         </Stack>
       </DataGridCell>
@@ -53,7 +53,7 @@ export const NetworkTableRow = ({ network }: NetworkTableRowProps) => {
       <DataGridCell>{network.subnets.length}</DataGridCell>
       {/* Shared — show owning project_id with copy when shared, "No" otherwise (E2) */}
       <DataGridCell>
-        {network.shared ? <ClipboardText text={network.project_id} truncateAt={13} /> : t`No`}
+        {network.shared ? <ClipboardText text={network.project_id} iconVisible="hover" /> : t`No`}
       </DataGridCell>
       <DataGridCell>{external === undefined || external === null ? "- -" : external ? t`Yes` : t`No`}</DataGridCell>
       <DataGridCell onClick={(e) => e.stopPropagation()}>
