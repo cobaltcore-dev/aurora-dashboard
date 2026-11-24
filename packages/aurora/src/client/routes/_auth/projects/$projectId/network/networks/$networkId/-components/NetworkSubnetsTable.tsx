@@ -71,10 +71,10 @@ export const NetworkSubnetsTable = ({ subnets, isLoading, isError, error, onRetr
                 {subnet.name ? (
                   <>
                     <span className="break-all">{subnet.name}</span>
-                    <ClipboardText text={subnet.id} className="text-theme-light text-sm" truncateAt={13} />
+                    <ClipboardText text={subnet.id} className="text-theme-light text-sm" iconVisible="hover" />
                   </>
                 ) : (
-                  <ClipboardText text={subnet.id} truncateAt={13} />
+                  <ClipboardText text={subnet.id} iconVisible="hover" />
                 )}
               </Stack>
             </DataGridCell>

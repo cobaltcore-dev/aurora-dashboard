@@ -51,7 +51,7 @@ describe("NetworkListContainer", () => {
     it("renders all column headers", () => {
       render(<NetworkListContainer networks={mockNetworks} />, { wrapper: TestWrapper })
 
-      for (const header of ["Name", "Status", "Admin State", "Subnets", "Shared", "External"]) {
+      for (const header of ["Name / ID", "Status", "Admin State", "Subnets", "Shared", "External"]) {
         expect(screen.getByText(header)).toBeInTheDocument()
       }
     })
