@@ -11,8 +11,13 @@ import {
   Select,
   SelectOption,
   Message,
+  DescriptionList,
+  DescriptionTerm,
+  DescriptionDefinition,
 } from "@cloudoperators/juno-ui-components"
 import { useParams } from "@tanstack/react-router"
+import { formatBytesBinary } from "@/client/utils/formatBytes"
+import { formatSwiftDate } from "@/client/utils/formatSwiftDate"
 import { ObjectRow } from "./"
 
 // ── Expiry presets ────────────────────────────────────────────────────────────
@@ -98,6 +103,11 @@ export const GenerateTempUrlModal = ({
   }
 
   const generateMutation = trpcReact.storage.swift.generateTempUrl.useMutation()
+
+  const { data: metadataRaw } = trpcReact.storage.swift.getObjectMetadata.useQuery(
+    { project_id: projectId, container: containerName, object: object?.name ?? "" },
+    { enabled: isOpen && object !== null, refetchOnWindowFocus: false }
+  )
 
   useEffect(() => {
     if (!isOpen) {
@@ -266,7 +276,7 @@ export const GenerateTempUrlModal = ({
       confirmButtonLabel={isPending ? t`Generating...` : t`Generate URL`}
       onConfirm={handleGenerate}
       cancelButtonLabel={t`Cancel`}
-      size="small"
+      size="large"
       disableConfirmButton={isPending || noKeyError || (isCustom && (!customMinutes.trim() || !!customMinutesError))}
     >
       <Stack direction="vertical" gap="4">
@@ -292,14 +302,45 @@ export const GenerateTempUrlModal = ({
         {copyError && <Message variant="error">{copyError}</Message>}
 
         <p className="text-theme-default">
-          <Trans>Object:</Trans> <span className="font-semibold">{displayName}</span>
-        </p>
-        <p className="text-theme-default">
           <Trans>
             A temporary URL grants time-limited read access to this object without requiring authentication. Anyone with
             the link can download it until it expires.
           </Trans>
         </p>
+        <DescriptionList>
+          <DescriptionTerm>
+            <Trans>Object</Trans>
+          </DescriptionTerm>
+          <DescriptionDefinition>{displayName}</DescriptionDefinition>
+          <DescriptionTerm>
+            <Trans>Content type</Trans>
+          </DescriptionTerm>
+          <DescriptionDefinition>{metadataRaw?.contentType ?? object.content_type ?? "- -"}</DescriptionDefinition>
+          <DescriptionTerm>
+            <Trans>MD5 checksum</Trans>
+          </DescriptionTerm>
+          <DescriptionDefinition className="break-all">{metadataRaw?.etag ?? "- -"}</DescriptionDefinition>
+          <DescriptionTerm>
+            <Trans>Size</Trans>
+          </DescriptionTerm>
+          <DescriptionDefinition>
+            {metadataRaw?.contentLength != null
+              ? formatBytesBinary(metadataRaw.contentLength)
+              : object.bytes != null
+                ? formatBytesBinary(object.bytes)
+                : "- -"}
+          </DescriptionDefinition>
+          <DescriptionTerm>
+            <Trans>Last modified</Trans>
+          </DescriptionTerm>
+          <DescriptionDefinition>
+            {metadataRaw?.lastModified
+              ? (formatSwiftDate(metadataRaw.lastModified) ?? "- -")
+              : object.last_modified
+                ? (formatSwiftDate(object.last_modified) ?? "- -")
+                : "- -"}
+          </DescriptionDefinition>
+        </DescriptionList>
 
         {/* Expiry selector */}
         <Select label={t`Expires in`} value={selectedPreset} onChange={handlePresetChange} disabled={isPending}>

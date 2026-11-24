@@ -61,6 +61,9 @@ vi.mock("@/client/trpcClient", () => ({
             reset: trpcState.reset,
           }),
         },
+        getObjectMetadata: {
+          useQuery: () => ({ data: undefined, isLoading: false, isError: false, error: null }),
+        },
       },
     },
   },
