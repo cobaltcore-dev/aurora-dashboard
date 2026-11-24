@@ -1,9 +1,22 @@
-import { createFileRoute } from "@tanstack/react-router"
-import { Status } from "@cloudoperators/juno-ui-components"
-import { t } from "@lingui/core/macro"
-import { useLingui } from "@lingui/react/macro"
-import { useSetBreadcrumb } from "@/client/hooks/useSetBreadcrumb"
+import { createFileRoute, useNavigate, useRouter, type ErrorComponentProps } from "@tanstack/react-router"
 import type { RouteInfo } from "@/client/routes/routeInfo"
+import { ShareDetail, ShareLoadError } from "./-components/ShareDetail"
+import { DEFAULT_SHARE_DETAILS_TAB, isShareDetailsTab, type ShareDetailsTab } from "./-components/shareDetailUtils"
+
+export interface ShareDetailsSearchParams {
+  tab?: ShareDetailsTab
+}
+
+function ShareDetailErrorComponent({ error, reset }: ErrorComponentProps) {
+  const router = useRouter()
+
+  const handleRetry = () => {
+    reset()
+    void router.invalidate()
+  }
+
+  return <ShareLoadError error={error} onRetry={handleRetry} />
+}
 
 export const Route = createFileRoute("/_auth/projects/$projectId/shared-file-system/$shareId/")({
   staticData: {
@@ -11,19 +24,37 @@ export const Route = createFileRoute("/_auth/projects/$projectId/shared-file-sys
     service: "shared-file-system",
     analytics: { name: "shared-file-system.shares.detail" },
   } satisfies RouteInfo,
-  head: () => ({ meta: [{ title: t`Share` }] }),
-  component: ShareDetailScaffold,
+  validateSearch: (search: Record<string, unknown>): ShareDetailsSearchParams => ({
+    tab: isShareDetailsTab(search.tab) ? search.tab : undefined,
+  }),
+  head: () => ({ meta: [{ title: "Share Details" }] }),
+  component: ShareDetailRoute,
+  errorComponent: ShareDetailErrorComponent,
 })
 
-function ShareDetailScaffold() {
-  const { t } = useLingui()
-  const { shareId } = Route.useParams()
-  useSetBreadcrumb(Route.id, shareId)
+function ShareDetailRoute() {
+  const { projectId, shareId } = Route.useParams()
+  const { tab = DEFAULT_SHARE_DETAILS_TAB } = Route.useSearch()
+  const navigate = useNavigate({ from: Route.fullPath })
+
+  const handleTabChange = (newTab: ShareDetailsTab) => {
+    void navigate({
+      search: (prev) => ({
+        ...prev,
+        tab: newTab === DEFAULT_SHARE_DETAILS_TAB ? undefined : newTab,
+      }),
+      replace: true,
+    })
+  }
+
   return (
-    <Status
-      status="empty"
-      title={t`Share Details Coming Soon`}
-      body={t`The shared file system scope is available. The share details will be added in a follow-up release.`}
+    <ShareDetail
+      key={shareId}
+      projectId={projectId}
+      shareId={shareId}
+      routeId={Route.id}
+      activeTab={tab}
+      onTabChange={handleTabChange}
     />
   )
 }

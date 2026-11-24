@@ -480,6 +480,9 @@ msgstr "Activating Images..."
 msgid "Activating this image will allow it to be used to launch new instances again."
 msgstr "Activating this image will allow it to be used to launch new instances again."
 
+msgid "Active"
+msgstr "Active"
+
 msgid "Add"
 msgstr "Add"
 
@@ -713,6 +716,9 @@ msgstr "Back to Routers"
 
 msgid "Back to Security Groups"
 msgstr "Back to Security Groups"
+
+msgid "Back to Shares"
+msgstr "Back to Shares"
 
 msgid "Basic Info"
 msgstr "Basic Info"
@@ -1254,6 +1260,9 @@ msgstr "Create Secret"
 msgid "Create Security Group"
 msgstr "Create Security Group"
 
+msgid "Create Share From Snapshot Support"
+msgstr "Create Share From Snapshot Support"
+
 msgid "Created"
 msgstr "Created"
 
@@ -1785,6 +1794,9 @@ msgstr "Ephemeral Disk (GiB)"
 msgid "Ephemeral Disk must be an integer ≥ 0."
 msgstr "Ephemeral Disk must be an integer ≥ 0."
 
+msgid "Error"
+msgstr "Error"
+
 msgid "Error loading component"
 msgstr "Error loading component"
 
@@ -1811,6 +1823,9 @@ msgstr "Error Loading Router"
 
 msgid "Error Loading Security Group"
 msgstr "Error Loading Security Group"
+
+msgid "Error Loading Share"
+msgstr "Error Loading Share"
 
 msgid "Error:"
 msgstr "Error:"
@@ -1850,6 +1865,9 @@ msgstr "Expires in"
 
 msgid "Expires in {selectedPresetLabel} — at {expiresAtFormatted}"
 msgstr "Expires in {selectedPresetLabel} — at {expiresAtFormatted}"
+
+msgid "Export Locations"
+msgstr "Export Locations"
 
 msgid "Expose Headers"
 msgstr "Expose Headers"
@@ -2055,6 +2073,9 @@ msgstr "Failed to Load CORS Configuration"
 msgid "Failed to Load CORS Rules"
 msgstr "Failed to Load CORS Rules"
 
+msgid "Failed to Load Export Locations"
+msgstr "Failed to Load Export Locations"
+
 msgid "Failed to load extra specs. Please try again."
 msgstr "Failed to load extra specs. Please try again."
 
@@ -2112,6 +2133,9 @@ msgstr "Failed to Load Policy"
 msgid "Failed to Load Ports"
 msgstr "Failed to Load Ports"
 
+msgid "Failed to Load Replicas"
+msgstr "Failed to Load Replicas"
+
 msgid "Failed to Load Routers"
 msgstr "Failed to Load Routers"
 
@@ -2129,6 +2153,9 @@ msgstr "Failed to Load Shared File System"
 
 msgid "Failed to Load Shares"
 msgstr "Failed to Load Shares"
+
+msgid "Failed to Load Snapshots"
+msgstr "Failed to Load Snapshots"
 
 msgid "Failed to Load Subnets"
 msgstr "Failed to Load Subnets"
@@ -2433,6 +2460,9 @@ msgstr "Grant access to all users from that project."
 msgid "Hardware Specifications"
 msgstr "Hardware Specifications"
 
+msgid "Has Replicas"
+msgstr "Has Replicas"
+
 msgid "Hi"
 msgstr "Hi"
 
@@ -2546,6 +2576,9 @@ msgstr "Images Deactivated"
 
 msgid "Images Deleted"
 msgstr "Images Deleted"
+
+msgid "In Sync"
+msgstr "In Sync"
 
 msgid "Ingress"
 msgstr "Ingress"
@@ -2736,6 +2769,9 @@ msgstr "Loading CORS Configuration..."
 msgid "Loading CORS Rules..."
 msgstr "Loading CORS Rules..."
 
+msgid "Loading Export Locations..."
+msgstr "Loading Export Locations..."
+
 msgid "Loading Flavor Details..."
 msgstr "Loading Flavor Details..."
 
@@ -2817,6 +2853,9 @@ msgstr "Loading preview..."
 msgid "Loading Preview..."
 msgstr "Loading Preview..."
 
+msgid "Loading Replicas..."
+msgstr "Loading Replicas..."
+
 msgid "Loading Router Details..."
 msgstr "Loading Router Details..."
 
@@ -2832,11 +2871,17 @@ msgstr "Loading Secrets..."
 msgid "Loading Security Group Details..."
 msgstr "Loading Security Group Details..."
 
+msgid "Loading Share Details..."
+msgstr "Loading Share Details..."
+
 msgid "Loading Shared File System..."
 msgstr "Loading Shared File System..."
 
 msgid "Loading Shares..."
 msgstr "Loading Shares..."
+
+msgid "Loading Snapshots..."
+msgstr "Loading Snapshots..."
 
 msgid "Loading Subnets..."
 msgstr "Loading Subnets..."
@@ -2973,6 +3018,9 @@ msgstr "Mode must be at most 255 characters"
 msgid "More Actions"
 msgstr "More Actions"
 
+msgid "Mount Snapshot Support"
+msgstr "Mount Snapshot Support"
+
 msgid "Move/Rename Object"
 msgstr "Move/Rename Object"
 
@@ -3105,6 +3153,9 @@ msgstr "No custom metadata. Click \"Add Property\" to create one."
 msgid "No custom properties defined"
 msgstr "No custom properties defined"
 
+msgid "No Export Locations"
+msgstr "No Export Locations"
+
 msgid "No External Gateway"
 msgstr "No External Gateway"
 
@@ -3207,6 +3258,9 @@ msgstr "No RBAC Policies Found"
 msgid "No RBAC policies match your search. Clear the search to view all RBAC policies."
 msgstr "No RBAC policies match your search. Clear the search to view all RBAC policies."
 
+msgid "No Replicas for This Share"
+msgstr "No Replicas for This Share"
+
 msgid "No routers are attached to this network."
 msgstr "No routers are attached to this network."
 
@@ -3260,6 +3314,9 @@ msgstr "No shares in this project"
 
 msgid "No shares match your filters"
 msgstr "No shares match your filters"
+
+msgid "No Snapshots for This Share"
+msgstr "No Snapshots for This Share"
 
 msgid "No Subnets"
 msgstr "No Subnets"
@@ -3456,6 +3513,9 @@ msgstr "Other Actions"
 msgid "Our Mission"
 msgstr "Our Mission"
 
+msgid "Out of Sync"
+msgstr "Out of Sync"
+
 msgid "Overview"
 msgstr "Overview"
 
@@ -3482,6 +3542,9 @@ msgstr "Partial Delete Success"
 
 msgid "passphrase — Used for storing plain text passphrases"
 msgstr "passphrase — Used for storing plain text passphrases"
+
+msgid "Path"
+msgstr "Path"
 
 msgid "Payload"
 msgstr "Payload"
@@ -3569,6 +3632,9 @@ msgstr "Pre-signed URL"
 
 msgid "Pre-signed URL for \"{displayName}\" was copied to clipboard."
 msgstr "Pre-signed URL for \"{displayName}\" was copied to clipboard."
+
+msgid "Preferred"
+msgstr "Preferred"
 
 msgid "Prefix and tag filters define which objects a rule applies to. Without them, this rule will be applied to all objects in the bucket."
 msgstr "Prefix and tag filters define which objects a rule applies to. Without them, this rule will be applied to all objects in the bucket."
@@ -3783,6 +3849,15 @@ msgstr "Remove RBAC Policy"
 msgid "Removing..."
 msgstr "Removing..."
 
+msgid "Replica State"
+msgstr "Replica State"
+
+msgid "Replicas"
+msgstr "Replicas"
+
+msgid "Replication Type"
+msgstr "Replication Type"
+
 msgid "Reserved keys: web-index, web-listings, quota-count, quota-bytes"
 msgstr "Reserved keys: web-index, web-listings, quota-count, quota-bytes"
 
@@ -3803,6 +3878,9 @@ msgstr "Reveal"
 
 msgid "Reveal Payload"
 msgstr "Reveal Payload"
+
+msgid "Revert to Snapshot Support"
+msgstr "Revert to Snapshot Support"
 
 msgid "Root"
 msgstr "Root"
@@ -4179,11 +4257,8 @@ msgstr "Set by the preset. Use a custom TCP or UDP rule to change the ports."
 msgid "Set to \"Shared\""
 msgstr "Set to \"Shared\""
 
-msgid "Share"
-msgstr "Share"
-
-msgid "Share Details Coming Soon"
-msgstr "Share Details Coming Soon"
+msgid "Share detail sections"
+msgstr "Share detail sections"
 
 msgid "Share Group"
 msgstr "Share Group"
@@ -4199,6 +4274,9 @@ msgstr "Share Networks"
 
 msgid "Share Networks View Coming Soon"
 msgstr "Share Networks View Coming Soon"
+
+msgid "Share Not Found"
+msgstr "Share Not Found"
 
 msgid "Share Object URL"
 msgstr "Share Object URL"
@@ -4302,6 +4380,9 @@ msgstr "Size: {policySize} / {MAX_POLICY_SIZE} bytes"
 msgid "Snapshot"
 msgstr "Snapshot"
 
+msgid "Snapshot Support"
+msgstr "Snapshot Support"
+
 msgid "Snapshots"
 msgstr "Snapshots"
 
@@ -4325,6 +4406,9 @@ msgstr "Sort by"
 
 msgid "Source"
 msgstr "Source"
+
+msgid "Source Snapshot"
+msgstr "Source Snapshot"
 
 msgid "Specific referrer: {host}"
 msgstr "Specific referrer: {host}"
@@ -4515,6 +4599,9 @@ msgstr "The CORS configuration has changed. Please refresh and try again."
 msgid "The encoding used for the payload. Currently only base64 is supported."
 msgstr "The encoding used for the payload. Currently only base64 is supported."
 
+msgid "The export locations could not be loaded."
+msgstr "The export locations could not be loaded."
+
 msgid "The extra spec could not be found. It may have already been deleted."
 msgstr "The extra spec could not be found. It may have already been deleted."
 
@@ -4611,6 +4698,9 @@ msgstr "The port could not be loaded. Try again."
 msgid "The project you are looking for doesn't exist or you don't have access to it."
 msgstr "The project you are looking for doesn't exist or you don't have access to it."
 
+msgid "The replicas could not be loaded."
+msgstr "The replicas could not be loaded."
+
 msgid "The requested flavor could not be found. It may have been deleted or you may not have access to it."
 msgstr "The requested flavor could not be found. It may have been deleted or you may not have access to it."
 
@@ -4656,14 +4746,14 @@ msgstr "The service you're looking for doesn't exist or may have moved. Check th
 msgid "The session has expired. Sign in again to continue."
 msgstr "The session has expired. Sign in again to continue."
 
+msgid "The share could not be loaded. Try again."
+msgstr "The share could not be loaded. Try again."
+
 msgid "The shared file system scope is available. The security service details will be added in a follow-up release."
 msgstr "The shared file system scope is available. The security service details will be added in a follow-up release."
 
 msgid "The shared file system scope is available. The security services list will be added in a follow-up release."
 msgstr "The shared file system scope is available. The security services list will be added in a follow-up release."
-
-msgid "The shared file system scope is available. The share details will be added in a follow-up release."
-msgstr "The shared file system scope is available. The share details will be added in a follow-up release."
 
 msgid "The shared file system scope is available. The share network details will be added in a follow-up release."
 msgstr "The shared file system scope is available. The share network details will be added in a follow-up release."
@@ -4673,6 +4763,9 @@ msgstr "The shared file system scope is available. The share networks list will 
 
 msgid "The shared file system scope is available. The share snapshot details will be added in a follow-up release."
 msgstr "The shared file system scope is available. The share snapshot details will be added in a follow-up release."
+
+msgid "The snapshots could not be loaded."
+msgstr "The snapshots could not be loaded."
 
 msgid "The specified project does not exist or you don't have permission to share with it."
 msgstr "The specified project does not exist or you don't have permission to share with it."
@@ -4946,6 +5039,18 @@ msgstr "This rule uses Date or ExpiredObjectDeleteMarker expiration. Leave empty
 
 msgid "This security group is already shared with the specified project."
 msgstr "This security group is already shared with the specified project."
+
+msgid "This share does not exist or is not accessible in this project."
+msgstr "This share does not exist or is not accessible in this project."
+
+msgid "This share has no export locations."
+msgstr "This share has no export locations."
+
+msgid "This share has no replicas."
+msgstr "This share has no replicas."
+
+msgid "This share has no snapshots."
+msgstr "This share has no snapshots."
 
 msgid "This tenant already has access to the flavor."
 msgstr "This tenant already has access to the flavor."
@@ -5409,8 +5514,20 @@ msgstr "You don't have permission to view shares in this project."
 msgid "You don't have permission to view snapshots in this project."
 msgstr "You don't have permission to view snapshots in this project."
 
+msgid "You don't have permission to view the export locations of this share."
+msgstr "You don't have permission to view the export locations of this share."
+
+msgid "You don't have permission to view the replicas of this share."
+msgstr "You don't have permission to view the replicas of this share."
+
+msgid "You don't have permission to view the snapshots of this share."
+msgstr "You don't have permission to view the snapshots of this share."
+
 msgid "You don't have permission to view this flavor's details."
 msgstr "You don't have permission to view this flavor's details."
+
+msgid "You don't have permission to view this share."
+msgstr "You don't have permission to view this share."
 
 msgid "You don't have permission to view volumes in this project."
 msgstr "You don't have permission to view volumes in this project."
@@ -5424,8 +5541,17 @@ msgstr "Your credentials are valid but you don't have permission to perform this
 msgid "Your session has expired. Please log in again."
 msgstr "Your session has expired. Please log in again."
 
+msgid "Your session has expired. Sign in again to view export locations."
+msgstr "Your session has expired. Sign in again to view export locations."
+
+msgid "Your session has expired. Sign in again to view replicas."
+msgstr "Your session has expired. Sign in again to view replicas."
+
 msgid "Your session has expired. Sign in again to view shares."
 msgstr "Your session has expired. Sign in again to view shares."
+
+msgid "Your session has expired. Sign in again to view snapshots."
+msgstr "Your session has expired. Sign in again to view snapshots."
 
 msgid "Your session was changed or ended in another browser tab. This can happen if you logged out or switched to a different account or domain elsewhere. Log in again to continue."
 msgstr "Your session was changed or ended in another browser tab. This can happen if you logged out or switched to a different account or domain elsewhere. Log in again to continue."
