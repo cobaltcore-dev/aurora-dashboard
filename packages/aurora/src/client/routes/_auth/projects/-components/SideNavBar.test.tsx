@@ -130,6 +130,34 @@ describe("SideNavBar", () => {
     })
 
     describe("Storage Navigation", () => {
+      it("keeps Volumes in the Storage group and navigates to the existing route", () => {
+        render(
+          <TestingProvider>
+            <SideNavBar
+              {...getDefaultProps()}
+              sections={buildNavSections(
+                "proj-1",
+                [...ALL_SERVICES, { type: "volumev3", name: "cinderv3" }],
+                undefined,
+                undefined,
+                undefined,
+                true
+              )}
+            />
+          </TestingProvider>
+        )
+        expect(screen.queryByText("Block Storage")).not.toBeInTheDocument()
+        fireEvent.click(screen.getByText("Volumes"))
+        expect(mockNavigate).toHaveBeenCalledWith({
+          to: "/projects/$projectId/volumes",
+          params: { projectId: "proj-1" },
+        })
+        fireEvent.click(screen.getByText("Storage"))
+        expect(screen.queryByText("Volumes")).not.toBeInTheDocument()
+        fireEvent.click(screen.getByText("Storage"))
+        expect(screen.getByText("Volumes")).toBeInTheDocument()
+      })
+
       it("renders Storage section when storage services are available", () => {
         render(
           <TestingProvider>

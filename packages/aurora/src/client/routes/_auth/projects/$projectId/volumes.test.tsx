@@ -70,6 +70,10 @@ beforeEach(() => {
 })
 
 describe("volume scope routing", () => {
+  it("identifies volumes as part of Storage navigation", () => {
+    expect(Route.options.staticData).toMatchObject({ section: "storage", service: "volumes" })
+  })
+
   it("redirects to the project when Cinder is absent", async () => {
     await expect(
       guard({
@@ -102,18 +106,15 @@ describe("volume scope routing", () => {
     ).resolves.toBeUndefined()
     expect(query).toHaveBeenCalledWith({ project_id: "project-1" })
   })
-  it("renders two peer resource tabs and navigates to snapshots", () => {
+  it("leaves resource navigation to the list toolbar", () => {
     render(
       <I18nProvider i18n={i18n}>
         <Layout />
       </I18nProvider>
     )
-    expect(screen.getByRole("navigation", { name: "Block storage resources" })).toBeInTheDocument()
-    fireEvent.click(screen.getByText("Snapshots"))
-    expect(h.navigate).toHaveBeenCalledWith({
-      to: "/projects/$projectId/volumes/snapshots",
-      params: { projectId: "project-1" },
-    })
+    expect(screen.getByRole("heading", { name: "Volumes" })).toBeInTheDocument()
+    expect(screen.queryByRole("navigation", { name: "Block storage resources" })).not.toBeInTheDocument()
+    expect(screen.getByTestId("scope-content")).toBeInTheDocument()
   })
   it("suppresses the list shell on a detail route", () => {
     h.matches = [{ routeId: "/_auth/projects/$projectId/volumes/$volumeId/" }]

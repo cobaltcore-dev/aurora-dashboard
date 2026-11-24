@@ -68,14 +68,6 @@ function RouteComponent() {
 
   const cards: ServiceCardProps[] = []
 
-  if (
-    findCinderService(availableServices ?? []) &&
-    isEnabled("volumes") &&
-    (volumePermissions.canListVolumes || volumePermissions.canListSnapshots)
-  ) {
-    cards.push({ group: t`Block Storage`, label: t`Volumes`, to: `${base}/volumes`, service: "volumes" })
-  }
-
   if (serviceIndex["image"]?.["glance"] && isEnabled("images"))
     cards.push({ group: t`Compute`, label: t`Images`, to: `${base}/compute/images`, service: "images" })
   if (serviceIndex["compute"]?.["nova"] && isEnabled("flavors"))
@@ -133,6 +125,14 @@ function RouteComponent() {
       to: `${base}/storage/${STORAGE_PROVIDER.CEPH}/${STORAGE_TYPE_BY_PROVIDER[STORAGE_PROVIDER.CEPH]}`,
       service: "ceph-containers",
     })
+
+  if (
+    findCinderService(availableServices ?? []) &&
+    isEnabled("volumes") &&
+    (volumePermissions.canListVolumes || volumePermissions.canListSnapshots)
+  ) {
+    cards.push({ group: t`Storage`, label: t`Volumes`, to: `${base}/volumes`, service: "volumes" })
+  }
 
   if (serviceIndex["key-manager"]?.["barbican"] && isEnabled("key-manager"))
     cards.push({

@@ -24,26 +24,39 @@ const CUSTOM_SERVICE: ServiceExtension = {
 }
 
 describe("buildNavSections", () => {
-  it("gates the separate block-storage scope by catalog, capability, and configuration", () => {
+  it("groups volumes under Storage and gates them by catalog, capability, and configuration", () => {
     const services = [...ALL_SERVICES, { type: "volumev3", name: "cinderv3" }]
-    expect(buildNavSections("proj-1", services).some((section) => section.section === "block-storage")).toBe(false)
+    const navServices = (sections: ReturnType<typeof buildNavSections>) =>
+      sections.flatMap((section) => section.services.map((service) => service.service))
+    expect(navServices(buildNavSections("proj-1", services))).not.toContain("volumes")
     const sections = buildNavSections("proj-1", services, undefined, undefined, undefined, true)
     expect(
-      sections.find((section) => section.section === "block-storage")?.services.map((service) => service.service)
-    ).toEqual(["volumes"])
-    expect(
       sections.find((section) => section.section === "storage")?.services.map((service) => service.service)
-    ).not.toContain("volumes")
-    expect(
-      buildNavSections("proj-1", services, undefined, undefined, ["volumes"], true).some(
-        (section) => section.section === "block-storage"
-      )
-    ).toBe(false)
-    expect(
-      buildNavSections("proj-1", ALL_SERVICES, undefined, undefined, undefined, true).some(
-        (section) => section.section === "block-storage"
-      )
-    ).toBe(false)
+    ).toEqual(["containers", "ceph-containers", "volumes"])
+    expect(sections.some((section) => section.section === "block-storage")).toBe(false)
+    expect(navServices(buildNavSections("proj-1", services, undefined, undefined, ["volumes"], true))).not.toContain(
+      "volumes"
+    )
+    expect(navServices(buildNavSections("proj-1", services, ["containers"], undefined, undefined, true))).not.toContain(
+      "volumes"
+    )
+    expect(navServices(buildNavSections("proj-1", ALL_SERVICES, undefined, undefined, undefined, true))).not.toContain(
+      "volumes"
+    )
+  })
+
+  it("shows Storage when Cinder is the only available service", () => {
+    const sections = buildNavSections(
+      "proj-1",
+      [{ type: "volumev3", name: "cinderv3" }],
+      undefined,
+      undefined,
+      undefined,
+      true
+    )
+    expect(sections.map((section) => section.section)).toEqual(["storage"])
+    expect(sections[0].label).toBe("Storage")
+    expect(sections[0].services.map((service) => service.service)).toEqual(["volumes"])
   })
 
   it("returns built-in sections when all services are available", () => {

@@ -55,7 +55,9 @@ import { Route as AuthProjectsProjectIdNetworkSecuritygroupsIndexRouteImport } f
 import { Route as AuthProjectsProjectIdServicesServiceTypeIndexRouteImport } from "./routes/_auth/projects/$projectId/services/$serviceType/index"
 import { Route as AuthProjectsProjectIdServicesServiceTypeSplatRouteImport } from "./routes/_auth/projects/$projectId/services/$serviceType/$"
 import { Route as AuthProjectsProjectIdStorageProviderStorageTypeRouteImport } from "./routes/_auth/projects/$projectId/storage/$provider/$storageType"
+import { Route as AuthProjectsProjectIdVolumesVolumeIdIndexRouteImport } from "./routes/_auth/projects/$projectId/volumes/$volumeId/index"
 import { Route as AuthProjectsProjectIdVolumesSnapshotsIndexRouteImport } from "./routes/_auth/projects/$projectId/volumes/snapshots/index"
+import { Route as AuthProjectsProjectIdVolumesSnapshotsSnapshotIdRouteImport } from "./routes/_auth/projects/$projectId/volumes/snapshots/$snapshotId"
 import { Route as AuthProjectsProjectIdAuthorizationKeyManagerContainersIndexRouteImport } from "./routes/_auth/projects/$projectId/authorization/key-manager/containers/index"
 import { Route as AuthProjectsProjectIdAuthorizationKeyManagerContainersContainerIdRouteImport } from "./routes/_auth/projects/$projectId/authorization/key-manager/containers/$containerId"
 import { Route as AuthProjectsProjectIdAuthorizationKeyManagerOrdersIndexRouteImport } from "./routes/_auth/projects/$projectId/authorization/key-manager/orders/index"
@@ -336,10 +338,22 @@ const AuthProjectsProjectIdStorageProviderStorageTypeRoute =
     path: "/storage/$provider/$storageType",
     getParentRoute: () => AuthProjectsProjectIdRoute,
   } as any)
+const AuthProjectsProjectIdVolumesVolumeIdIndexRoute =
+  AuthProjectsProjectIdVolumesVolumeIdIndexRouteImport.update({
+    id: "/$volumeId/",
+    path: "/$volumeId/",
+    getParentRoute: () => AuthProjectsProjectIdVolumesRoute,
+  } as any)
 const AuthProjectsProjectIdVolumesSnapshotsIndexRoute =
   AuthProjectsProjectIdVolumesSnapshotsIndexRouteImport.update({
     id: "/snapshots/",
     path: "/snapshots/",
+    getParentRoute: () => AuthProjectsProjectIdVolumesRoute,
+  } as any)
+const AuthProjectsProjectIdVolumesSnapshotsSnapshotIdRoute =
+  AuthProjectsProjectIdVolumesSnapshotsSnapshotIdRouteImport.update({
+    id: "/snapshots/$snapshotId",
+    path: "/snapshots/$snapshotId",
     getParentRoute: () => AuthProjectsProjectIdVolumesRoute,
   } as any)
 const AuthProjectsProjectIdAuthorizationKeyManagerContainersIndexRoute =
@@ -462,6 +476,7 @@ export interface FileRoutesByFullPath {
   "/projects/$projectId/network/routers/$routerId": typeof AuthProjectsProjectIdNetworkRoutersRouterIdRoute
   "/projects/$projectId/services/$serviceType/$": typeof AuthProjectsProjectIdServicesServiceTypeSplatRoute
   "/projects/$projectId/storage/$provider/$storageType": typeof AuthProjectsProjectIdStorageProviderStorageTypeRouteWithChildren
+  "/projects/$projectId/volumes/snapshots/$snapshotId": typeof AuthProjectsProjectIdVolumesSnapshotsSnapshotIdRoute
   "/projects/$projectId/authorization/key-manager/": typeof AuthProjectsProjectIdAuthorizationKeyManagerIndexRoute
   "/projects/$projectId/compute/flavors/": typeof AuthProjectsProjectIdComputeFlavorsIndexRoute
   "/projects/$projectId/compute/images/": typeof AuthProjectsProjectIdComputeImagesIndexRoute
@@ -472,6 +487,7 @@ export interface FileRoutesByFullPath {
   "/projects/$projectId/network/routers/": typeof AuthProjectsProjectIdNetworkRoutersIndexRoute
   "/projects/$projectId/network/securitygroups/": typeof AuthProjectsProjectIdNetworkSecuritygroupsIndexRoute
   "/projects/$projectId/services/$serviceType/": typeof AuthProjectsProjectIdServicesServiceTypeIndexRoute
+  "/projects/$projectId/volumes/$volumeId/": typeof AuthProjectsProjectIdVolumesVolumeIdIndexRoute
   "/projects/$projectId/volumes/snapshots/": typeof AuthProjectsProjectIdVolumesSnapshotsIndexRoute
   "/projects/$projectId/authorization/key-manager/containers/$containerId": typeof AuthProjectsProjectIdAuthorizationKeyManagerContainersContainerIdRoute
   "/projects/$projectId/authorization/key-manager/orders/$orderId": typeof AuthProjectsProjectIdAuthorizationKeyManagerOrdersOrderIdRoute
@@ -503,6 +519,7 @@ export interface FileRoutesByTo {
   "/projects/$projectId/network/ports/$portId": typeof AuthProjectsProjectIdNetworkPortsPortIdRoute
   "/projects/$projectId/network/routers/$routerId": typeof AuthProjectsProjectIdNetworkRoutersRouterIdRoute
   "/projects/$projectId/services/$serviceType/$": typeof AuthProjectsProjectIdServicesServiceTypeSplatRoute
+  "/projects/$projectId/volumes/snapshots/$snapshotId": typeof AuthProjectsProjectIdVolumesSnapshotsSnapshotIdRoute
   "/projects/$projectId/authorization/key-manager": typeof AuthProjectsProjectIdAuthorizationKeyManagerIndexRoute
   "/projects/$projectId/compute/flavors": typeof AuthProjectsProjectIdComputeFlavorsIndexRoute
   "/projects/$projectId/compute/images": typeof AuthProjectsProjectIdComputeImagesIndexRoute
@@ -513,6 +530,7 @@ export interface FileRoutesByTo {
   "/projects/$projectId/network/routers": typeof AuthProjectsProjectIdNetworkRoutersIndexRoute
   "/projects/$projectId/network/securitygroups": typeof AuthProjectsProjectIdNetworkSecuritygroupsIndexRoute
   "/projects/$projectId/services/$serviceType": typeof AuthProjectsProjectIdServicesServiceTypeIndexRoute
+  "/projects/$projectId/volumes/$volumeId": typeof AuthProjectsProjectIdVolumesVolumeIdIndexRoute
   "/projects/$projectId/volumes/snapshots": typeof AuthProjectsProjectIdVolumesSnapshotsIndexRoute
   "/projects/$projectId/authorization/key-manager/containers/$containerId": typeof AuthProjectsProjectIdAuthorizationKeyManagerContainersContainerIdRoute
   "/projects/$projectId/authorization/key-manager/orders/$orderId": typeof AuthProjectsProjectIdAuthorizationKeyManagerOrdersOrderIdRoute
@@ -564,6 +582,7 @@ export interface FileRoutesById {
   "/_auth/projects/$projectId/network/routers/$routerId": typeof AuthProjectsProjectIdNetworkRoutersRouterIdRoute
   "/_auth/projects/$projectId/services/$serviceType/$": typeof AuthProjectsProjectIdServicesServiceTypeSplatRoute
   "/_auth/projects/$projectId/storage/$provider/$storageType": typeof AuthProjectsProjectIdStorageProviderStorageTypeRouteWithChildren
+  "/_auth/projects/$projectId/volumes/snapshots/$snapshotId": typeof AuthProjectsProjectIdVolumesSnapshotsSnapshotIdRoute
   "/_auth/projects/$projectId/authorization/key-manager/": typeof AuthProjectsProjectIdAuthorizationKeyManagerIndexRoute
   "/_auth/projects/$projectId/compute/flavors/": typeof AuthProjectsProjectIdComputeFlavorsIndexRoute
   "/_auth/projects/$projectId/compute/images/": typeof AuthProjectsProjectIdComputeImagesIndexRoute
@@ -574,6 +593,7 @@ export interface FileRoutesById {
   "/_auth/projects/$projectId/network/routers/": typeof AuthProjectsProjectIdNetworkRoutersIndexRoute
   "/_auth/projects/$projectId/network/securitygroups/": typeof AuthProjectsProjectIdNetworkSecuritygroupsIndexRoute
   "/_auth/projects/$projectId/services/$serviceType/": typeof AuthProjectsProjectIdServicesServiceTypeIndexRoute
+  "/_auth/projects/$projectId/volumes/$volumeId/": typeof AuthProjectsProjectIdVolumesVolumeIdIndexRoute
   "/_auth/projects/$projectId/volumes/snapshots/": typeof AuthProjectsProjectIdVolumesSnapshotsIndexRoute
   "/_auth/projects/$projectId/authorization/key-manager/containers/$containerId": typeof AuthProjectsProjectIdAuthorizationKeyManagerContainersContainerIdRoute
   "/_auth/projects/$projectId/authorization/key-manager/orders/$orderId": typeof AuthProjectsProjectIdAuthorizationKeyManagerOrdersOrderIdRoute
@@ -625,6 +645,7 @@ export interface FileRouteTypes {
     | "/projects/$projectId/network/routers/$routerId"
     | "/projects/$projectId/services/$serviceType/$"
     | "/projects/$projectId/storage/$provider/$storageType"
+    | "/projects/$projectId/volumes/snapshots/$snapshotId"
     | "/projects/$projectId/authorization/key-manager/"
     | "/projects/$projectId/compute/flavors/"
     | "/projects/$projectId/compute/images/"
@@ -635,6 +656,7 @@ export interface FileRouteTypes {
     | "/projects/$projectId/network/routers/"
     | "/projects/$projectId/network/securitygroups/"
     | "/projects/$projectId/services/$serviceType/"
+    | "/projects/$projectId/volumes/$volumeId/"
     | "/projects/$projectId/volumes/snapshots/"
     | "/projects/$projectId/authorization/key-manager/containers/$containerId"
     | "/projects/$projectId/authorization/key-manager/orders/$orderId"
@@ -666,6 +688,7 @@ export interface FileRouteTypes {
     | "/projects/$projectId/network/ports/$portId"
     | "/projects/$projectId/network/routers/$routerId"
     | "/projects/$projectId/services/$serviceType/$"
+    | "/projects/$projectId/volumes/snapshots/$snapshotId"
     | "/projects/$projectId/authorization/key-manager"
     | "/projects/$projectId/compute/flavors"
     | "/projects/$projectId/compute/images"
@@ -676,6 +699,7 @@ export interface FileRouteTypes {
     | "/projects/$projectId/network/routers"
     | "/projects/$projectId/network/securitygroups"
     | "/projects/$projectId/services/$serviceType"
+    | "/projects/$projectId/volumes/$volumeId"
     | "/projects/$projectId/volumes/snapshots"
     | "/projects/$projectId/authorization/key-manager/containers/$containerId"
     | "/projects/$projectId/authorization/key-manager/orders/$orderId"
@@ -726,6 +750,7 @@ export interface FileRouteTypes {
     | "/_auth/projects/$projectId/network/routers/$routerId"
     | "/_auth/projects/$projectId/services/$serviceType/$"
     | "/_auth/projects/$projectId/storage/$provider/$storageType"
+    | "/_auth/projects/$projectId/volumes/snapshots/$snapshotId"
     | "/_auth/projects/$projectId/authorization/key-manager/"
     | "/_auth/projects/$projectId/compute/flavors/"
     | "/_auth/projects/$projectId/compute/images/"
@@ -736,6 +761,7 @@ export interface FileRouteTypes {
     | "/_auth/projects/$projectId/network/routers/"
     | "/_auth/projects/$projectId/network/securitygroups/"
     | "/_auth/projects/$projectId/services/$serviceType/"
+    | "/_auth/projects/$projectId/volumes/$volumeId/"
     | "/_auth/projects/$projectId/volumes/snapshots/"
     | "/_auth/projects/$projectId/authorization/key-manager/containers/$containerId"
     | "/_auth/projects/$projectId/authorization/key-manager/orders/$orderId"
@@ -1080,11 +1106,25 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof AuthProjectsProjectIdStorageProviderStorageTypeRouteImport
       parentRoute: typeof AuthProjectsProjectIdRoute
     }
+    "/_auth/projects/$projectId/volumes/$volumeId/": {
+      id: "/_auth/projects/$projectId/volumes/$volumeId/"
+      path: "/$volumeId"
+      fullPath: "/projects/$projectId/volumes/$volumeId/"
+      preLoaderRoute: typeof AuthProjectsProjectIdVolumesVolumeIdIndexRouteImport
+      parentRoute: typeof AuthProjectsProjectIdVolumesRoute
+    }
     "/_auth/projects/$projectId/volumes/snapshots/": {
       id: "/_auth/projects/$projectId/volumes/snapshots/"
       path: "/snapshots"
       fullPath: "/projects/$projectId/volumes/snapshots/"
       preLoaderRoute: typeof AuthProjectsProjectIdVolumesSnapshotsIndexRouteImport
+      parentRoute: typeof AuthProjectsProjectIdVolumesRoute
+    }
+    "/_auth/projects/$projectId/volumes/snapshots/$snapshotId": {
+      id: "/_auth/projects/$projectId/volumes/snapshots/$snapshotId"
+      path: "/snapshots/$snapshotId"
+      fullPath: "/projects/$projectId/volumes/snapshots/$snapshotId"
+      preLoaderRoute: typeof AuthProjectsProjectIdVolumesSnapshotsSnapshotIdRouteImport
       parentRoute: typeof AuthProjectsProjectIdVolumesRoute
     }
     "/_auth/projects/$projectId/authorization/key-manager/containers/": {
@@ -1325,6 +1365,8 @@ const AuthProjectsProjectIdServicesRouteWithChildren =
 
 interface AuthProjectsProjectIdVolumesRouteChildren {
   AuthProjectsProjectIdVolumesIndexRoute: typeof AuthProjectsProjectIdVolumesIndexRoute
+  AuthProjectsProjectIdVolumesSnapshotsSnapshotIdRoute: typeof AuthProjectsProjectIdVolumesSnapshotsSnapshotIdRoute
+  AuthProjectsProjectIdVolumesVolumeIdIndexRoute: typeof AuthProjectsProjectIdVolumesVolumeIdIndexRoute
   AuthProjectsProjectIdVolumesSnapshotsIndexRoute: typeof AuthProjectsProjectIdVolumesSnapshotsIndexRoute
 }
 
@@ -1332,6 +1374,10 @@ const AuthProjectsProjectIdVolumesRouteChildren: AuthProjectsProjectIdVolumesRou
   {
     AuthProjectsProjectIdVolumesIndexRoute:
       AuthProjectsProjectIdVolumesIndexRoute,
+    AuthProjectsProjectIdVolumesSnapshotsSnapshotIdRoute:
+      AuthProjectsProjectIdVolumesSnapshotsSnapshotIdRoute,
+    AuthProjectsProjectIdVolumesVolumeIdIndexRoute:
+      AuthProjectsProjectIdVolumesVolumeIdIndexRoute,
     AuthProjectsProjectIdVolumesSnapshotsIndexRoute:
       AuthProjectsProjectIdVolumesSnapshotsIndexRoute,
   }
