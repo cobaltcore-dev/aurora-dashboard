@@ -449,7 +449,7 @@ export const EditContainerMetadataModal = ({
             {/* ── Read-only stats ─────────────────────────────────────────── */}
             <DescriptionList>
               <DescriptionTerm>
-                <Trans>Container</Trans>
+                <Trans>Name</Trans>
               </DescriptionTerm>
               <DescriptionDefinition>{container.name}</DescriptionDefinition>
               <DescriptionTerm>

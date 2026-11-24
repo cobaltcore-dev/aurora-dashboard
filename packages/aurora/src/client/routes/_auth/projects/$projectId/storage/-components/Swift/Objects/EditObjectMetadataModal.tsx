@@ -328,7 +328,7 @@ export const EditObjectMetadataModal = ({
           {/* ── Read-only properties ──────────────────────────────────────── */}
           <DescriptionList>
             <DescriptionTerm>
-              <Trans>Object</Trans>
+              <Trans>Name</Trans>
             </DescriptionTerm>
             <DescriptionDefinition>{displayName}</DescriptionDefinition>
             <DescriptionTerm>

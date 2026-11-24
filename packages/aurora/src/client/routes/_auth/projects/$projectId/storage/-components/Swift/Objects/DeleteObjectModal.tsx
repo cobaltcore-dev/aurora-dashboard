@@ -147,11 +147,11 @@ export const DeleteObjectModal = ({ isOpen, object, onClose, onSuccess, onError 
       ) : (
         <Stack direction="vertical" gap="4">
           <p className="text-theme-default">
-            <Trans>This object will be permanently deleted. This cannot be undone.</Trans>
+            <Trans>The object will be permanently deleted. This action cannot be undone.</Trans>
           </p>
           <DescriptionList>
             <DescriptionTerm>
-              <Trans>Object</Trans>
+              <Trans>Name</Trans>
             </DescriptionTerm>
             <DescriptionDefinition>{displayName}</DescriptionDefinition>
             <DescriptionTerm>

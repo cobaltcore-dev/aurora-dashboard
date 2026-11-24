@@ -147,7 +147,7 @@ export const ScheduleObjectDeletionModal = ({
         <Stack direction="vertical" gap="4" className={isPickerOpen ? "min-h-150" : ""}>
           <DescriptionList>
             <DescriptionTerm>
-              <Trans>Object</Trans>
+              <Trans>Name</Trans>
             </DescriptionTerm>
             <DescriptionDefinition>{displayName}</DescriptionDefinition>
             <DescriptionTerm>

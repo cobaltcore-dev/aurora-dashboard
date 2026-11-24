@@ -924,9 +924,6 @@ msgstr "Connection Details"
 msgid "Connection Details Unavailable"
 msgstr "Connection Details Unavailable"
 
-msgid "Container"
-msgstr "Container"
-
 msgid "Container \"{containerName}\" properties were successfully updated."
 msgstr "Container \"{containerName}\" properties were successfully updated."
 
@@ -3348,9 +3345,6 @@ msgstr "Not attached"
 msgid "Note: for <0>static and dynamic large objects</0> only the manifests are deleted — their segments outside this folder prefix are not affected."
 msgstr "Note: for <0>static and dynamic large objects</0> only the manifests are deleted — their segments outside this folder prefix are not affected."
 
-msgid "Object"
-msgstr "Object"
-
 msgid "Object \"{displayName}\" was permanently deleted."
 msgstr "Object \"{displayName}\" was permanently deleted."
 
@@ -4617,6 +4611,9 @@ msgstr "The object will be copied to this path. Navigate folders above to change
 msgid "The object will be moved to this path. Navigate folders above to change the destination."
 msgstr "The object will be moved to this path. Navigate folders above to change the destination."
 
+msgid "The object will be permanently deleted. This action cannot be undone."
+msgstr "The object will be permanently deleted. This action cannot be undone."
+
 msgid "The order \"{orderName}\" will be permanently deleted. This action cannot be undone."
 msgstr "The order \"{orderName}\" will be permanently deleted. This action cannot be undone."
 
@@ -4916,9 +4913,6 @@ msgstr "This object and all its versions will be permanently deleted and cannot 
 
 msgid "This object storage service does not exist or is not available for this project."
 msgstr "This object storage service does not exist or is not available for this project."
-
-msgid "This object will be permanently deleted. This cannot be undone."
-msgstr "This object will be permanently deleted. This cannot be undone."
 
 msgid "This order is still being processed. Deleting it now may leave an orphaned resource in Barbican."
 msgstr "This order is still being processed. Deleting it now may leave an orphaned resource in Barbican."

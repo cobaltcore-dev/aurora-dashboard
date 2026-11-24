@@ -924,9 +924,6 @@ msgstr ""
 msgid "Connection Details Unavailable"
 msgstr ""
 
-msgid "Container"
-msgstr ""
-
 msgid "Container \"{containerName}\" properties were successfully updated."
 msgstr "Eigenschaften des Containers \"{containerName}\" wurden erfolgreich aktualisiert."
 
@@ -3348,9 +3345,6 @@ msgstr ""
 msgid "Note: for <0>static and dynamic large objects</0> only the manifests are deleted — their segments outside this folder prefix are not affected."
 msgstr "Hinweis: Für <0>statische und dynamische große Objekte</0> werden nur die Manifeste gelöscht — ihre Segmente außerhalb dieses Ordnerpräfixes sind nicht betroffen."
 
-msgid "Object"
-msgstr ""
-
 msgid "Object \"{displayName}\" was permanently deleted."
 msgstr ""
 
@@ -4617,6 +4611,9 @@ msgstr "Das Objekt wird zu diesem Pfad kopiert. Navigieren Sie oben durch die Or
 msgid "The object will be moved to this path. Navigate folders above to change the destination."
 msgstr "Das Objekt wird zu diesem Pfad verschoben. Navigieren Sie oben durch die Ordner, um das Ziel zu ändern."
 
+msgid "The object will be permanently deleted. This action cannot be undone."
+msgstr ""
+
 msgid "The order \"{orderName}\" will be permanently deleted. This action cannot be undone."
 msgstr ""
 
@@ -4915,9 +4912,6 @@ msgid "This object and all its versions will be permanently deleted and cannot b
 msgstr ""
 
 msgid "This object storage service does not exist or is not available for this project."
-msgstr ""
-
-msgid "This object will be permanently deleted. This cannot be undone."
 msgstr ""
 
 msgid "This order is still being processed. Deleting it now may leave an orphaned resource in Barbican."
