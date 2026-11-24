@@ -1,9 +1,18 @@
-import { createFileRoute } from "@tanstack/react-router"
-import { Status } from "@cloudoperators/juno-ui-components"
+import { createFileRoute, useRouter, type ErrorComponentProps } from "@tanstack/react-router"
 import { t } from "@lingui/core/macro"
-import { useLingui } from "@lingui/react/macro"
-import { useSetBreadcrumb } from "@/client/hooks/useSetBreadcrumb"
 import type { RouteInfo } from "@/client/routes/routeInfo"
+import { SecurityServiceDetail, SecurityServiceLoadError } from "./-components/SecurityServiceDetail"
+
+function SecurityServiceDetailErrorComponent({ error, reset }: ErrorComponentProps) {
+  const router = useRouter()
+
+  const handleRetry = () => {
+    reset()
+    void router.invalidate()
+  }
+
+  return <SecurityServiceLoadError error={error} onRetry={handleRetry} />
+}
 
 export const Route = createFileRoute(
   "/_auth/projects/$projectId/shared-file-system/security-services/$securityServiceId"
@@ -14,18 +23,18 @@ export const Route = createFileRoute(
     analytics: { name: "shared-file-system.security_services.detail" },
   } satisfies RouteInfo,
   head: () => ({ meta: [{ title: t`Security Service` }] }),
-  component: SecurityServiceDetailScaffold,
+  component: SecurityServiceDetailRoute,
+  errorComponent: SecurityServiceDetailErrorComponent,
 })
 
-function SecurityServiceDetailScaffold() {
-  const { t } = useLingui()
-  const { securityServiceId } = Route.useParams()
-  useSetBreadcrumb(Route.id, securityServiceId)
+function SecurityServiceDetailRoute() {
+  const { projectId, securityServiceId } = Route.useParams()
   return (
-    <Status
-      status="empty"
-      title={t`Security Service Details Coming Soon`}
-      body={t`The shared file system scope is available. The security service details will be added in a follow-up release.`}
+    <SecurityServiceDetail
+      key={securityServiceId}
+      projectId={projectId}
+      securityServiceId={securityServiceId}
+      routeId={Route.id}
     />
   )
 }

@@ -3,6 +3,8 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { Button, ButtonRow, Status } from "@cloudoperators/juno-ui-components"
 import { RouteIdLevelDefaultError } from "@/client/components/Errors/RouteIdLevelDefaultError"
 
+type BackTarget = "shares" | "share-networks" | "security-services"
+
 interface SharedFileSystemDetailLoadErrorProps {
   error: unknown
   onRetry: () => void
@@ -11,11 +13,11 @@ interface SharedFileSystemDetailLoadErrorProps {
   forbiddenDescription: string
   errorTitle: string
   errorDescription: string
-  backTarget?: "shares" | "share-networks"
+  backTarget?: BackTarget
 }
 
 interface BackButtonsProps {
-  backTarget: "shares" | "share-networks"
+  backTarget: BackTarget
   projectId: string
   onRetry?: () => void
 }
@@ -27,6 +29,11 @@ function BackButtons({ backTarget, projectId, onRetry }: BackButtonsProps) {
     if (backTarget === "share-networks") {
       navigate({
         to: "/projects/$projectId/shared-file-system/share-networks",
+        params: { projectId },
+      })
+    } else if (backTarget === "security-services") {
+      navigate({
+        to: "/projects/$projectId/shared-file-system/security-services",
         params: { projectId },
       })
     } else {
@@ -47,7 +54,13 @@ function BackButtons({ backTarget, projectId, onRetry }: BackButtonsProps) {
   return (
     <ButtonRow>
       <Button variant="primary" onClick={handleBackClick}>
-        {backTarget === "share-networks" ? <Trans>Back to Share Networks</Trans> : <Trans>Back to Shares</Trans>}
+        {backTarget === "share-networks" ? (
+          <Trans>Back to Share Networks</Trans>
+        ) : backTarget === "security-services" ? (
+          <Trans>Back to Security Services</Trans>
+        ) : (
+          <Trans>Back to Shares</Trans>
+        )}
       </Button>
       <Button onClick={handleHomeClick}>
         <Trans>Home</Trans>

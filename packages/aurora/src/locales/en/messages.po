@@ -192,6 +192,9 @@ msgstr "{matchingCount} networks"
 msgid "{matchingCount} of {totalCount} networks"
 msgstr "{matchingCount} of {totalCount} networks"
 
+msgid "{matchingCount} of {totalCount} security services"
+msgstr "{matchingCount} of {totalCount} security services"
+
 msgid "{matchingCount} of {totalCount} share networks"
 msgstr "{matchingCount} of {totalCount} share networks"
 
@@ -257,6 +260,9 @@ msgstr "{totalCount, plural, one {Empty Bucket} other {Empty Buckets}}"
 
 msgid "{totalCount, plural, one {Empty Container} other {Empty # Containers}}"
 msgstr "{totalCount, plural, one {Empty Container} other {Empty # Containers}}"
+
+msgid "{totalCount} security services"
+msgstr "{totalCount} security services"
 
 msgid "{totalCount} share networks"
 msgstr "{totalCount} share networks"
@@ -722,6 +728,9 @@ msgstr "Back to Routers"
 
 msgid "Back to Security Groups"
 msgstr "Back to Security Groups"
+
+msgid "Back to Security Services"
+msgstr "Back to Security Services"
 
 msgid "Back to Share Networks"
 msgstr "Back to Share Networks"
@@ -1548,6 +1557,9 @@ msgstr "DNS Domain"
 msgid "DNS domain is required when a DNS name is entered."
 msgstr "DNS domain is required when a DNS name is entered."
 
+msgid "DNS IP"
+msgstr "DNS IP"
+
 msgid "DNS Name"
 msgstr "DNS Name"
 
@@ -1562,6 +1574,9 @@ msgstr "DNS name must use only letters, digits, and hyphens, and must start and 
 
 msgid "DNS Nameservers"
 msgstr "DNS Nameservers"
+
+msgid "Domain"
+msgstr "Domain"
 
 msgid "Done"
 msgstr "Done"
@@ -1832,6 +1847,9 @@ msgstr "Error Loading Router"
 
 msgid "Error Loading Security Group"
 msgstr "Error Loading Security Group"
+
+msgid "Error Loading Security Service"
+msgstr "Error Loading Security Service"
 
 msgid "Error Loading Share"
 msgstr "Error Loading Share"
@@ -2895,6 +2913,9 @@ msgstr "Loading Secrets..."
 msgid "Loading Security Group Details..."
 msgstr "Loading Security Group Details..."
 
+msgid "Loading Security Service Details..."
+msgstr "Loading Security Service Details..."
+
 msgid "Loading Security Services..."
 msgstr "Loading Security Services..."
 
@@ -3225,6 +3246,9 @@ msgstr "No Lifecycle Rules Matching the Current Search Criteria."
 msgid "No limit"
 msgstr "No limit"
 
+msgid "No Matching Security Services"
+msgstr "No Matching Security Services"
+
 msgid "No Matching Share Networks"
 msgstr "No Matching Share Networks"
 
@@ -3344,6 +3368,15 @@ msgstr "No security groups match the current search or filters. Clear the search
 
 msgid "No Security Services"
 msgstr "No Security Services"
+
+msgid "No Security Services Found"
+msgstr "No Security Services Found"
+
+msgid "No security services in this project"
+msgstr "No security services in this project"
+
+msgid "No security services match your filters"
+msgstr "No security services match your filters"
 
 msgid "No Segmentation Data"
 msgstr "No Segmentation Data"
@@ -3560,6 +3593,9 @@ msgstr "Order Not Found"
 
 msgid "Orders"
 msgstr "Orders"
+
+msgid "Organizational Unit"
+msgstr "Organizational Unit"
 
 msgid "Other"
 msgstr "Other"
@@ -4164,14 +4200,11 @@ msgstr "Security Groups"
 msgid "Security Service"
 msgstr "Security Service"
 
-msgid "Security Service Details Coming Soon"
-msgstr "Security Service Details Coming Soon"
+msgid "Security Service Not Found"
+msgstr "Security Service Not Found"
 
 msgid "Security Services"
 msgstr "Security Services"
-
-msgid "Security Services View Coming Soon"
-msgstr "Security Services View Coming Soon"
 
 msgid "Segment Count"
 msgstr "Segment Count"
@@ -4250,6 +4283,9 @@ msgstr "Select..."
 
 msgid "Serve objects as index when file name is:"
 msgstr "Serve objects as index when file name is:"
+
+msgid "Server"
+msgstr "Server"
 
 msgid "Server error occurred while adding tenant access. Please try again later."
 msgstr "Server error occurred while adding tenant access. Please try again later."
@@ -4791,6 +4827,9 @@ msgstr "The secret was successfully created."
 msgid "The security group \"{securityGroupName}\" will be permanently deleted. This action cannot be undone."
 msgstr "The security group \"{securityGroupName}\" will be permanently deleted. This action cannot be undone."
 
+msgid "The security service could not be loaded. Try again."
+msgstr "The security service could not be loaded. Try again."
+
 msgid "The security services could not be loaded."
 msgstr "The security services could not be loaded."
 
@@ -4823,12 +4862,6 @@ msgstr "The share networks could not be loaded."
 
 msgid "The share snapshot could not be loaded. Try again."
 msgstr "The share snapshot could not be loaded. Try again."
-
-msgid "The shared file system scope is available. The security service details will be added in a follow-up release."
-msgstr "The shared file system scope is available. The security service details will be added in a follow-up release."
-
-msgid "The shared file system scope is available. The security services list will be added in a follow-up release."
-msgstr "The shared file system scope is available. The security services list will be added in a follow-up release."
 
 msgid "The snapshots could not be loaded."
 msgstr "The snapshots could not be loaded."
@@ -5106,6 +5139,9 @@ msgstr "This rule uses Date or ExpiredObjectDeleteMarker expiration. Leave empty
 msgid "This security group is already shared with the specified project."
 msgstr "This security group is already shared with the specified project."
 
+msgid "This security service does not exist or is not accessible in this project."
+msgstr "This security service does not exist or is not accessible in this project."
+
 msgid "This share does not exist or is not accessible in this project."
 msgstr "This share does not exist or is not accessible in this project."
 
@@ -5316,6 +5352,9 @@ msgstr "URL for public access"
 msgid "Used"
 msgstr "Used"
 
+msgid "User"
+msgstr "User"
+
 msgid "User {userId} (any project)"
 msgstr "User {userId} (any project)"
 
@@ -5523,6 +5562,9 @@ msgstr "You do not have the required permissions to view ports in this project."
 msgid "You do not have the required permissions to view routers in this project."
 msgstr "You do not have the required permissions to view routers in this project."
 
+msgid "You do not have the required permissions to view security services in this project."
+msgstr "You do not have the required permissions to view security services in this project."
+
 msgid "You do not have the required permissions to view share networks in this project."
 msgstr "You do not have the required permissions to view share networks in this project."
 
@@ -5609,6 +5651,9 @@ msgstr "You don't have permission to view the snapshots of this share."
 
 msgid "You don't have permission to view this flavor's details."
 msgstr "You don't have permission to view this flavor's details."
+
+msgid "You don't have permission to view this security service."
+msgstr "You don't have permission to view this security service."
 
 msgid "You don't have permission to view this share network."
 msgstr "You don't have permission to view this share network."

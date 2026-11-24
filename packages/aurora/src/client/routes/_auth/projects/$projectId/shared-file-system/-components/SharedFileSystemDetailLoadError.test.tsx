@@ -260,5 +260,92 @@ describe("SharedFileSystemDetailLoadError", () => {
         params: { projectId: "proj-1" },
       })
     })
+
+    it("navigates to security-services when backTarget is 'security-services' (NOT_FOUND)", async () => {
+      const user = userEvent.setup()
+      const error = { data: { code: "NOT_FOUND" } }
+      const onRetry = vi.fn()
+
+      render(
+        <SharedFileSystemDetailLoadError
+          error={error}
+          onRetry={onRetry}
+          notFoundTitle="Security Service Not Found"
+          notFoundDescription="This security service does not exist."
+          forbiddenDescription="Forbidden."
+          errorTitle="Error Loading Security Service"
+          errorDescription="The security service could not be loaded."
+          backTarget="security-services"
+        />,
+        { wrapper: TestWrapper }
+      )
+
+      expect(screen.getByText("Back to Security Services")).toBeInTheDocument()
+      const backButton = screen.getByRole("button", { name: "Back to Security Services" })
+      await user.click(backButton)
+
+      expect(mockNavigate).toHaveBeenCalledWith({
+        to: "/projects/$projectId/shared-file-system/security-services",
+        params: { projectId: "proj-1" },
+      })
+    })
+
+    it("navigates to security-services when backTarget is 'security-services' (UNAUTHORIZED)", async () => {
+      const user = userEvent.setup()
+      const error = { data: { code: "UNAUTHORIZED" } }
+      const onRetry = vi.fn()
+
+      render(
+        <SharedFileSystemDetailLoadError
+          error={error}
+          onRetry={onRetry}
+          notFoundTitle="Security Service Not Found"
+          notFoundDescription="This security service does not exist."
+          forbiddenDescription="Forbidden."
+          errorTitle="Error Loading Security Service"
+          errorDescription="The security service could not be loaded."
+          backTarget="security-services"
+        />,
+        { wrapper: TestWrapper }
+      )
+
+      expect(screen.getByText("Back to Security Services")).toBeInTheDocument()
+      const backButton = screen.getByRole("button", { name: "Back to Security Services" })
+      await user.click(backButton)
+
+      expect(mockNavigate).toHaveBeenCalledWith({
+        to: "/projects/$projectId/shared-file-system/security-services",
+        params: { projectId: "proj-1" },
+      })
+    })
+
+    it("navigates to security-services when backTarget is 'security-services' (generic error)", async () => {
+      const user = userEvent.setup()
+      const error = { data: { code: "INTERNAL_SERVER_ERROR" } }
+      const onRetry = vi.fn()
+
+      render(
+        <SharedFileSystemDetailLoadError
+          error={error}
+          onRetry={onRetry}
+          notFoundTitle="Security Service Not Found"
+          notFoundDescription="This security service does not exist."
+          forbiddenDescription="Forbidden."
+          errorTitle="Error Loading Security Service"
+          errorDescription="The security service could not be loaded."
+          backTarget="security-services"
+        />,
+        { wrapper: TestWrapper }
+      )
+
+      expect(screen.getByText("Back to Security Services")).toBeInTheDocument()
+      const backButton = screen.getByRole("button", { name: "Back to Security Services" })
+      await user.click(backButton)
+
+      expect(mockNavigate).toHaveBeenCalledWith({
+        to: "/projects/$projectId/shared-file-system/security-services",
+        params: { projectId: "proj-1" },
+      })
+    })
   })
 })
