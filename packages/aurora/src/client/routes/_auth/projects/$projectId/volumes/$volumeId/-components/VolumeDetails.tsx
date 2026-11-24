@@ -116,13 +116,13 @@ export function VolumeDetails({ projectId, volumeId }: { projectId: string; volu
         ]}
       />
       {Object.keys(volume.metadata ?? {}).length > 0 && (
-        <section>
+        <Stack direction="vertical" gap="2">
           <h2>{t`Metadata`}</h2>
           <Metadata value={volume.metadata} />
-        </section>
+        </Stack>
       )}
       {(volume.snapshot_id || volume.source_volid) && (
-        <section>
+        <Stack direction="vertical" gap="2">
           <h2>{t`Source`}</h2>
           <TwoColumnDescriptionList
             items={[
@@ -144,10 +144,10 @@ export function VolumeDetails({ projectId, volumeId }: { projectId: string; volu
                 : []),
             ]}
           />
-        </section>
+        </Stack>
       )}
       {hasAttachments && (
-        <section>
+        <Stack direction="vertical" gap="2">
           <h2>{t`Attachments`}</h2>
           <DataGrid columns={4} data-testid="attachments-table">
             <DataGridRow>
@@ -169,10 +169,10 @@ export function VolumeDetails({ projectId, volumeId }: { projectId: string; volu
               </DataGridRow>
             ))}
           </DataGrid>
-        </section>
+        </Stack>
       )}
       {showSnapshots && (
-        <section>
+        <Stack direction="vertical" gap="2">
           <h2>{t`Snapshots of this volume`}</h2>
           {!permissions.canListSnapshots ? (
             <Status
@@ -207,7 +207,7 @@ export function VolumeDetails({ projectId, volumeId }: { projectId: string; volu
               canRead={permissions.canReadSnapshots}
             />
           )}
-        </section>
+        </Stack>
       )}
     </Stack>
   )

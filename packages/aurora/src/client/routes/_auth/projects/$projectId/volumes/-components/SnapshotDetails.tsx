@@ -83,10 +83,10 @@ export function SnapshotDetails({ projectId, snapshotId }: { projectId: string; 
         ]}
       />
       {Object.keys(snapshot.metadata ?? {}).length > 0 && (
-        <section>
+        <Stack direction="vertical" gap="2">
           <h2>{t`Metadata`}</h2>
           <Metadata value={snapshot.metadata} />
-        </section>
+        </Stack>
       )}
     </Stack>
   )
