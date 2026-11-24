@@ -13,14 +13,16 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import type { RouterListItem } from "@/server/Network/types/router"
 import { useProjectId } from "@/client/hooks"
+import ClipboardText from "@/client/components/ClipboardText"
 
 interface RouterTableRowProps {
   router: RouterListItem
 }
 
 /**
- * Col 1: status as plain text. Col 2: name (or ID as fallback).
- * Related entity IDs (networks, subnets) are only shown as a fallback when the name can't be resolved.
+ * Col 1: status as plain text. Col 2: name with the ID shown beneath it as a copy affordance
+ * (ID only, when no name is resolvable). Related entity IDs (networks, subnets) are only shown
+ * as a fallback when the name can't be resolved.
  */
 export const RouterTableRow = ({ router }: RouterTableRowProps) => {
   const { t } = useLingui()
@@ -42,7 +44,16 @@ export const RouterTableRow = ({ router }: RouterTableRowProps) => {
         <StatusLabel value={router.status} />
       </DataGridCell>
       <DataGridCell>
-        <span className="break-all">{router.name || router.id}</span>
+        <Stack direction="vertical" gap="0.5" className="min-w-0">
+          {router.name ? (
+            <>
+              <span className="break-all">{router.name}</span>
+              <ClipboardText text={router.id} className="text-theme-light text-sm" iconVisible="hover" />
+            </>
+          ) : (
+            <ClipboardText text={router.id} iconVisible="hover" />
+          )}
+        </Stack>
       </DataGridCell>
       <DataGridCell>
         {gateway ? <span className="break-all">{gateway.network_name || gateway.network_id}</span> : "- -"}

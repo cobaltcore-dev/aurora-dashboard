@@ -156,15 +156,19 @@ describe("NetworkPortsTable", () => {
     expect(row2.getAllByText("Down")).toHaveLength(2)
   })
 
-  it("renders fixed IPs with subnet IDs", () => {
+  it("renders fixed IPs with subnet IDs stacked beneath, each with a copy affordance", () => {
     renderTable()
 
     const row1 = within(screen.getByTestId("network-port-row-port-1"))
     expect(row1.getByText("10.0.0.5")).toBeInTheDocument()
+    // subnet_id rendered as a copyable ID line below the IP
+    expect(row1.getByRole("button", { name: /copy subnet-v4 to clipboard/i })).toBeInTheDocument()
 
     const row2 = within(screen.getByTestId("network-port-row-port-2"))
     expect(row2.getByText("10.0.0.1")).toBeInTheDocument()
     expect(row2.getByText("fd00::1")).toBeInTheDocument()
+    expect(row2.getByRole("button", { name: /copy subnet-v4 to clipboard/i })).toBeInTheDocument()
+    expect(row2.getByRole("button", { name: /copy subnet-v6 to clipboard/i })).toBeInTheDocument()
   })
 
   it("renders '- -' when fixed IPs are empty", () => {

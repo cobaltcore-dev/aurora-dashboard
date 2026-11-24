@@ -186,12 +186,6 @@ msgstr "{errorCount} item(s) could not be deleted"
 msgid "{filteredCount, plural, one {{filteredCount} of {totalCount} container} other {{filteredCount} of {totalCount} containers}}"
 msgstr "{filteredCount, plural, one {{filteredCount} of {totalCount} container} other {{filteredCount} of {totalCount} containers}}"
 
-msgid "{matchingCount} networks"
-msgstr "{matchingCount} networks"
-
-msgid "{matchingCount} of {totalCount} networks"
-msgstr "{matchingCount} of {totalCount} networks"
-
 msgid "{name} (this group)"
 msgstr "{name} (this group)"
 
@@ -2259,6 +2253,9 @@ msgstr "Fixed IP Address"
 msgid "Fixed IPs"
 msgstr "Fixed IPs"
 
+msgid "Fixed IPs / Ports"
+msgstr "Fixed IPs / Ports"
+
 msgid "Flavor"
 msgstr "Flavor"
 
@@ -4247,6 +4244,21 @@ msgstr "Show more info about secret types"
 
 msgid "Showing {filteredCount} of {totalCount} {itemName}"
 msgstr "Showing {filteredCount} of {totalCount} {itemName}"
+
+msgid "Showing {matchingCount} networks"
+msgstr "Showing {matchingCount} networks"
+
+msgid "Showing {matchingCount} of {totalCount} networks"
+msgstr "Showing {matchingCount} of {totalCount} networks"
+
+msgid "Showing {matchingCount} of {totalCount} ports"
+msgstr "Showing {matchingCount} of {totalCount} ports"
+
+msgid "Showing {matchingCount} ports"
+msgstr "Showing {matchingCount} ports"
+
+msgid "Showing {routerCount} routers"
+msgstr "Showing {routerCount} routers"
 
 msgid "Showing {totalCount} containers"
 msgstr "Showing {totalCount} containers"

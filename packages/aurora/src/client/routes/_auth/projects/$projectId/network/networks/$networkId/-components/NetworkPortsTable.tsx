@@ -75,18 +75,18 @@ export function NetworkPortsTable({
         ports.map((port) => (
           <DataGridRow key={port.id} data-testid={`network-port-row-${port.id}`}>
             <DataGridCell>
-              <ClipboardText text={port.id} truncateAt={13} />
+              <ClipboardText text={port.id} iconVisible="hover" />
             </DataGridCell>
             <DataGridCell>{port.status.charAt(0) + port.status.slice(1).toLowerCase()}</DataGridCell>
             <DataGridCell>{port.admin_state_up ? t`Up` : t`Down`}</DataGridCell>
             <DataGridCell>
               {port.fixed_ips.length > 0 ? (
-                <Stack direction="vertical" gap="0.5">
+                <Stack direction="vertical" gap="2">
                   {port.fixed_ips.map((ip) => (
-                    <span key={`${ip.ip_address}-${ip.subnet_id}`} className="break-all">
-                      {ip.ip_address}
-                      <span className="text-theme-light text-sm"> ({ip.subnet_id})</span>
-                    </span>
+                    <Stack key={`${ip.ip_address}-${ip.subnet_id}`} direction="vertical" gap="0.5" className="min-w-0">
+                      <span className="break-all">{ip.ip_address}</span>
+                      <ClipboardText text={ip.subnet_id} className="text-theme-light text-sm" iconVisible="hover" />
+                    </Stack>
                   ))}
                 </Stack>
               ) : (
@@ -99,18 +99,18 @@ export function NetworkPortsTable({
               {port.device_id ? (
                 port.device_owner === "network:router_interface" && routersAvailable ? (
                   // Copy affordance sits beside the link, not inside the anchor (I12)
-                  <Stack direction="horizontal" gap="1" className="min-w-0 items-center">
+                  <Stack direction="horizontal" gap="1" className="group min-w-0 items-center">
                     <Link
                       to="/projects/$projectId/network/routers/$routerId"
                       params={{ projectId, routerId: port.device_id }}
-                      className="text-theme-link hover:text-theme-default"
+                      className="text-theme-link hover:text-theme-default break-all"
                     >
-                      {port.device_id.length > 13 ? `${port.device_id.slice(0, 13)}...` : port.device_id}
+                      {port.device_id}
                     </Link>
-                    <ClipboardText text={port.device_id} iconOnly />
+                    <ClipboardText text={port.device_id} iconOnly iconVisible="hover" />
                   </Stack>
                 ) : (
-                  <ClipboardText text={port.device_id} truncateAt={13} />
+                  <ClipboardText text={port.device_id} iconVisible="hover" />
                 )
               ) : (
                 "- -"
