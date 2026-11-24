@@ -40,6 +40,7 @@ const h = vi.hoisted(() => ({
   error: null as unknown,
   snapshotError: null as unknown,
   snapshotPending: false,
+  snapshotFetching: false,
   serverList: vi.fn(),
   serverPermissions: vi.fn(),
   writeText: vi.fn(),
@@ -111,7 +112,7 @@ vi.mock("@/client/trpcClient", () => ({
             error: h.snapshotError,
             refetch: h.refetch,
             dataUpdatedAt: Date.now(),
-            isFetching: false,
+            isFetching: h.snapshotFetching,
           }
         },
       },
@@ -187,6 +188,7 @@ beforeEach(() => {
   h.error = null
   h.snapshotError = null
   h.snapshotPending = false
+  h.snapshotFetching = false
   h.pending = false
   h.volumes = [
     volumeSchema.parse({
@@ -496,16 +498,59 @@ describe("block storage details and links", () => {
     expect(screen.getByTestId("snapshots-table")).toBeInTheDocument()
   })
 
-  it("keeps snapshot loading feedback until an empty result is confirmed", () => {
+  it("does not flash optional sections before an empty snapshot result is confirmed", () => {
     h.volume = volumeSchema.parse({ id: volumeId, attachments: [] })
     h.snapshots = []
     h.snapshotPending = true
     const view = render(<VolumeDetails projectId="project-1" volumeId={volumeId} />, { wrapper })
-    expect(screen.getByText("Loading Snapshots...")).toBeInTheDocument()
+    expect(screen.getByText("Loading Volume Details...")).toBeInTheDocument()
+    expect(screen.queryByTestId("volume-detail")).not.toBeInTheDocument()
+    expect(screen.queryByText("Snapshots of this volume")).not.toBeInTheDocument()
     h.snapshotPending = false
     view.rerender(<VolumeDetails projectId="project-1" volumeId={volumeId} />)
-    expect(screen.queryByText("Loading Snapshots...")).not.toBeInTheDocument()
+    expect(screen.queryByText("Loading Volume Details...")).not.toBeInTheDocument()
+    expect(screen.getByTestId("volume-detail")).toBeInTheDocument()
     expect(screen.queryByText("Snapshots of this volume")).not.toBeInTheDocument()
+  })
+
+  it("reveals populated relationships together after snapshots finish loading", () => {
+    h.snapshotPending = true
+    const view = render(<VolumeDetails projectId="project-1" volumeId={volumeId} />, { wrapper })
+    expect(screen.getByText("Loading Volume Details...")).toBeInTheDocument()
+    expect(screen.queryByText("Attachments")).not.toBeInTheDocument()
+    expect(screen.queryByText("Snapshots of this volume")).not.toBeInTheDocument()
+    h.snapshotPending = false
+    view.rerender(<VolumeDetails projectId="project-1" volumeId={volumeId} />)
+    expect(screen.getByTestId("attachments-table")).toBeInTheDocument()
+    expect(screen.getByTestId("snapshots-table")).toBeInTheDocument()
+  })
+
+  it("keeps the detail layout mounted during background snapshot refetches", () => {
+    const view = render(<VolumeDetails projectId="project-1" volumeId={volumeId} />, { wrapper })
+    const detail = screen.getByTestId("volume-detail")
+    const table = screen.getByTestId("snapshots-table")
+    h.snapshotFetching = true
+    view.rerender(<VolumeDetails projectId="project-1" volumeId={volumeId} />)
+    expect(screen.getByTestId("volume-detail")).toBe(detail)
+    expect(screen.getByTestId("snapshots-table")).toBe(table)
+    expect(screen.queryByText("Loading Volume Details...")).not.toBeInTheDocument()
+  })
+
+  it("does not wait for a disabled snapshot query when list permission is denied", () => {
+    h.permissions = [true, true, false, false]
+    h.snapshotPending = true
+    render(<VolumeDetails projectId="project-1" volumeId={volumeId} />, { wrapper })
+    expect(screen.getByTestId("volume-detail")).toBeInTheDocument()
+    expect(screen.getByText("Access Denied")).toBeInTheDocument()
+    expect(screen.queryByText("Loading Volume Details...")).not.toBeInTheDocument()
+  })
+
+  it("shows volume errors without waiting for snapshots", () => {
+    h.error = { data: { code: "NOT_FOUND" } }
+    h.snapshotPending = true
+    render(<VolumeDetails projectId="project-1" volumeId={volumeId} />, { wrapper })
+    expect(screen.getByText("Resource Not Accessible")).toBeInTheDocument()
+    expect(screen.queryByText("Loading Volume Details...")).not.toBeInTheDocument()
   })
 
   it.each(["FORBIDDEN", "UNAUTHORIZED", "INTERNAL_SERVER_ERROR"])(

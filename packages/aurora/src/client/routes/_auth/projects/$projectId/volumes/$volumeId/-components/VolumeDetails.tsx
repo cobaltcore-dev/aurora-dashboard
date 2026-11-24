@@ -33,7 +33,7 @@ export function VolumeDetails({ projectId, volumeId }: { projectId: string; volu
       refetchOnReconnect: false,
     }
   )
-  // Loaded once on detail mount, independently of attachments and metadata.
+  // Resolve optional relationships before revealing the initial detail layout.
   const snapshotsQuery = trpcReact.volume.listSnapshots.useQuery(
     { project_id: projectId, volumeId },
     {
@@ -82,15 +82,18 @@ export function VolumeDetails({ projectId, volumeId }: { projectId: string; volu
       </Stack>
     )
 
+  // A pending collection is not yet known to be empty. Keep one loading state
+  // rather than briefly mounting a section that disappears when it resolves.
+  // Background refetches retain data and do not return to the pending state.
+  if (permissions.canListSnapshots && snapshotsQuery.isPending)
+    return <Status status="progress" title={t`Loading Volume Details...`} />
+
   const boolean = (value: boolean | null | undefined) => (value == null ? "- -" : value ? t`Yes` : t`No`)
   const attachments = volume.attachments ?? []
   const hasAttachments = attachments.length > 0
   // Only a successful empty response proves there are no snapshots.
   const showSnapshots =
-    !permissions.canListSnapshots ||
-    snapshotsQuery.isPending ||
-    Boolean(snapshotsQuery.error) ||
-    Boolean(snapshotsQuery.data?.length)
+    !permissions.canListSnapshots || Boolean(snapshotsQuery.error) || Boolean(snapshotsQuery.data?.length)
   return (
     <Stack direction="vertical" gap="6" data-testid="volume-detail">
       <ContentHeader title={volume.name || volume.id} projectId={projectId} />
@@ -180,8 +183,6 @@ export function VolumeDetails({ projectId, volumeId }: { projectId: string; volu
               title={t`Access Denied`}
               body={t`You don't have permission to view snapshots in this project.`}
             />
-          ) : snapshotsQuery.isPending ? (
-            <Status status="progress" title={t`Loading Snapshots...`} />
           ) : snapshotsQuery.error?.data?.code === "FORBIDDEN" ? (
             <Status
               status="error"
