@@ -4,8 +4,21 @@ import { useEffect, useRef, useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
-import { Modal, Stack, Status, Checkbox, Form, FormSection, TextInput } from "@cloudoperators/juno-ui-components"
+import {
+  Modal,
+  Stack,
+  Status,
+  Checkbox,
+  Form,
+  FormSection,
+  TextInput,
+  DescriptionList,
+  DescriptionTerm,
+  DescriptionDefinition,
+} from "@cloudoperators/juno-ui-components"
 import { useParams } from "@tanstack/react-router"
+import { formatBytesBinary } from "@/client/utils/formatBytes"
+import { formatSwiftDate } from "@/client/utils/formatSwiftDate"
 import { ObjectRow } from "./"
 
 export type DeleteObjectVariant = "delete"
@@ -122,7 +135,7 @@ export const DeleteObjectModal = ({ isOpen, object, onClose, onSuccess, onError 
       confirmButtonVariant="primary-danger"
       onConfirm={form.handleSubmit}
       cancelButtonLabel={t`Cancel`}
-      size="small"
+      size="large"
       disableConfirmButton={isLoading || isPending || !!metadataError || canDelete}
     >
       {isPending ? (
@@ -134,11 +147,38 @@ export const DeleteObjectModal = ({ isOpen, object, onClose, onSuccess, onError 
       ) : (
         <Stack direction="vertical" gap="4">
           <p className="text-theme-default">
-            <Trans>
-              Object <span className="font-semibold">"{displayName}"</span> will be permanently deleted. This cannot be
-              undone.
-            </Trans>
+            <Trans>This object will be permanently deleted. This cannot be undone.</Trans>
           </p>
+          <DescriptionList>
+            <DescriptionTerm>
+              <Trans>Object</Trans>
+            </DescriptionTerm>
+            <DescriptionDefinition>{displayName}</DescriptionDefinition>
+            <DescriptionTerm>
+              <Trans>Content type</Trans>
+            </DescriptionTerm>
+            <DescriptionDefinition>{metadata?.contentType ?? "- -"}</DescriptionDefinition>
+            <DescriptionTerm>
+              <Trans>MD5 checksum</Trans>
+            </DescriptionTerm>
+            <DescriptionDefinition className="break-all">{metadata?.etag ?? "- -"}</DescriptionDefinition>
+            <DescriptionTerm>
+              <Trans>Size</Trans>
+            </DescriptionTerm>
+            <DescriptionDefinition>
+              {metadata?.contentLength != null ? formatBytesBinary(metadata.contentLength) : "- -"}
+            </DescriptionDefinition>
+            <DescriptionTerm>
+              <Trans>Last modified</Trans>
+            </DescriptionTerm>
+            <DescriptionDefinition>
+              {metadata?.lastModified
+                ? (formatSwiftDate(metadata.lastModified) ?? "- -")
+                : object.last_modified
+                  ? (formatSwiftDate(object.last_modified) ?? "- -")
+                  : "- -"}
+            </DescriptionDefinition>
+          </DescriptionList>
           {isSLO && (
             <>
               <p className="text-theme-default">

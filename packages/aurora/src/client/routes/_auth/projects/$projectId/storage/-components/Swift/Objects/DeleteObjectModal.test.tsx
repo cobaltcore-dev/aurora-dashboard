@@ -184,9 +184,9 @@ describe("DeleteObjectModal", () => {
       expect(screen.getByRole("heading", { name: /Delete Object/i })).toBeInTheDocument()
     })
 
-    it("shows the object display name in the body", () => {
+    it("shows the object display name in the description list", () => {
       renderModal()
-      expect(screen.getByText('"report.pdf"')).toBeInTheDocument()
+      expect(screen.getByText("report.pdf")).toBeInTheDocument()
     })
 
     it("shows plain text warning about permanent deletion", () => {

@@ -3357,9 +3357,6 @@ msgstr ""
 msgid "Object \"{objectName}\" was permanently deleted."
 msgstr "Objekt \"{objectName}\" wurde dauerhaft gelöscht."
 
-msgid "Object <0>\"{displayName}\"</0> will be permanently deleted. This cannot be undone."
-msgstr "Objekt <0>\"{displayName}\"</0> wird dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden."
-
 msgid "Object Copied"
 msgstr "Objekt kopiert"
 
@@ -4918,6 +4915,9 @@ msgid "This object and all its versions will be permanently deleted and cannot b
 msgstr ""
 
 msgid "This object storage service does not exist or is not available for this project."
+msgstr ""
+
+msgid "This object will be permanently deleted. This cannot be undone."
 msgstr ""
 
 msgid "This order is still being processed. Deleting it now may leave an orphaned resource in Barbican."
