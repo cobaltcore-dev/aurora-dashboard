@@ -224,6 +224,20 @@ describe("ScheduleObjectDeletionModal", () => {
     expect(screen.getByText("sample.txt")).toBeInTheDocument()
   })
 
+  test("shows object summary fields in description list", async () => {
+    mockObjectMetadata = makeObjectMetadata({
+      contentType: "image/png",
+      contentLength: 2048,
+      etag: "deadbeef",
+      lastModified: "2026-04-16T13:29:05.000000",
+    })
+    renderModal()
+    await flushEffects()
+    expect(screen.getByText("image/png")).toBeInTheDocument()
+    expect(screen.getByText("deadbeef")).toBeInTheDocument()
+    expect(screen.getByText("2.0 KiB")).toBeInTheDocument()
+  })
+
   // ── Loading & error states ──────────────────────────────────────────────────
 
   test("shows loading spinner while fetching metadata", () => {

@@ -2,9 +2,21 @@ import { useState, useEffect, useRef } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
-import { DateTimePicker, Modal, Stack, Status } from "@cloudoperators/juno-ui-components"
+import {
+  DateTimePicker,
+  DescriptionDefinition,
+  DescriptionList,
+  DescriptionTerm,
+  Modal,
+  Stack,
+  Status,
+} from "@cloudoperators/juno-ui-components"
 import { useParams } from "@tanstack/react-router"
+import { formatBytesBinary } from "@/client/utils/formatBytes"
+import { formatSwiftDate } from "@/client/utils/formatSwiftDate"
 import { ObjectRow } from "./"
+
+const formatDate = (iso: string): string => formatSwiftDate(iso) ?? "- -"
 
 interface ScheduleObjectDeletionModalProps {
   isOpen: boolean
@@ -124,7 +136,7 @@ export const ScheduleObjectDeletionModal = ({
       confirmButtonLabel={isPending ? t`Saving...` : t`Save`}
       onConfirm={handleSubmit}
       cancelButtonLabel={t`Cancel`}
-      size="small"
+      size="large"
       disableConfirmButton={isBusy || !hasChanges}
     >
       {isLoading ? (
@@ -132,10 +144,37 @@ export const ScheduleObjectDeletionModal = ({
       ) : isMetaError ? (
         <Status status="error" title={t`Failed to Load Object Metadata`} body={metadataErrorMessage} className="mt-0" />
       ) : (
-        <Stack direction="vertical" gap="4" className={isPickerOpen ? "min-h-[380px]" : ""}>
-          <p className="text-theme-default">
-            <Trans>Object:</Trans> <span className="font-semibold">{displayName}</span>
-          </p>
+        <Stack direction="vertical" gap="4" className={isPickerOpen ? "min-h-150" : ""}>
+          <DescriptionList>
+            <DescriptionTerm>
+              <Trans>Object</Trans>
+            </DescriptionTerm>
+            <DescriptionDefinition>{displayName}</DescriptionDefinition>
+            <DescriptionTerm>
+              <Trans>Content type</Trans>
+            </DescriptionTerm>
+            <DescriptionDefinition>{metadataRaw?.contentType ?? "- -"}</DescriptionDefinition>
+            <DescriptionTerm>
+              <Trans>MD5 checksum</Trans>
+            </DescriptionTerm>
+            <DescriptionDefinition className="break-all">{metadataRaw?.etag ?? "- -"}</DescriptionDefinition>
+            <DescriptionTerm>
+              <Trans>Size</Trans>
+            </DescriptionTerm>
+            <DescriptionDefinition>
+              {metadataRaw?.contentLength != null ? formatBytesBinary(metadataRaw.contentLength) : "- -"}
+            </DescriptionDefinition>
+            <DescriptionTerm>
+              <Trans>Last modified</Trans>
+            </DescriptionTerm>
+            <DescriptionDefinition>
+              {metadataRaw?.lastModified
+                ? formatDate(metadataRaw.lastModified)
+                : object.last_modified
+                  ? formatDate(object.last_modified)
+                  : "- -"}
+            </DescriptionDefinition>
+          </DescriptionList>
 
           <DateTimePicker
             label={t`Expires at`}
