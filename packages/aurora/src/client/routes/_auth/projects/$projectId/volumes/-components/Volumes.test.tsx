@@ -587,13 +587,10 @@ describe("block storage details and links", () => {
     })
   })
 
-  it("copies the source volume ID, not its display name, in snapshot details", async () => {
+  it("links the source volume without a copy control in snapshot details", () => {
     render(<SnapshotDetails projectId="project-1" snapshotId={snapshotId} />, { wrapper })
-    const button = screen.getByRole("button", { name: `Copy ${volumeId} to clipboard` })
-    expect(button.closest("a")).toBeNull()
-    await act(async () => fireEvent.click(button))
-    expect(h.writeText).toHaveBeenCalledWith(volumeId)
-    expect(h.navigate).not.toHaveBeenCalled()
+    expect(screen.queryByRole("button", { name: `Copy ${volumeId} to clipboard` })).not.toBeInTheDocument()
+    expect(screen.getByText(volumeId)).toBeInTheDocument()
     expect(screen.getByRole("link", { name: "Ubuntu" })).toHaveAttribute(
       "href",
       `/projects/project-1/volumes/${volumeId}`
@@ -614,24 +611,47 @@ describe("block storage details and links", () => {
     expect(h.writeText).toHaveBeenCalledWith(id)
   })
 
-  it("copies server and attachment IDs without navigating", async () => {
+  it("keeps unlinked attachment IDs copyable without navigating", async () => {
     render(<VolumeDetails projectId="project-1" volumeId={volumeId} />, { wrapper })
-    for (const id of [serverId, "attachment-1"]) {
-      const button = screen.getByRole("button", { name: `Copy ${id} to clipboard` })
-      expect(button.closest("a")).toBeNull()
-      await act(async () => fireEvent.click(button))
-      expect(h.writeText).toHaveBeenLastCalledWith(id)
-    }
+    const button = screen.getByRole("button", { name: "Copy attachment-1 to clipboard" })
+    expect(button.closest("a")).toBeNull()
+    await act(async () => fireEvent.click(button))
+    expect(h.writeText).toHaveBeenLastCalledWith("attachment-1")
     expect(h.navigate).not.toHaveBeenCalled()
     expect(screen.getByRole("link", { name: serverId })).toBeInTheDocument()
   })
 
-  it("keeps linked server IDs copyable in details", async () => {
+  it("links server IDs without copy controls in details", () => {
     render(<VolumeDetails projectId="project-1" volumeId={volumeId} />, { wrapper })
-    await act(async () => fireEvent.click(screen.getByRole("button", { name: `Copy ${serverId} to clipboard` })))
-    expect(h.writeText).toHaveBeenCalledWith(serverId)
+    expect(screen.queryByRole("button", { name: `Copy ${serverId} to clipboard` })).not.toBeInTheDocument()
     expect(screen.getByRole("link", { name: serverId })).toBeInTheDocument()
     expect(h.navigate).not.toHaveBeenCalled()
+  })
+
+  it.each(["volume", "snapshot", "instance"] as const)(
+    "never adds a copy control to a linked %s, even when copyable is requested",
+    (resource) => {
+      const id = resource === "volume" ? volumeId : resource === "snapshot" ? snapshotId : serverId
+      render(<ResourceLink resource={resource} id={id} copyable />, { wrapper })
+      expect(screen.getByRole("link", { name: id })).toBeInTheDocument()
+      expect(screen.queryByRole("button", { name: `Copy ${id} to clipboard` })).not.toBeInTheDocument()
+    }
+  )
+
+  it("keeps unlinked server IDs copyable in details", async () => {
+    h.catalog = [{ type: "volumev3", name: "cinderv3" }]
+    render(<VolumeDetails projectId="project-1" volumeId={volumeId} />, { wrapper })
+    expect(screen.queryByRole("link", { name: serverId })).not.toBeInTheDocument()
+    await act(async () => fireEvent.click(screen.getByRole("button", { name: `Copy ${serverId} to clipboard` })))
+    expect(h.writeText).toHaveBeenCalledWith(serverId)
+  })
+
+  it("keeps unresolved source volume IDs copyable in snapshot details", async () => {
+    h.volumes = []
+    render(<SnapshotDetails projectId="project-1" snapshotId={snapshotId} />, { wrapper })
+    expect(screen.queryByRole("link")).not.toBeInTheDocument()
+    await act(async () => fireEvent.click(screen.getByRole("button", { name: `Copy ${volumeId} to clipboard` })))
+    expect(h.writeText).toHaveBeenCalledWith(volumeId)
   })
 
   it.each([undefined, "", volumeId])("shows only the ID for a source volume whose name is %s", (name) => {
