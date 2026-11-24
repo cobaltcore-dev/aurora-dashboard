@@ -1,5 +1,5 @@
 import { Button, ButtonRow, Stack, Container, Status } from "@cloudoperators/juno-ui-components/index"
-import { createFileRoute, redirect, useNavigate, useParams } from "@tanstack/react-router"
+import { createFileRoute, redirect, useCanGoBack, useNavigate, useParams, useRouter } from "@tanstack/react-router"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { getServiceIndex } from "@/server/Authentication/helpers"
@@ -9,19 +9,27 @@ import { InstanceDetailsView } from "./-components/InstanceDetailsView"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import { RouteIdLevelDefaultError } from "@/client/components/Errors/RouteIdLevelDefaultError"
 
-function InstanceErrorComponent() {
-  const { t } = useLingui()
+function useInstanceBack() {
+  const router = useRouter()
+  const canGoBack = useCanGoBack()
   const navigate = useNavigate()
   const { projectId } = Route.useParams()
+
+  return () => {
+    if (canGoBack) router.history.back()
+    else void navigate({ to: "/projects/$projectId/compute/instances", params: { projectId } })
+  }
+}
+
+function InstanceErrorComponent() {
+  const { t } = useLingui()
+  const handleBack = useInstanceBack()
 
   return (
     <RouteIdLevelDefaultError
       action={
-        <Button
-          variant="primary"
-          onClick={() => navigate({ to: "/projects/$projectId/compute/instances", params: { projectId } })}
-        >
-          {t`Back to Instances`}
+        <Button variant="primary" onClick={handleBack}>
+          {t`Back`}
         </Button>
       }
     />
@@ -61,6 +69,7 @@ function RouteComponent() {
   })
   const navigate = useNavigate()
   const { t } = useLingui()
+  const handleBack = useInstanceBack()
 
   // Detail reuses the list payload (one call, no per-instance lookup).
   const {
@@ -78,7 +87,6 @@ function RouteComponent() {
 
   useSetBreadcrumb(Route.id, instanceTitle)
 
-  const handleBack = () => navigate({ to: "/projects/$projectId/compute/instances", params: { projectId } })
   const handleHome = () => navigate({ to: "/projects/$projectId", params: { projectId } })
 
   if (status === "pending") {
