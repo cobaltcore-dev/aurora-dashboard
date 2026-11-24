@@ -48,11 +48,6 @@ Focus review effort on **semantics, structure, and consistency** that no compile
 - [ ] Bulk-action controls or "Create" button rendered without permission check
 - [ ] Nested interactive element in a clickable row without `event.stopPropagation()`
 - [ ] `toast.error` used for a persistent/actionable error (use `<Message>` instead)
-- [ ] `<Message>` variant conflicting with the modal's primary button variant
-- [ ] Modal without `disableCancelButton` / `disableCloseButton` during async operations
-- [ ] Custom `modalFooter` without explicit `disableCloseButton` on the `Modal` itself
-- [ ] Destructive modal without `confirmButtonVariant="primary-danger"`
-- [ ] Destructive modal with alarmist/vague title (`"Danger!"`, `"Are You Sure?"`)
 - [ ] URL-worthy state held in `useState` instead of search params
 - [ ] User-facing string not wrapped in `<Trans>` or `` t`...` `` (skip in `packages/aurora` — enforced by `eslint-plugin-lingui`)
 - [ ] Error element without `role="alert"` and `aria-live="assertive"`
@@ -207,80 +202,11 @@ Use only Juno theme tokens. Do not use raw Tailwind color classes (`text-gray-50
 
 ### B.5 [STANDARD] Modal Structure
 
-All modals **must** follow this skeleton:
-
-```tsx
-<Modal
-  title={t`...`}
-  open={isOpen}
-  size="small" | "large"
-  onCancel={handleClose}
-  onConfirm={handleSubmit}         // omit for info-only modals; use modalFooter instead
-  confirmButtonLabel={...}
-  confirmButtonVariant="primary" | "primary-danger"
-  cancelButtonLabel={t`Cancel`}
-  disableConfirmButton={...}       // disabled while loading or validation fails
-  disableCancelButton={isLoading}
-  disableCloseButton={isLoading}
->
-  <Stack direction="vertical" gap="4">
-    {error && <Message variant="error" text={error} className="mb-4" onDismiss={clearError} />}
-    {/* content */}
-  </Stack>
-</Modal>
-```
-
-- **Titles:** title case, action-oriented. Put the object name in the body, not the title. Use `"Delete Object"` not `"Are You Sure?"`. Reference the affected entity by name/identifier in the body (e.g. body: `"Object 12aB9 will be permanently deleted."`); for multiple items, state the number and type in the body.
-- **Confirm labels:** prefer verb + object type: `"Delete Image"`, `"Stop Instance"`. Verb alone when object type is long.
-- **One primary action:** exactly one `primary` (or `primary-danger`) button, always rightmost — it is what Enter triggers. A `Cancel`/`Close` sits to its left.
-- **Destructive modals:** `confirmButtonVariant="primary-danger"` mandatory. Severity ladder: very low → no modal needed; low → button only (always enabled); mid → checkbox first (confirm enabled after check); high → type a matching phrase first (confirm enabled after match).
-- **No redundant confirmation `Message` inside a modal.** A confirmation or destructive modal should not carry an extra informational `Message` in its body. Operation/validation errors are still allowed and should use `variant="error"`; otherwise, a `Message` variant must match the primary button: `info` ↔ blue `primary`, `danger` ↔ `primary-danger`. Never mix conflicting semantic colors in one modal.
-- **`disableCloseButton` sync:** built-in footer syncs automatically; custom `modalFooter` requires explicit `disableCloseButton` on `<Modal>`. When a decision cannot be cancelled, disable close-X and Cancel together — never leave one enabled to bypass the restriction.
-- **Loading:** render `<Modal open onCancel={...}><Spinner /></Modal>` while loading; pass data to an inner `*Inner` component.
-- **Form modals:** keep the primary/confirm button disabled while any required field is empty or any field fails validation; re-evaluate on change.
-- Never stack modals. Never open a modal without prior user interaction. Never lock the user in — closing via X or Cancel must always be possible (except transient disabled-during-async states above). Do not use modals for Sign-in.
-
-**Reject** any modal missing `disableCancelButton` / `disableCloseButton` during async ops, using a custom `<dialog>`, with a vague title, using `primary-danger` for a non-destructive action, carrying a redundant `Message` in a confirmation/destructive modal, or with a `Message` variant conflicting with the primary button.
+Moved to `docs/guardrails/guardrails.md` → **Modals**. Follow the guardrails there; this section remains only as a reference anchor for links that cite `B.5`.
 
 ### B.6 [STANDARD] Empty / Loading / Error States
 
-```tsx
-// Full-page loading
-<Status status="progress" title={t`Loading…`} />
-
-// Full-page error
-<Container className="py-8">
-  <Status status="error" code={...} title={...} body={...} action={<ButtonRow>...</ButtonRow>} />
-</Container>
-
-// Inline banner error (dismissible)
-<Message variant="error" text={...} className="mb-4" onDismiss={...} />
-
-// Accessible inline error text
-<p className="text-theme-error" role="alert" aria-live="assertive">{error}</p>
-```
-
-- **DataGrid loading / empty / error rows** defer to the `datagrid` skill (its state-row fragments, correctly wrapped in `DataGridRow`; see B.14). The rest of this section covers non-DataGrid states.
-- Use `Status` as the default for any error, loading, or empty state not covered by a more specific pattern. Its `status` prop is a typed union — do not review which values are valid (TypeScript enforces that); review only whether the chosen state fits the situation.
-- Distinguish empty reasons: "no data" → suggest creating; "no filter results" → suggest clearing filters.
-- Scope loading states to the affected component, not the whole page. Prefer the tightest sensible boundary, but do not multiply spinners — one busy indicator per busy scope (e.g. one on the DataGrid, not one per row).
-- Keep tight error boundaries and render as much of the page as possible; never show a blank screen. Always communicate the state and a possible course of action (retry link where feasible).
-
-**Error scope by category:**
-
-| Category                                   | Handling                                                                                                                                     |
-| ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| "Big" errors (500/502/503/504, 404, crash) | Dedicated full-page error view with numeric code, title, description; keep PageHeader/navigation or at least a link home.                    |
-| 401 Unauthenticated                        | Redirect to Sign-in, remember target, redirect back after auth; show an auth error on the Sign-in page.                                      |
-| 403 Unauthorized (page)                    | Error page reflecting the route in breadcrumb + title, SideNav if applicable, plus an **info** `Message` explaining lack of access.          |
-| Component/API render error                 | Feedback scoped to the affected component; render the rest of the page.                                                                      |
-| Operation/CRUD error                       | Non-blocking `Message` with detail; offer retry where feasible; use a toast only when no user action is required; don't block other actions. |
-| Validation error                           | Inline per field (see B.10), or a `Message` at form/section top for cross-field.                                                             |
-| Network/connectivity                       | Clear offline/timeout state with a manual retry option.                                                                                      |
-
-Recommended copy (impersonal, no exclamation): 401 `"Authentication failed. Verify your credentials and try again."`; 403 `"You do not have the required permissions to access this resource."`; 404 `"The requested URL does not exist or may have moved."`; 500 `"An internal error occurred. Try again."`
-
-**Reject** any error element without `role="alert"` and `aria-live="assertive"`, any dismissible `Message` without `onDismiss`, any empty/broken state without explanatory `title`/`body`, a blank/blocking full-page error where a scoped boundary would keep the app usable, or a 401/403 handled inline instead of via redirect / page-level info `Message`.
+Moved to `docs/guardrails/guardrails.md` → **States — Loading, Empty, Error**. Follow the guardrails there; this section remains only as a reference anchor for links that cite `B.6`. (DataGrid loading/empty/error rows remain owned by the `datagrid` skill — see B.14.)
 
 ### B.7 [CRITICAL] Data Fetching
 

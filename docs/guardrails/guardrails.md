@@ -59,6 +59,39 @@ Each rule carries a `[scope: …]` tag marking where its guidance is expected to
 ## Navigation
 
 - `[scope: aurora]` Use Side Navigation as top-level nav (fixed left; max 3 levels; exactly one active item; parent of active child stays expanded; use icons on top level only; labels short Title Case).
+- `[scope: design-system]` For switching between peer content within a view, use the Juno `TabBar` / `TabBarItem` component — never a custom pill or stacked-button pattern.
+- `[scope: aurora]` The Side Navigation keeps a stable width: it must not resize when a filter is applied, and must not shift or break on detail pages. Don't override its width — it's the `SideNavigation` component's own (16rem / 256px).
+
+## States — Loading, Empty, Error
+
+- `[scope: design-system]` Use `Status` as the default for any loading, empty, or error state not covered by a more specific pattern (app / page / section / DataGrid level). DataGrid state rows are owned by the datagrid skill.
+- `[scope: design-system]` Never render nothing: always communicate the state and, where feasible, a course of action (e.g. a retry link).
+- `[scope: design-system]` Distinguish empty reasons: "no data yet" → suggest creating; "no filter/search results" → suggest clearing filters; error → show the error, not an empty state.
+- `[scope: design-system]` Loading: always show activity; scope it to the tightest sensible boundary (one indicator per busy scope — e.g. one on the DataGrid, not one per row); always allow it to time out.
+- `[scope: design-system]` Transient/progress: atomic controls (Button, Select, ComboBox) use their built-in busy state (and disable while busy); views/sections use `Spinner`; use `ProgressBar` only when a batch operation's percentage is expressible.
+- `[scope: aurora]` Handle errors by category:
+
+  | Category                                   | Handling                                                                                                                               |
+  | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+  | "Big" errors (500/502/503/504, 404, crash) | Full-page error view with code, title, description; keep the page header/navigation or at least a link home.                           |
+  | 401 Unauthenticated                        | Redirect to Sign-in, remember the target, return after auth; show an auth error on the Sign-in page.                                   |
+  | 403 Unauthorized (page)                    | Error page reflecting the route (breadcrumb + title), SideNav if applicable, plus an **info** `Message` explaining the lack of access. |
+  | Component/API render error                 | Scope feedback to the affected component; render the rest of the page.                                                                 |
+  | Operation/CRUD error                       | Non-blocking `Message` with detail; offer retry where feasible; use a toast only when no user action is required.                      |
+  | Validation error                           | Inline per field, or a `Message` at form/section top for cross-field.                                                                  |
+  | Network/connectivity                       | Clear offline/timeout state with a manual retry.                                                                                       |
+
+- `[scope: aurora]` Error copy is impersonal and exclamation-free — e.g. 401 "Authentication failed. Verify your credentials and try again."; 403 "You do not have the required permissions to access this resource."; 404 "The requested URL does not exist or may have moved."; 500 "An internal error occurred. Try again."
+
+## Modals
+
+- `[scope: design-system]` Exactly one `primary` (or `primary-danger`) action per modal, always rightmost — it is what Enter triggers; Cancel/Close sits to its left.
+- `[scope: design-system]` Never open a modal without a prior user action; never stack modals; never use a modal for Sign-in.
+- `[scope: design-system]` A modal is always closable (X or Cancel), except transient disabled-during-async states. For an uncancellable decision, disable close-X and Cancel together — never leave one enabled to bypass the restriction.
+- `[scope: design-system]` Destructive confirmation uses `primary-danger`. Severity ladder: very low → no modal; low → button only (always enabled); mid → checkbox first; high → type a matching phrase first.
+- `[scope: design-system]` A confirmation or destructive modal carries no extra informational `Message` in its body. Operation/validation errors may use `variant="error"`; otherwise a `Message` variant must match the primary button (`info` ↔ `primary`, `danger` ↔ `primary-danger`). Never mix conflicting semantic colors in one modal.
+- `[scope: design-system]` While loading, render the modal with a `Spinner`, not empty content. In a form modal, keep the primary button disabled while any required field is empty or invalid; re-evaluate on change. Disable Cancel and Close during async operations (custom footers must set `disableCloseButton` explicitly).
+- `[scope: aurora]` Modal titles state the **action only**, in Title Case — "Edit Description", not "Edit Floating IP 10.237.208.251 Description". Put the affected entity's name/identifier in the body. Don't use vague or alarmist titles ("Are You Sure?", "Danger!").
 
 ## Messages and Notifications
 
