@@ -1,5 +1,6 @@
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { t } from "@lingui/core/macro"
+import { i18n } from "@lingui/core"
 import type { NavigateFn } from "@tanstack/react-router"
 import type { ServiceExtension } from "@/client/AuroraApp"
 import { hasServiceByName } from "@/client/utils/serviceCatalog"
@@ -232,5 +233,11 @@ export function buildNavSections(
     })
   }
 
-  return [...sectionMap.values()].filter((s) => s.services.length > 0)
+  const collator = new Intl.Collator(i18n.locale || undefined, { sensitivity: "base" })
+  const compareLabels = (a: { label: string }, b: { label: string }) => collator.compare(a.label, b.label)
+
+  return [...sectionMap.values()]
+    .filter((s) => s.services.length > 0)
+    .sort(compareLabels)
+    .map((section) => ({ ...section, services: [...section.services].sort(compareLabels) }))
 }

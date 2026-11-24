@@ -39,6 +39,7 @@ const h = vi.hoisted(() => ({
   snapshot: undefined as unknown,
   error: null as unknown,
   snapshotError: null as unknown,
+  snapshotPending: false,
   serverList: vi.fn(),
   serverPermissions: vi.fn(),
   writeText: vi.fn(),
@@ -106,7 +107,7 @@ vi.mock("@/client/trpcClient", () => ({
           h.snapshotList(...args)
           return {
             data: h.snapshots,
-            isPending: h.pending,
+            isPending: h.pending || h.snapshotPending,
             error: h.snapshotError,
             refetch: h.refetch,
             dataUpdatedAt: Date.now(),
@@ -185,6 +186,7 @@ beforeEach(() => {
   h.permissionPending = false
   h.error = null
   h.snapshotError = null
+  h.snapshotPending = false
   h.pending = false
   h.volumes = [
     volumeSchema.parse({
@@ -416,9 +418,119 @@ describe("block storage lists", () => {
 })
 
 describe("block storage details and links", () => {
+  it("shows populated attachments and snapshots together as sections instead of tabs", () => {
+    render(<VolumeDetails projectId="project-1" volumeId={volumeId} />, { wrapper })
+    expect(screen.getByRole("heading", { name: "Attachments", level: 2 })).toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: "Snapshots of this volume", level: 2 })).toBeInTheDocument()
+    expect(screen.getByTestId("attachments-table")).toBeInTheDocument()
+    expect(screen.getByTestId("snapshots-table")).toBeInTheDocument()
+    expect(screen.queryByRole("navigation", { name: "Volume relationships" })).not.toBeInTheDocument()
+  })
+
+  it.each([undefined, null, {}])("hides empty metadata in both detail views (%s)", (metadata) => {
+    h.volume = volumeSchema.parse({ id: volumeId, metadata })
+    h.snapshot = { id: snapshotId, volume_id: volumeId, metadata }
+    const view = render(<VolumeDetails projectId="project-1" volumeId={volumeId} />, { wrapper })
+    expect(screen.queryByRole("heading", { name: "Metadata" })).not.toBeInTheDocument()
+    view.rerender(<SnapshotDetails projectId="project-1" snapshotId={snapshotId} />)
+    expect(screen.queryByRole("heading", { name: "Metadata" })).not.toBeInTheDocument()
+  })
+
+  it("keeps populated metadata in both detail views", () => {
+    const metadata = { purpose: "database" }
+    h.volume = volumeSchema.parse({ id: volumeId, metadata })
+    h.snapshot = { id: snapshotId, volume_id: volumeId, metadata }
+    const view = render(<VolumeDetails projectId="project-1" volumeId={volumeId} />, { wrapper })
+    expect(screen.getByRole("heading", { name: "Metadata" })).toBeInTheDocument()
+    expect(screen.getByText("purpose")).toBeInTheDocument()
+    expect(screen.getByText("database")).toBeInTheDocument()
+    view.rerender(<SnapshotDetails projectId="project-1" snapshotId={snapshotId} />)
+    expect(screen.getByRole("heading", { name: "Metadata" })).toBeInTheDocument()
+    expect(screen.getByText("purpose")).toBeInTheDocument()
+    expect(screen.getByText("database")).toBeInTheDocument()
+  })
+
+  it.each([undefined, null, []])("hides empty attachments and selects populated snapshots (%s)", (attachments) => {
+    h.volume = volumeSchema.parse({ id: volumeId, attachments })
+    render(<VolumeDetails projectId="project-1" volumeId={volumeId} />, { wrapper })
+    expect(screen.queryByText("Attachments")).not.toBeInTheDocument()
+    expect(screen.queryByTestId("attachments-table")).not.toBeInTheDocument()
+    expect(screen.queryByText("No Completed Attachments")).not.toBeInTheDocument()
+    expect(screen.getByTestId("snapshots-table")).toBeInTheDocument()
+  })
+
+  it("hides empty snapshots while keeping populated attachments", () => {
+    h.snapshots = []
+    render(<VolumeDetails projectId="project-1" volumeId={volumeId} />, { wrapper })
+    expect(screen.queryByText("Snapshots of this volume")).not.toBeInTheDocument()
+    expect(screen.queryByTestId("snapshots-table")).not.toBeInTheDocument()
+    expect(screen.getByTestId("attachments-table")).toBeInTheDocument()
+  })
+
+  it("hides relationships entirely when both collections are empty", () => {
+    h.volume = volumeSchema.parse({ id: volumeId, attachments: [] })
+    h.snapshots = []
+    render(<VolumeDetails projectId="project-1" volumeId={volumeId} />, { wrapper })
+    expect(screen.queryByRole("navigation", { name: "Volume relationships" })).not.toBeInTheDocument()
+    expect(screen.queryByText("Attachments")).not.toBeInTheDocument()
+    expect(screen.queryByText("Snapshots of this volume")).not.toBeInTheDocument()
+    expect(screen.queryByText("No Snapshots for This Volume")).not.toBeInTheDocument()
+    expect(screen.getByTestId("volume-detail")).toBeInTheDocument()
+  })
+
+  it("keeps attachments visible when the snapshots collection becomes empty", () => {
+    const view = render(<VolumeDetails projectId="project-1" volumeId={volumeId} />, { wrapper })
+    expect(screen.getByTestId("snapshots-table")).toBeInTheDocument()
+    h.snapshots = []
+    view.rerender(<VolumeDetails projectId="project-1" volumeId={volumeId} />)
+    expect(screen.queryByText("Snapshots of this volume")).not.toBeInTheDocument()
+    expect(screen.getByTestId("attachments-table")).toBeInTheDocument()
+  })
+
+  it("keeps snapshots visible when the attachments collection becomes empty", () => {
+    const view = render(<VolumeDetails projectId="project-1" volumeId={volumeId} />, { wrapper })
+    expect(screen.getByTestId("attachments-table")).toBeInTheDocument()
+    h.volume = volumeSchema.parse({ id: volumeId, attachments: [] })
+    view.rerender(<VolumeDetails projectId="project-1" volumeId={volumeId} />)
+    expect(screen.queryByText("Attachments")).not.toBeInTheDocument()
+    expect(screen.getByTestId("snapshots-table")).toBeInTheDocument()
+  })
+
+  it("keeps snapshot loading feedback until an empty result is confirmed", () => {
+    h.volume = volumeSchema.parse({ id: volumeId, attachments: [] })
+    h.snapshots = []
+    h.snapshotPending = true
+    const view = render(<VolumeDetails projectId="project-1" volumeId={volumeId} />, { wrapper })
+    expect(screen.getByText("Loading Snapshots...")).toBeInTheDocument()
+    h.snapshotPending = false
+    view.rerender(<VolumeDetails projectId="project-1" volumeId={volumeId} />)
+    expect(screen.queryByText("Loading Snapshots...")).not.toBeInTheDocument()
+    expect(screen.queryByText("Snapshots of this volume")).not.toBeInTheDocument()
+  })
+
+  it.each(["FORBIDDEN", "UNAUTHORIZED", "INTERNAL_SERVER_ERROR"])(
+    "keeps snapshot %s feedback even without relationship data",
+    (code) => {
+      h.volume = volumeSchema.parse({ id: volumeId, attachments: [] })
+      h.snapshots = []
+      h.snapshotError = { data: { code } }
+      render(<VolumeDetails projectId="project-1" volumeId={volumeId} />, { wrapper })
+      expect(screen.getByText("Snapshots of this volume")).toBeInTheDocument()
+      expect(
+        screen.getByText(
+          code === "FORBIDDEN"
+            ? "Access Denied"
+            : code === "UNAUTHORIZED"
+              ? "Session Expired"
+              : "Failed to Load Snapshots"
+        )
+      ).toBeInTheDocument()
+      expect(screen.getByTestId("volume-detail")).toBeInTheDocument()
+    }
+  )
+
   it("opens snapshots through the full row in volume details without name links or copy controls", () => {
     render(<VolumeDetails projectId="project-1" volumeId={volumeId} />, { wrapper })
-    fireEvent.click(screen.getByText("Snapshots of this volume"))
     const table = screen.getByTestId("snapshots-table")
     const name = within(table).getByText("Saved state")
     expect(within(table).queryByRole("link", { name: "Saved state" })).not.toBeInTheDocument()
@@ -546,7 +658,6 @@ describe("block storage details and links", () => {
   it("isolates snapshot-section errors from volume metadata", () => {
     h.snapshotError = { data: { code: "INTERNAL_SERVER_ERROR" } }
     render(<VolumeDetails projectId="project-1" volumeId={volumeId} />, { wrapper })
-    fireEvent.click(screen.getByText("Snapshots of this volume"))
     expect(screen.getByRole("heading", { name: "Ubuntu" })).toBeInTheDocument()
     expect(screen.getByText("Failed to Load Snapshots")).toBeInTheDocument()
     fireEvent.click(screen.getByText("Try again"))
@@ -558,7 +669,6 @@ describe("block storage details and links", () => {
     render(<VolumeDetails projectId="project-1" volumeId={volumeId} />, { wrapper })
     expect(screen.getByTestId("volume-detail")).toBeInTheDocument()
     expect(h.snapshotList).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ enabled: false }))
-    fireEvent.click(screen.getByText("Snapshots of this volume"))
     expect(screen.getByText("Access Denied")).toBeInTheDocument()
   })
 

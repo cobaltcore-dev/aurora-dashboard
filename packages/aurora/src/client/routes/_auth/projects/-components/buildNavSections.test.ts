@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeAll } from "vitest"
 import { i18n } from "@lingui/core"
+import { msg } from "@lingui/core/macro"
 import { buildNavSections } from "./buildNavSections"
 import type { ServiceExtension } from "@/client/AuroraApp"
 
@@ -24,6 +25,72 @@ const CUSTOM_SERVICE: ServiceExtension = {
 }
 
 describe("buildNavSections", () => {
+  it("sorts all groups alphabetically, including Authorization and Services", () => {
+    const sections = buildNavSections(
+      "proj-1",
+      [...ALL_SERVICES, { type: "key-manager", name: "barbican" }, { type: "custom-service", name: "custom-provider" }],
+      undefined,
+      [CUSTOM_SERVICE]
+    )
+    expect(sections.map((section) => section.label)).toEqual([
+      "Authorization",
+      "Compute",
+      "Network",
+      "Services",
+      "Storage",
+    ])
+  })
+
+  it("sorts extension items by label rather than registration order or service type", () => {
+    const extensions = [
+      { ...CUSTOM_SERVICE, serviceType: "a-service", label: "Zulu" },
+      { ...CUSTOM_SERVICE, serviceType: "z-service", label: "alpha" },
+      { ...CUSTOM_SERVICE, serviceType: "m-service", label: "Bravo" },
+    ]
+    const catalog = extensions.map((extension) => ({ type: extension.serviceType, name: extension.serviceName }))
+    const sections = buildNavSections("proj-1", catalog, undefined, extensions)
+    expect(sections[0].services.map((service) => service.label)).toEqual(["alpha", "Bravo", "Zulu"])
+    expect(extensions.map((extension) => extension.label)).toEqual(["Zulu", "alpha", "Bravo"])
+  })
+
+  it("sorts translated labels instead of English labels or section IDs", () => {
+    i18n.load("de", {
+      [msg`Compute`.id]: "Z-Rechnen",
+      [msg`Network`.id]: "A-Netzwerk",
+      [msg`Storage`.id]: "B-Speicher",
+      [msg`Flavors`.id]: "Z-Varianten",
+      [msg`Images`.id]: "A-Abbilder",
+      [msg`Instances`.id]: "M-Instanzen",
+    })
+    i18n.activate("de")
+    try {
+      const sections = buildNavSections("proj-1", ALL_SERVICES)
+      expect(sections.map((section) => section.section)).toEqual(["network", "storage", "compute"])
+      expect(
+        sections.find((section) => section.section === "compute")?.services.map((service) => service.service)
+      ).toEqual(["images", "instances", "flavors"])
+    } finally {
+      i18n.activate("en")
+    }
+  })
+
+  it("uses the active locale for accented extension labels", () => {
+    i18n.load("sv", {})
+    i18n.activate("sv")
+    try {
+      const extensions = ["Örebro", "Älmhult", "Åre", "Zebra"].map((label, index) => ({
+        ...CUSTOM_SERVICE,
+        serviceType: `service-${index}`,
+        label,
+      }))
+      const catalog = extensions.map((extension) => ({ type: extension.serviceType, name: extension.serviceName }))
+      const sections = buildNavSections("proj-1", catalog, undefined, extensions)
+      expect(sections[0].services.map((service) => service.label)).toEqual(["Zebra", "Åre", "Älmhult", "Örebro"])
+    } finally {
+      i18n.activate("en")
+    }
+  })
+
   it("groups volumes under Storage and gates them by catalog, capability, and configuration", () => {
     const services = [...ALL_SERVICES, { type: "volumev3", name: "cinderv3" }]
     const navServices = (sections: ReturnType<typeof buildNavSections>) =>
@@ -32,7 +99,7 @@ describe("buildNavSections", () => {
     const sections = buildNavSections("proj-1", services, undefined, undefined, undefined, true)
     expect(
       sections.find((section) => section.section === "storage")?.services.map((service) => service.service)
-    ).toEqual(["containers", "ceph-containers", "volumes"])
+    ).toEqual(["ceph-containers", "containers", "volumes"])
     expect(sections.some((section) => section.section === "block-storage")).toBe(false)
     expect(navServices(buildNavSections("proj-1", services, undefined, undefined, ["volumes"], true))).not.toContain(
       "volumes"
@@ -69,15 +136,15 @@ describe("buildNavSections", () => {
     const sections = buildNavSections("proj-1", ALL_SERVICES)
 
     const compute = sections.find((s) => s.section === "compute")
-    expect(compute?.services.map((s) => s.service)).toEqual(["images", "flavors", "instances"])
+    expect(compute?.services.map((s) => s.service)).toEqual(["flavors", "images", "instances"])
 
     const network = sections.find((s) => s.section === "network")
     expect(network?.services.map((s) => s.service)).toEqual([
-      "networks",
-      "securitygroups",
       "floatingips",
-      "routers",
+      "networks",
       "ports",
+      "routers",
+      "securitygroups",
     ])
 
     const storage = sections.find((s) => s.section === "storage")
@@ -121,7 +188,7 @@ describe("buildNavSections", () => {
   it("respects enabledServices filter for routers", () => {
     const sections = buildNavSections("proj-1", ALL_SERVICES, ["securitygroups", "floatingips"])
     const network = sections.find((s) => s.section === "network")
-    expect(network?.services.map((s) => s.service)).toEqual(["securitygroups", "floatingips"])
+    expect(network?.services.map((s) => s.service)).toEqual(["floatingips", "securitygroups"])
   })
 
   it("shows only routers in the network section when it is the only enabled network service", () => {
@@ -147,7 +214,7 @@ describe("buildNavSections", () => {
   it("respects enabledServices filter for ports", () => {
     const sections = buildNavSections("proj-1", ALL_SERVICES, ["securitygroups", "floatingips", "routers"])
     const network = sections.find((s) => s.section === "network")
-    expect(network?.services.map((s) => s.service)).toEqual(["securitygroups", "floatingips", "routers"])
+    expect(network?.services.map((s) => s.service)).toEqual(["floatingips", "routers", "securitygroups"])
   })
 
   it("shows only ports in the network section when it is the only enabled network service", () => {
@@ -201,7 +268,7 @@ describe("buildNavSections", () => {
     it("hides a service via deniedServices alone, with no allow/enabled list (deny-only)", () => {
       const sections = buildNavSections("proj-1", ALL_SERVICES, undefined, undefined, ["floatingips"])
       const network = sections.find((s) => s.section === "network")
-      expect(network?.services.map((s) => s.service)).toEqual(["networks", "securitygroups", "routers", "ports"])
+      expect(network?.services.map((s) => s.service)).toEqual(["networks", "ports", "routers", "securitygroups"])
     })
 
     it("deny wins over an explicit enabledServices entry", () => {

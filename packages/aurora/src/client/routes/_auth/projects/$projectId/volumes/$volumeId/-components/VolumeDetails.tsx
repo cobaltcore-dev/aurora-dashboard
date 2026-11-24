@@ -1,4 +1,3 @@
-import { useState } from "react"
 import {
   Button,
   DataGrid,
@@ -7,8 +6,6 @@ import {
   DataGridCell,
   Stack,
   Status,
-  TabBar,
-  TabBarItem,
 } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
@@ -27,7 +24,6 @@ import { formatCinderDate } from "../../-utils/list"
 
 export function VolumeDetails({ projectId, volumeId }: { projectId: string; volumeId: string }) {
   const { t, i18n } = useLingui()
-  const [tab, setTab] = useState("attachments")
   const permissions = useVolumePermissions(projectId)
   const volumeQuery = trpcReact.volume.getVolumeById.useQuery(
     { project_id: projectId, volumeId },
@@ -37,7 +33,7 @@ export function VolumeDetails({ projectId, volumeId }: { projectId: string; volu
       refetchOnReconnect: false,
     }
   )
-  // Loaded once on detail mount, independent of the currently visible sub-table.
+  // Loaded once on detail mount, independently of attachments and metadata.
   const snapshotsQuery = trpcReact.volume.listSnapshots.useQuery(
     { project_id: projectId, volumeId },
     {
@@ -88,6 +84,13 @@ export function VolumeDetails({ projectId, volumeId }: { projectId: string; volu
 
   const boolean = (value: boolean | null | undefined) => (value == null ? "- -" : value ? t`Yes` : t`No`)
   const attachments = volume.attachments ?? []
+  const hasAttachments = attachments.length > 0
+  // Only a successful empty response proves there are no snapshots.
+  const showSnapshots =
+    !permissions.canListSnapshots ||
+    snapshotsQuery.isPending ||
+    Boolean(snapshotsQuery.error) ||
+    Boolean(snapshotsQuery.data?.length)
   return (
     <Stack direction="vertical" gap="6" data-testid="volume-detail">
       <ContentHeader title={volume.name || volume.id} projectId={projectId} />
@@ -112,13 +115,15 @@ export function VolumeDetails({ projectId, volumeId }: { projectId: string; volu
           { label: t`Updated`, value: formatCinderDate(volume.updated_at, i18n.locale) },
         ]}
       />
-      <section>
-        <h2 className="mb-3 text-lg font-semibold">{t`Metadata`}</h2>
-        <Metadata value={volume.metadata} />
-      </section>
+      {Object.keys(volume.metadata ?? {}).length > 0 && (
+        <section>
+          <h2>{t`Metadata`}</h2>
+          <Metadata value={volume.metadata} />
+        </section>
+      )}
       {(volume.snapshot_id || volume.source_volid) && (
         <section>
-          <h2 className="mb-3 text-lg font-semibold">{t`Source`}</h2>
+          <h2>{t`Source`}</h2>
           <TwoColumnDescriptionList
             items={[
               ...(volume.snapshot_id
@@ -141,26 +146,9 @@ export function VolumeDetails({ projectId, volumeId }: { projectId: string; volu
           />
         </section>
       )}
-      <TabBar
-        ariaLabel={t`Volume relationships`}
-        activeItem={tab}
-        onActiveItemChange={(value) => setTab(String(value))}
-      >
-        <TabBarItem label={t`Attachments`} value="attachments" />
-        <TabBarItem label={t`Snapshots of this volume`} value="snapshots" />
-      </TabBar>
-      {tab === "attachments" ? (
-        attachments.length === 0 ? (
-          <Status
-            status="empty"
-            title={t`No Completed Attachments`}
-            body={
-              volume.status === "available"
-                ? t`Not attached`
-                : t`No completed attachments are reported by Cinder. The volume status may indicate an operation in progress.`
-            }
-          />
-        ) : (
+      {hasAttachments && (
+        <section>
+          <h2>{t`Attachments`}</h2>
           <DataGrid columns={4} data-testid="attachments-table">
             <DataGridRow>
               <DataGridHeadCell>{t`Server ID`}</DataGridHeadCell>
@@ -181,41 +169,45 @@ export function VolumeDetails({ projectId, volumeId }: { projectId: string; volu
               </DataGridRow>
             ))}
           </DataGrid>
-        )
-      ) : !permissions.canListSnapshots ? (
-        <Status
-          status="error"
-          title={t`Access Denied`}
-          body={t`You don't have permission to view snapshots in this project.`}
-        />
-      ) : snapshotsQuery.isPending ? (
-        <Status status="progress" title={t`Loading Snapshots...`} />
-      ) : snapshotsQuery.error?.data?.code === "FORBIDDEN" ? (
-        <Status
-          status="error"
-          title={t`Access Denied`}
-          body={t`You don't have permission to view snapshots in this project.`}
-        />
-      ) : snapshotsQuery.error ? (
-        <Stack direction="vertical">
-          <RouteError
-            error={snapshotsQuery.error}
-            title={
-              snapshotsQuery.error.data?.code === "UNAUTHORIZED" ? t`Session Expired` : t`Failed to Load Snapshots`
-            }
-          />
-          <Button size="xs" label={t`Try again`} onClick={() => void snapshotsQuery.refetch()} />
-        </Stack>
-      ) : !snapshotsQuery.data?.length ? (
-        <Status status="empty" title={t`No Snapshots for This Volume`} body={t`There are no snapshots to display.`} />
-      ) : (
-        <ResourceTable
-          items={snapshotsQuery.data}
-          snapshots
-          compact
-          projectId={projectId}
-          canRead={permissions.canReadSnapshots}
-        />
+        </section>
+      )}
+      {showSnapshots && (
+        <section>
+          <h2>{t`Snapshots of this volume`}</h2>
+          {!permissions.canListSnapshots ? (
+            <Status
+              status="error"
+              title={t`Access Denied`}
+              body={t`You don't have permission to view snapshots in this project.`}
+            />
+          ) : snapshotsQuery.isPending ? (
+            <Status status="progress" title={t`Loading Snapshots...`} />
+          ) : snapshotsQuery.error?.data?.code === "FORBIDDEN" ? (
+            <Status
+              status="error"
+              title={t`Access Denied`}
+              body={t`You don't have permission to view snapshots in this project.`}
+            />
+          ) : snapshotsQuery.error ? (
+            <Stack direction="vertical">
+              <RouteError
+                error={snapshotsQuery.error}
+                title={
+                  snapshotsQuery.error.data?.code === "UNAUTHORIZED" ? t`Session Expired` : t`Failed to Load Snapshots`
+                }
+              />
+              <Button size="xs" label={t`Try again`} onClick={() => void snapshotsQuery.refetch()} />
+            </Stack>
+          ) : (
+            <ResourceTable
+              items={snapshotsQuery.data ?? []}
+              snapshots
+              compact
+              projectId={projectId}
+              canRead={permissions.canReadSnapshots}
+            />
+          )}
+        </section>
       )}
     </Stack>
   )

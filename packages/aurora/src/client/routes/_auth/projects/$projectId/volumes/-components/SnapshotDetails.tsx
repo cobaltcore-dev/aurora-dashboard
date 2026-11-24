@@ -82,10 +82,12 @@ export function SnapshotDetails({ projectId, snapshotId }: { projectId: string; 
           { label: t`Source volume`, value: <SourceVolumeLink id={snapshot.volume_id} copyable /> },
         ]}
       />
-      <section>
-        <h2 className="mb-3 text-lg font-semibold">{t`Metadata`}</h2>
-        <Metadata value={snapshot.metadata} />
-      </section>
+      {Object.keys(snapshot.metadata ?? {}).length > 0 && (
+        <section>
+          <h2>{t`Metadata`}</h2>
+          <Metadata value={snapshot.metadata} />
+        </section>
+      )}
     </Stack>
   )
 }

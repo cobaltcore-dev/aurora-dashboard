@@ -3105,12 +3105,6 @@ msgstr ""
 msgid "No buckets found"
 msgstr ""
 
-msgid "No Completed Attachments"
-msgstr ""
-
-msgid "No completed attachments are reported by Cinder. The volume status may indicate an operation in progress."
-msgstr ""
-
 msgid "No containers found"
 msgstr "Keine Container gefunden"
 
@@ -3282,9 +3276,6 @@ msgstr ""
 msgid "No services available for this project."
 msgstr "Keine Dienste für dieses Projekt verfügbar."
 
-msgid "No Snapshots for This Volume"
-msgstr ""
-
 msgid "No Snapshots in This Project"
 msgstr ""
 
@@ -3323,9 +3314,6 @@ msgstr ""
 
 msgid "None"
 msgstr "Keine"
-
-msgid "Not attached"
-msgstr ""
 
 msgid "Note: for <0>static and dynamic large objects</0> only the manifests are deleted — their segments outside this folder prefix are not affected."
 msgstr "Hinweis: Für <0>statische und dynamische große Objekte</0> werden nur die Manifeste gelöscht — ihre Segmente außerhalb dieses Ordnerpräfixes sind nicht betroffen."
@@ -4752,9 +4740,6 @@ msgstr ""
 msgid "There are no security groups in this project."
 msgstr "In diesem Projekt sind keine Sicherheitsgruppen vorhanden."
 
-msgid "There are no snapshots to display."
-msgstr ""
-
 msgid "These images are already active or you do not have permission to activate them."
 msgstr ""
 
@@ -5236,9 +5221,6 @@ msgid "VM State"
 msgstr ""
 
 msgid "Volume Details"
-msgstr ""
-
-msgid "Volume relationships"
 msgstr ""
 
 msgid "Volume type"

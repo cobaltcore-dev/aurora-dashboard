@@ -99,7 +99,7 @@ export const Route = createFileRoute("/_auth/projects/$projectId")({
 })
 
 function RouteComponent() {
-  const { t } = useLingui()
+  const { t, i18n } = useLingui()
   const loaderData = useLoaderData({ from: Route.id })
   const navigate = Route.useNavigate()
   const { enabledServices, deniedServices, serviceExtensions } = useRouteContext({ strict: false })
@@ -191,7 +191,7 @@ function RouteComponent() {
         deniedServices,
         canListBlockStorage
       ),
-    [projectId, availableServices, enabledServices, serviceExtensions, deniedServices, canListBlockStorage]
+    [projectId, availableServices, enabledServices, serviceExtensions, deniedServices, canListBlockStorage, i18n.locale]
   )
 
   return (
