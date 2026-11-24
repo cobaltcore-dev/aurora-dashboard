@@ -192,6 +192,9 @@ msgstr ""
 msgid "{matchingCount} of {totalCount} networks"
 msgstr ""
 
+msgid "{matchingCount} of {totalCount} share networks"
+msgstr ""
+
 msgid "{matchingCount} of {totalCount} shares"
 msgstr ""
 
@@ -254,6 +257,9 @@ msgstr "{totalCount, plural, one {Bucket leeren} other {Buckets leeren}}"
 
 msgid "{totalCount, plural, one {Empty Container} other {Empty # Containers}}"
 msgstr "{totalCount, plural, one {Container leeren} other {# Container leeren}}"
+
+msgid "{totalCount} share networks"
+msgstr ""
 
 msgid "{totalCount} shares"
 msgstr ""
@@ -716,6 +722,9 @@ msgstr ""
 
 msgid "Back to Security Groups"
 msgstr "Zurück zu Security Groups"
+
+msgid "Back to Share Networks"
+msgstr ""
 
 msgid "Back to Shares"
 msgstr ""
@@ -1827,6 +1836,9 @@ msgstr ""
 msgid "Error Loading Share"
 msgstr ""
 
+msgid "Error Loading Share Network"
+msgstr ""
+
 msgid "Error Loading Share Snapshot"
 msgstr ""
 
@@ -2151,6 +2163,12 @@ msgstr ""
 msgid "Failed to Load Security Groups"
 msgstr ""
 
+msgid "Failed to Load Security Services"
+msgstr ""
+
+msgid "Failed to Load Share Networks"
+msgstr ""
+
 msgid "Failed to Load Shared File System"
 msgstr ""
 
@@ -2413,6 +2431,9 @@ msgid "Full Path"
 msgstr ""
 
 msgid "Full path:"
+msgstr ""
+
+msgid "Gateway"
 msgstr ""
 
 msgid "Gateway IP"
@@ -2874,7 +2895,16 @@ msgstr ""
 msgid "Loading Security Group Details..."
 msgstr "Security Group-Details werden geladen..."
 
+msgid "Loading Security Services..."
+msgstr ""
+
 msgid "Loading Share Details..."
+msgstr ""
+
+msgid "Loading Share Network Details..."
+msgstr ""
+
+msgid "Loading Share Networks..."
 msgstr ""
 
 msgid "Loading Share Snapshot Details..."
@@ -3102,6 +3132,12 @@ msgstr ""
 msgid "Networks"
 msgstr ""
 
+msgid "Neutron Network"
+msgstr ""
+
+msgid "Neutron Subnet"
+msgstr ""
+
 msgid "Never"
 msgstr ""
 
@@ -3188,6 +3224,9 @@ msgstr ""
 
 msgid "No limit"
 msgstr "Kein Limit"
+
+msgid "No Matching Share Networks"
+msgstr ""
 
 msgid "No Matching Shares"
 msgstr ""
@@ -3303,6 +3342,9 @@ msgstr "Keine Sicherheitsgruppen gefunden"
 msgid "No security groups match the current search or filters. Clear the search or filters to view all security groups."
 msgstr "Keine Sicherheitsgruppen entsprechen der aktuellen Suche oder den Filtern. Löschen Sie Suche oder Filter, um alle Sicherheitsgruppen anzuzeigen."
 
+msgid "No Security Services"
+msgstr ""
+
 msgid "No Segmentation Data"
 msgstr ""
 
@@ -3311,6 +3353,15 @@ msgstr ""
 
 msgid "No services available for this project."
 msgstr "Keine Dienste für dieses Projekt verfügbar."
+
+msgid "No Share Networks Found"
+msgstr ""
+
+msgid "No share networks in this project"
+msgstr ""
+
+msgid "No share networks match your search"
+msgstr ""
 
 msgid "No Shares Found"
 msgstr ""
@@ -4272,13 +4323,13 @@ msgstr "Teilen"
 msgid "Share Network"
 msgstr ""
 
-msgid "Share Network Details Coming Soon"
+msgid "Share network detail sections"
+msgstr ""
+
+msgid "Share Network Not Found"
 msgstr ""
 
 msgid "Share Networks"
-msgstr ""
-
-msgid "Share Networks View Coming Soon"
 msgstr ""
 
 msgid "Share Not Found"
@@ -4474,6 +4525,9 @@ msgid "Subnet"
 msgstr "Subnet"
 
 msgid "Subnet Count"
+msgstr ""
+
+msgid "Subnet ID"
 msgstr ""
 
 msgid "Subnet ID:"
@@ -4737,6 +4791,9 @@ msgstr ""
 msgid "The security group \"{securityGroupName}\" will be permanently deleted. This action cannot be undone."
 msgstr "Die Sicherheitsgruppe \"{securityGroupName}\" wird dauerhaft gelöscht. Diese Aktion kann nicht rückgängig gemacht werden."
 
+msgid "The security services could not be loaded."
+msgstr ""
+
 msgid "The selected images will be permanently deleted. This action cannot be undone."
 msgstr ""
 
@@ -4758,6 +4815,12 @@ msgstr ""
 msgid "The share could not be loaded. Try again."
 msgstr ""
 
+msgid "The share network could not be loaded. Try again."
+msgstr ""
+
+msgid "The share networks could not be loaded."
+msgstr ""
+
 msgid "The share snapshot could not be loaded. Try again."
 msgstr ""
 
@@ -4765,12 +4828,6 @@ msgid "The shared file system scope is available. The security service details w
 msgstr ""
 
 msgid "The shared file system scope is available. The security services list will be added in a follow-up release."
-msgstr ""
-
-msgid "The shared file system scope is available. The share network details will be added in a follow-up release."
-msgstr ""
-
-msgid "The shared file system scope is available. The share networks list will be added in a follow-up release."
 msgstr ""
 
 msgid "The snapshots could not be loaded."
@@ -5059,6 +5116,15 @@ msgid "This share has no replicas."
 msgstr ""
 
 msgid "This share has no snapshots."
+msgstr ""
+
+msgid "This share network does not exist or is not accessible in this project."
+msgstr ""
+
+msgid "This share network has no security services."
+msgstr ""
+
+msgid "This share network has no subnets."
 msgstr ""
 
 msgid "This share snapshot does not exist or is not accessible in this project."
@@ -5457,6 +5523,9 @@ msgstr ""
 msgid "You do not have the required permissions to view routers in this project."
 msgstr ""
 
+msgid "You do not have the required permissions to view share networks in this project."
+msgstr ""
+
 msgid "You do not have the required permissions to view shares in this project."
 msgstr ""
 
@@ -5532,11 +5601,17 @@ msgstr ""
 msgid "You don't have permission to view the replicas of this share."
 msgstr ""
 
+msgid "You don't have permission to view the security services of this share network."
+msgstr ""
+
 msgid "You don't have permission to view the snapshots of this share."
 msgstr ""
 
 msgid "You don't have permission to view this flavor's details."
 msgstr "Sie haben keine Berechtigung, die Details dieses Flavors anzuzeigen."
+
+msgid "You don't have permission to view this share network."
+msgstr ""
 
 msgid "You don't have permission to view this share snapshot."
 msgstr ""
@@ -5560,6 +5635,12 @@ msgid "Your session has expired. Sign in again to view export locations."
 msgstr ""
 
 msgid "Your session has expired. Sign in again to view replicas."
+msgstr ""
+
+msgid "Your session has expired. Sign in again to view security services."
+msgstr ""
+
+msgid "Your session has expired. Sign in again to view share networks."
 msgstr ""
 
 msgid "Your session has expired. Sign in again to view shares."

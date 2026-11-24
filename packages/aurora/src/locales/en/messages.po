@@ -192,6 +192,9 @@ msgstr "{matchingCount} networks"
 msgid "{matchingCount} of {totalCount} networks"
 msgstr "{matchingCount} of {totalCount} networks"
 
+msgid "{matchingCount} of {totalCount} share networks"
+msgstr "{matchingCount} of {totalCount} share networks"
+
 msgid "{matchingCount} of {totalCount} shares"
 msgstr "{matchingCount} of {totalCount} shares"
 
@@ -254,6 +257,9 @@ msgstr "{totalCount, plural, one {Empty Bucket} other {Empty Buckets}}"
 
 msgid "{totalCount, plural, one {Empty Container} other {Empty # Containers}}"
 msgstr "{totalCount, plural, one {Empty Container} other {Empty # Containers}}"
+
+msgid "{totalCount} share networks"
+msgstr "{totalCount} share networks"
 
 msgid "{totalCount} shares"
 msgstr "{totalCount} shares"
@@ -716,6 +722,9 @@ msgstr "Back to Routers"
 
 msgid "Back to Security Groups"
 msgstr "Back to Security Groups"
+
+msgid "Back to Share Networks"
+msgstr "Back to Share Networks"
 
 msgid "Back to Shares"
 msgstr "Back to Shares"
@@ -1827,6 +1836,9 @@ msgstr "Error Loading Security Group"
 msgid "Error Loading Share"
 msgstr "Error Loading Share"
 
+msgid "Error Loading Share Network"
+msgstr "Error Loading Share Network"
+
 msgid "Error Loading Share Snapshot"
 msgstr "Error Loading Share Snapshot"
 
@@ -2151,6 +2163,12 @@ msgstr "Failed to Load Secrets"
 msgid "Failed to Load Security Groups"
 msgstr "Failed to Load Security Groups"
 
+msgid "Failed to Load Security Services"
+msgstr "Failed to Load Security Services"
+
+msgid "Failed to Load Share Networks"
+msgstr "Failed to Load Share Networks"
+
 msgid "Failed to Load Shared File System"
 msgstr "Failed to Load Shared File System"
 
@@ -2414,6 +2432,9 @@ msgstr "Full Path"
 
 msgid "Full path:"
 msgstr "Full path:"
+
+msgid "Gateway"
+msgstr "Gateway"
 
 msgid "Gateway IP"
 msgstr "Gateway IP"
@@ -2874,8 +2895,17 @@ msgstr "Loading Secrets..."
 msgid "Loading Security Group Details..."
 msgstr "Loading Security Group Details..."
 
+msgid "Loading Security Services..."
+msgstr "Loading Security Services..."
+
 msgid "Loading Share Details..."
 msgstr "Loading Share Details..."
+
+msgid "Loading Share Network Details..."
+msgstr "Loading Share Network Details..."
+
+msgid "Loading Share Networks..."
+msgstr "Loading Share Networks..."
 
 msgid "Loading Share Snapshot Details..."
 msgstr "Loading Share Snapshot Details..."
@@ -3102,6 +3132,12 @@ msgstr "Network Type"
 msgid "Networks"
 msgstr "Networks"
 
+msgid "Neutron Network"
+msgstr "Neutron Network"
+
+msgid "Neutron Subnet"
+msgstr "Neutron Subnet"
+
 msgid "Never"
 msgstr "Never"
 
@@ -3188,6 +3224,9 @@ msgstr "No Lifecycle Rules Matching the Current Search Criteria."
 
 msgid "No limit"
 msgstr "No limit"
+
+msgid "No Matching Share Networks"
+msgstr "No Matching Share Networks"
 
 msgid "No Matching Shares"
 msgstr "No Matching Shares"
@@ -3303,6 +3342,9 @@ msgstr "No Security Groups Found"
 msgid "No security groups match the current search or filters. Clear the search or filters to view all security groups."
 msgstr "No security groups match the current search or filters. Clear the search or filters to view all security groups."
 
+msgid "No Security Services"
+msgstr "No Security Services"
+
 msgid "No Segmentation Data"
 msgstr "No Segmentation Data"
 
@@ -3311,6 +3353,15 @@ msgstr "No segmentation data available."
 
 msgid "No services available for this project."
 msgstr "No services available for this project."
+
+msgid "No Share Networks Found"
+msgstr "No Share Networks Found"
+
+msgid "No share networks in this project"
+msgstr "No share networks in this project"
+
+msgid "No share networks match your search"
+msgstr "No share networks match your search"
 
 msgid "No Shares Found"
 msgstr "No Shares Found"
@@ -4272,14 +4323,14 @@ msgstr "Share Group"
 msgid "Share Network"
 msgstr "Share Network"
 
-msgid "Share Network Details Coming Soon"
-msgstr "Share Network Details Coming Soon"
+msgid "Share network detail sections"
+msgstr "Share network detail sections"
+
+msgid "Share Network Not Found"
+msgstr "Share Network Not Found"
 
 msgid "Share Networks"
 msgstr "Share Networks"
-
-msgid "Share Networks View Coming Soon"
-msgstr "Share Networks View Coming Soon"
 
 msgid "Share Not Found"
 msgstr "Share Not Found"
@@ -4475,6 +4526,9 @@ msgstr "Subnet"
 
 msgid "Subnet Count"
 msgstr "Subnet Count"
+
+msgid "Subnet ID"
+msgstr "Subnet ID"
 
 msgid "Subnet ID:"
 msgstr "Subnet ID:"
@@ -4737,6 +4791,9 @@ msgstr "The secret was successfully created."
 msgid "The security group \"{securityGroupName}\" will be permanently deleted. This action cannot be undone."
 msgstr "The security group \"{securityGroupName}\" will be permanently deleted. This action cannot be undone."
 
+msgid "The security services could not be loaded."
+msgstr "The security services could not be loaded."
+
 msgid "The selected images will be permanently deleted. This action cannot be undone."
 msgstr "The selected images will be permanently deleted. This action cannot be undone."
 
@@ -4758,6 +4815,12 @@ msgstr "The session has expired. Sign in again to continue."
 msgid "The share could not be loaded. Try again."
 msgstr "The share could not be loaded. Try again."
 
+msgid "The share network could not be loaded. Try again."
+msgstr "The share network could not be loaded. Try again."
+
+msgid "The share networks could not be loaded."
+msgstr "The share networks could not be loaded."
+
 msgid "The share snapshot could not be loaded. Try again."
 msgstr "The share snapshot could not be loaded. Try again."
 
@@ -4766,12 +4829,6 @@ msgstr "The shared file system scope is available. The security service details 
 
 msgid "The shared file system scope is available. The security services list will be added in a follow-up release."
 msgstr "The shared file system scope is available. The security services list will be added in a follow-up release."
-
-msgid "The shared file system scope is available. The share network details will be added in a follow-up release."
-msgstr "The shared file system scope is available. The share network details will be added in a follow-up release."
-
-msgid "The shared file system scope is available. The share networks list will be added in a follow-up release."
-msgstr "The shared file system scope is available. The share networks list will be added in a follow-up release."
 
 msgid "The snapshots could not be loaded."
 msgstr "The snapshots could not be loaded."
@@ -5060,6 +5117,15 @@ msgstr "This share has no replicas."
 
 msgid "This share has no snapshots."
 msgstr "This share has no snapshots."
+
+msgid "This share network does not exist or is not accessible in this project."
+msgstr "This share network does not exist or is not accessible in this project."
+
+msgid "This share network has no security services."
+msgstr "This share network has no security services."
+
+msgid "This share network has no subnets."
+msgstr "This share network has no subnets."
 
 msgid "This share snapshot does not exist or is not accessible in this project."
 msgstr "This share snapshot does not exist or is not accessible in this project."
@@ -5457,6 +5523,9 @@ msgstr "You do not have the required permissions to view ports in this project."
 msgid "You do not have the required permissions to view routers in this project."
 msgstr "You do not have the required permissions to view routers in this project."
 
+msgid "You do not have the required permissions to view share networks in this project."
+msgstr "You do not have the required permissions to view share networks in this project."
+
 msgid "You do not have the required permissions to view shares in this project."
 msgstr "You do not have the required permissions to view shares in this project."
 
@@ -5532,11 +5601,17 @@ msgstr "You don't have permission to view the export locations of this share."
 msgid "You don't have permission to view the replicas of this share."
 msgstr "You don't have permission to view the replicas of this share."
 
+msgid "You don't have permission to view the security services of this share network."
+msgstr "You don't have permission to view the security services of this share network."
+
 msgid "You don't have permission to view the snapshots of this share."
 msgstr "You don't have permission to view the snapshots of this share."
 
 msgid "You don't have permission to view this flavor's details."
 msgstr "You don't have permission to view this flavor's details."
+
+msgid "You don't have permission to view this share network."
+msgstr "You don't have permission to view this share network."
 
 msgid "You don't have permission to view this share snapshot."
 msgstr "You don't have permission to view this share snapshot."
@@ -5561,6 +5636,12 @@ msgstr "Your session has expired. Sign in again to view export locations."
 
 msgid "Your session has expired. Sign in again to view replicas."
 msgstr "Your session has expired. Sign in again to view replicas."
+
+msgid "Your session has expired. Sign in again to view security services."
+msgstr "Your session has expired. Sign in again to view security services."
+
+msgid "Your session has expired. Sign in again to view share networks."
+msgstr "Your session has expired. Sign in again to view share networks."
 
 msgid "Your session has expired. Sign in again to view shares."
 msgstr "Your session has expired. Sign in again to view shares."

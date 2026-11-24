@@ -144,4 +144,121 @@ describe("SharedFileSystemDetailLoadError", () => {
 
     expect(screen.queryByText("upstream boom 500")).not.toBeInTheDocument()
   })
+
+  describe("backTarget prop", () => {
+    it("navigates to share-networks when backTarget is 'share-networks' (NOT_FOUND)", async () => {
+      const user = userEvent.setup()
+      const error = { data: { code: "NOT_FOUND" } }
+      const onRetry = vi.fn()
+
+      render(
+        <SharedFileSystemDetailLoadError
+          error={error}
+          onRetry={onRetry}
+          notFoundTitle="Share Network Not Found"
+          notFoundDescription="This share network does not exist."
+          forbiddenDescription="Forbidden."
+          errorTitle="Error Loading Share Network"
+          errorDescription="The share network could not be loaded."
+          backTarget="share-networks"
+        />,
+        { wrapper: TestWrapper }
+      )
+
+      expect(screen.getByText("Back to Share Networks")).toBeInTheDocument()
+      const backButton = screen.getByRole("button", { name: "Back to Share Networks" })
+      await user.click(backButton)
+
+      expect(mockNavigate).toHaveBeenCalledWith({
+        to: "/projects/$projectId/shared-file-system/share-networks",
+        params: { projectId: "proj-1" },
+      })
+    })
+
+    it("navigates to share-networks when backTarget is 'share-networks' (UNAUTHORIZED)", async () => {
+      const user = userEvent.setup()
+      const error = { data: { code: "UNAUTHORIZED" } }
+      const onRetry = vi.fn()
+
+      render(
+        <SharedFileSystemDetailLoadError
+          error={error}
+          onRetry={onRetry}
+          notFoundTitle="Share Network Not Found"
+          notFoundDescription="This share network does not exist."
+          forbiddenDescription="Forbidden."
+          errorTitle="Error Loading Share Network"
+          errorDescription="The share network could not be loaded."
+          backTarget="share-networks"
+        />,
+        { wrapper: TestWrapper }
+      )
+
+      expect(screen.getByText("Back to Share Networks")).toBeInTheDocument()
+      const backButton = screen.getByRole("button", { name: "Back to Share Networks" })
+      await user.click(backButton)
+
+      expect(mockNavigate).toHaveBeenCalledWith({
+        to: "/projects/$projectId/shared-file-system/share-networks",
+        params: { projectId: "proj-1" },
+      })
+    })
+
+    it("navigates to share-networks when backTarget is 'share-networks' (generic error)", async () => {
+      const user = userEvent.setup()
+      const error = { data: { code: "INTERNAL_SERVER_ERROR" } }
+      const onRetry = vi.fn()
+
+      render(
+        <SharedFileSystemDetailLoadError
+          error={error}
+          onRetry={onRetry}
+          notFoundTitle="Share Network Not Found"
+          notFoundDescription="This share network does not exist."
+          forbiddenDescription="Forbidden."
+          errorTitle="Error Loading Share Network"
+          errorDescription="The share network could not be loaded."
+          backTarget="share-networks"
+        />,
+        { wrapper: TestWrapper }
+      )
+
+      expect(screen.getByText("Back to Share Networks")).toBeInTheDocument()
+      const backButton = screen.getByRole("button", { name: "Back to Share Networks" })
+      await user.click(backButton)
+
+      expect(mockNavigate).toHaveBeenCalledWith({
+        to: "/projects/$projectId/shared-file-system/share-networks",
+        params: { projectId: "proj-1" },
+      })
+    })
+
+    it("defaults to 'shares' when backTarget is omitted", async () => {
+      const user = userEvent.setup()
+      const error = { data: { code: "NOT_FOUND" } }
+      const onRetry = vi.fn()
+
+      render(
+        <SharedFileSystemDetailLoadError
+          error={error}
+          onRetry={onRetry}
+          notFoundTitle="Resource Not Found"
+          notFoundDescription="This resource does not exist."
+          forbiddenDescription="Forbidden."
+          errorTitle="Error Loading Resource"
+          errorDescription="The resource could not be loaded."
+        />,
+        { wrapper: TestWrapper }
+      )
+
+      expect(screen.getByText("Back to Shares")).toBeInTheDocument()
+      const backButton = screen.getByRole("button", { name: "Back to Shares" })
+      await user.click(backButton)
+
+      expect(mockNavigate).toHaveBeenCalledWith({
+        to: "/projects/$projectId/shared-file-system",
+        params: { projectId: "proj-1" },
+      })
+    })
+  })
 })

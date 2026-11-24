@@ -11,6 +11,54 @@ interface SharedFileSystemDetailLoadErrorProps {
   forbiddenDescription: string
   errorTitle: string
   errorDescription: string
+  backTarget?: "shares" | "share-networks"
+}
+
+interface BackButtonsProps {
+  backTarget: "shares" | "share-networks"
+  projectId: string
+  onRetry?: () => void
+}
+
+function BackButtons({ backTarget, projectId, onRetry }: BackButtonsProps) {
+  const navigate = useNavigate()
+
+  const handleBackClick = () => {
+    if (backTarget === "share-networks") {
+      navigate({
+        to: "/projects/$projectId/shared-file-system/share-networks",
+        params: { projectId },
+      })
+    } else {
+      navigate({
+        to: "/projects/$projectId/shared-file-system",
+        params: { projectId },
+      })
+    }
+  }
+
+  const handleHomeClick = () => {
+    navigate({
+      to: "/projects/$projectId",
+      params: { projectId },
+    })
+  }
+
+  return (
+    <ButtonRow>
+      <Button variant="primary" onClick={handleBackClick}>
+        {backTarget === "share-networks" ? <Trans>Back to Share Networks</Trans> : <Trans>Back to Shares</Trans>}
+      </Button>
+      <Button onClick={handleHomeClick}>
+        <Trans>Home</Trans>
+      </Button>
+      {onRetry && (
+        <Button onClick={onRetry}>
+          <Trans>Try Again</Trans>
+        </Button>
+      )}
+    </ButtonRow>
+  )
 }
 
 /**
@@ -24,9 +72,9 @@ export function SharedFileSystemDetailLoadError({
   forbiddenDescription,
   errorTitle,
   errorDescription,
+  backTarget = "shares",
 }: SharedFileSystemDetailLoadErrorProps) {
   const { t } = useLingui()
-  const navigate = useNavigate()
   const { projectId } = useParams({ strict: false })
 
   const errorCode = (error as { data?: { code?: string } } | null)?.data?.code ?? "UNKNOWN_ERROR"
@@ -37,31 +85,7 @@ export function SharedFileSystemDetailLoadError({
         code={404}
         errorTitle={notFoundTitle}
         errorDescription={notFoundDescription}
-        action={
-          <ButtonRow>
-            <Button
-              variant="primary"
-              onClick={() =>
-                navigate({
-                  to: "/projects/$projectId/shared-file-system",
-                  params: { projectId: projectId as string },
-                })
-              }
-            >
-              <Trans>Back to Shares</Trans>
-            </Button>
-            <Button
-              onClick={() =>
-                navigate({
-                  to: "/projects/$projectId",
-                  params: { projectId: projectId as string },
-                })
-              }
-            >
-              <Trans>Home</Trans>
-            </Button>
-          </ButtonRow>
-        }
+        action={<BackButtons backTarget={backTarget} projectId={projectId as string} />}
       />
     )
   }
@@ -76,31 +100,7 @@ export function SharedFileSystemDetailLoadError({
         code={401}
         errorTitle={t`Session Expired`}
         errorDescription={t`The session has expired. Sign in again to continue.`}
-        action={
-          <ButtonRow>
-            <Button
-              variant="primary"
-              onClick={() =>
-                navigate({
-                  to: "/projects/$projectId/shared-file-system",
-                  params: { projectId: projectId as string },
-                })
-              }
-            >
-              <Trans>Back to Shares</Trans>
-            </Button>
-            <Button
-              onClick={() =>
-                navigate({
-                  to: "/projects/$projectId",
-                  params: { projectId: projectId as string },
-                })
-              }
-            >
-              <Trans>Home</Trans>
-            </Button>
-          </ButtonRow>
-        }
+        action={<BackButtons backTarget={backTarget} projectId={projectId as string} />}
       />
     )
   }
@@ -111,34 +111,7 @@ export function SharedFileSystemDetailLoadError({
       code={null}
       errorTitle={errorTitle}
       errorDescription={errorDescription}
-      action={
-        <ButtonRow>
-          <Button
-            variant="primary"
-            onClick={() =>
-              navigate({
-                to: "/projects/$projectId/shared-file-system",
-                params: { projectId: projectId as string },
-              })
-            }
-          >
-            <Trans>Back to Shares</Trans>
-          </Button>
-          <Button
-            onClick={() =>
-              navigate({
-                to: "/projects/$projectId",
-                params: { projectId: projectId as string },
-              })
-            }
-          >
-            <Trans>Home</Trans>
-          </Button>
-          <Button onClick={onRetry}>
-            <Trans>Try Again</Trans>
-          </Button>
-        </ButtonRow>
-      }
+      action={<BackButtons backTarget={backTarget} projectId={projectId as string} onRetry={onRetry} />}
     />
   )
 }
