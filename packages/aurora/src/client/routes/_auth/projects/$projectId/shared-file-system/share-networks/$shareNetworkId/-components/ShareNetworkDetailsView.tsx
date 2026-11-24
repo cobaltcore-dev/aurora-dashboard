@@ -1,6 +1,8 @@
+import { useLoaderData, useRouteContext } from "@tanstack/react-router"
 import { useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { Stack, TabBar, TabBarItem } from "@cloudoperators/juno-ui-components"
+import { getServiceIndex } from "@/server/Authentication/helpers"
 import type { ShareNetwork } from "@/server/SharedFileSystem/types/shareNetwork"
 import ClipboardText from "@/client/components/ClipboardText"
 import { TwoColumnDescriptionList, type DetailListItem } from "@/client/components/TwoColumnDescriptionList"
@@ -25,6 +27,14 @@ export function ShareNetworkDetailsView({
 }: ShareNetworkDetailsViewProps) {
   const { t } = useLingui()
   const permissions = useSharedFileSystemPermissions(projectId)
+
+  // Neutron deep-link degrades gracefully: only link when the network service is in the catalog and
+  // the Networks scope is enabled — not merely because the route exists in the build.
+  const { availableServices } = useLoaderData({ from: "/_auth/projects/$projectId" })
+  const { enabledServices, deniedServices } = useRouteContext({ strict: false })
+  const isEnabled = (service: string) =>
+    (!enabledServices || enabledServices.includes(service)) && !deniedServices?.includes(service)
+  const networksAvailable = Boolean(getServiceIndex(availableServices ?? [])["network"]) && isEnabled("networks")
 
   // Eager security-services query that starts on mount, whatever the active tab
   const {
@@ -75,7 +85,13 @@ export function ShareNetworkDetailsView({
           />
         </TabBar>
 
-        {activeTab === "subnets" && <ShareNetworkSubnetsTable subnets={shareNetwork.share_network_subnets ?? []} />}
+        {activeTab === "subnets" && (
+          <ShareNetworkSubnetsTable
+            subnets={shareNetwork.share_network_subnets ?? []}
+            projectId={projectId}
+            networksAvailable={networksAvailable}
+          />
+        )}
 
         {activeTab === "security-services" && (
           <ShareNetworkSecurityServicesTable

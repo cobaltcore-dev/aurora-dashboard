@@ -5,13 +5,15 @@ import ClipboardText from "@/client/components/ClipboardText"
 import { StatusLabel } from "@/client/components/StatusLabel"
 import { TwoColumnDescriptionList, type DetailListItem } from "@/client/components/TwoColumnDescriptionList"
 import { parseManilaTimestamp } from "@/client/routes/_auth/projects/$projectId/shared-file-system/-components/shareListUtils"
+import { SharedFileSystemIdLink } from "@/client/routes/_auth/projects/$projectId/shared-file-system/-components/SharedFileSystemIdLink"
 import { getShareSnapshotProtocolLabel } from "./shareSnapshotDetailUtils"
 
 interface ShareSnapshotDetailsViewProps {
   snapshot: ShareSnapshot
+  projectId: string
 }
 
-export function ShareSnapshotDetailsView({ snapshot }: ShareSnapshotDetailsViewProps) {
+export function ShareSnapshotDetailsView({ snapshot, projectId }: ShareSnapshotDetailsViewProps) {
   const { t } = useLingui()
 
   const items: DetailListItem[] = [
@@ -22,8 +24,12 @@ export function ShareSnapshotDetailsView({ snapshot }: ShareSnapshotDetailsViewP
     { label: t`Protocol`, value: getShareSnapshotProtocolLabel(snapshot.share_proto) },
     { label: t`Description`, value: snapshot.description },
     { label: t`Created`, value: parseManilaTimestamp(snapshot.created_at)?.toLocaleString() },
-    // Plain ID; the deep-link to the share detail is #1492
-    { label: t`Source Share`, value: snapshot.share_id ? <ClipboardText text={snapshot.share_id} /> : undefined },
+    {
+      label: t`Source Share`,
+      value: snapshot.share_id ? (
+        <SharedFileSystemIdLink target="share" id={snapshot.share_id} projectId={projectId} />
+      ) : undefined,
+    },
   ]
 
   return (

@@ -4,6 +4,7 @@ import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { describe, it, expect, vi, afterEach, beforeEach } from "vitest"
+import { type ReactNode } from "react"
 import type { ShareNetworkSubnet } from "@/server/SharedFileSystem/types/shareNetwork"
 import { ShareNetworkSubnetsTable } from "./ShareNetworkSubnetsTable"
 
@@ -11,6 +12,24 @@ const mockNavigate = vi.fn()
 
 vi.mock("@tanstack/react-router", () => ({
   useNavigate: () => mockNavigate,
+  Link: ({
+    to,
+    params,
+    children,
+    className,
+  }: {
+    to: string
+    params: Record<string, string>
+    children: ReactNode
+    className?: string
+  }) => {
+    const href = Object.entries(params ?? {}).reduce((acc, [k, v]) => acc.replace(`$${k}`, v), to)
+    return (
+      <a href={href} className={className}>
+        {children}
+      </a>
+    )
+  },
 }))
 
 vi.mock("@/client/hooks", () => ({
@@ -32,11 +51,15 @@ const mockSubnetFull: ShareNetworkSubnet = {
   updated_at: null,
 }
 
-const renderComponent = (subnets: ShareNetworkSubnet[] = [mockSubnetFull]) =>
+const renderComponent = (
+  subnets: ShareNetworkSubnet[] = [mockSubnetFull],
+  projectId = "proj-1",
+  networksAvailable = true
+) =>
   render(
     <I18nProvider i18n={i18n}>
       <PortalProvider>
-        <ShareNetworkSubnetsTable subnets={subnets} />
+        <ShareNetworkSubnetsTable subnets={subnets} projectId={projectId} networksAvailable={networksAvailable} />
       </PortalProvider>
     </I18nProvider>
   )
@@ -111,5 +134,27 @@ describe("ShareNetworkSubnetsTable", () => {
     await user.click(dataRow)
 
     expect(mockNavigate).not.toHaveBeenCalled()
+  })
+
+  it("links neutron_net_id to the Networks scope network detail", () => {
+    renderComponent()
+
+    const link = screen.getByRole("link", { name: "net-456" })
+    expect(link).toHaveAttribute("href", "/projects/proj-1/network/networks/net-456")
+  })
+
+  it("renders neutron_net_id as plain ID when networksAvailable is false", () => {
+    renderComponent([mockSubnetFull], "proj-1", false)
+
+    expect(screen.queryByRole("link")).not.toBeInTheDocument()
+    expect(screen.getByText("net-456")).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /copy net-456 to clipboard/i })).toBeInTheDocument()
+  })
+
+  it("never links neutron_subnet_id", () => {
+    renderComponent()
+
+    expect(screen.queryByRole("link", { name: /subnet-789/i })).not.toBeInTheDocument()
+    expect(screen.getByText("subnet-789")).toBeInTheDocument()
   })
 })

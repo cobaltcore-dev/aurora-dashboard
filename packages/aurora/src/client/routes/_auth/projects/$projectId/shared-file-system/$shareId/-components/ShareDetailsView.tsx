@@ -12,6 +12,7 @@ import {
 import { useSharedFileSystemPermissions } from "@/client/hooks/useSharedFileSystemPermissions"
 import { SHARE_PROTOCOL_LABELS } from "@/client/routes/_auth/projects/$projectId/shared-file-system/-components/shareListFilters"
 import { parseManilaTimestamp } from "@/client/routes/_auth/projects/$projectId/shared-file-system/-components/shareListUtils"
+import { SharedFileSystemIdLink } from "@/client/routes/_auth/projects/$projectId/shared-file-system/-components/SharedFileSystemIdLink"
 import { ShareExportLocationsTable } from "./ShareExportLocationsTable"
 import { ShareSnapshotsTable } from "./ShareSnapshotsTable"
 import { ShareReplicasTable } from "./ShareReplicasTable"
@@ -108,9 +109,16 @@ export function ShareDetailsView({ share, projectId, activeTab, onTabChange }: S
     { label: t`Visibility`, value: visibilityLabel },
     {
       label: t`Share Network`,
-      value: share.share_network_id ? <ClipboardText text={share.share_network_id} /> : undefined,
+      value: share.share_network_id ? (
+        <SharedFileSystemIdLink target="shareNetwork" id={share.share_network_id} projectId={projectId} />
+      ) : undefined,
     },
-    { label: t`Source Snapshot`, value: share.snapshot_id ? <ClipboardText text={share.snapshot_id} /> : undefined },
+    {
+      label: t`Source Snapshot`,
+      value: share.snapshot_id ? (
+        <SharedFileSystemIdLink target="snapshot" id={share.snapshot_id} projectId={projectId} />
+      ) : undefined,
+    },
     { label: t`Share Group`, value: share.share_group_id ? <ClipboardText text={share.share_group_id} /> : undefined },
     { label: t`Description`, value: share.description },
     { label: t`Created`, value: createdDate?.toLocaleString() },

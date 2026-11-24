@@ -57,7 +57,7 @@ export function ShareSnapshotDetail({ projectId, snapshotId, routeId }: ShareSna
   return (
     <>
       <ContentHeader title={getShareSnapshotDisplayName(snapshot)} projectId={projectId} />
-      <ShareSnapshotDetailsView snapshot={snapshot} />
+      <ShareSnapshotDetailsView snapshot={snapshot} projectId={projectId} />
     </>
   )
 }

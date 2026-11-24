@@ -9,6 +9,27 @@ import type { Share } from "@/server/SharedFileSystem/types/share"
 import { ShareDetailsView } from "./ShareDetailsView"
 import { DEFAULT_SHARE_DETAILS_TAB } from "./shareDetailUtils"
 
+vi.mock("@tanstack/react-router", () => ({
+  Link: ({
+    to,
+    params,
+    children,
+    className,
+  }: {
+    to: string
+    params: Record<string, string>
+    children: ReactNode
+    className?: string
+  }) => {
+    const href = Object.entries(params ?? {}).reduce((acc, [k, v]) => acc.replace(`$${k}`, v), to)
+    return (
+      <a href={href} className={className}>
+        {children}
+      </a>
+    )
+  },
+}))
+
 const { mockGetExportLocationsQuery, mockListSnapshotsQuery, mockListReplicasQuery, mockRefetch, mockPermissions } =
   vi.hoisted(() => ({
     mockGetExportLocationsQuery: vi.fn(),
@@ -248,13 +269,56 @@ describe("ShareDetailsView", () => {
       expect(screen.getByText("Public")).toBeInTheDocument()
     })
 
-    it("does not render share network, snapshot and share group IDs as links", () => {
+    it("links share network and source snapshot, keeps share group plain", () => {
       renderView(mockShareFull)
 
-      // getByRole would throw if these were links
-      expect(screen.queryByRole("link", { name: /sharenet-789/i })).not.toBeInTheDocument()
-      expect(screen.queryByRole("link", { name: /snapshot-abc/i })).not.toBeInTheDocument()
+      const shareNetLink = screen.getByRole("link", { name: "sharenet-789" })
+      expect(shareNetLink).toHaveAttribute("href", "/projects/proj-1/shared-file-system/share-networks/sharenet-789")
+
+      const snapshotLink = screen.getByRole("link", { name: "snapshot-abc" })
+      expect(snapshotLink).toHaveAttribute("href", "/projects/proj-1/shared-file-system/snapshots/snapshot-abc")
+
       expect(screen.queryByRole("link", { name: /group-def/i })).not.toBeInTheDocument()
+    })
+
+    it("truncates a 36-character share_network_id in the link text", () => {
+      const uuid = "12345678-1234-1234-1234-123456789abc"
+      const share = { ...mockShareFull, share_network_id: uuid }
+      renderView(share)
+
+      const link = screen.getByRole("link", { name: "12345678-1234..." })
+      expect(link).toHaveAttribute("href", `/projects/proj-1/shared-file-system/share-networks/${uuid}`)
+    })
+
+    it("renders - - and no link when share_network_id and snapshot_id are null", () => {
+      renderView(mockShareMinimal)
+
+      expect(screen.queryAllByRole("link")).toHaveLength(0)
+      // Share Network and Source Snapshot both render "- -"
+      const emptyValues = screen.getAllByText("- -")
+      expect(emptyValues.length).toBeGreaterThanOrEqual(2)
+    })
+
+    it("link rendering triggers no extra tRPC query", () => {
+      renderView(mockShareFull)
+
+      // Only the three tab-related queries are called, with their expected inputs
+      expect(mockGetExportLocationsQuery).toHaveBeenCalledWith(
+        { project_id: "proj-1", shareId: "share-123" },
+        expect.any(Object)
+      )
+      expect(mockListSnapshotsQuery).toHaveBeenCalledWith(
+        { project_id: "proj-1", shareId: "share-123" },
+        expect.any(Object)
+      )
+      expect(mockListReplicasQuery).toHaveBeenCalledWith(
+        { project_id: "proj-1", shareId: "share-123" },
+        expect.any(Object)
+      )
+      // No other procedures should have been called
+      expect(mockGetExportLocationsQuery).toHaveBeenCalledTimes(1)
+      expect(mockListSnapshotsQuery).toHaveBeenCalledTimes(1)
+      expect(mockListReplicasQuery).toHaveBeenCalledTimes(1)
     })
   })
 

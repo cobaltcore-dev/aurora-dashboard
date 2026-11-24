@@ -10,6 +10,20 @@ import type { SecurityService } from "@/server/SharedFileSystem/types/securitySe
 import { trpcReact } from "@/client/trpcClient"
 import { ShareNetworkDetailsView } from "./ShareNetworkDetailsView"
 
+const { mockLoaderData, mockRouteContext } = vi.hoisted(() => ({
+  mockLoaderData: vi.fn(),
+  mockRouteContext: vi.fn(),
+}))
+
+vi.mock("@tanstack/react-router", () => ({
+  useLoaderData: () => mockLoaderData(),
+  useRouteContext: () => mockRouteContext(),
+}))
+
+vi.mock("@/server/Authentication/helpers", () => ({
+  getServiceIndex: (services: { type: string }[]) => Object.fromEntries(services.map((s) => [s.type, s])),
+}))
+
 // Mocks
 vi.mock("@/client/hooks/useSharedFileSystemPermissions", () => ({
   useSharedFileSystemPermissions: () => ({
@@ -18,8 +32,14 @@ vi.mock("@/client/hooks/useSharedFileSystemPermissions", () => ({
 }))
 
 vi.mock("./ShareNetworkSubnetsTable", () => ({
-  ShareNetworkSubnetsTable: vi.fn(({ subnets }) => (
-    <div data-testid="subnets-table-mock">Subnets: {subnets.length}</div>
+  ShareNetworkSubnetsTable: vi.fn(({ subnets, projectId, networksAvailable }) => (
+    <div
+      data-testid="subnets-table-mock"
+      data-networks-available={String(networksAvailable)}
+      data-project-id={projectId}
+    >
+      Subnets: {subnets.length}
+    </div>
   )),
 }))
 
@@ -77,6 +97,15 @@ describe("ShareNetworkDetailsView", () => {
     i18n.activate("en")
     queryClient = new QueryClient({
       defaultOptions: { queries: { retry: false } },
+    })
+
+    // Default mocks: network service available, all services enabled
+    mockLoaderData.mockReturnValue({
+      availableServices: [{ type: "network" }],
+    })
+    mockRouteContext.mockReturnValue({
+      enabledServices: undefined,
+      deniedServices: undefined,
     })
   })
 
@@ -209,5 +238,97 @@ describe("ShareNetworkDetailsView", () => {
     expect(screen.getByText("My Network")).toBeInTheDocument()
     expect(screen.getByText("Test description")).toBeInTheDocument()
     expect(screen.getByTestId("security-services-table-mock")).toHaveTextContent("(error)")
+  })
+
+  describe("networksAvailable gate", () => {
+    it("passes networksAvailable=true by default (network service in catalog, all services enabled)", () => {
+      vi.mocked(trpcReact.sharedFileSystem.listSecurityServices.useQuery).mockReturnValue({
+        data: mockSecurityServices,
+        isLoading: false,
+        error: null,
+      } as never)
+
+      renderComponent("subnets")
+
+      expect(screen.getByTestId("subnets-table-mock")).toHaveAttribute("data-networks-available", "true")
+      expect(screen.getByTestId("subnets-table-mock")).toHaveAttribute("data-project-id", "proj-1")
+    })
+
+    it("passes networksAvailable=false when network service is not in the catalog", () => {
+      mockLoaderData.mockReturnValue({ availableServices: [] })
+      vi.mocked(trpcReact.sharedFileSystem.listSecurityServices.useQuery).mockReturnValue({
+        data: mockSecurityServices,
+        isLoading: false,
+        error: null,
+      } as never)
+
+      renderComponent("subnets")
+
+      expect(screen.getByTestId("subnets-table-mock")).toHaveAttribute("data-networks-available", "false")
+    })
+
+    it("passes networksAvailable=false when networks service is denied", () => {
+      mockRouteContext.mockReturnValue({
+        enabledServices: undefined,
+        deniedServices: ["networks"],
+      })
+      vi.mocked(trpcReact.sharedFileSystem.listSecurityServices.useQuery).mockReturnValue({
+        data: mockSecurityServices,
+        isLoading: false,
+        error: null,
+      } as never)
+
+      renderComponent("subnets")
+
+      expect(screen.getByTestId("subnets-table-mock")).toHaveAttribute("data-networks-available", "false")
+    })
+
+    it("passes networksAvailable=false when enabledServices does not include networks", () => {
+      mockRouteContext.mockReturnValue({
+        enabledServices: ["shared-file-system"],
+        deniedServices: undefined,
+      })
+      vi.mocked(trpcReact.sharedFileSystem.listSecurityServices.useQuery).mockReturnValue({
+        data: mockSecurityServices,
+        isLoading: false,
+        error: null,
+      } as never)
+
+      renderComponent("subnets")
+
+      expect(screen.getByTestId("subnets-table-mock")).toHaveAttribute("data-networks-available", "false")
+    })
+
+    it("passes networksAvailable=true when enabledServices explicitly includes networks", () => {
+      mockRouteContext.mockReturnValue({
+        enabledServices: ["shared-file-system", "networks"],
+        deniedServices: undefined,
+      })
+      vi.mocked(trpcReact.sharedFileSystem.listSecurityServices.useQuery).mockReturnValue({
+        data: mockSecurityServices,
+        isLoading: false,
+        error: null,
+      } as never)
+
+      renderComponent("subnets")
+
+      expect(screen.getByTestId("subnets-table-mock")).toHaveAttribute("data-networks-available", "true")
+    })
+  })
+
+  it("renders no extra tRPC query", () => {
+    vi.mocked(trpcReact.sharedFileSystem.listSecurityServices.useQuery).mockReturnValue({
+      data: mockSecurityServices,
+      isLoading: false,
+      error: null,
+    } as never)
+
+    renderComponent("subnets")
+
+    expect(trpcReact.sharedFileSystem.listSecurityServices.useQuery).toHaveBeenCalledWith(
+      { project_id: "proj-1", shareNetworkId: "net-123" },
+      { enabled: true, retry: false }
+    )
+    expect(trpcReact.sharedFileSystem.listSecurityServices.useQuery).toHaveBeenCalledTimes(1)
   })
 })

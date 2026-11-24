@@ -9,15 +9,18 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import ClipboardText from "@/client/components/ClipboardText"
 import { EMPTY_VALUE } from "@/client/components/TwoColumnDescriptionList"
+import { SharedFileSystemIdLink } from "@/client/routes/_auth/projects/$projectId/shared-file-system/-components/SharedFileSystemIdLink"
 import type { ShareNetworkSubnet } from "@/server/SharedFileSystem/types/shareNetwork"
 
 const COLUMN_COUNT = 10
 
 interface ShareNetworkSubnetsTableProps {
   subnets: ShareNetworkSubnet[]
+  projectId: string
+  networksAvailable: boolean
 }
 
-export const ShareNetworkSubnetsTable = ({ subnets }: ShareNetworkSubnetsTableProps) => {
+export const ShareNetworkSubnetsTable = ({ subnets, projectId, networksAvailable }: ShareNetworkSubnetsTableProps) => {
   const { t } = useLingui()
 
   return (
@@ -80,7 +83,16 @@ export const ShareNetworkSubnetsTable = ({ subnets }: ShareNetworkSubnetsTablePr
               <DataGridCell>{subnet.mtu ?? EMPTY_VALUE}</DataGridCell>
               <DataGridCell>{subnet.segmentation_id ?? EMPTY_VALUE}</DataGridCell>
               <DataGridCell>
-                {subnet.neutron_net_id ? <ClipboardText text={subnet.neutron_net_id} truncateAt={13} /> : EMPTY_VALUE}
+                {subnet.neutron_net_id ? (
+                  <SharedFileSystemIdLink
+                    target="network"
+                    id={subnet.neutron_net_id}
+                    projectId={projectId}
+                    linkable={networksAvailable}
+                  />
+                ) : (
+                  EMPTY_VALUE
+                )}
               </DataGridCell>
               <DataGridCell>
                 {subnet.neutron_subnet_id ? (

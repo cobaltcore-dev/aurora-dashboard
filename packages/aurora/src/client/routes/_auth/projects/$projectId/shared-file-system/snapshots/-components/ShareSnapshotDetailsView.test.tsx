@@ -1,11 +1,32 @@
 import { cleanup, render, screen } from "@testing-library/react"
-import { describe, it, expect, beforeEach, afterEach } from "vitest"
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest"
 import { type ReactNode } from "react"
 import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import type { ShareSnapshot } from "@/server/SharedFileSystem/types/snapshot"
 import { ShareSnapshotDetailsView } from "./ShareSnapshotDetailsView"
+
+vi.mock("@tanstack/react-router", () => ({
+  Link: ({
+    to,
+    params,
+    children,
+    className,
+  }: {
+    to: string
+    params: Record<string, string>
+    children: ReactNode
+    className?: string
+  }) => {
+    const href = Object.entries(params ?? {}).reduce((acc, [k, v]) => acc.replace(`$${k}`, v), to)
+    return (
+      <a href={href} className={className}>
+        {children}
+      </a>
+    )
+  },
+}))
 
 const TestWrapper = ({ children }: { children: ReactNode }) => (
   <I18nProvider i18n={i18n}>
@@ -37,7 +58,7 @@ describe("ShareSnapshotDetailsView", () => {
       share_size: null,
     }
 
-    render(<ShareSnapshotDetailsView snapshot={snapshot} />, { wrapper: TestWrapper })
+    render(<ShareSnapshotDetailsView snapshot={snapshot} projectId="proj-1" />, { wrapper: TestWrapper })
 
     expect(screen.getByText("Name")).toBeInTheDocument()
     expect(screen.getByText("my-snapshot")).toBeInTheDocument()
@@ -75,13 +96,16 @@ describe("ShareSnapshotDetailsView", () => {
       share_size: null,
     }
 
-    render(<ShareSnapshotDetailsView snapshot={snapshot} />, { wrapper: TestWrapper })
+    render(<ShareSnapshotDetailsView snapshot={snapshot} projectId="proj-1" />, { wrapper: TestWrapper })
 
     // ID is always shown
     expect(screen.getByText("snap-123")).toBeInTheDocument()
 
     // 7 fields should show - - (Name, Status, Size, Protocol, Description, Created, Source Share)
     expect(screen.getAllByText("- -")).toHaveLength(7)
+
+    // No link when share_id is null
+    expect(screen.queryByRole("link")).not.toBeInTheDocument()
   })
 
   it("renders 0 when size is 0", () => {
@@ -99,7 +123,7 @@ describe("ShareSnapshotDetailsView", () => {
       share_size: null,
     }
 
-    render(<ShareSnapshotDetailsView snapshot={snapshot} />, { wrapper: TestWrapper })
+    render(<ShareSnapshotDetailsView snapshot={snapshot} projectId="proj-1" />, { wrapper: TestWrapper })
 
     expect(screen.getByText("0")).toBeInTheDocument()
   })
@@ -119,14 +143,14 @@ describe("ShareSnapshotDetailsView", () => {
       share_size: null,
     }
 
-    render(<ShareSnapshotDetailsView snapshot={snapshot} />, { wrapper: TestWrapper })
+    render(<ShareSnapshotDetailsView snapshot={snapshot} projectId="proj-1" />, { wrapper: TestWrapper })
 
     expect(screen.getByText("Created")).toBeInTheDocument()
     // The unparsable date shows as - -
     expect(screen.getAllByText("- -")).toContainEqual(expect.anything())
   })
 
-  it("renders Source Share as plain text, not a link", () => {
+  it("links Source Share to the share detail", () => {
     const snapshot: ShareSnapshot = {
       id: "snap-123",
       name: null,
@@ -141,10 +165,11 @@ describe("ShareSnapshotDetailsView", () => {
       share_size: null,
     }
 
-    render(<ShareSnapshotDetailsView snapshot={snapshot} />, { wrapper: TestWrapper })
+    render(<ShareSnapshotDetailsView snapshot={snapshot} projectId="proj-1" />, { wrapper: TestWrapper })
 
-    expect(screen.getByText("share-456")).toBeInTheDocument()
-    expect(screen.queryByRole("link")).not.toBeInTheDocument()
+    const link = screen.getByRole("link", { name: "share-456" })
+    expect(link).toHaveAttribute("href", "/projects/proj-1/shared-file-system/share-456")
+    expect(screen.getByRole("button", { name: /copy share-456 to clipboard/i })).toBeInTheDocument()
   })
 
   it("renders unknown protocol as raw value", () => {
@@ -162,7 +187,7 @@ describe("ShareSnapshotDetailsView", () => {
       share_size: null,
     }
 
-    render(<ShareSnapshotDetailsView snapshot={snapshot} />, { wrapper: TestWrapper })
+    render(<ShareSnapshotDetailsView snapshot={snapshot} projectId="proj-1" />, { wrapper: TestWrapper })
 
     expect(screen.getByText("weirdfs")).toBeInTheDocument()
   })
