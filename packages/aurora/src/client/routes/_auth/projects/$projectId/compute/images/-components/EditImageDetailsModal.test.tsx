@@ -620,7 +620,7 @@ describe("EditImageDetailsModal", () => {
 
     const nameInput = screen.getByLabelText("Image Name")
     await user.clear(nameInput)
-    await user.type(nameInput, "a".repeat(256))
+    await user.paste("a".repeat(256))
 
     const saveButton = screen.getByRole("button", { name: /Save Changes/i })
     await waitFor(() => {
@@ -635,10 +635,13 @@ describe("EditImageDetailsModal", () => {
 
     const nameInput = screen.getByLabelText("Image Name")
     await user.clear(nameInput)
-    await user.type(nameInput, "a".repeat(256))
+    await user.paste("a".repeat(256))
 
     const saveButton = screen.getByRole("button", { name: /Save Changes/i })
-    await waitFor(() => expect(saveButton).toBeDisabled())
+    await waitFor(() => {
+      expect(screen.getByText("Image name must be at most 255 characters")).toBeInTheDocument()
+      expect(saveButton).toBeDisabled()
+    })
 
     // Correct it: error clears and Save becomes available again
     await user.clear(nameInput)

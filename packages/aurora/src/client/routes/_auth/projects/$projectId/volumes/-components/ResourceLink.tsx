@@ -39,19 +39,14 @@ export function ResourceLink({
     className: `text-inherit no-underline break-all whitespace-normal ${className}`,
     onClick: (event: React.MouseEvent) => event.stopPropagation(),
   }
-  if (resource === "instance") return <ServerLink id={id} projectId={projectId} copyable={copyable} />
-  return (
-    <div className="inline-flex items-center gap-1">
-      {resource === "snapshot" ? (
-        <Link {...props} to="/projects/$projectId/volumes/snapshots/$snapshotId" params={{ projectId, snapshotId: id }}>
-          {label || id}
-        </Link>
-      ) : (
-        <Link {...props} to="/projects/$projectId/volumes/$volumeId" params={{ projectId, volumeId: id }}>
-          {label || id}
-        </Link>
-      )}
-      {copyable && <ClipboardText text={id} iconOnly />}
-    </div>
+  if (resource === "instance") return <ServerLink id={id} projectId={projectId} />
+  return resource === "snapshot" ? (
+    <Link {...props} to="/projects/$projectId/volumes/snapshots/$snapshotId" params={{ projectId, snapshotId: id }}>
+      {label || id}
+    </Link>
+  ) : (
+    <Link {...props} to="/projects/$projectId/volumes/$volumeId" params={{ projectId, volumeId: id }}>
+      {label || id}
+    </Link>
   )
 }

@@ -3102,12 +3102,6 @@ msgstr "No addresses"
 msgid "No buckets found"
 msgstr "No buckets found"
 
-msgid "No Completed Attachments"
-msgstr "No Completed Attachments"
-
-msgid "No completed attachments are reported by Cinder. The volume status may indicate an operation in progress."
-msgstr "No completed attachments are reported by Cinder. The volume status may indicate an operation in progress."
-
 msgid "No containers found"
 msgstr "No containers found"
 
@@ -3279,9 +3273,6 @@ msgstr "No segmentation data available."
 msgid "No services available for this project."
 msgstr "No services available for this project."
 
-msgid "No Snapshots for This Volume"
-msgstr "No Snapshots for This Volume"
-
 msgid "No Snapshots in This Project"
 msgstr "No Snapshots in This Project"
 
@@ -3320,9 +3311,6 @@ msgstr "Noncurrent Versions"
 
 msgid "None"
 msgstr "None"
-
-msgid "Not attached"
-msgstr "Not attached"
 
 msgid "Note: for <0>static and dynamic large objects</0> only the manifests are deleted — their segments outside this folder prefix are not affected."
 msgstr "Note: for <0>static and dynamic large objects</0> only the manifests are deleted — their segments outside this folder prefix are not affected."
@@ -4254,9 +4242,6 @@ msgstr "Show Metadata"
 msgid "Show more info about secret types"
 msgstr "Show more info about secret types"
 
-msgid "Showing {filteredCount} of {totalCount}"
-msgstr "Showing {filteredCount} of {totalCount}"
-
 msgid "Showing {filteredCount} of {totalCount} {itemName}"
 msgstr "Showing {filteredCount} of {totalCount} {itemName}"
 
@@ -4764,9 +4749,6 @@ msgstr "There are no secrets in this project. Create one to get started."
 msgid "There are no security groups in this project."
 msgstr "There are no security groups in this project."
 
-msgid "There are no snapshots to display."
-msgstr "There are no snapshots to display."
-
 msgid "These images are already active or you do not have permission to activate them."
 msgstr "These images are already active or you do not have permission to activate them."
 
@@ -5249,9 +5231,6 @@ msgstr "VM State"
 
 msgid "Volume Details"
 msgstr "Volume Details"
-
-msgid "Volume relationships"
-msgstr "Volume relationships"
 
 msgid "Volume type"
 msgstr "Volume type"

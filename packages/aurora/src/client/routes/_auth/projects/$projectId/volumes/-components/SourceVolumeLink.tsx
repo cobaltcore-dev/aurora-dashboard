@@ -30,13 +30,7 @@ export function SourceVolumeLink({ id, copyable = false }: { id: string | null |
       >
         {name}
       </Link>
-      {copyable ? (
-        <div className="text-theme-light text-sm">
-          <ClipboardText text={volume.id} />
-        </div>
-      ) : (
-        <div className="text-theme-light text-sm">{volume.id}</div>
-      )}
+      <div className="text-theme-light text-sm">{volume.id}</div>
     </div>
   )
 }
