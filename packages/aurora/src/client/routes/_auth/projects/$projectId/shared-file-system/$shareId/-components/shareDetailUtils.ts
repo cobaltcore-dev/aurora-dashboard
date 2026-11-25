@@ -2,7 +2,7 @@ import { msg } from "@lingui/core/macro"
 import type { MessageDescriptor } from "@lingui/core"
 
 // Import types only, never values, from server files (see shareListFilters.ts for why)
-import type { Share, ShareExportLocation, ShareReplica } from "@/server/SharedFileSystem/types/share"
+import type { ShareExportLocation, ShareReplica } from "@/server/SharedFileSystem/types/share"
 import type { ShareSnapshot } from "@/server/SharedFileSystem/types/snapshot"
 
 /**
@@ -23,16 +23,11 @@ export function isShareDetailsTab(value: unknown): value is ShareDetailsTab {
 
 /**
  * Returns the visible tabs for a share.
- * The replicas tab appears only when has_replicas is strictly true.
+ * Always returns all three tabs — the replicas tab shows an empty state when there are none.
+ * (Manila's has_replicas flag may be stale after replica creation, so we don't rely on it.)
  */
-export function getShareDetailsTabs(share: Pick<Share, "has_replicas">): ShareDetailsTab[] {
-  const tabs: ShareDetailsTab[] = ["export-locations", "snapshots"]
-
-  if (share.has_replicas === true) {
-    tabs.push("replicas")
-  }
-
-  return tabs
+export function getShareDetailsTabs(): ShareDetailsTab[] {
+  return ["export-locations", "snapshots", "replicas"]
 }
 
 /**

@@ -403,23 +403,11 @@ describe("ShareDetailsView", () => {
       expect(screen.getByTestId("export-locations-table")).toBeInTheDocument()
     })
 
-    it("does not show Replicas tab when has_replicas is false", () => {
+    it("always shows Replicas tab regardless of has_replicas (Manila flag may be stale)", () => {
       const share = { ...mockShareFull, has_replicas: false }
       renderView(share)
 
-      expect(screen.queryByRole("button", { name: "Replicas" })).not.toBeInTheDocument()
-    })
-
-    it("does not show Replicas tab when has_replicas is undefined", () => {
-      const share = { ...mockShareFull, has_replicas: undefined }
-      renderView(share)
-
-      expect(screen.queryByRole("button", { name: "Replicas" })).not.toBeInTheDocument()
-    })
-
-    it("shows Replicas tab only when has_replicas is true", () => {
-      renderView(mockShareFull)
-
+      // Replicas tab is always shown — we don't trust has_replicas flag
       expect(screen.getByRole("button", { name: "Replicas" })).toBeInTheDocument()
     })
 
@@ -434,12 +422,11 @@ describe("ShareDetailsView", () => {
       expect(onTabChange).toHaveBeenCalledWith("snapshots")
     })
 
-    it("falls back to default tab when activeTab is invalid for the share", () => {
-      const share = { ...mockShareFull, has_replicas: false }
-      renderView(share, "replicas") // replicas tab doesn't exist
+    it("renders replicas tab content when activeTab is replicas", () => {
+      renderView(mockShareFull, "replicas")
 
-      expect(screen.getByTestId("export-locations-table")).toBeInTheDocument()
-      expect(screen.queryByTestId("replicas-table")).not.toBeInTheDocument()
+      expect(screen.getByTestId("replicas-table")).toBeInTheDocument()
+      expect(screen.queryByTestId("export-locations-table")).not.toBeInTheDocument()
     })
   })
 
@@ -463,13 +450,14 @@ describe("ShareDetailsView", () => {
       )
     })
 
-    it("disables replicas query when has_replicas is false", () => {
+    it("always enables replicas query regardless of has_replicas (Manila flag may be stale)", () => {
       const share = { ...mockShareFull, has_replicas: false }
       renderView(share)
 
+      // Replicas query is always enabled when user has permission — we don't trust has_replicas flag
       expect(mockListReplicasQuery).toHaveBeenCalledWith(
         { project_id: "proj-1", shareId: "share-123" },
-        { enabled: false, retry: false }
+        { enabled: true, retry: false }
       )
     })
 

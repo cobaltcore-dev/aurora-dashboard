@@ -31,24 +31,9 @@ describe("shareDetailUtils", () => {
   })
 
   describe("getShareDetailsTabs", () => {
-    it("returns export-locations and snapshots by default", () => {
-      const tabs = getShareDetailsTabs({ has_replicas: false })
-      expect(tabs).toEqual(["export-locations", "snapshots"])
-    })
-
-    it("includes replicas when has_replicas is true", () => {
-      const tabs = getShareDetailsTabs({ has_replicas: true })
-      expect(tabs).toEqual(["export-locations", "snapshots", "replicas"])
-    })
-
-    it("excludes replicas when has_replicas is undefined", () => {
-      const tabs = getShareDetailsTabs({ has_replicas: undefined })
-      expect(tabs).toEqual(["export-locations", "snapshots"])
-    })
-
-    it("excludes replicas when has_replicas is null", () => {
-      const tabs = getShareDetailsTabs({ has_replicas: null })
-      expect(tabs).toEqual(["export-locations", "snapshots"])
+    it("always returns all three tabs regardless of has_replicas", () => {
+      // Manila's has_replicas flag may be stale, so we always show all tabs
+      expect(getShareDetailsTabs()).toEqual(["export-locations", "snapshots", "replicas"])
     })
   })
 

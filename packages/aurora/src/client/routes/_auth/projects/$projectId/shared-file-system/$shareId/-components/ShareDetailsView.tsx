@@ -63,7 +63,8 @@ export function ShareDetailsView({ share, projectId, activeTab, onTabChange }: S
     refetch: refetchReplicas,
   } = trpcReact.sharedFileSystem.listReplicas.useQuery(
     { project_id: projectId, shareId: share.id },
-    { enabled: share.has_replicas === true && permissions.canListReplicas, retry: false }
+    // Always fetch replicas — Manila's has_replicas flag may be stale after replica creation
+    { enabled: permissions.canListReplicas, retry: false }
   )
 
   // Protocol label
@@ -172,7 +173,7 @@ export function ShareDetailsView({ share, projectId, activeTab, onTabChange }: S
   }))
 
   // Tabs
-  const tabs = getShareDetailsTabs(share)
+  const tabs = getShareDetailsTabs()
   const effectiveTab = tabs.includes(activeTab) ? activeTab : DEFAULT_SHARE_DETAILS_TAB
 
   const tabLabels: Record<ShareDetailsTab, string> = {
