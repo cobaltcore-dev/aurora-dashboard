@@ -13,6 +13,8 @@ import {
   getContainerUpdateErrorToast,
   getContainerAclUpdatedToast,
   getContainerAclUpdateErrorToast,
+  getContainerVersioningUpdatedToast,
+  getContainerVersioningUpdateErrorToast,
   getContainersEmptiedToast,
   getContainersEmptyErrorToast,
   getContainersEmptyCompleteToast,
@@ -174,6 +176,26 @@ describe("ContainerToastNotifications", () => {
     })
   })
 
+  // ── Container versioning ───────────────────────────────────────────────────
+
+  describe("getContainerVersioningUpdatedToast", () => {
+    it("renders correct message content", () => {
+      renderNotification(getContainerVersioningUpdatedToast("my-container"))
+      expect(screen.getByText("Versioning Updated")).toBeInTheDocument()
+      expect(screen.getByText(/my-container/)).toBeInTheDocument()
+      expect(screen.getByText(/successfully updated/)).toBeInTheDocument()
+    })
+  })
+
+  describe("getContainerVersioningUpdateErrorToast", () => {
+    it("renders correct error message content", () => {
+      renderNotification(getContainerVersioningUpdateErrorToast("my-container", "Conflict"))
+      expect(screen.getByText("Failed to Update Versioning")).toBeInTheDocument()
+      expect(screen.getByText(/Could not update versioning for container/)).toBeInTheDocument()
+      expect(screen.getByText(/Conflict/)).toBeInTheDocument()
+    })
+  })
+
   // ── Empty-all (bulk) ───────────────────────────────────────────────────────
 
   describe("getContainersEmptiedToast", () => {
@@ -243,6 +265,8 @@ describe("ContainerToastNotifications", () => {
         getContainerUpdateErrorToast("c", "err"),
         getContainerAclUpdatedToast("c"),
         getContainerAclUpdateErrorToast("c", "err"),
+        getContainerVersioningUpdatedToast("c"),
+        getContainerVersioningUpdateErrorToast("c", "err"),
         getContainersEmptiedToast(2, 5),
         getContainersEmptyErrorToast("err"),
         getContainersEmptyCompleteToast(2, 5, []),

@@ -4416,8 +4416,8 @@ msgstr "Store old object versions"
 msgid "Store old object versions in container:"
 msgstr "Store old object versions in container:"
 
-msgid "Store previous versions of objects when they are overwritten or deleted."
-msgstr "Store previous versions of objects when they are overwritten or deleted."
+msgid "Store previous versions of objects in container <0>{containerName}</0> when they are overwritten or deleted."
+msgstr "Store previous versions of objects in container <0>{containerName}</0> when they are overwritten or deleted."
 
 msgid "Stored as x-amz-meta-* headers. Keys are case-insensitive."
 msgstr "Stored as x-amz-meta-* headers. Keys are case-insensitive."

@@ -122,6 +122,7 @@ export const ConfigureVersioningModal = ({
 
   if (!isOpen || !container) return null
 
+  const containerName = container.name
   const isBusy = isLoading || updateMutation.isPending
 
   const initialVersionsEnabled = !!(info?.versionsEnabled || info?.versionsLocation || info?.historyLocation)
@@ -138,7 +139,7 @@ export const ConfigureVersioningModal = ({
       onConfirm={handleSubmit}
       cancelButtonLabel={t`Cancel`}
       size="large"
-      disableConfirmButton={isBusy || isUnchanged}
+      disableConfirmButton={isBusy || isUnchanged || (versionsEnabled && !versionsLocation)}
     >
       {isLoading ? (
         <Status status="progress" title={t`Loading Container Properties...`} className="mt-0" />
@@ -152,11 +153,14 @@ export const ConfigureVersioningModal = ({
       ) : (
         <Stack direction="vertical" gap="4">
           <p className="text-theme-default">
-            <Trans>Store previous versions of objects when they are overwritten or deleted.</Trans>
+            <Trans>
+              Store previous versions of objects in container <strong>{containerName}</strong> when they are overwritten
+              or deleted.
+            </Trans>
           </p>
 
-          {/* Case 1: server-side versioning active, no user changes yet */}
-          {initialVersionsEnabled && !versionsLocation ? (
+          {/* Case 1: server-side versioning active with no specific container — read-only */}
+          {initialVersionsEnabled && versionsEnabled && !versionsLocation && !initialVersionsLocation ? (
             <Checkbox
               label={t`Versioning is enabled`}
               checked
