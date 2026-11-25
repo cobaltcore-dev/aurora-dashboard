@@ -24,6 +24,7 @@ import { DeleteContainerModal } from "./DeleteContainerModal"
 import { EditContainerMetadataModal } from "./EditContainerMetadataModal"
 import { ManageContainerAccessModal } from "./ManageContainerAccessModal"
 import { ConfigureVersioningModal } from "./ConfigureVersioningModal"
+import { ConfigureStaticWebsiteModal } from "./ConfigureStaticWebsiteModal"
 
 interface ContainerTableViewProps {
   containers: ContainerSummary[]
@@ -44,6 +45,8 @@ interface ContainerTableViewProps {
   onAclError: (containerName: string, errorMessage: string) => void
   onVersioningSuccess: (containerName: string) => void
   onVersioningError: (containerName: string, errorMessage: string) => void
+  onStaticWebsiteSuccess: (containerName: string) => void
+  onStaticWebsiteError: (containerName: string, errorMessage: string) => void
   selectedContainers: string[]
   setSelectedContainers: (containers: string[]) => void
   // When false, the row-selection column (header checkbox + per-row checkboxes)
@@ -71,6 +74,8 @@ export const ContainerTableView = ({
   onAclError,
   onVersioningSuccess,
   onVersioningError,
+  onStaticWebsiteSuccess,
+  onStaticWebsiteError,
   selectedContainers,
   setSelectedContainers,
   hasAnyBulkAction = true,
@@ -88,6 +93,7 @@ export const ContainerTableView = ({
   const [propertiesModalContainer, setPropertiesModalContainer] = useState<ContainerSummary | null>(null)
   const [accessControlModalContainer, setAccessControlModalContainer] = useState<ContainerSummary | null>(null)
   const [versioningModalContainer, setVersioningModalContainer] = useState<ContainerSummary | null>(null)
+  const [staticWebsiteModalContainer, setStaticWebsiteModalContainer] = useState<ContainerSummary | null>(null)
 
   // Height measured from the space actually left below the table, plus a
   // virtualizer that stays silent until that height is known.
@@ -270,6 +276,11 @@ export const ContainerTableView = ({
                           data-testid={`versioning-action-${container.name}`}
                         />
                         <PopupMenuItem
+                          label={t`Configure Static Website`}
+                          onClick={() => setStaticWebsiteModalContainer(container)}
+                          data-testid={`static-website-action-${container.name}`}
+                        />
+                        <PopupMenuItem
                           label={t`Empty Container`}
                           onClick={() => setEmptyModalContainer(container)}
                           data-testid={`empty-action-${container.name}`}
@@ -337,6 +348,14 @@ export const ContainerTableView = ({
         onClose={() => setVersioningModalContainer(null)}
         onSuccess={onVersioningSuccess}
         onError={onVersioningError}
+      />
+
+      <ConfigureStaticWebsiteModal
+        isOpen={staticWebsiteModalContainer !== null}
+        container={staticWebsiteModalContainer}
+        onClose={() => setStaticWebsiteModalContainer(null)}
+        onSuccess={onStaticWebsiteSuccess}
+        onError={onStaticWebsiteError}
       />
     </>
   )

@@ -7,11 +7,6 @@ import {
   Stack,
   Status,
   Button,
-  Checkbox,
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
-  Icon,
   DescriptionList,
   DescriptionTerm,
   DescriptionDefinition,
@@ -90,10 +85,6 @@ export const EditContainerMetadataModal = ({
   const [quotaCount, setQuotaCount] = useState("")
   const [quotaCountError, setQuotaCountError] = useState<string | null>(null)
 
-  // Static website fields
-  const [webIndex, setWebIndex] = useState("")
-  const [webListings, setWebListings] = useState(false)
-
   // Custom metadata
   const [metadata, setMetadata] = useState<MetadataEntry[]>([])
   const [metaErrors, setMetaErrors] = useState<Record<string, string>>({})
@@ -109,9 +100,6 @@ export const EditContainerMetadataModal = ({
 
     setQuotaBytes(info.quotaBytes != null ? String(info.quotaBytes) : "")
     setQuotaCount(info.quotaCount != null ? String(info.quotaCount) : "")
-    const rawMetaForWeb = info.metadata ?? {}
-    setWebIndex(rawMetaForWeb["web-index"] ?? "")
-    setWebListings(rawMetaForWeb["web-listings"] === "1" || rawMetaForWeb["web-listings"] === "true")
 
     // Custom metadata — exclude reserved keys
     const rawMeta = info.metadata ?? {}
@@ -140,8 +128,6 @@ export const EditContainerMetadataModal = ({
     setQuotaBytesError(null)
     setQuotaCount("")
     setQuotaCountError(null)
-    setWebIndex("")
-    setWebListings(false)
     setMetadata([])
     setMetaErrors({})
     setIsAddingNew(false)
@@ -312,20 +298,6 @@ export const EditContainerMetadataModal = ({
       if (!currentOriginalKeys.includes(k) && !removeMetadata.includes(k)) removeMetadata.push(k)
     })
 
-    // Web index / listings — only relevant when public access is enabled
-    if (isPublicAccess) {
-      if (webIndex) {
-        metadataToSet["web-index"] = webIndex
-      } else if (info?.metadata?.["web-index"]) {
-        removeMetadata.push("web-index")
-      }
-      if (webListings) {
-        metadataToSet["web-listings"] = "1"
-      } else if (info?.metadata?.["web-listings"]) {
-        removeMetadata.push("web-listings")
-      }
-    }
-
     updateMutation.mutate({
       project_id: projectId,
       container: container.name,
@@ -349,20 +321,13 @@ export const EditContainerMetadataModal = ({
 
   const initialQuotaBytes = info?.quotaBytes != null ? String(info.quotaBytes) : ""
   const initialQuotaCount = info?.quotaCount != null ? String(info.quotaCount) : ""
-  const initialWebIndex = info?.metadata?.["web-index"] ?? ""
-  const initialWebListings = info?.metadata?.["web-listings"] === "1" || info?.metadata?.["web-listings"] === "true"
   const initialMetadataKeys = Object.keys(info?.metadata ?? {}).filter((k) => !RESERVED_META_KEYS.has(k))
 
   const metadataUnchanged =
     metadata.length === initialMetadataKeys.length &&
     metadata.every((e) => !e.isNew && e.key === e.originalKey && e.value === e.originalValue)
 
-  const isUnchanged =
-    quotaBytes === initialQuotaBytes &&
-    quotaCount === initialQuotaCount &&
-    webIndex === initialWebIndex &&
-    webListings === initialWebListings &&
-    metadataUnchanged
+  const isUnchanged = quotaBytes === initialQuotaBytes && quotaCount === initialQuotaCount && metadataUnchanged
 
   // ── Render ────────────────────────────────────────────────────────────────
   const displayedQuotaBytes = info?.quotaBytes != null ? `${info.quotaBytes} B` : null
@@ -460,60 +425,6 @@ export const EditContainerMetadataModal = ({
                 <TextInput value={publicUrl} disabled readOnly />
               </div>
             )}
-
-            {/* ── Static website serving ───────────────────────────────────── */}
-            <div>
-              <p className="text-theme-default mb-3 text-sm font-semibold">
-                <Trans>Static website serving</Trans>
-              </p>
-              {isPublicAccess ? (
-                <Stack direction="vertical" gap="4">
-                  <Stack direction="vertical" gap="1">
-                    <Checkbox
-                      label={t`Serve objects as index when file name is:`}
-                      checked={!!webIndex}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        if (!e.target.checked) setWebIndex("")
-                        else if (!webIndex) setWebIndex("index.html")
-                      }}
-                      disabled={isBusy}
-                    />
-                    <div className="pl-6">
-                      <TextInput
-                        value={webIndex}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWebIndex(e.target.value)}
-                        placeholder="index.html"
-                        disabled={isBusy || !webIndex}
-                        className="flex-1"
-                      />
-                    </div>
-                  </Stack>
-                  <Stack direction="horizontal" alignment="start" gap="2">
-                    <Checkbox
-                      label={t`Enable file listing`}
-                      checked={webListings}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWebListings(e.target.checked)}
-                      disabled={isBusy}
-                    />
-                    <Tooltip triggerEvent="hover">
-                      <TooltipTrigger>
-                        <Icon icon="help" size="16" className="text-theme-light cursor-help" />
-                      </TooltipTrigger>
-                      <TooltipContent className="z-10 max-w-55">
-                        <Trans>If there is no index file, the URL displays a list of objects in the container.</Trans>
-                      </TooltipContent>
-                    </Tooltip>
-                  </Stack>
-                </Stack>
-              ) : (
-                <p className="text-theme-default text-sm">
-                  <Trans>
-                    Public read access is not enabled. Before configuring static website serving, go to{" "}
-                    <strong>Manage Access</strong> and enable public read access.
-                  </Trans>
-                </p>
-              )}
-            </div>
 
             {/* ── Custom Metadata ──────────────────────────────────────────── */}
             <div>

@@ -906,6 +906,9 @@ msgstr ""
 msgid "Configuration Unavailable"
 msgstr ""
 
+msgid "Configure Static Website"
+msgstr ""
+
 msgid "Configure Versioning"
 msgstr ""
 
@@ -1207,6 +1210,9 @@ msgid "Could not update container \"{containerName}\": {errorMessage}"
 msgstr "Container \"{containerName}\" konnte nicht aktualisiert werden: {errorMessage}"
 
 msgid "Could not update deletion schedule for \"{objectName}\": {errorMessage}"
+msgstr ""
+
+msgid "Could not update static website settings for container \"{containerName}\": {errorMessage}"
 msgstr ""
 
 msgid "Could not update versioning for container \"{containerName}\": {errorMessage}"
@@ -2243,6 +2249,9 @@ msgstr "Fehler beim Aktualisieren des Objekts: {mutationErrorMessage}"
 
 msgid "Failed to update security group"
 msgstr "Security Group konnte nicht aktualisiert werden"
+
+msgid "Failed to Update Static Website"
+msgstr ""
 
 msgid "Failed to Update Versioning"
 msgstr ""
@@ -4170,6 +4179,9 @@ msgstr ""
 msgid "Serve objects as index when file name is:"
 msgstr "Objekte als Index bereitstellen, wenn Dateiname ist:"
 
+msgid "Serve objects in container <0>{containerName}</0> as a static website."
+msgstr ""
+
 msgid "Server error occurred while adding tenant access. Please try again later."
 msgstr "Ein Serverfehler ist aufgetreten, während der Projektzugriff hinzugefügt wurde. Bitte versuchen Sie es später noch einmal."
 
@@ -4392,8 +4404,11 @@ msgstr ""
 msgid "Static large object support"
 msgstr "Unterstützung für statische große Objekte"
 
-msgid "Static website serving"
-msgstr "Statisches Website-Serving"
+msgid "Static website settings for container \"{containerName}\" were successfully updated."
+msgstr ""
+
+msgid "Static Website Updated"
+msgstr ""
 
 msgid "Status"
 msgstr "Status"

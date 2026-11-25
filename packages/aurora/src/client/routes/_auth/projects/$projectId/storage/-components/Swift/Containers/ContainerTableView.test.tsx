@@ -134,6 +134,23 @@ vi.mock("./ConfigureVersioningModal", () => ({
   ),
 }))
 
+// ─── Mock ConfigureStaticWebsiteModal ─────────────────────────────────────────
+
+vi.mock("./ConfigureStaticWebsiteModal", () => ({
+  ConfigureStaticWebsiteModal: vi.fn(({ isOpen, container, onClose, onSuccess, onError }) =>
+    isOpen && container ? (
+      <div data-testid="configure-static-website-modal">
+        <span data-testid="static-website-modal-container-name">{container.name}</span>
+        <button onClick={onClose}>CloseStaticWebsite</button>
+        <button onClick={() => onSuccess?.(container.name)}>SimulateStaticWebsiteSuccess</button>
+        <button onClick={() => onError?.(container.name, "Static website update failed")}>
+          SimulateStaticWebsiteError
+        </button>
+      </div>
+    ) : null
+  ),
+}))
+
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
 
 const makeContainer = (name: string, overrides: Partial<ContainerSummary> = {}): ContainerSummary => ({
@@ -169,6 +186,8 @@ const renderView = ({
   onAclError = vi.fn(),
   onVersioningSuccess = vi.fn(),
   onVersioningError = vi.fn(),
+  onStaticWebsiteSuccess = vi.fn(),
+  onStaticWebsiteError = vi.fn(),
   selectedContainers = [],
   setSelectedContainers = vi.fn(),
 }: {
@@ -188,6 +207,8 @@ const renderView = ({
   onAclError?: (containerName: string, errorMessage: string) => void
   onVersioningSuccess?: (containerName: string) => void
   onVersioningError?: (containerName: string, errorMessage: string) => void
+  onStaticWebsiteSuccess?: (containerName: string) => void
+  onStaticWebsiteError?: (containerName: string, errorMessage: string) => void
   selectedContainers?: string[]
   setSelectedContainers?: (containers: string[]) => void
 } = {}) =>
@@ -211,6 +232,8 @@ const renderView = ({
           onAclError={onAclError}
           onVersioningSuccess={onVersioningSuccess}
           onVersioningError={onVersioningError}
+          onStaticWebsiteSuccess={onStaticWebsiteSuccess}
+          onStaticWebsiteError={onStaticWebsiteError}
           selectedContainers={selectedContainers}
           setSelectedContainers={setSelectedContainers}
         />
@@ -597,6 +620,28 @@ describe("ContainerTableView", () => {
       await user.click(screen.getByTestId("versioning-action-alpha"))
       await user.click(screen.getByRole("button", { name: "SimulateVersioningError" }))
       expect(onVersioningError).toHaveBeenCalledWith("alpha", "Versioning update failed")
+    })
+
+    test("calls onStaticWebsiteSuccess when static website modal fires success", async () => {
+      const onStaticWebsiteSuccess = vi.fn()
+      const user = userEvent.setup()
+      renderView({ onStaticWebsiteSuccess })
+      const row = screen.getByTestId("container-row-alpha")
+      await user.click(row.querySelector("button") as HTMLElement)
+      await user.click(screen.getByTestId("static-website-action-alpha"))
+      await user.click(screen.getByRole("button", { name: "SimulateStaticWebsiteSuccess" }))
+      expect(onStaticWebsiteSuccess).toHaveBeenCalledWith("alpha")
+    })
+
+    test("calls onStaticWebsiteError when static website modal fires error", async () => {
+      const onStaticWebsiteError = vi.fn()
+      const user = userEvent.setup()
+      renderView({ onStaticWebsiteError })
+      const row = screen.getByTestId("container-row-alpha")
+      await user.click(row.querySelector("button") as HTMLElement)
+      await user.click(screen.getByTestId("static-website-action-alpha"))
+      await user.click(screen.getByRole("button", { name: "SimulateStaticWebsiteError" }))
+      expect(onStaticWebsiteError).toHaveBeenCalledWith("alpha", "Static website update failed")
     })
   })
 

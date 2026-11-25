@@ -906,6 +906,9 @@ msgstr "Compute & State"
 msgid "Configuration Unavailable"
 msgstr "Configuration Unavailable"
 
+msgid "Configure Static Website"
+msgstr "Configure Static Website"
+
 msgid "Configure Versioning"
 msgstr "Configure Versioning"
 
@@ -1208,6 +1211,9 @@ msgstr "Could not update container \"{containerName}\": {errorMessage}"
 
 msgid "Could not update deletion schedule for \"{objectName}\": {errorMessage}"
 msgstr "Could not update deletion schedule for \"{objectName}\": {errorMessage}"
+
+msgid "Could not update static website settings for container \"{containerName}\": {errorMessage}"
+msgstr "Could not update static website settings for container \"{containerName}\": {errorMessage}"
 
 msgid "Could not update versioning for container \"{containerName}\": {errorMessage}"
 msgstr "Could not update versioning for container \"{containerName}\": {errorMessage}"
@@ -2243,6 +2249,9 @@ msgstr "Failed to update object: {mutationErrorMessage}"
 
 msgid "Failed to update security group"
 msgstr "Failed to update security group"
+
+msgid "Failed to Update Static Website"
+msgstr "Failed to Update Static Website"
 
 msgid "Failed to Update Versioning"
 msgstr "Failed to Update Versioning"
@@ -4170,6 +4179,9 @@ msgstr "Select..."
 msgid "Serve objects as index when file name is:"
 msgstr "Serve objects as index when file name is:"
 
+msgid "Serve objects in container <0>{containerName}</0> as a static website."
+msgstr "Serve objects in container <0>{containerName}</0> as a static website."
+
 msgid "Server error occurred while adding tenant access. Please try again later."
 msgstr "Server error occurred while adding tenant access. Please try again later."
 
@@ -4392,8 +4404,11 @@ msgstr "Stateful groups track connections, so return traffic is allowed automati
 msgid "Static large object support"
 msgstr "Static large object support"
 
-msgid "Static website serving"
-msgstr "Static website serving"
+msgid "Static website settings for container \"{containerName}\" were successfully updated."
+msgstr "Static website settings for container \"{containerName}\" were successfully updated."
+
+msgid "Static Website Updated"
+msgstr "Static Website Updated"
 
 msgid "Status"
 msgstr "Status"

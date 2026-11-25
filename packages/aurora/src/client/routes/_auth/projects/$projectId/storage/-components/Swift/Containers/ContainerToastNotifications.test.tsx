@@ -15,6 +15,8 @@ import {
   getContainerAclUpdateErrorToast,
   getContainerVersioningUpdatedToast,
   getContainerVersioningUpdateErrorToast,
+  getContainerStaticWebsiteUpdatedToast,
+  getContainerStaticWebsiteUpdateErrorToast,
   getContainersEmptiedToast,
   getContainersEmptyErrorToast,
   getContainersEmptyCompleteToast,
@@ -196,6 +198,26 @@ describe("ContainerToastNotifications", () => {
     })
   })
 
+  // ── Container static website ───────────────────────────────────────────────
+
+  describe("getContainerStaticWebsiteUpdatedToast", () => {
+    it("renders correct message content", () => {
+      renderNotification(getContainerStaticWebsiteUpdatedToast("my-container"))
+      expect(screen.getByText("Static Website Updated")).toBeInTheDocument()
+      expect(screen.getByText(/my-container/)).toBeInTheDocument()
+      expect(screen.getByText(/successfully updated/)).toBeInTheDocument()
+    })
+  })
+
+  describe("getContainerStaticWebsiteUpdateErrorToast", () => {
+    it("renders correct error message content", () => {
+      renderNotification(getContainerStaticWebsiteUpdateErrorToast("my-container", "Conflict"))
+      expect(screen.getByText("Failed to Update Static Website")).toBeInTheDocument()
+      expect(screen.getByText(/Could not update static website settings for container/)).toBeInTheDocument()
+      expect(screen.getByText(/Conflict/)).toBeInTheDocument()
+    })
+  })
+
   // ── Empty-all (bulk) ───────────────────────────────────────────────────────
 
   describe("getContainersEmptiedToast", () => {
@@ -267,6 +289,8 @@ describe("ContainerToastNotifications", () => {
         getContainerAclUpdateErrorToast("c", "err"),
         getContainerVersioningUpdatedToast("c"),
         getContainerVersioningUpdateErrorToast("c", "err"),
+        getContainerStaticWebsiteUpdatedToast("c"),
+        getContainerStaticWebsiteUpdateErrorToast("c", "err"),
         getContainersEmptiedToast(2, 5),
         getContainersEmptyErrorToast("err"),
         getContainersEmptyCompleteToast(2, 5, []),
