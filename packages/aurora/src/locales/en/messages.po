@@ -1623,6 +1623,12 @@ msgstr "Drop your image file here"
 msgid "e.g. .r:*,.rlistings"
 msgstr "e.g. .r:*,.rlistings"
 
+msgid "e.g. 1000"
+msgstr "e.g. 1000"
+
+msgid "e.g. 10737418240"
+msgstr "e.g. 10737418240"
+
 msgid "e.g. 3600 (1 hour) or 604800 (7 days)"
 msgstr "e.g. 3600 (1 hour) or 604800 (7 days)"
 
@@ -2979,6 +2985,12 @@ msgstr "Max object name length"
 msgid "Max SLO segments"
 msgstr "Max SLO segments"
 
+msgid "Maximum number of objects. Leave empty for no limit."
+msgstr "Maximum number of objects. Leave empty for no limit."
+
+msgid "Maximum total storage in bytes (e.g. 10 GiB = 10737418240). Leave empty for no limit."
+msgstr "Maximum total storage in bytes (e.g. 10 GiB = 10737418240). Leave empty for no limit."
+
 msgid "MD5 checksum"
 msgstr "MD5 checksum"
 
@@ -3200,9 +3212,6 @@ msgstr "No Internal Networks"
 
 msgid "No Lifecycle Rules Matching the Current Search Criteria."
 msgstr "No Lifecycle Rules Matching the Current Search Criteria."
-
-msgid "No limit"
-msgstr "No limit"
 
 msgid "No Metadata Properties Found"
 msgstr "No Metadata Properties Found"

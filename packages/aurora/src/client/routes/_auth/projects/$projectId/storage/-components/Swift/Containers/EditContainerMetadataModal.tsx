@@ -430,10 +430,11 @@ export const EditContainerMetadataModal = ({
                     setQuotaCount(e.target.value)
                     if (quotaCountError) setQuotaCountError(null)
                   }}
-                  placeholder={t`No limit`}
+                  placeholder={t`e.g. 1000`}
                   invalid={!!quotaCountError}
                   errortext={quotaCountError ?? undefined}
                   disabled={isBusy}
+                  helptext={t`Maximum number of objects. Leave empty for no limit.`}
                 />
               </div>
               <div>
@@ -444,11 +445,15 @@ export const EditContainerMetadataModal = ({
                     setQuotaBytes(e.target.value)
                     if (quotaBytesError) setQuotaBytesError(null)
                   }}
-                  placeholder={t`No limit`}
+                  placeholder={t`e.g. 10737418240`}
                   invalid={!!quotaBytesError}
                   errortext={quotaBytesError ?? undefined}
                   disabled={isBusy}
-                  helptext={quotaBytes && displayedQuotaBytes ? displayedQuotaBytes : undefined}
+                  helptext={
+                    quotaBytes && displayedQuotaBytes
+                      ? displayedQuotaBytes
+                      : t`Maximum total storage in bytes (e.g. 10 GiB = 10737418240). Leave empty for no limit.`
+                  }
                 />
               </div>
             </div>

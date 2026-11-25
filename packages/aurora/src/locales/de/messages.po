@@ -1623,6 +1623,12 @@ msgstr "Legen Sie Ihre Image-Datei hier ab"
 msgid "e.g. .r:*,.rlistings"
 msgstr "z. B. .r:*,.rlistings"
 
+msgid "e.g. 1000"
+msgstr ""
+
+msgid "e.g. 10737418240"
+msgstr ""
+
 msgid "e.g. 3600 (1 hour) or 604800 (7 days)"
 msgstr ""
 
@@ -2979,6 +2985,12 @@ msgstr "Maximale Objekt-Namenslänge"
 msgid "Max SLO segments"
 msgstr "Maximale SLO-Segmente"
 
+msgid "Maximum number of objects. Leave empty for no limit."
+msgstr ""
+
+msgid "Maximum total storage in bytes (e.g. 10 GiB = 10737418240). Leave empty for no limit."
+msgstr ""
+
 msgid "MD5 checksum"
 msgstr "MD5-Prüfsumme"
 
@@ -3200,9 +3212,6 @@ msgstr ""
 
 msgid "No Lifecycle Rules Matching the Current Search Criteria."
 msgstr ""
-
-msgid "No limit"
-msgstr "Kein Limit"
 
 msgid "No Metadata Properties Found"
 msgstr ""
