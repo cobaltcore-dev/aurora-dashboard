@@ -163,7 +163,7 @@ function FlavorsContent({
       <DataGridToolbar>
         <Stack distribution="end" alignment="center">
           <SearchInput
-            placeholder={t`Search flavors...`}
+            placeholder={t`Search…`}
             data-testid="searchbar"
             value={localSearchTerm}
             onInput={(e: React.FormEvent<HTMLInputElement>) => {

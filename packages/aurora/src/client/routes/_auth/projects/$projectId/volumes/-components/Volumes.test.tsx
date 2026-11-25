@@ -209,9 +209,7 @@ describe("block storage lists", () => {
   it.each([false, true])("omits the count bar and fetch timestamps (snapshots: %s)", (snapshots) => {
     render(<ResourceList projectId="project-1" snapshots={snapshots} />, { wrapper })
     expect(screen.queryByText(/Showing \d+ of \d+/)).not.toBeInTheDocument()
-    const search = screen.getByPlaceholderText(
-      snapshots ? "Search snapshots by name or ID..." : "Search volumes by name or ID..."
-    )
+    const search = screen.getByPlaceholderText(snapshots ? "Search snapshots by name or ID..." : "Search…")
     const table = screen.getByTestId(snapshots ? "snapshots-table" : "volumes-table")
     // The filter/search toolbar is the final header element, with no count bar below it.
     expect(table.previousElementSibling?.lastElementChild).toContainElement(search)
@@ -253,7 +251,7 @@ describe("block storage lists", () => {
   it("places resource tabs beside sorting and navigates to snapshots", () => {
     render(<ResourceList projectId="project-1" />, { wrapper })
     const tabs = screen.getByRole("navigation", { name: "Block storage resources" })
-    expect(tabs).toHaveClass("juno-tabbar-content")
+    expect(within(tabs).getByText("Volumes")).toHaveAttribute("aria-current", "true")
     expect(tabs.parentElement).toContainElement(screen.getByText("Reverse sort"))
     fireEvent.click(within(tabs).getByText("Snapshots"))
     expect(h.navigate).toHaveBeenCalledWith({
@@ -305,7 +303,7 @@ describe("block storage lists", () => {
 
   it("updates URL search, sorting, and filters without changing API inputs", () => {
     render(<ResourceList projectId="project-1" />, { wrapper })
-    fireEvent.input(screen.getByPlaceholderText("Search volumes by name or ID..."), { target: { value: "ubuntu" } })
+    fireEvent.input(screen.getByPlaceholderText("Search…"), { target: { value: "ubuntu" } })
     expect(h.navigate).toHaveBeenLastCalledWith(expect.objectContaining({ search: { search: "ubuntu" } }))
     fireEvent.click(screen.getByText("Reverse sort"))
     expect(h.navigate).toHaveBeenLastCalledWith(expect.objectContaining({ search: { sortDirection: "desc" } }))
@@ -619,6 +617,9 @@ describe("block storage details and links", () => {
 
   it("keeps unlinked attachment IDs copyable without navigating", async () => {
     render(<VolumeDetails projectId="project-1" volumeId={volumeId} />, { wrapper })
+    const attachmentId = screen.getByText("attachment-1")
+    expect(attachmentId).toHaveClass("select-text")
+    expect(attachmentId.closest("a")).toBeNull()
     const button = screen.getByRole("button", { name: "Copy attachment-1 to clipboard" })
     expect(button.closest("a")).toBeNull()
     await act(async () => fireEvent.click(button))

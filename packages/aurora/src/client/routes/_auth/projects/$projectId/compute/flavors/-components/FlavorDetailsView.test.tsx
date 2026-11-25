@@ -207,7 +207,7 @@ describe("FlavorDetailsView", () => {
     expect(screen.getByText("None")).toBeInTheDocument()
   })
 
-  it("displays 'None' for empty swap string", () => {
+  it("displays the placeholder for empty swap string", () => {
     const flavorWithEmptySwap = {
       ...baseFlavor,
       swap: "",
@@ -219,7 +219,7 @@ describe("FlavorDetailsView", () => {
       </TestingProvider>
     )
 
-    expect(screen.getByText("None")).toBeInTheDocument()
+    expect(screen.getByText("- -")).toBeInTheDocument()
   })
 
   it("handles missing ephemeral disk", () => {
@@ -235,7 +235,42 @@ describe("FlavorDetailsView", () => {
     )
 
     expect(screen.getByText("Ephemeral Disk")).toBeInTheDocument()
-    expect(screen.getByText("0 GiB")).toBeInTheDocument()
+    expect(screen.getByText("- -")).toBeInTheDocument()
+  })
+
+  it.each([null, undefined, "", "   "])("shows the placeholder for an empty description (%j)", (description) => {
+    render(<FlavorDetailsView flavor={{ ...baseFlavor, description }} />, { wrapper: TestingProvider })
+    expect(screen.getByText("Description").nextElementSibling).toHaveTextContent("- -")
+  })
+
+  it("shows placeholders for missing fields without converting real zero or false values", () => {
+    render(
+      <FlavorDetailsView
+        flavor={{
+          ...baseFlavor,
+          name: " ",
+          swap: undefined,
+          rxtx_factor: undefined,
+          "os-flavor-access:is_public": undefined,
+          "OS-FLV-EXT-DATA:ephemeral": undefined,
+          disk: 0,
+        }}
+      />,
+      { wrapper: TestingProvider }
+    )
+    for (const label of ["Name", "Swap", "RX/TX Factor", "Public", "Ephemeral Disk"]) {
+      expect(screen.getByText(label).nextElementSibling).toHaveTextContent("- -")
+    }
+    expect(screen.getByText("Root Disk").nextElementSibling).toHaveTextContent("0 GiB")
+    expect(screen.getByText("Disabled").nextElementSibling).toHaveTextContent("No")
+  })
+
+  it("shows placeholders for empty metadata values", () => {
+    mockUseQueryReturn = { data: { empty: "", whitespace: "   ", zero: "0" } }
+    render(<FlavorDetailsView flavor={baseFlavor} canListSpecs />, { wrapper: TestingProvider })
+    expect(screen.getByText("empty").nextElementSibling).toHaveTextContent("- -")
+    expect(screen.getByText("whitespace").nextElementSibling).toHaveTextContent("- -")
+    expect(screen.getByText("zero").nextElementSibling).toHaveTextContent("0")
   })
 
   it("shows 'No' for private flavors", () => {

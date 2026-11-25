@@ -45,7 +45,35 @@ export function filterAndSortVolumes<T extends Volume | VolumeSnapshot>(
   const term = search.search?.trim().toLocaleLowerCase() ?? ""
   const statuses = snapshots ? SNAPSHOT_STATUSES : VOLUME_STATUSES
   const filtered = items.filter((item) => {
-    if (term && ![item.id, item.name].some((value) => value?.toLocaleLowerCase().includes(term))) return false
+    if (term) {
+      const volume = item as Volume
+      // Dedicated filters own status, volume_type, bootable, and availability_zone.
+      const searchableValues = snapshots
+        ? [item.id, item.name]
+        : [
+            volume.id,
+            volume.name,
+            volume.description,
+            volume.size,
+            volume.encrypted,
+            volume.multiattach,
+            volume.snapshot_id,
+            volume.source_volid,
+            volume.created_at,
+            volume.updated_at,
+            volume["os-vol-tenant-attr:tenant_id"],
+            ...Object.entries(volume.metadata ?? {}).flat(),
+            ...(volume.attachments ?? []).flatMap((attachment) => Object.values(attachment)),
+          ]
+      if (
+        !searchableValues.some((value) => {
+          if (value == null) return false
+          if (typeof value === "boolean" && (value ? "yes" : "no").includes(term)) return true
+          return String(value).toLocaleLowerCase().includes(term)
+        })
+      )
+        return false
+    }
     if (
       search.status === "other" ? statuses.includes(item.status ?? "") : search.status && item.status !== search.status
     )

@@ -13,6 +13,8 @@ export interface ClipboardTextProps extends React.HTMLAttributes<HTMLDivElement>
   iconOnly?: boolean
   /** Whether the copy icon is always visible or only revealed on hover. Defaults to "always". */
   iconVisible?: "always" | "hover"
+  /** Allow selecting the displayed text for native copy/paste in addition to the copy button. */
+  selectable?: boolean
 }
 
 const ClipboardText: React.FC<ClipboardTextProps> = ({
@@ -23,6 +25,7 @@ const ClipboardText: React.FC<ClipboardTextProps> = ({
   showTooltip = true,
   iconOnly = false,
   iconVisible = "always",
+  selectable = false,
   ...props
 }) => {
   const { t } = useLingui()
@@ -65,7 +68,7 @@ const ClipboardText: React.FC<ClipboardTextProps> = ({
 
   return (
     <div {...props} className={combinedClassName}>
-      {!iconOnly && <span className="select-none">{displayText}</span>}
+      {!iconOnly && <span className={selectable ? "select-text" : "select-none"}>{displayText}</span>}
       <Tooltip open={tooltipIsOpen}>
         <TooltipTrigger
           onClick={handleCopy}
