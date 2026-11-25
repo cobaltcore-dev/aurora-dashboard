@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import {
@@ -54,6 +54,8 @@ export const ConfigureStaticWebsiteModal = ({
 
   const [webIndex, setWebIndex] = useState("")
   const [webListings, setWebListings] = useState(false)
+  const [copiedPublicUrl, setCopiedPublicUrl] = useState(false)
+  const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     if (!info) return
@@ -68,6 +70,11 @@ export const ConfigureStaticWebsiteModal = ({
   const resetForm = () => {
     setWebIndex("")
     setWebListings(false)
+    setCopiedPublicUrl(false)
+    if (copyTimeoutRef.current) {
+      clearTimeout(copyTimeoutRef.current)
+      copyTimeoutRef.current = null
+    }
     updateMutation.reset()
   }
 
@@ -105,6 +112,21 @@ export const ConfigureStaticWebsiteModal = ({
       metadata: Object.keys(metadataToSet).length ? metadataToSet : undefined,
       removeMetadata: removeMetadata.length ? removeMetadata : undefined,
     })
+  }
+
+  const handleCopyPublicUrl = () => {
+    if (!publicUrl) return
+    navigator.clipboard
+      .writeText(publicUrl)
+      .then(() => {
+        setCopiedPublicUrl(true)
+        if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current)
+        copyTimeoutRef.current = setTimeout(() => {
+          setCopiedPublicUrl(false)
+          copyTimeoutRef.current = null
+        }, 2000)
+      })
+      .catch(() => {})
   }
 
   const handleClose = () => {
@@ -151,23 +173,6 @@ export const ConfigureStaticWebsiteModal = ({
 
           {isPublicAccess ? (
             <Stack direction="vertical" gap="4">
-              {publicUrl && (
-                <div>
-                  <p className="text-theme-default mb-1 text-sm font-semibold">
-                    <Trans>URL for public access</Trans>{" "}
-                    <a
-                      href={publicUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-theme-info text-xs font-normal underline"
-                    >
-                      <Trans>Open in new tab</Trans>
-                    </a>
-                  </p>
-                  <TextInput value={publicUrl} disabled readOnly />
-                </div>
-              )}
-
               <Stack direction="vertical" gap="1">
                 <Checkbox
                   label={t`Serve objects as index when file name is:`}
@@ -205,9 +210,25 @@ export const ConfigureStaticWebsiteModal = ({
                   </TooltipContent>
                 </Tooltip>
               </Stack>
+
+              {publicUrl && (
+                <div className="relative">
+                  <TextInput label={t`Public Access URL`} value={publicUrl} readOnly className="pr-10 text-xs" />
+                  <button
+                    type="button"
+                    onClick={handleCopyPublicUrl}
+                    title={copiedPublicUrl ? t`Copied!` : t`Copy URL`}
+                    aria-label={copiedPublicUrl ? t`Copied!` : t`Copy URL`}
+                    className="text-theme-light hover:text-theme-default absolute top-1/2 right-2 inline-flex items-center transition-colors"
+                    style={{ transform: "translateY(-50%)" }}
+                  >
+                    <Icon icon={copiedPublicUrl ? "checkCircle" : "contentCopy"} size="18" />
+                  </button>
+                </div>
+              )}
             </Stack>
           ) : (
-            <p className="text-theme-default text-sm">
+            <p className="text-theme-default">
               <Trans>
                 Public read access is not enabled. Before configuring static website serving, go to{" "}
                 <strong>Manage Access</strong> and enable public read access.

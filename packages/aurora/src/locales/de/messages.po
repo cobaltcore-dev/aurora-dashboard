@@ -3747,6 +3747,9 @@ msgstr "Öffentlich"
 msgid "public — Used for storing the public key of an asymmetric keypair"
 msgstr ""
 
+msgid "Public Access URL"
+msgstr ""
+
 msgid "Public Flavor"
 msgstr "Öffentlicher Flavor"
 

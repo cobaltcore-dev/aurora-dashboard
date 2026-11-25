@@ -312,7 +312,7 @@ describe("ConfigureStaticWebsiteModal", () => {
       mockContainerInfo = makePublicContainerInfo()
       mockPublicUrl = "https://example.com/my-container"
       renderModal()
-      expect(screen.getByText(/URL for public access/i)).toBeInTheDocument()
+      expect(screen.getByText(/Public Access URL/i)).toBeInTheDocument()
       expect(screen.getByDisplayValue("https://example.com/my-container")).toBeInTheDocument()
     })
   })
