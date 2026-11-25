@@ -122,7 +122,7 @@ export function ResourceList({ projectId, snapshots = false }: { projectId: stri
                 onChange={({ name, value }) => updateSearch({ [name]: value || undefined })}
               />
               <SearchInput
-                placeholder={snapshots ? t`Search snapshots by name or ID...` : t`Search volumes by name or ID...`}
+                placeholder={t`Search…`}
                 value={search.search ?? ""}
                 onInput={(event) => updateSearch({ search: event.currentTarget.value || undefined })}
                 onSearch={(value) => updateSearch({ search: typeof value === "string" ? value : undefined })}

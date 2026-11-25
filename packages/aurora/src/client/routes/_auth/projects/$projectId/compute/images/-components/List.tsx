@@ -17,8 +17,8 @@ import {
   DataGridToolbar,
   SearchInput,
   Checkbox,
-  TabNavigation,
-  TabNavigationItem,
+  TabBar,
+  TabBarItem,
 } from "@cloudoperators/juno-ui-components"
 import { SortInput } from "@/client/components/ListToolbar/SortInput"
 import { SelectedFilters } from "@/client/components/ListToolbar/SelectedFilters"
@@ -237,11 +237,11 @@ function ImagesContent({
     <>
       {/* Zone 1 — tabs + sort + create / more actions, no background */}
       <Stack distribution="between" alignment="center" gap="2" className="pb-2">
-        <TabNavigation activeItem={memberStatusView} onActiveItemChange={memberStatusTabs.onActiveItemChange}>
+        <TabBar activeItem={memberStatusView} onActiveItemChange={memberStatusTabs.onActiveItemChange}>
           {memberStatusTabs.items.map((item) => (
-            <TabNavigationItem key={item.value} label={item.label} value={item.value} />
+            <TabBarItem key={item.value} label={item.label} value={item.value} />
           ))}
-        </TabNavigation>
+        </TabBar>
         <Stack gap="2" alignment="center">
           <SortInput
             options={sortSettings.options}

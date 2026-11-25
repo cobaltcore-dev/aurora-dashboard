@@ -92,6 +92,22 @@ describe("Images — Type filter navigation", () => {
     expect(screen.queryByRole("option", { name: "All" })).not.toBeInTheDocument()
     expect(screen.getByRole("option", { name: "Snapshot" })).toBeInTheDocument()
     expect(screen.getByRole("option", { name: "Images" })).toBeInTheDocument()
+    const label = { all: "All Images", accepted: "Accepted Images", pending: "Suggested Images" }[memberStatus]
+    expect(screen.getByText(label)).toHaveAttribute("aria-current", "true")
+  })
+
+  it("keeps the existing tab labels and updates the member-status URL on selection", async () => {
+    await act(async () => {
+      render(<Images client={client} project="p1" />, { wrapper })
+    })
+    await screen.findByText("Images loaded")
+    expect(screen.getByText("All Images")).toHaveAttribute("aria-current", "true")
+    expect(screen.getByText("Accepted Images")).toBeInTheDocument()
+    await act(async () => {
+      fireEvent.click(screen.getByText("Suggested Images"))
+    })
+    expect(h.navigate.mock.lastCall![0].search({})).toMatchObject({ memberStatus: "pending" })
+    expect(screen.getByText("Suggested Images")).toHaveAttribute("aria-current", "true")
   })
 
   it("refreshes when only Type changes and resets pagination without losing other filters", async () => {

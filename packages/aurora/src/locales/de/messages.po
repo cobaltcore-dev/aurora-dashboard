@@ -3948,12 +3948,6 @@ msgstr "Container suchen..."
 msgid "Search CORS rules..."
 msgstr ""
 
-msgid "Search flavors..."
-msgstr "Flavors suchen..."
-
-msgid "Search instances..."
-msgstr ""
-
 msgid "Search lifecycle rules..."
 msgstr ""
 
@@ -3964,12 +3958,6 @@ msgid "Search ports..."
 msgstr ""
 
 msgid "Search routers..."
-msgstr ""
-
-msgid "Search snapshots by name or ID..."
-msgstr ""
-
-msgid "Search volumes by name or ID..."
 msgstr ""
 
 msgid "Search..."

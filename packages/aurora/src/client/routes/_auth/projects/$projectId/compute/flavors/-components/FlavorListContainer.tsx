@@ -137,12 +137,20 @@ export const FlavorListContainer = ({
                 })
               }
             >
-              <DataGridCell>{flavor.name || flavor.id}</DataGridCell>
-              <DataGridCell>{flavor.vcpus || "–"}</DataGridCell>
-              <DataGridCell>{flavor.ram || "–"}</DataGridCell>
-              <DataGridCell>{flavor.disk || "–"}</DataGridCell>
-              <DataGridCell>{flavor.swap || "–"}</DataGridCell>
-              <DataGridCell>{flavor["os-flavor-access:is_public"] === false ? t`Private` : t`Public`}</DataGridCell>
+              <DataGridCell>{flavor.name.trim() || flavor.id}</DataGridCell>
+              <DataGridCell>{flavor.vcpus ?? "- -"}</DataGridCell>
+              <DataGridCell>{flavor.ram ?? "- -"}</DataGridCell>
+              <DataGridCell>{flavor.disk ?? "- -"}</DataGridCell>
+              <DataGridCell>
+                {typeof flavor.swap === "string" ? flavor.swap.trim() || "- -" : (flavor.swap ?? "- -")}
+              </DataGridCell>
+              <DataGridCell>
+                {flavor["os-flavor-access:is_public"] == null
+                  ? "- -"
+                  : flavor["os-flavor-access:is_public"]
+                    ? t`Public`
+                    : t`Private`}
+              </DataGridCell>
               <DataGridCell onClick={(e) => e.stopPropagation()}>
                 <PopupMenu>
                   <PopupMenuOptions>

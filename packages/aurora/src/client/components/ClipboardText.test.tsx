@@ -113,6 +113,18 @@ describe("ClipboardText", () => {
   })
 
   describe("Copy functionality", () => {
+    it("allows native text selection while retaining the copy button when selectable", async () => {
+      await act(async () => {
+        render(<ClipboardText text="attachment-1" selectable />, { wrapper: TestingProvider })
+      })
+      expect(screen.getByText("attachment-1")).toHaveClass("select-text")
+      expect(screen.getByText("attachment-1")).not.toHaveClass("select-none")
+      await act(async () => {
+        fireEvent.click(screen.getByRole("button", { name: "Copy attachment-1 to clipboard" }))
+      })
+      expect(mockWriteText).toHaveBeenCalledWith("attachment-1")
+    })
+
     it("copies text to clipboard when clicked", async () => {
       await act(async () => {
         render(
