@@ -3960,9 +3960,6 @@ msgstr "Search ports..."
 msgid "Search routers..."
 msgstr "Search routers..."
 
-msgid "Search snapshots by name or ID..."
-msgstr "Search snapshots by name or ID..."
-
 msgid "Search..."
 msgstr "Search..."
 

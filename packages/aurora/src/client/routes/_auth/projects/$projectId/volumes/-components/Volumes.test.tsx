@@ -209,7 +209,7 @@ describe("block storage lists", () => {
   it.each([false, true])("omits the count bar and fetch timestamps (snapshots: %s)", (snapshots) => {
     render(<ResourceList projectId="project-1" snapshots={snapshots} />, { wrapper })
     expect(screen.queryByText(/Showing \d+ of \d+/)).not.toBeInTheDocument()
-    const search = screen.getByPlaceholderText(snapshots ? "Search snapshots by name or ID..." : "Search…")
+    const search = screen.getByPlaceholderText("Search…")
     const table = screen.getByTestId(snapshots ? "snapshots-table" : "volumes-table")
     // The filter/search toolbar is the final header element, with no count bar below it.
     expect(table.previousElementSibling?.lastElementChild).toContainElement(search)
