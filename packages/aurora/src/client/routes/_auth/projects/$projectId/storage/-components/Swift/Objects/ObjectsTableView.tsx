@@ -9,6 +9,7 @@ import {
   PopupMenu,
   PopupMenuItem,
   PopupMenuOptions,
+  PopupMenuSectionSeparator,
   ProgressBar,
   Spinner,
   toast,
@@ -437,16 +438,17 @@ export const ObjectsTableView = ({
                               data-testid={`download-action-${row.name}`}
                             />
                             <PopupMenuItem
+                              label={t`Share Object URL`}
+                              disabled={isStreaming}
+                              onClick={() => setTempUrlTarget(row as ObjectRow)}
+                              data-testid={`temp-url-action-${row.name}`}
+                            />
+                            <PopupMenuSectionSeparator />
+                            <PopupMenuItem
                               label={t`Edit/Preview Metadata`}
                               disabled={isStreaming}
                               onClick={() => setEditMetadataTarget(row as ObjectRow)}
                               data-testid={`edit-metadata-action-${row.name}`}
-                            />
-                            <PopupMenuItem
-                              label={t`Schedule Deletion`}
-                              disabled={isStreaming}
-                              onClick={() => setScheduleDeletionTarget(row as ObjectRow)}
-                              data-testid={`schedule-deletion-action-${row.name}`}
                             />
                             <PopupMenuItem
                               label={t`Copy Object`}
@@ -460,11 +462,12 @@ export const ObjectsTableView = ({
                               onClick={() => setMoveRenameObjectTarget(row as ObjectRow)}
                               data-testid={`move-rename-action-${row.name}`}
                             />
+                            <PopupMenuSectionSeparator />
                             <PopupMenuItem
-                              label={t`Share Object URL`}
+                              label={t`Schedule Deletion`}
                               disabled={isStreaming}
-                              onClick={() => setTempUrlTarget(row as ObjectRow)}
-                              data-testid={`temp-url-action-${row.name}`}
+                              onClick={() => setScheduleDeletionTarget(row as ObjectRow)}
+                              data-testid={`schedule-deletion-action-${row.name}`}
                             />
                             <PopupMenuItem
                               label={t`Delete Object`}
