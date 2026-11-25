@@ -10,6 +10,7 @@ import {
   PopupMenu,
   PopupMenuItem,
   PopupMenuOptions,
+  PopupMenuSectionSeparator,
   PopupMenuToggle,
   Status,
 } from "@cloudoperators/juno-ui-components"
@@ -285,6 +286,7 @@ export const ContainerTableView = ({
                           onClick={() => setEmptyModalContainer(container)}
                           data-testid={`empty-action-${container.name}`}
                         />
+                        <PopupMenuSectionSeparator />
                         <PopupMenuItem
                           label={t`Delete Container`}
                           onClick={() => setDeleteModalContainer(container)}

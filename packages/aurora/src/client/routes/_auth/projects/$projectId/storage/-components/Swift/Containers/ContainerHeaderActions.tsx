@@ -1,5 +1,12 @@
 import { useLingui } from "@lingui/react/macro"
-import { Button, PopupMenu, PopupMenuItem, PopupMenuOptions, PopupMenuToggle } from "@cloudoperators/juno-ui-components"
+import {
+  Button,
+  PopupMenu,
+  PopupMenuItem,
+  PopupMenuOptions,
+  PopupMenuSectionSeparator,
+  PopupMenuToggle,
+} from "@cloudoperators/juno-ui-components"
 
 export type ContainerModalType =
   | "manageAccess"
@@ -56,6 +63,7 @@ export const ContainerHeaderActions = ({ onOpenModal }: ContainerHeaderActionsPr
           onClick={() => onOpenModal("emptyContainer")}
           data-testid="container-actions-empty"
         />
+        <PopupMenuSectionSeparator />
         <PopupMenuItem
           label={t`Delete Container`}
           onClick={() => onOpenModal("deleteContainer")}
