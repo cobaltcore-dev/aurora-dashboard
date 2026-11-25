@@ -9,6 +9,8 @@ import type { ContainerProbe } from "../../utils/containerExistence"
 import { ContainerHeaderActions, type ContainerModalType } from "./ContainerHeaderActions"
 import { ManageContainerAccessModal } from "./ManageContainerAccessModal"
 import { EditContainerMetadataModal } from "./EditContainerMetadataModal"
+import { ConfigureVersioningModal } from "./ConfigureVersioningModal"
+import { ConfigureStaticWebsiteModal } from "./ConfigureStaticWebsiteModal"
 import { EmptyContainerModal } from "./EmptyContainerModal"
 import { DeleteContainerModal } from "./DeleteContainerModal"
 import {
@@ -20,6 +22,10 @@ import {
   getContainerEmptyErrorToast,
   getContainerDeletedToast,
   getContainerDeleteErrorToast,
+  getContainerVersioningUpdatedToast,
+  getContainerVersioningUpdateErrorToast,
+  getContainerStaticWebsiteUpdatedToast,
+  getContainerStaticWebsiteUpdateErrorToast,
 } from "./ContainerToastNotifications"
 
 interface ContainerHeaderProps {
@@ -113,6 +119,26 @@ export const ContainerHeader = ({ containerName }: ContainerHeaderProps) => {
     toast.error(message, options)
   }
 
+  const handleVersioningSuccess = (containerName: string) => {
+    const { message, ...options } = getContainerVersioningUpdatedToast(containerName)
+    toast.success(message, options)
+  }
+
+  const handleVersioningError = (containerName: string, errorMessage: string) => {
+    const { message, ...options } = getContainerVersioningUpdateErrorToast(containerName, errorMessage)
+    toast.error(message, options)
+  }
+
+  const handleStaticWebsiteSuccess = (containerName: string) => {
+    const { message, ...options } = getContainerStaticWebsiteUpdatedToast(containerName)
+    toast.success(message, options)
+  }
+
+  const handleStaticWebsiteError = (containerName: string, errorMessage: string) => {
+    const { message, ...options } = getContainerStaticWebsiteUpdateErrorToast(containerName, errorMessage)
+    toast.error(message, options)
+  }
+
   return (
     <>
       <ContentHeader
@@ -144,6 +170,22 @@ export const ContainerHeader = ({ containerName }: ContainerHeaderProps) => {
         onClose={closeModal}
         onSuccess={handlePropertiesSuccess}
         onError={handlePropertiesError}
+      />
+
+      <ConfigureVersioningModal
+        isOpen={activeModal === "configureVersioning"}
+        container={container}
+        onClose={closeModal}
+        onSuccess={handleVersioningSuccess}
+        onError={handleVersioningError}
+      />
+
+      <ConfigureStaticWebsiteModal
+        isOpen={activeModal === "configureStaticWebsite"}
+        container={container}
+        onClose={closeModal}
+        onSuccess={handleStaticWebsiteSuccess}
+        onError={handleStaticWebsiteError}
       />
 
       <EmptyContainerModal
