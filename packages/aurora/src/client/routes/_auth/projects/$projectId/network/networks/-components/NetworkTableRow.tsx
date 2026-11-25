@@ -11,6 +11,7 @@ import {
 import type { NetworkListItem } from "@/server/Network/types/network"
 import { useProjectId } from "@/client/hooks"
 import ClipboardText from "@/client/components/ClipboardText"
+import { StatusLabel } from "@/client/components/StatusLabel"
 
 interface NetworkTableRowProps {
   network: NetworkListItem
@@ -33,7 +34,7 @@ export const NetworkTableRow = ({ network }: NetworkTableRowProps) => {
   return (
     <DataGridRow key={network.id} data-testid={`network-row-${network.id}`} onClick={navigateToDetailsPage}>
       <DataGridCell>
-        <span className="lowercase first-letter:uppercase">{network.status}</span>
+        <StatusLabel value={network.status} />
       </DataGridCell>
       {/* Name — ID shown beneath the name with a copy affordance (E2-adjacent, spec AC) */}
       <DataGridCell>

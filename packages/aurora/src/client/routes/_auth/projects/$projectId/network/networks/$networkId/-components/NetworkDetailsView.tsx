@@ -6,6 +6,7 @@ import { getServiceIndex } from "@/server/Authentication/helpers"
 import type { Network } from "@/server/Network/types/network"
 import { useProjectId } from "@/client/hooks"
 import ClipboardText from "@/client/components/ClipboardText"
+import { StatusLabel } from "@/client/components/StatusLabel"
 import { TwoColumnDescriptionList, type DetailListItem } from "@/client/components/TwoColumnDescriptionList"
 import { NetworkSubnetsTable } from "./NetworkSubnetsTable"
 import { NetworkSegmentationTab } from "./NetworkSegmentationTab"
@@ -75,7 +76,7 @@ export function NetworkDetailsView({ network, activeTab, onTabChange }: NetworkD
   const basicInfoItems: DetailListItem[] = [
     { label: t`Name`, value: network.name },
     { label: t`ID`, value: <ClipboardText text={network.id} /> },
-    { label: t`Status`, value: <span className="lowercase first-letter:uppercase">{network.status}</span> },
+    { label: t`Status`, value: <StatusLabel value={network.status} /> },
     { label: t`Admin State`, value: network.admin_state_up ? t`Up` : t`Down` },
     // E2: when shared, shows the owning project_id with copy affordance
     { label: t`Shared`, value: network.shared ? <ClipboardText text={network.project_id} /> : t`No` },

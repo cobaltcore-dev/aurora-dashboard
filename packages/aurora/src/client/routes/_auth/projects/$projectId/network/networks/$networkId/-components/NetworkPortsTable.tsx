@@ -11,6 +11,7 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import type { Port } from "@/server/Network/types/port"
 import ClipboardText from "@/client/components/ClipboardText"
+import { StatusLabel } from "@/client/components/StatusLabel"
 
 interface NetworkPortsTableProps {
   ports: Port[]
@@ -78,7 +79,7 @@ export function NetworkPortsTable({
               <ClipboardText text={port.id} iconVisible="hover" />
             </DataGridCell>
             <DataGridCell>
-              <span className="lowercase first-letter:uppercase">{port.status}</span>
+              <StatusLabel value={port.status} />
             </DataGridCell>
             <DataGridCell>{port.admin_state_up ? t`Up` : t`Down`}</DataGridCell>
             <DataGridCell>
