@@ -9,6 +9,46 @@ export function findCinderService(services: { type: string; name: string }[]) {
   return undefined
 }
 
+export const VOLUME_ERROR_STATUSES = [
+  "error",
+  "error_deleting",
+  "error_extending",
+  "error_restoring",
+  "error_backing-up",
+]
+export const VOLUME_TRANSITIONAL_STATUSES = [
+  "creating",
+  "deleting",
+  "attaching",
+  "detaching",
+  "extending",
+  "backing-up",
+  "restoring-backup",
+  "maintenance",
+  "downloading",
+  "uploading",
+  "retyping",
+]
+export const VOLUME_STATUSES = [
+  ...VOLUME_ERROR_STATUSES,
+  ...VOLUME_TRANSITIONAL_STATUSES,
+  "awaiting-transfer",
+  "reserved",
+  "in-use",
+  "available",
+]
+export const SNAPSHOT_STATUSES = [
+  "error",
+  "error_deleting",
+  "creating",
+  "deleting",
+  "restoring",
+  "backing-up",
+  "unmanaging",
+  "available",
+  "deleted",
+]
+
 export const VOLUME_PERMISSIONS = [
   "volume:volumes:list",
   "volume:volumes:read",

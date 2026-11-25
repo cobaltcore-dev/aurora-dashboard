@@ -10,6 +10,7 @@ import {
   Status,
 } from "@cloudoperators/juno-ui-components"
 import type { RouterInterface } from "@/server/Network/types/router"
+import ClipboardText from "@/client/components/ClipboardText"
 
 interface RouterInterfacesTableProps {
   interfaces: RouterInterface[]
@@ -63,17 +64,37 @@ export const RouterInterfacesTable = ({
           <DataGridRow key={routerInterface.port_id} data-testid={`router-interface-row-${routerInterface.port_id}`}>
             <DataGridCell>
               <Stack direction="vertical" gap="0.5" className="min-w-0">
-                <span className="break-all">{routerInterface.network_name || routerInterface.network_id}</span>
-                {routerInterface.network_name && (
-                  <span className="text-theme-light text-sm break-all">{routerInterface.network_id}</span>
+                {routerInterface.network_name ? (
+                  <>
+                    <span className="break-all">{routerInterface.network_name}</span>
+                    <ClipboardText
+                      text={routerInterface.network_id}
+                      className="text-theme-light text-sm"
+                      iconVisible="hover"
+                    />
+                  </>
+                ) : (
+                  <ClipboardText text={routerInterface.network_id} iconVisible="hover" />
                 )}
               </Stack>
             </DataGridCell>
             <DataGridCell>
               {routerInterface.fixed_ips.length > 0 ? (
-                <Stack direction="vertical" gap="0.5">
+                <Stack direction="vertical" gap="2">
                   {routerInterface.fixed_ips.map((fixedIp) => (
-                    <span key={`${fixedIp.subnet_id}-${fixedIp.ip_address}`}>{fixedIp.ip_address}</span>
+                    <Stack
+                      key={`${fixedIp.subnet_id}-${fixedIp.ip_address}`}
+                      direction="vertical"
+                      gap="0.5"
+                      className="min-w-0"
+                    >
+                      <span className="break-all">{fixedIp.ip_address}</span>
+                      <ClipboardText
+                        text={fixedIp.subnet_id}
+                        className="text-theme-light text-sm"
+                        iconVisible="hover"
+                      />
+                    </Stack>
                   ))}
                 </Stack>
               ) : (

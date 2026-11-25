@@ -63,5 +63,12 @@ jobs:
           publish: pnpm release
           title: "publish(npm): automate Package Versioning and Publishing with Changesets"
           commit: "chore(version): update versions with Changesets"
+          # Commit and tag via the GitHub API so GitHub signs them as the App
+          # identity that owns the token ("Verified"), satisfying the "require
+          # signed commits" branch protection. The default "git-cli" mode makes
+          # a local, unsigned commit as github-actions[bot] (see issue #1521).
+          commitMode: "github-api"
+          # Required when using github-api / a custom App token.
+          github-token: ${{ steps.github-app-token.outputs.token }}
         env:
           GITHUB_TOKEN: ${{ steps.github-app-token.outputs.token }}

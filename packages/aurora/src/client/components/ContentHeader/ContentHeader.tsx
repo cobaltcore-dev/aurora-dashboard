@@ -50,7 +50,7 @@ export function ContentHeader({ title, projectId, description, actions, badges }
           <span className="font-semibold">
             <Trans>Project ID</Trans>:{" "}
           </span>
-          <ClipboardText text={projectId} truncateAt={15} />
+          <ClipboardText text={projectId} />
         </div>
       </div>
       {description && <p className="text-sm font-normal">{description}</p>}

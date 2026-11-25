@@ -59,7 +59,7 @@ export const SelectedFilters = ({ selectedFilters, onDelete, onClear, filters }:
           />
         )
       })}
-      {selectedFilters.length > 1 && <Button size="small" label={t`Clear all`} onClick={onClear} />}
+      {selectedFilters.length > 1 && <Button size="xs" label={t`Clear all`} onClick={onClear} />}
     </Stack>
   )
 }

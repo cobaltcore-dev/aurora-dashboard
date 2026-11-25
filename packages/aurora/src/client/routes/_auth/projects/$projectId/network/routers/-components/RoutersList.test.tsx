@@ -135,11 +135,12 @@ describe("Routers", () => {
       expect(screen.queryByTestId("router-list-container")).not.toBeInTheDocument()
     })
 
-    it("renders the loaded routers", async () => {
+    it("renders the loaded routers and shows the count in the toolbar", async () => {
       await renderList()
 
       expect(await screen.findByTestId("router-router-1")).toHaveTextContent("edge-router")
       expect(screen.getByTestId("router-router-2")).toHaveTextContent("internal-router")
+      expect(screen.getByText("Showing 2 routers")).toBeInTheDocument()
     })
 
     it("queries routers for the project with default sorting", async () => {
