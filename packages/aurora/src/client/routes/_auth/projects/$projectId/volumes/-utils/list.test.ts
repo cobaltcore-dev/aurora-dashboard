@@ -25,6 +25,87 @@ const volumes = [
 ]
 
 describe("volume list transforms", () => {
+  const searchableVolume = volumeSchema.parse({
+    id: "volume[data]",
+    name: "Backup",
+    description: "Nightly database copy",
+    size: 73,
+    encrypted: true,
+    multiattach: false,
+    snapshot_id: "source-snapshot",
+    source_volid: "source-volume",
+    created_at: "2026-11-25T10:00:00",
+    updated_at: "2026-11-26T11:00:00",
+    "os-vol-tenant-attr:tenant_id": "project-owner",
+    metadata: { retention: "weekly" },
+    attachments: [
+      {
+        attachment_id: "attach-record",
+        server_id: "server-instance",
+        device: "/dev/vdc",
+        attached_at: "2026-11-27T12:00:00",
+        volume_id: "attached-volume",
+      },
+    ],
+    status: "available",
+    volume_type: "fast",
+    bootable: true,
+    availability_zone: "az1",
+  })
+
+  it.each([
+    "backup",
+    "DATABASE",
+    "73",
+    "true",
+    "false",
+    "yes",
+    "no",
+    "source-snapshot",
+    "source-volume",
+    "2026-11-25",
+    "2026-11-26",
+    "project-owner",
+    "retention",
+    "weekly",
+    "attach-record",
+    "server-instance",
+    "/dev/vdc",
+    "2026-11-27",
+    "attached-volume",
+    "[",
+  ])("searches non-filter volume data (%s)", (search) => {
+    expect(filterAndSortVolumes([searchableVolume], { search })).toEqual([searchableVolume])
+  })
+
+  it.each(["available", "fast", "az1"])("leaves %s to dedicated filters", (search) => {
+    expect(filterAndSortVolumes([searchableVolume], { search })).toEqual([])
+  })
+
+  it("does not include bootable in free-text search", () => {
+    const volume = volumeSchema.parse({ id: "one", bootable: true })
+    expect(filterAndSortVolumes([volume], { search: "true" })).toEqual([])
+    expect(filterAndSortVolumes([volume], { bootable: "true" })).toEqual([volume])
+  })
+
+  it("combines expanded search with filters, preserves snapshot search, and matches literally", () => {
+    expect(
+      filterAndSortVolumes([searchableVolume], {
+        search: " database ",
+        status: "available",
+        volume_type: "fast",
+        availability_zone: "az1",
+        bootable: "true",
+      })
+    ).toEqual([searchableVolume])
+    expect(filterAndSortVolumes([searchableVolume], { search: "database", status: "in-use" })).toEqual([])
+    expect(filterAndSortVolumes([searchableVolume], { search: ".*" })).toEqual([])
+    expect(filterAndSortVolumes([searchableVolume], { search: "  " })).toEqual([searchableVolume])
+    expect(filterAndSortVolumes([searchableVolume], { search: "database" }, true)).toEqual([])
+    expect(filterAndSortVolumes([searchableVolume], { search: "backup" }, true)).toEqual([searchableVolume])
+    expect(filterAndSortVolumes(volumes, { search: "undefined" })).toEqual([])
+  })
+
   it("combines name/ID search and all four client-side filters", () => {
     expect(
       filterAndSortVolumes(volumes, {

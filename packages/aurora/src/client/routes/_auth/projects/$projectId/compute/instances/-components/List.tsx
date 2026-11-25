@@ -128,7 +128,7 @@ function InstancesContent({
               onChange={(selected) => onApplyFilter(selected, filters)}
             />
             <SearchInput
-              placeholder={t`Search instances...`}
+              placeholder={t`Search…`}
               data-testid="searchbar"
               value={localSearchTerm}
               onInput={(e: React.FormEvent<HTMLInputElement>) => {

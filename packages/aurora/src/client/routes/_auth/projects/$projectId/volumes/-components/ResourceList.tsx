@@ -1,6 +1,6 @@
 import { Button, DataGridToolbar, SearchInput, Stack, Status } from "@cloudoperators/juno-ui-components"
 import { useNavigate, useSearch } from "@tanstack/react-router"
-import { Trans, useLingui } from "@lingui/react/macro"
+import { useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useVolumePermissions } from "@/client/hooks/useVolumePermissions"
 import { SortInput } from "@/client/components/ListToolbar/SortInput"
@@ -32,8 +32,6 @@ export function ResourceList({ projectId, snapshots = false }: { projectId: stri
   const query = snapshots ? snapshotsQuery : volumesQuery
   const allItems = query.data ?? []
   const items = filterAndSortVolumes(allItems, search, snapshots)
-  const filteredCount = items.length
-  const totalCount = allItems.length
   const filterKeys = snapshots ? ["status"] : ["status", "volume_type", "bootable", "availability_zone"]
   const selectedFilters = filterKeys.flatMap((name) => {
     const value = search[name as keyof VolumeSearch]
@@ -124,7 +122,7 @@ export function ResourceList({ projectId, snapshots = false }: { projectId: stri
                 onChange={({ name, value }) => updateSearch({ [name]: value || undefined })}
               />
               <SearchInput
-                placeholder={snapshots ? t`Search snapshots by name or ID...` : t`Search volumes by name or ID...`}
+                placeholder={t`Search…`}
                 value={search.search ?? ""}
                 onInput={(event) => updateSearch({ search: event.currentTarget.value || undefined })}
                 onSearch={(value) => updateSearch({ search: typeof value === "string" ? value : undefined })}
@@ -148,15 +146,6 @@ export function ResourceList({ projectId, snapshots = false }: { projectId: stri
                 )}
               </Stack>
             )}
-          </Stack>
-        </DataGridToolbar>
-        <DataGridToolbar>
-          <Stack alignment="center" wrap className="text-sm">
-            <span className="text-theme-light">
-              <Trans>
-                Showing {filteredCount} of {totalCount}
-              </Trans>
-            </span>
           </Stack>
         </DataGridToolbar>
       </Stack>

@@ -587,8 +587,8 @@ describe("EmptyBucketModal", () => {
   describe("Error handling", () => {
     test("reports a failed wipe inside the still-open modal", async () => {
       // The report used to leave through `onError` and land in a transient toast while the modal
-      // closed underneath it. An operation error that the user may need to act on belongs inline
-      // (B.16), so it now renders in the modal the action was started from.
+      // closed underneath it. An operation error that the user may need to act on belongs inline,
+      // so it now renders in the modal the action was started from.
       const user = userEvent.setup({ delay: null })
       const mockOnClose = vi.fn()
       mockState.mutationError = "Failed to empty bucket"
