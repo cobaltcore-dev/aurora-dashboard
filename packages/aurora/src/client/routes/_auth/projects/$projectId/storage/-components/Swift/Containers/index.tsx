@@ -33,6 +33,8 @@ import {
   getContainerUpdateErrorToast,
   getContainerAclUpdatedToast,
   getContainerAclUpdateErrorToast,
+  getContainerVersioningUpdatedToast,
+  getContainerVersioningUpdateErrorToast,
   getContainersEmptyCompleteToast,
 } from "./ContainerToastNotifications"
 import { ContainerLimitsTooltip } from "./ContainerLimitsTooltip"
@@ -130,6 +132,16 @@ export const SwiftContainers = () => {
 
   const handleAclError = (containerName: string, errorMessage: string) => {
     const { message, ...options } = getContainerAclUpdateErrorToast(containerName, errorMessage)
+    toast.error(message, options)
+  }
+
+  const handleVersioningSuccess = (containerName: string) => {
+    const { message, ...options } = getContainerVersioningUpdatedToast(containerName)
+    toast.success(message, options)
+  }
+
+  const handleVersioningError = (containerName: string, errorMessage: string) => {
+    const { message, ...options } = getContainerVersioningUpdateErrorToast(containerName, errorMessage)
     toast.error(message, options)
   }
 
@@ -432,6 +444,8 @@ export const SwiftContainers = () => {
         onPropertiesError={handlePropertiesError}
         onAclSuccess={handleAclSuccess}
         onAclError={handleAclError}
+        onVersioningSuccess={handleVersioningSuccess}
+        onVersioningError={handleVersioningError}
         selectedContainers={selectedContainers}
         setSelectedContainers={setSelectedContainers}
         hasAnyBulkAction={hasAnyBulkAction}

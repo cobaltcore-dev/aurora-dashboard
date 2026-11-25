@@ -906,6 +906,9 @@ msgstr "Compute & State"
 msgid "Configuration Unavailable"
 msgstr "Configuration Unavailable"
 
+msgid "Configure Versioning"
+msgstr "Configure Versioning"
+
 msgid "Confirm deletion of {displayName}. All objects inside this folder will be marked as deleted but can be restored from version history."
 msgstr "Confirm deletion of {displayName}. All objects inside this folder will be marked as deleted but can be restored from version history."
 
@@ -1205,6 +1208,9 @@ msgstr "Could not update container \"{containerName}\": {errorMessage}"
 
 msgid "Could not update deletion schedule for \"{objectName}\": {errorMessage}"
 msgstr "Could not update deletion schedule for \"{objectName}\": {errorMessage}"
+
+msgid "Could not update versioning for container \"{containerName}\": {errorMessage}"
+msgstr "Could not update versioning for container \"{containerName}\": {errorMessage}"
 
 msgid "Could not upload \"{objectName}\": {errorMessage}"
 msgstr "Could not upload \"{objectName}\": {errorMessage}"
@@ -2237,6 +2243,9 @@ msgstr "Failed to update object: {mutationErrorMessage}"
 
 msgid "Failed to update security group"
 msgstr "Failed to update security group"
+
+msgid "Failed to Update Versioning"
+msgstr "Failed to Update Versioning"
 
 msgid "Failed to update visibility for \"{imageName}\": {errorMessage}"
 msgstr "Failed to update visibility for \"{imageName}\": {errorMessage}"
@@ -3402,9 +3411,6 @@ msgstr "Object Updated"
 msgid "Object Uploaded"
 msgstr "Object Uploaded"
 
-msgid "Object versioning"
-msgstr "Object versioning"
-
 msgid "Object was copied but could not be deleted from the source: {deleteErrorMessage}"
 msgstr "Object was copied but could not be deleted from the source: {deleteErrorMessage}"
 
@@ -3951,6 +3957,9 @@ msgstr "Saving Image Details..."
 msgid "Saving..."
 msgstr "Saving..."
 
+msgid "Schedule automatic deletion of this object by setting an expiry date and time."
+msgstr "Schedule automatic deletion of this object by setting an expiry date and time."
+
 msgid "Schedule Deletion"
 msgstr "Schedule Deletion"
 
@@ -4406,6 +4415,9 @@ msgstr "Store old object versions"
 
 msgid "Store old object versions in container:"
 msgstr "Store old object versions in container:"
+
+msgid "Store previous versions of objects when they are overwritten or deleted."
+msgstr "Store previous versions of objects when they are overwritten or deleted."
 
 msgid "Stored as x-amz-meta-* headers. Keys are case-insensitive."
 msgstr "Stored as x-amz-meta-* headers. Keys are case-insensitive."
@@ -5205,11 +5217,17 @@ msgstr "Versioned writes"
 msgid "Versioning Enabled"
 msgstr "Versioning Enabled"
 
+msgid "Versioning for container \"{containerName}\" was successfully updated."
+msgstr "Versioning for container \"{containerName}\" was successfully updated."
+
 msgid "Versioning is enabled"
 msgstr "Versioning is enabled"
 
 msgid "Versioning Suspended"
 msgstr "Versioning Suspended"
+
+msgid "Versioning Updated"
+msgstr "Versioning Updated"
 
 msgid "Versioning was successfully enabled for bucket \"{bucketName}\"."
 msgstr "Versioning was successfully enabled for bucket \"{bucketName}\"."

@@ -152,6 +152,8 @@ const renderView = ({
   onPropertiesError = vi.fn(),
   onAclSuccess = vi.fn(),
   onAclError = vi.fn(),
+  onVersioningSuccess = vi.fn(),
+  onVersioningError = vi.fn(),
   selectedContainers = [],
   setSelectedContainers = vi.fn(),
 }: {
@@ -169,6 +171,8 @@ const renderView = ({
   onPropertiesError?: (containerName: string, errorMessage: string) => void
   onAclSuccess?: (containerName: string) => void
   onAclError?: (containerName: string, errorMessage: string) => void
+  onVersioningSuccess?: (containerName: string) => void
+  onVersioningError?: (containerName: string, errorMessage: string) => void
   selectedContainers?: string[]
   setSelectedContainers?: (containers: string[]) => void
 } = {}) =>
@@ -190,6 +194,8 @@ const renderView = ({
           onPropertiesError={onPropertiesError}
           onAclSuccess={onAclSuccess}
           onAclError={onAclError}
+          onVersioningSuccess={onVersioningSuccess}
+          onVersioningError={onVersioningError}
           selectedContainers={selectedContainers}
           setSelectedContainers={setSelectedContainers}
         />

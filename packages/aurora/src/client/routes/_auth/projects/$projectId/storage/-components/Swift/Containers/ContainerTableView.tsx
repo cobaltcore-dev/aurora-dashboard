@@ -23,6 +23,7 @@ import { EmptyContainerModal } from "./EmptyContainerModal"
 import { DeleteContainerModal } from "./DeleteContainerModal"
 import { EditContainerMetadataModal } from "./EditContainerMetadataModal"
 import { ManageContainerAccessModal } from "./ManageContainerAccessModal"
+import { ConfigureVersioningModal } from "./ConfigureVersioningModal"
 
 interface ContainerTableViewProps {
   containers: ContainerSummary[]
@@ -41,6 +42,8 @@ interface ContainerTableViewProps {
   onPropertiesError?: (containerName: string, errorMessage: string) => void
   onAclSuccess: (containerName: string) => void
   onAclError: (containerName: string, errorMessage: string) => void
+  onVersioningSuccess: (containerName: string) => void
+  onVersioningError: (containerName: string, errorMessage: string) => void
   selectedContainers: string[]
   setSelectedContainers: (containers: string[]) => void
   // When false, the row-selection column (header checkbox + per-row checkboxes)
@@ -66,6 +69,8 @@ export const ContainerTableView = ({
   onPropertiesError,
   onAclSuccess,
   onAclError,
+  onVersioningSuccess,
+  onVersioningError,
   selectedContainers,
   setSelectedContainers,
   hasAnyBulkAction = true,
@@ -82,6 +87,7 @@ export const ContainerTableView = ({
   const [deleteModalContainer, setDeleteModalContainer] = useState<ContainerSummary | null>(null)
   const [propertiesModalContainer, setPropertiesModalContainer] = useState<ContainerSummary | null>(null)
   const [accessControlModalContainer, setAccessControlModalContainer] = useState<ContainerSummary | null>(null)
+  const [versioningModalContainer, setVersioningModalContainer] = useState<ContainerSummary | null>(null)
 
   // Height measured from the space actually left below the table, plus a
   // virtualizer that stays silent until that height is known.
@@ -259,6 +265,11 @@ export const ContainerTableView = ({
                           data-testid={`properties-action-${container.name}`}
                         />
                         <PopupMenuItem
+                          label={t`Configure Versioning`}
+                          onClick={() => setVersioningModalContainer(container)}
+                          data-testid={`versioning-action-${container.name}`}
+                        />
+                        <PopupMenuItem
                           label={t`Empty Container`}
                           onClick={() => setEmptyModalContainer(container)}
                           data-testid={`empty-action-${container.name}`}
@@ -318,6 +329,14 @@ export const ContainerTableView = ({
         onClose={() => setAccessControlModalContainer(null)}
         onSuccess={onAclSuccess}
         onError={onAclError}
+      />
+
+      <ConfigureVersioningModal
+        isOpen={versioningModalContainer !== null}
+        container={versioningModalContainer}
+        onClose={() => setVersioningModalContainer(null)}
+        onSuccess={onVersioningSuccess}
+        onError={onVersioningError}
       />
     </>
   )

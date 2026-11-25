@@ -113,6 +113,25 @@ export const getContainerAclUpdateErrorToast = (
   ),
 })
 
+export const getContainerVersioningUpdatedToast = (
+  containerName: string
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Versioning Updated</Trans>,
+  description: <Trans>Versioning for container "{containerName}" was successfully updated.</Trans>,
+})
+
+export const getContainerVersioningUpdateErrorToast = (
+  containerName: string,
+  errorMessage: string
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Failed to Update Versioning</Trans>,
+  description: (
+    <Trans>
+      Could not update versioning for container "{containerName}": {errorMessage}
+    </Trans>
+  ),
+})
+
 export const getContainersEmptiedToast = (
   emptiedCount: number,
   totalDeleted: number

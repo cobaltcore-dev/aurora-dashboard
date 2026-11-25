@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react"
+import React, { useState, useEffect } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import {
@@ -12,8 +12,6 @@ import {
   TooltipTrigger,
   TooltipContent,
   Icon,
-  ComboBox,
-  ComboBoxOption,
   DescriptionList,
   DescriptionTerm,
   DescriptionDefinition,
@@ -30,8 +28,6 @@ const RESERVED_META_KEYS = new Set([
   "web-listings-css",
   "web-error",
 ])
-
-const MAX_COMBO_OPTIONS = 50
 
 // RFC 7230 token allowlist — letters, digits, and safe symbols only.
 // Using a positive allowlist avoids the ESLint no-control-regex rule.
@@ -85,32 +81,6 @@ export const EditContainerMetadataModal = ({
     { enabled: isOpen && container !== null && isPublicAccess }
   )
 
-  const { data: containers } = trpcReact.storage.swift.listContainers.useQuery(
-    { project_id: projectId },
-    { enabled: isOpen }
-  )
-
-  const [containerSearch, setContainerSearch] = useState("")
-  const [debouncedSearch, setDebouncedSearch] = useState("")
-  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  const handleContainerSearch = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    setContainerSearch(value)
-    if (debounceTimer.current) clearTimeout(debounceTimer.current)
-    debounceTimer.current = setTimeout(() => setDebouncedSearch(value), 300)
-  }, [])
-
-  const filteredContainers =
-    debouncedSearch.trim().length > 0
-      ? (containers ?? []).filter(
-          (c) => c.name !== container?.name && c.name.toLowerCase().includes(debouncedSearch.toLowerCase())
-        )
-      : []
-
-  const visibleContainers = filteredContainers.slice(0, MAX_COMBO_OPTIONS)
-  const hiddenCount = filteredContainers.length - visibleContainers.length
-
   const utils = trpcReact.useUtils()
 
   // ── Form state ────────────────────────────────────────────────────────────
@@ -123,10 +93,6 @@ export const EditContainerMetadataModal = ({
   // Static website fields
   const [webIndex, setWebIndex] = useState("")
   const [webListings, setWebListings] = useState(false)
-
-  // Versioning
-  const [versionsEnabled, setVersionsEnabled] = useState(false)
-  const [versionsLocation, setVersionsLocation] = useState("")
 
   // Custom metadata
   const [metadata, setMetadata] = useState<MetadataEntry[]>([])
@@ -143,9 +109,6 @@ export const EditContainerMetadataModal = ({
 
     setQuotaBytes(info.quotaBytes != null ? String(info.quotaBytes) : "")
     setQuotaCount(info.quotaCount != null ? String(info.quotaCount) : "")
-    setVersionsEnabled(!!(info.versionsEnabled || info.versionsLocation || info.historyLocation))
-    setVersionsLocation(info.versionsLocation || info.historyLocation || "")
-
     const rawMetaForWeb = info.metadata ?? {}
     setWebIndex(rawMetaForWeb["web-index"] ?? "")
     setWebListings(rawMetaForWeb["web-listings"] === "1" || rawMetaForWeb["web-listings"] === "true")
@@ -179,11 +142,6 @@ export const EditContainerMetadataModal = ({
     setQuotaCountError(null)
     setWebIndex("")
     setWebListings(false)
-    setVersionsEnabled(false)
-    setVersionsLocation("")
-    setContainerSearch("")
-    setDebouncedSearch("")
-    if (debounceTimer.current) clearTimeout(debounceTimer.current)
     setMetadata([])
     setMetaErrors({})
     setIsAddingNew(false)
@@ -368,10 +326,6 @@ export const EditContainerMetadataModal = ({
       }
     }
 
-    // Determine versioning changes
-    const wasVersioned = !!(info?.versionsEnabled || info?.versionsLocation || info?.historyLocation)
-    const previousLocation = info?.versionsLocation || info?.historyLocation || ""
-
     updateMutation.mutate({
       project_id: projectId,
       container: container.name,
@@ -379,12 +333,6 @@ export const EditContainerMetadataModal = ({
       removeMetadata: removeMetadata.length ? removeMetadata : undefined,
       quotaBytes: quotaBytes !== "" ? Number(quotaBytes) : undefined,
       quotaCount: quotaCount !== "" ? Number(quotaCount) : undefined,
-      // Enable versioning with selected container, update if location changed, or remove if disabled
-      versionsLocation:
-        versionsEnabled && (!wasVersioned || versionsLocation !== previousLocation) && versionsLocation
-          ? versionsLocation
-          : undefined,
-      removeVersionsLocation: !versionsEnabled && wasVersioned ? true : undefined,
     })
   }
 
@@ -401,8 +349,6 @@ export const EditContainerMetadataModal = ({
 
   const initialQuotaBytes = info?.quotaBytes != null ? String(info.quotaBytes) : ""
   const initialQuotaCount = info?.quotaCount != null ? String(info.quotaCount) : ""
-  const initialVersionsEnabled = !!info?.versionsEnabled
-  const initialVersionsLocation = info?.versionsLocation || info?.historyLocation || ""
   const initialWebIndex = info?.metadata?.["web-index"] ?? ""
   const initialWebListings = info?.metadata?.["web-listings"] === "1" || info?.metadata?.["web-listings"] === "true"
   const initialMetadataKeys = Object.keys(info?.metadata ?? {}).filter((k) => !RESERVED_META_KEYS.has(k))
@@ -414,8 +360,6 @@ export const EditContainerMetadataModal = ({
   const isUnchanged =
     quotaBytes === initialQuotaBytes &&
     quotaCount === initialQuotaCount &&
-    versionsEnabled === initialVersionsEnabled &&
-    versionsLocation === initialVersionsLocation &&
     webIndex === initialWebIndex &&
     webListings === initialWebListings &&
     metadataUnchanged
@@ -568,81 +512,6 @@ export const EditContainerMetadataModal = ({
                     <strong>Manage Access</strong> and enable public read access.
                   </Trans>
                 </p>
-              )}
-            </div>
-
-            {/* ── Object versioning ────────────────────────────────────────── */}
-            <div>
-              <p className="text-theme-default mb-2 text-sm font-semibold">
-                <Trans>Object versioning</Trans>
-              </p>
-
-              {/* Case 1: server-side versioning active, no user changes yet */}
-              {initialVersionsEnabled && !versionsLocation ? (
-                <Checkbox
-                  label={t`Versioning is enabled`}
-                  checked
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    if (!e.target.checked) {
-                      setVersionsEnabled(false)
-                      setVersionsLocation("")
-                      setContainerSearch("")
-                      setDebouncedSearch("")
-                    }
-                  }}
-                  disabled={true}
-                />
-              ) : !versionsEnabled && !versionsLocation ? (
-                /* Case 2: nothing enabled, nothing selected */
-                <Checkbox
-                  label={t`Store old object versions`}
-                  checked={false}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setVersionsEnabled(e.target.checked)}
-                  disabled={isBusy}
-                />
-              ) : (
-                /* Case 3: checkbox checked or a container is selected */
-                <Stack direction="vertical" gap="1">
-                  <Checkbox
-                    label={t`Store old object versions in container:`}
-                    checked={versionsEnabled}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                      setVersionsEnabled(e.target.checked)
-                      if (!e.target.checked) {
-                        setVersionsLocation("")
-                        setContainerSearch("")
-                        setDebouncedSearch("")
-                      }
-                    }}
-                    disabled={isBusy}
-                  />
-                  {versionsEnabled && (
-                    <div className="pl-6">
-                      <ComboBox
-                        value={versionsLocation}
-                        onChange={(value: string) => setVersionsLocation(value)}
-                        onInputChange={handleContainerSearch}
-                        placeholder={t`Type to search containers...`}
-                        helptext={(() => {
-                          if (containerSearch.trim().length === 0) return t`Start typing to search for a container`
-                          if (hiddenCount > 0) {
-                            const maxOptions = MAX_COMBO_OPTIONS
-                            const totalCount = filteredContainers.length
-                            return t`Showing first ${maxOptions} of ${totalCount} — refine your search to narrow results`
-                          }
-                          return undefined
-                        })()}
-                        disabled={isBusy}
-                      >
-                        {visibleContainers.map((c) => (
-                          <ComboBoxOption key={c.name} value={c.name}>
-                            {c.name}
-                          </ComboBoxOption>
-                        ))}
-                      </ComboBox>
-                    </div>
-                  )}
-                </Stack>
               )}
             </div>
 

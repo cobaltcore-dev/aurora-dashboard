@@ -145,6 +145,9 @@ export const ScheduleObjectDeletionModal = ({
         <Status status="error" title={t`Failed to Load Object Metadata`} body={metadataErrorMessage} className="mt-0" />
       ) : (
         <Stack direction="vertical" gap="4" className={isPickerOpen ? "min-h-150" : ""}>
+          <p className="text-theme-default">
+            <Trans>Schedule automatic deletion of this object by setting an expiry date and time.</Trans>
+          </p>
           <DescriptionList>
             <DescriptionTerm>
               <Trans>Name</Trans>
