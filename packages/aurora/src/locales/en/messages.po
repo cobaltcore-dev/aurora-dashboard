@@ -1314,6 +1314,12 @@ msgstr "Custom"
 msgid "Custom duration (minutes)"
 msgstr "Custom duration (minutes)"
 
+msgid "Custom metadata lets you attach arbitrary key-value pairs to this container. Each entry is stored as a Swift container header (<0>X-Container-Meta-*</0>) and returned with every request. Keys are case-insensitive. The following keys are reserved and managed through dedicated form fields: <1>web-index, web-listings, quota-count, quota-bytes</1>."
+msgstr "Custom metadata lets you attach arbitrary key-value pairs to this container. Each entry is stored as a Swift container header (<0>X-Container-Meta-*</0>) and returned with every request. Keys are case-insensitive. The following keys are reserved and managed through dedicated form fields: <1>web-index, web-listings, quota-count, quota-bytes</1>."
+
+msgid "Custom metadata lets you attach arbitrary key-value pairs to this object. Each entry is stored as a Swift object header (<0>X-Object-Meta-*</0>) and returned with every request. Keys are case-insensitive."
+msgstr "Custom metadata lets you attach arbitrary key-value pairs to this object. Each entry is stored as a Swift object header (<0>X-Object-Meta-*</0>) and returned with every request. Keys are case-insensitive."
+
 msgid "Date:"
 msgstr "Date:"
 
@@ -3465,9 +3471,6 @@ msgstr "opaque — Used for backwards compatibility with previous versions of th
 msgid "Open {displayName}"
 msgstr "Open {displayName}"
 
-msgid "Open in new tab"
-msgstr "Open in new tab"
-
 msgid "optional"
 msgstr "optional"
 
@@ -3848,9 +3851,6 @@ msgstr "Remove RBAC Policy"
 
 msgid "Removing..."
 msgstr "Removing..."
-
-msgid "Reserved keys: web-index, web-listings, quota-count, quota-bytes"
-msgstr "Reserved keys: web-index, web-listings, quota-count, quota-bytes"
 
 msgid "Resource Not Accessible"
 msgstr "Resource Not Accessible"
@@ -4439,9 +4439,6 @@ msgstr "Store previous versions of objects in container <0>{containerName}</0> w
 
 msgid "Stored as x-amz-meta-* headers. Keys are case-insensitive."
 msgstr "Stored as x-amz-meta-* headers. Keys are case-insensitive."
-
-msgid "Stored as X-Object-Meta-* headers. Keys are case-insensitive."
-msgstr "Stored as X-Object-Meta-* headers. Keys are case-insensitive."
 
 msgid "Sub Status"
 msgstr "Sub Status"
@@ -5162,9 +5159,6 @@ msgstr "Uploading... {progressPct}%"
 
 msgid "URL Copied"
 msgstr "URL Copied"
-
-msgid "URL for public access"
-msgstr "URL for public access"
 
 msgid "Used"
 msgstr "Used"

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import {
@@ -7,6 +7,7 @@ import {
   Stack,
   Status,
   Button,
+  Icon,
   DescriptionList,
   DescriptionTerm,
   DescriptionDefinition,
@@ -93,6 +94,8 @@ export const EditContainerMetadataModal = ({
   const [newValue, setNewValue] = useState("")
   const [newKeyError, setNewKeyError] = useState<string | null>(null)
   const [newValueError, setNewValueError] = useState<string | null>(null)
+  const [copiedPublicUrl, setCopiedPublicUrl] = useState(false)
+  const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // ── Populate form when data arrives ──────────────────────────────────────
   useEffect(() => {
@@ -308,6 +311,21 @@ export const EditContainerMetadataModal = ({
     })
   }
 
+  const handleCopyPublicUrl = () => {
+    if (!publicUrl) return
+    navigator.clipboard
+      .writeText(publicUrl)
+      .then(() => {
+        setCopiedPublicUrl(true)
+        if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current)
+        copyTimeoutRef.current = setTimeout(() => {
+          setCopiedPublicUrl(false)
+          copyTimeoutRef.current = null
+        }, 2000)
+      })
+      .catch(() => {})
+  }
+
   const handleClose = () => {
     resetForm()
     onClose()
@@ -355,6 +373,16 @@ export const EditContainerMetadataModal = ({
       ) : (
         <div className="max-h-[65vh] overflow-y-auto pr-1 pl-1">
           <Stack direction="vertical" gap="6">
+            {/* ── Description ──────────────────────────────────────────────── */}
+            <p className="text-theme-default mb-4">
+              <Trans>
+                Custom metadata lets you attach arbitrary key-value pairs to this container. Each entry is stored as a
+                Swift container header (<strong>X-Container-Meta-*</strong>) and returned with every request. Keys are
+                case-insensitive. The following keys are reserved and managed through dedicated form fields:{" "}
+                <strong>web-index, web-listings, quota-count, quota-bytes</strong>.
+              </Trans>
+            </p>
+
             {/* ── Read-only stats ─────────────────────────────────────────── */}
             <DescriptionList>
               <DescriptionTerm>
@@ -374,6 +402,23 @@ export const EditContainerMetadataModal = ({
                   : `${container.bytes.toLocaleString()} B`}
               </DescriptionDefinition>
             </DescriptionList>
+
+            {/* ── Public URL ──────────────────────────────────────────────── */}
+            {isPublicAccess && publicUrl && (
+              <div className="relative">
+                <TextInput label={t`Public Access URL`} value={publicUrl} readOnly className="pr-10 text-xs" />
+                <button
+                  type="button"
+                  onClick={handleCopyPublicUrl}
+                  title={copiedPublicUrl ? t`Copied!` : t`Copy URL`}
+                  aria-label={copiedPublicUrl ? t`Copied!` : t`Copy URL`}
+                  className="text-theme-light hover:text-theme-default absolute top-1/2 right-2 inline-flex items-center transition-colors"
+                  style={{ transform: "translateY(-50%)" }}
+                >
+                  <Icon icon={copiedPublicUrl ? "checkCircle" : "contentCopy"} size="18" />
+                </button>
+              </div>
+            )}
 
             {/* ── Quotas ──────────────────────────────────────────────────── */}
             <div className="grid grid-cols-2 gap-4">
@@ -408,42 +453,15 @@ export const EditContainerMetadataModal = ({
               </div>
             </div>
 
-            {/* ── Public URL ──────────────────────────────────────────────── */}
-            {isPublicAccess && publicUrl && (
-              <div>
-                <p className="text-theme-default mb-1 text-sm font-semibold">
-                  <Trans>URL for public access</Trans>{" "}
-                  <a
-                    href={publicUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-theme-info text-xs font-normal underline"
-                  >
-                    <Trans>Open in new tab</Trans>
-                  </a>
-                </p>
-                <TextInput value={publicUrl} disabled readOnly />
-              </div>
-            )}
-
             {/* ── Custom Metadata ──────────────────────────────────────────── */}
             <div>
-              <Stack direction="horizontal" alignment="center" distribution="between" className="mb-2">
-                <p className="text-theme-default text-sm font-semibold">
-                  <Trans>Metadata</Trans>
-                </p>
-                <p className="text-theme-light text-xs">
-                  <Trans>Reserved keys: web-index, web-listings, quota-count, quota-bytes</Trans>
-                </p>
-              </Stack>
-
-              <Stack direction="horizontal" className="mb-4 justify-end p-2">
+              <div className="mb-2 flex justify-end">
                 <Button
                   label={t`Add Property`}
                   onClick={() => setIsAddingNew(true)}
                   disabled={isAddingNew || hasEditing || isBusy}
                 />
-              </Stack>
+              </div>
 
               {metadata.length === 0 && !isAddingNew ? (
                 <p className="jn:text-theme-light py-8 text-center">

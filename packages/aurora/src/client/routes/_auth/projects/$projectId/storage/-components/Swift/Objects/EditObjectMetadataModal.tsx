@@ -325,6 +325,15 @@ export const EditObjectMetadataModal = ({
             </p>
           )}
 
+          {/* ── Description ──────────────────────────────────────────────── */}
+          <p className="text-theme-default mb-4">
+            <Trans>
+              Custom metadata lets you attach arbitrary key-value pairs to this object. Each entry is stored as a Swift
+              object header (<strong>X-Object-Meta-*</strong>) and returned with every request. Keys are
+              case-insensitive.
+            </Trans>
+          </p>
+
           {/* ── Read-only properties ──────────────────────────────────────── */}
           <DescriptionList>
             <DescriptionTerm>
@@ -359,22 +368,13 @@ export const EditObjectMetadataModal = ({
 
           {/* ── Custom metadata ───────────────────────────────────────────── */}
           <div>
-            <Stack direction="horizontal" alignment="center" distribution="between" className="mb-2">
-              <p className="text-theme-default text-sm font-semibold">
-                <Trans>Metadata</Trans>
-              </p>
-              <p className="text-theme-light text-xs">
-                <Trans>Stored as X-Object-Meta-* headers. Keys are case-insensitive.</Trans>
-              </p>
-            </Stack>
-
-            <Stack direction="horizontal" className="mb-4 justify-end p-2">
+            <div className="mb-2 flex justify-end">
               <Button
                 label={t`Add Property`}
                 onClick={() => setIsAddingNew(true)}
                 disabled={isAddingNew || hasEditing || isBusy}
               />
-            </Stack>
+            </div>
 
             {metadata.length === 0 && !isAddingNew ? (
               <p className="jn:text-theme-light py-8 text-center">

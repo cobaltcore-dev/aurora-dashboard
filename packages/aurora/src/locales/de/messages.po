@@ -1314,6 +1314,12 @@ msgstr "Benutzerdefiniert"
 msgid "Custom duration (minutes)"
 msgstr "Benutzerdefinierte Dauer (Minuten)"
 
+msgid "Custom metadata lets you attach arbitrary key-value pairs to this container. Each entry is stored as a Swift container header (<0>X-Container-Meta-*</0>) and returned with every request. Keys are case-insensitive. The following keys are reserved and managed through dedicated form fields: <1>web-index, web-listings, quota-count, quota-bytes</1>."
+msgstr ""
+
+msgid "Custom metadata lets you attach arbitrary key-value pairs to this object. Each entry is stored as a Swift object header (<0>X-Object-Meta-*</0>) and returned with every request. Keys are case-insensitive."
+msgstr ""
+
 msgid "Date:"
 msgstr ""
 
@@ -3465,9 +3471,6 @@ msgstr ""
 msgid "Open {displayName}"
 msgstr "{displayName} öffnen"
 
-msgid "Open in new tab"
-msgstr "In neuem Tab öffnen"
-
 msgid "optional"
 msgstr ""
 
@@ -3848,9 +3851,6 @@ msgstr "RBAC-Richtlinie entfernen"
 
 msgid "Removing..."
 msgstr "Wird entfernt..."
-
-msgid "Reserved keys: web-index, web-listings, quota-count, quota-bytes"
-msgstr "Reservierte Schlüssel: web-index, web-listings, quota-count, quota-bytes"
 
 msgid "Resource Not Accessible"
 msgstr ""
@@ -4439,9 +4439,6 @@ msgstr ""
 
 msgid "Stored as x-amz-meta-* headers. Keys are case-insensitive."
 msgstr ""
-
-msgid "Stored as X-Object-Meta-* headers. Keys are case-insensitive."
-msgstr "Gespeichert als X-Object-Meta-*-Header. Schlüssel sind nicht zwischen Groß- und Kleinschreibung unterscheidend."
 
 msgid "Sub Status"
 msgstr ""
@@ -5162,9 +5159,6 @@ msgstr "Wird hochgeladen... {progressPct}%"
 
 msgid "URL Copied"
 msgstr "URL kopiert"
-
-msgid "URL for public access"
-msgstr "URL für öffentlichen Zugriff"
 
 msgid "Used"
 msgstr "Belegt"
