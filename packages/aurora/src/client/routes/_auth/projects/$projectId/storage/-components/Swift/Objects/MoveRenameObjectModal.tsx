@@ -352,14 +352,14 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
       confirmButtonLabel={isPending ? t`Moving...` : t`Move/Rename Object`}
       onConfirm={handleMove}
       cancelButtonLabel={t`Cancel`}
-      size="large"
+      size="xl"
       disableConfirmButton={isPending || isLoadingContainers || isUnchanged}
       disableCancelButton={isPending || isLoadingContainers}
     >
       {isPending ? (
         <Status status="progress" title={t`Moving Object...`} className="mt-0" />
       ) : (
-        <Stack direction="vertical" gap="4">
+        <Stack direction="vertical" gap="6">
           <p className="text-theme-default">
             <Trans>
               Moving <span className="font-semibold">{displayName}</span> — the object will be copied to the new

@@ -302,14 +302,14 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
       confirmButtonLabel={isPending ? t`Copying...` : t`Copy Object`}
       onConfirm={handleCopy}
       cancelButtonLabel={t`Cancel`}
-      size="large"
+      size="xl"
       disableConfirmButton={isPending || isLoadingContainers || isUnchanged}
       disableCancelButton={isPending || isLoadingContainers}
     >
       {isPending ? (
         <Status status="progress" title={t`Copying Object...`} className="mt-0" />
       ) : (
-        <Stack direction="vertical" gap="4">
+        <Stack direction="vertical" gap="6">
           <p className="text-theme-default">
             <Trans>
               Copying <span className="font-semibold">{displayName}</span> — a new copy will be created at the selected
