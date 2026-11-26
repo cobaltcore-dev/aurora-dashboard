@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { StatusLabel } from "@/client/components/StatusLabel"
 import {
@@ -10,7 +11,10 @@ import {
   Status,
 } from "@cloudoperators/juno-ui-components"
 import type { RouterInterface } from "@/server/Network/types/router"
+import { useProjectId } from "@/client/hooks"
 import ClipboardText from "@/client/components/ClipboardText"
+import { NameIdCell, NAME_ID_LINK_CLASS } from "@/client/components/NameIdCell"
+import { EMPTY_VALUE } from "@/client/components/TwoColumnDescriptionList"
 
 interface RouterInterfacesTableProps {
   interfaces: RouterInterface[]
@@ -30,7 +34,8 @@ export const RouterInterfacesTable = ({
   onRetry,
 }: RouterInterfacesTableProps) => {
   const { t } = useLingui()
-  const columns = [t`Name`, t`Fixed IPs`, t`Type`, t`Admin State`]
+  const projectId = useProjectId()
+  const columns = [t`Name / ID`, t`Fixed IPs`, t`Type`, t`Admin State`]
 
   if (isLoading) {
     return <Status status="progress" title={t`Loading Internal Networks...`} />
@@ -63,20 +68,19 @@ export const RouterInterfacesTable = ({
         interfaces.map((routerInterface) => (
           <DataGridRow key={routerInterface.port_id} data-testid={`router-interface-row-${routerInterface.port_id}`}>
             <DataGridCell>
-              <Stack direction="vertical" gap="0.5" className="min-w-0">
-                {routerInterface.network_name ? (
-                  <>
-                    <span className="break-all">{routerInterface.network_name}</span>
-                    <ClipboardText
-                      text={routerInterface.network_id}
-                      className="text-theme-light text-sm"
-                      iconVisible="hover"
-                    />
-                  </>
-                ) : (
-                  <ClipboardText text={routerInterface.network_id} iconVisible="hover" />
+              <NameIdCell
+                name={routerInterface.network_name}
+                id={routerInterface.network_id}
+                renderLink={(text) => (
+                  <Link
+                    to="/projects/$projectId/network/networks/$networkId"
+                    params={{ projectId, networkId: routerInterface.network_id }}
+                    className={NAME_ID_LINK_CLASS}
+                  >
+                    {text}
+                  </Link>
                 )}
-              </Stack>
+              />
             </DataGridCell>
             <DataGridCell>
               {routerInterface.fixed_ips.length > 0 ? (
@@ -89,22 +93,18 @@ export const RouterInterfacesTable = ({
                       className="min-w-0"
                     >
                       <span className="break-all">{fixedIp.ip_address}</span>
-                      <ClipboardText
-                        text={fixedIp.subnet_id}
-                        className="text-theme-light text-sm"
-                        iconVisible="hover"
-                      />
+                      <ClipboardText text={fixedIp.subnet_id} className="text-theme-light text-sm" />
                     </Stack>
                   ))}
                 </Stack>
               ) : (
-                "—"
+                EMPTY_VALUE
               )}
             </DataGridCell>
             <DataGridCell>{routerInterface.device_owner}</DataGridCell>
             <DataGridCell>
               {routerInterface.admin_state_up === undefined ? (
-                "—"
+                EMPTY_VALUE
               ) : (
                 <StatusLabel value={routerInterface.admin_state_up ? t`UP` : t`DOWN`} />
               )}

@@ -9,6 +9,15 @@ import { SecurityGroupListContainer } from "./SecurityGroupListContainer"
 import type { SecurityGroup } from "@/server/Network/types/securityGroup"
 import { SecurityGroupPermissions } from "./SecurityGroupTableRow"
 
+// Rows now render a ClipboardText copy button for the ID before the popup menu
+// toggle, so select the menu toggle explicitly rather than the first button.
+const getMenuToggle = (row: HTMLElement) => {
+  const buttons = Array.from(row.querySelectorAll("button")).filter(
+    (b) => b.getAttribute("data-testid") !== "clipboard-copy-trigger"
+  )
+  return buttons[buttons.length - 1]
+}
+
 // Mock the modals
 vi.mock("./-modals/EditSecurityGroupModal", () => ({
   EditSecurityGroupModal: ({
@@ -277,7 +286,7 @@ describe("SecurityGroupListContainer", () => {
       render(<RouterProvider router={router} />)
 
       await waitFor(() => {
-        expect(screen.getByText("Name")).toBeInTheDocument()
+        expect(screen.getByText("Name / ID")).toBeInTheDocument()
       })
 
       expect(screen.getByText("Description")).toBeInTheDocument()
@@ -306,7 +315,7 @@ describe("SecurityGroupListContainer", () => {
       })
 
       const row = screen.getByTestId("security-group-row-sg-3")
-      const popupMenuButton = row.querySelector("button")
+      const popupMenuButton = getMenuToggle(row)
       await user.click(popupMenuButton!)
 
       await waitFor(() => {
@@ -339,7 +348,7 @@ describe("SecurityGroupListContainer", () => {
       })
 
       const row = screen.getByTestId("security-group-row-sg-3")
-      const popupMenuButton = row.querySelector("button")
+      const popupMenuButton = getMenuToggle(row)
       await user.click(popupMenuButton!)
 
       await waitFor(() => {
@@ -381,7 +390,7 @@ describe("SecurityGroupListContainer", () => {
       })
 
       const row = screen.getByTestId("security-group-row-sg-3")
-      const popupMenuButton = row.querySelector("button")
+      const popupMenuButton = getMenuToggle(row)
       await user.click(popupMenuButton!)
 
       await waitFor(() => {

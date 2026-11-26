@@ -16,9 +16,6 @@ msgstr ""
 msgid "-- None --"
 msgstr ""
 
-msgid "—"
-msgstr "—"
-
 #. placeholder {0}: hiddenUnownedCount + hiddenProtectedCount
 msgid "… and {0} more"
 msgstr ""
@@ -1833,6 +1830,12 @@ msgstr "Ephemeral Disk (GiB)"
 msgid "Ephemeral Disk must be an integer ≥ 0."
 msgstr "Ephemeral Disk muss eine ganze Zahl ≥ 0 sein."
 
+msgid "Error"
+msgstr ""
+
+msgid "Error {code}"
+msgstr ""
+
 msgid "Error loading component"
 msgstr "Fehler beim Laden der Komponente"
 
@@ -1861,6 +1864,9 @@ msgid "Error Loading Security Group"
 msgstr ""
 
 msgid "Error:"
+msgstr ""
+
+msgid "Error: {faultMessage}"
 msgstr ""
 
 msgid "ETag"
@@ -1903,6 +1909,9 @@ msgid "External"
 msgstr ""
 
 msgid "External Fixed IPs"
+msgstr ""
+
+msgid "External Gateway"
 msgstr ""
 
 msgid "External IPs"
@@ -2286,7 +2295,7 @@ msgstr "Fehlgeschlagen: {errorDetails}"
 msgid "False"
 msgstr "False"
 
-msgid "Filter by"
+msgid "Filter By"
 msgstr "Filtern nach"
 
 msgid "Fixed IP Address"
@@ -2505,6 +2514,9 @@ msgstr ""
 msgid "Hide ACLs Preview"
 msgstr "ACLs-Vorschau ausblenden"
 
+msgid "Hide Details"
+msgstr ""
+
 msgid "Hide info about secret types"
 msgstr ""
 
@@ -2660,9 +2672,6 @@ msgstr ""
 
 msgid "IP Version"
 msgstr "IP-Version"
-
-msgid "IP:"
-msgstr ""
 
 msgid "IPs"
 msgstr ""
@@ -3110,9 +3119,6 @@ msgstr ""
 
 msgid "Network ID"
 msgstr "Netzwerk-ID"
-
-msgid "Network Name"
-msgstr ""
 
 msgid "Network Not Found"
 msgstr ""
@@ -3627,6 +3633,9 @@ msgstr ""
 msgid "Power State"
 msgstr ""
 
+msgid "Power State: {powerState}"
+msgstr ""
+
 msgid "Pre-signed URL"
 msgstr "Vorsignierte URL"
 
@@ -3981,9 +3990,6 @@ msgstr ""
 msgid "Search by name or ID"
 msgstr ""
 
-msgid "Search by name or ID..."
-msgstr ""
-
 msgid "Search CORS rules..."
 msgstr ""
 
@@ -3992,12 +3998,6 @@ msgstr ""
 
 msgid "Search objects..."
 msgstr "Objekte suchen..."
-
-msgid "Search ports..."
-msgstr ""
-
-msgid "Search routers..."
-msgstr ""
 
 msgid "Search..."
 msgstr "Suchen..."
@@ -4272,10 +4272,25 @@ msgstr ""
 msgid "Show more info about secret types"
 msgstr ""
 
+msgid "Showing {displayCount} images"
+msgstr ""
+
 msgid "Showing {filteredCount} of {totalCount} {itemName}"
 msgstr "Zeige {filteredCount} von {totalCount} {itemName}"
 
+msgid "Showing {flavorCount} flavors"
+msgstr ""
+
+msgid "Showing {floatingIpCount} floating IPs"
+msgstr ""
+
+msgid "Showing {matchingCount} instances"
+msgstr ""
+
 msgid "Showing {matchingCount} networks"
+msgstr ""
+
+msgid "Showing {matchingCount} of {totalCount} instances"
 msgstr ""
 
 msgid "Showing {matchingCount} of {totalCount} networks"
@@ -4284,10 +4299,25 @@ msgstr ""
 msgid "Showing {matchingCount} of {totalCount} ports"
 msgstr ""
 
+msgid "Showing {matchingCount} of {totalCount} snapshots"
+msgstr ""
+
+msgid "Showing {matchingCount} of {totalCount} volumes"
+msgstr ""
+
 msgid "Showing {matchingCount} ports"
 msgstr ""
 
+msgid "Showing {matchingCount} snapshots"
+msgstr ""
+
+msgid "Showing {matchingCount} volumes"
+msgstr ""
+
 msgid "Showing {routerCount} routers"
+msgstr ""
+
+msgid "Showing {securityGroupCount} security groups"
 msgstr ""
 
 msgid "Showing {totalCount} containers"
@@ -4356,7 +4386,7 @@ msgstr ""
 msgid "Something went wrong:"
 msgstr "Etwas ist schiefgelaufen."
 
-msgid "Sort by"
+msgid "Sort By"
 msgstr "Sortieren nach"
 
 msgid "Source"
@@ -4426,9 +4456,6 @@ msgid "Subnet"
 msgstr "Subnet"
 
 msgid "Subnet Count"
-msgstr ""
-
-msgid "Subnet ID:"
 msgstr ""
 
 msgid "Subnets"
@@ -5257,6 +5284,9 @@ msgid "Volume type"
 msgstr ""
 
 msgid "Volumes"
+msgstr ""
+
+msgid "Volumes & Snapshots"
 msgstr ""
 
 msgid "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."

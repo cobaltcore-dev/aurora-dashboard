@@ -9,6 +9,9 @@ import {
   PopupMenuItem,
   Status,
   Pagination,
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
 } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { useEffect, useState } from "react"
@@ -16,8 +19,48 @@ import { useParams, useNavigate } from "@tanstack/react-router"
 import { powerStateLabel, EMPTY_VALUE } from "../-utils/instanceDisplay"
 import { FlavorLink } from "./FlavorLink"
 import { StatusLabel } from "@/client/components/StatusLabel"
+import { NameIdCell } from "@/client/components/NameIdCell"
 
 const COLUMN_COUNT = 6
+
+/**
+ * Instance status with contextual detail revealed as a tooltip on hover/focus:
+ * the fault message when the instance is in an error state, otherwise the power state.
+ * `open` is controlled so the tooltip behaves predictably (floating-ui's uncontrolled
+ * hover does not fire reliably under jsdom).
+ */
+const StatusWithTooltip = ({
+  status,
+  powerState,
+  fault,
+}: {
+  status: string | null | undefined
+  powerState: string
+  fault?: string | null
+}) => {
+  const { t } = useLingui()
+  const [open, setOpen] = useState(false)
+
+  const faultMessage = fault?.trim()
+  const tooltip = faultMessage ? t`Error: ${faultMessage}` : powerState ? t`Power State: ${powerState}` : null
+
+  if (!tooltip) return <StatusLabel value={status} />
+
+  return (
+    <Tooltip triggerEvent="hover" open={open}>
+      <TooltipTrigger
+        className="w-fit"
+        onMouseEnter={() => setOpen(true)}
+        onMouseLeave={() => setOpen(false)}
+        onFocus={() => setOpen(true)}
+        onBlur={() => setOpen(false)}
+      >
+        <StatusLabel value={status} />
+      </TooltipTrigger>
+      <TooltipContent className="max-w-xs">{tooltip}</TooltipContent>
+    </Tooltip>
+  )
+}
 
 interface InstanceListViewProps {
   instances: Server[]
@@ -65,10 +108,10 @@ export const InstanceListView = ({
       >
         <DataGridRow>
           <DataGridHeadCell>
-            <Trans>Power State</Trans>
+            <Trans>Status</Trans>
           </DataGridHeadCell>
           <DataGridHeadCell>
-            <Trans>Name</Trans>
+            <Trans>Name / ID</Trans>
           </DataGridHeadCell>
           <DataGridHeadCell>
             <Trans>Flavor</Trans>
@@ -91,9 +134,15 @@ export const InstanceListView = ({
                 onClick={() => goToDetail(instance.id)}
               >
                 <DataGridCell>
-                  <StatusLabel value={powerStateLabel(instance["OS-EXT-STS:power_state"])} />
+                  <StatusWithTooltip
+                    status={instance.status}
+                    powerState={powerStateLabel(instance["OS-EXT-STS:power_state"])}
+                    fault={instance.fault?.message}
+                  />
                 </DataGridCell>
-                <DataGridCell>{instance.name || instance.id}</DataGridCell>
+                <DataGridCell>
+                  <NameIdCell name={instance.name} id={instance.id} />
+                </DataGridCell>
                 <DataGridCell onClick={(e) => e.stopPropagation()}>
                   <FlavorLink instance={instance} projectId={projectId} />
                 </DataGridCell>

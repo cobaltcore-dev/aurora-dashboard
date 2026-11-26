@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 import { describe, it, expect, beforeAll, vi } from "vitest"
 import { ReactNode } from "react"
 import { i18n } from "@lingui/core"
@@ -62,6 +63,50 @@ describe("InstanceDetailsView", () => {
     expect(screen.getByText("az-1")).toBeInTheDocument()
     // Status renders as plain text, not a badge.
     expect(screen.getByText("ACTIVE")).toHaveClass("lowercase", "first-letter:uppercase")
+  })
+
+  it("shows the fault message for an instance in the ERROR state", () => {
+    const instance = makeServer({
+      status: "ERROR",
+      fault: { code: 500, message: "No valid host was found. There are not enough hosts available." },
+    })
+    render(<InstanceDetailsView instance={instance} projectId={PROJECT_ID} />, { wrapper: TestingProvider })
+
+    const fault = screen.getByTestId("instance-fault")
+    expect(fault).toHaveTextContent("Error 500")
+    expect(fault).toHaveTextContent("No valid host was found. There are not enough hosts available.")
+    // No details → no toggle
+    expect(screen.queryByRole("button", { name: /show details/i })).not.toBeInTheDocument()
+  })
+
+  it("toggles the fault details (stack trace) in the error banner", async () => {
+    const user = userEvent.setup()
+    const instance = makeServer({
+      status: "ERROR",
+      fault: { code: 500, message: "No valid host was found.", details: "Traceback (most recent call last): ..." },
+    })
+    render(<InstanceDetailsView instance={instance} projectId={PROJECT_ID} />, { wrapper: TestingProvider })
+
+    // Details are hidden until the toggle is used.
+    expect(screen.queryByTestId("instance-fault-details")).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole("button", { name: "Show Details" }))
+    expect(screen.getByTestId("instance-fault-details")).toHaveTextContent("Traceback (most recent call last): ...")
+
+    await user.click(screen.getByRole("button", { name: "Hide Details" }))
+    expect(screen.queryByTestId("instance-fault-details")).not.toBeInTheDocument()
+  })
+
+  it("does not show a fault banner when the instance is not in error", () => {
+    render(<InstanceDetailsView instance={makeServer()} projectId={PROJECT_ID} />, { wrapper: TestingProvider })
+    expect(screen.queryByTestId("instance-fault")).not.toBeInTheDocument()
+  })
+
+  it("does not show a fault banner for an ERROR instance without a fault message", () => {
+    render(<InstanceDetailsView instance={makeServer({ status: "ERROR" })} projectId={PROJECT_ID} />, {
+      wrapper: TestingProvider,
+    })
+    expect(screen.queryByTestId("instance-fault")).not.toBeInTheDocument()
   })
 
   it("sentence-cases VM and task states without changing the server data", () => {

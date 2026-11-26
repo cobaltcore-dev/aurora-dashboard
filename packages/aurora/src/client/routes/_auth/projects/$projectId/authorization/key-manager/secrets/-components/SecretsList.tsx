@@ -115,7 +115,7 @@ export function SecretsList({
           <Stack distribution="end" alignment="center" gap="2" className="jn:pb-2">
             <Stack gap="0.5">
               <Select
-                label={t`Sort by`}
+                label={t`Sort By`}
                 value={sortField}
                 onChange={(v) => onSortChange(`${typeof v === "string" ? v : "created"}:${sortDir}`)}
                 className="jn:min-w-40"

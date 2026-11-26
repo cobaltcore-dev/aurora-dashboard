@@ -14,11 +14,11 @@ import { NetworkPortsTable } from "./NetworkPortsTable"
 import { NetworkRoutersTab } from "./NetworkRoutersTab"
 
 /** Tabs of the network details view, in display order. The first one is the default. */
-export const NETWORK_DETAILS_TABS = ["segmentation", "subnets", "ports", "routers"] as const
+export const NETWORK_DETAILS_TABS = ["subnets", "ports", "routers", "segmentation"] as const
 
 export type NetworkDetailsTab = (typeof NETWORK_DETAILS_TABS)[number]
 
-export const DEFAULT_NETWORK_DETAILS_TAB: NetworkDetailsTab = "segmentation"
+export const DEFAULT_NETWORK_DETAILS_TAB: NetworkDetailsTab = "subnets"
 
 export const isNetworkDetailsTab = (value: unknown): value is NetworkDetailsTab =>
   NETWORK_DETAILS_TABS.includes(value as NetworkDetailsTab)
@@ -59,6 +59,14 @@ export function NetworkDetailsView({ network, activeTab, onTabChange }: NetworkD
     error: portsError,
     refetch: refetchPorts,
   } = trpcReact.network.networks.listPorts.useQuery({ project_id: projectId, network_id: network.id })
+
+  // Resolve attached routers' details for the Routers tab. Only query when the Routers scope is
+  // available; the tab falls back to showing just the ID when a router can't be resolved.
+  const { data: routers = [] } = trpcReact.network.routers.list.useQuery(
+    { project_id: projectId },
+    { enabled: routersAvailable }
+  )
+  const routersById = new Map(routers.map((router) => [router.id, router]))
 
   const yesNo = (value?: boolean | null): string | undefined =>
     value === undefined || value === null ? undefined : value ? t`Yes` : t`No`
@@ -136,8 +144,6 @@ export function NetworkDetailsView({ network, activeTab, onTabChange }: NetworkD
             isError={isPortsError}
             error={portsError}
             onRetry={() => refetchPorts()}
-            projectId={projectId}
-            routersAvailable={routersAvailable}
           />
         )}
 
@@ -148,8 +154,8 @@ export function NetworkDetailsView({ network, activeTab, onTabChange }: NetworkD
             isError={isPortsError}
             error={portsError}
             onRetry={() => refetchPorts()}
-            projectId={projectId}
             routersAvailable={routersAvailable}
+            routersById={routersById}
           />
         )}
       </Stack>

@@ -29,4 +29,25 @@ describe("Flavors toolbar", () => {
     expect(screen.getByPlaceholderText("Search…")).toBeInTheDocument()
     expect(screen.queryByPlaceholderText("Search flavors...")).not.toBeInTheDocument()
   })
+
+  it("shows the flavor count and last-updated info in the header", async () => {
+    const client = {
+      compute: {
+        getFlavorsByProjectId: {
+          query: vi.fn().mockResolvedValue({ flavors: [{ id: "f1" }, { id: "f2" }] }),
+        },
+        canUser: { query: vi.fn().mockResolvedValue([false, false, false, false, false, false]) },
+      },
+    } as unknown as TrpcClient
+    await act(async () => {
+      render(
+        <I18nProvider i18n={i18n}>
+          <Flavors client={client} project="project-1" />
+        </I18nProvider>
+      )
+    })
+    await screen.findByText("Flavors loaded")
+    expect(screen.getByText("Showing 2 flavors")).toBeInTheDocument()
+    expect(screen.getByText(/Last updated:/)).toBeInTheDocument()
+  })
 })

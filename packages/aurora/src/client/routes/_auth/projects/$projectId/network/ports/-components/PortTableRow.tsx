@@ -14,6 +14,7 @@ import {
 import type { PortListItem } from "@/server/Network/types/port"
 import { useProjectId } from "@/client/hooks"
 import ClipboardText from "@/client/components/ClipboardText"
+import { EMPTY_VALUE } from "@/client/components/TwoColumnDescriptionList"
 
 interface PortTableRowProps {
   port: PortListItem
@@ -45,14 +46,8 @@ export const PortTableRow = ({ port, showNetwork = true }: PortTableRowProps) =>
       </DataGridCell>
       <DataGridCell>
         <Stack direction="vertical" gap="0.5" className="min-w-0">
-          {port.name ? (
-            <>
-              <span className="break-all">{port.name}</span>
-              <ClipboardText text={port.id} className="text-theme-light text-sm" iconVisible="hover" />
-            </>
-          ) : (
-            <ClipboardText text={port.id} iconVisible="hover" />
-          )}
+          <span className="break-all">{port.name || EMPTY_VALUE}</span>
+          <ClipboardText text={port.id} className="text-theme-light text-sm" />
         </Stack>
       </DataGridCell>
       <DataGridCell>{port.description ? <span className="break-all">{port.description}</span> : "- -"}</DataGridCell>
@@ -62,10 +57,10 @@ export const PortTableRow = ({ port, showNetwork = true }: PortTableRowProps) =>
             {port.network_name ? (
               <>
                 <span className="break-all">{port.network_name}</span>
-                <ClipboardText text={port.network_id} className="text-theme-light text-sm" iconVisible="hover" />
+                <ClipboardText text={port.network_id} className="text-theme-light text-sm" />
               </>
             ) : (
-              <ClipboardText text={port.network_id} iconVisible="hover" />
+              <ClipboardText text={port.network_id} />
             )}
           </Stack>
         </DataGridCell>
@@ -81,7 +76,7 @@ export const PortTableRow = ({ port, showNetwork = true }: PortTableRowProps) =>
                 className="min-w-0"
               >
                 <span className="break-all">{fixedIp.ip_address}</span>
-                <ClipboardText text={fixedIp.subnet_id} className="text-theme-light text-sm" iconVisible="hover" />
+                <ClipboardText text={fixedIp.subnet_id} className="text-theme-light text-sm" />
               </Stack>
             ))}
           </Stack>

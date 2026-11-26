@@ -35,6 +35,7 @@ const makeServer = (i: number, overrides: Partial<Server> = {}): Server =>
   ({
     id: `srv-${i}`,
     name: `web-${i}`,
+    status: "ACTIVE",
     "OS-EXT-STS:power_state": 1,
     created: "2026-01-01T00:00:00Z",
     flavor: { original_name: "m1.small" },
@@ -79,8 +80,46 @@ describe("InstanceListView", () => {
     expect(screen.getByText("web-2")).toBeInTheDocument()
     // The list has no image column; image details live on the detail view only.
     expect(screen.queryByText(/35ffd44f/)).not.toBeInTheDocument()
-    // Numeric states map to uppercase labels; Tailwind controls display casing.
-    expect(screen.getAllByText("RUNNING")[0]).toHaveClass("lowercase", "first-letter:uppercase")
+    // The status column now shows the instance status; Tailwind controls display casing.
+    expect(screen.getAllByText("ACTIVE")[0]).toHaveClass("lowercase", "first-letter:uppercase")
+  })
+
+  it("exposes the power state as a tooltip on the status cell", async () => {
+    await act(async () => {
+      render(<InstanceListView instances={[makeServer(1)]} currentPage={1} totalPages={1} />, {
+        wrapper: TestingProvider,
+      })
+    })
+
+    // Power state is not shown inline, only revealed via the status tooltip on hover.
+    expect(screen.queryByRole("tooltip")).not.toBeInTheDocument()
+
+    await act(async () => {
+      fireEvent.mouseEnter(screen.getByText("ACTIVE"))
+    })
+
+    expect(screen.getByRole("tooltip")).toHaveTextContent("Power State: RUNNING")
+  })
+
+  it("shows the fault message in the status tooltip for an instance in the ERROR state", async () => {
+    const errored = makeServer(1, {
+      status: "ERROR",
+      fault: { code: 500, message: "No valid host was found." },
+    })
+    await act(async () => {
+      render(<InstanceListView instances={[errored]} currentPage={1} totalPages={1} />, {
+        wrapper: TestingProvider,
+      })
+    })
+
+    await act(async () => {
+      fireEvent.mouseEnter(screen.getByText("ERROR"))
+    })
+
+    const tooltip = screen.getByRole("tooltip")
+    expect(tooltip).toHaveTextContent("Error: No valid host was found.")
+    // The fault takes precedence over the power state for errored instances.
+    expect(tooltip).not.toHaveTextContent("Power State")
   })
 
   it("renders the empty state when there are no instances", async () => {

@@ -8,9 +8,17 @@ import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import type { Network, NetworkSubnet } from "@/server/Network/types/network"
 import { NetworkDetailsView, isNetworkDetailsTab, DEFAULT_NETWORK_DETAILS_TAB } from "./NetworkDetailsView"
 
-const { mockListSubnetsQuery, mockListPortsQuery, mockRefetch, mockLoaderData, mockRouteContext } = vi.hoisted(() => ({
+const {
+  mockListSubnetsQuery,
+  mockListPortsQuery,
+  mockListRoutersQuery,
+  mockRefetch,
+  mockLoaderData,
+  mockRouteContext,
+} = vi.hoisted(() => ({
   mockListSubnetsQuery: vi.fn(),
   mockListPortsQuery: vi.fn(),
+  mockListRoutersQuery: vi.fn(),
   mockRefetch: vi.fn(),
   mockLoaderData: vi.fn(),
   mockRouteContext: vi.fn(),
@@ -22,6 +30,9 @@ vi.mock("@/client/trpcClient", () => ({
       networks: {
         listSubnets: { useQuery: mockListSubnetsQuery },
         listPorts: { useQuery: mockListPortsQuery },
+      },
+      routers: {
+        list: { useQuery: mockListRoutersQuery },
       },
     },
   },
@@ -69,22 +80,12 @@ vi.mock("./NetworkPortsTable", () => ({
     isLoading,
     isError,
     onRetry,
-    routersAvailable,
-    projectId,
   }: {
     isLoading: boolean
     isError: boolean
     onRetry?: () => void
-    routersAvailable: boolean
-    projectId: string
   }) => (
-    <div
-      data-testid="network-ports-table"
-      data-loading={isLoading}
-      data-error={isError}
-      data-routers-available={routersAvailable}
-      data-project-id={projectId}
-    >
+    <div data-testid="network-ports-table" data-loading={isLoading} data-error={isError}>
       <button onClick={onRetry}>Retry ports</button>
     </div>
   ),
@@ -96,20 +97,17 @@ vi.mock("./NetworkRoutersTab", () => ({
     isError,
     onRetry,
     routersAvailable,
-    projectId,
   }: {
     isLoading: boolean
     isError: boolean
     onRetry?: () => void
     routersAvailable: boolean
-    projectId: string
   }) => (
     <div
       data-testid="network-routers-tab"
       data-loading={isLoading}
       data-error={isError}
       data-routers-available={routersAvailable}
-      data-project-id={projectId}
     >
       <button onClick={onRetry}>Retry routers</button>
     </div>
@@ -180,6 +178,8 @@ describe("NetworkDetailsView", () => {
     // Default: network service in the catalog + routers enabled → routersAvailable = true
     mockLoaderData.mockReturnValue({ availableServices: [{ type: "network" }] })
     mockRouteContext.mockReturnValue({ enabledServices: undefined, deniedServices: undefined })
+    // Router-name resolution for the Routers tab; individual tests may override.
+    mockListRoutersQuery.mockReturnValue({ data: [], isLoading: false, isError: false, error: null })
   })
 
   afterEach(() => {
@@ -412,14 +412,14 @@ describe("NetworkDetailsView", () => {
       expect(mockRefetch).toHaveBeenCalled()
     })
 
-    it("passes routersAvailable and projectId to the ports table", () => {
+    it("passes the retry handler to the ports table", async () => {
+      const user = userEvent.setup()
       mockSubnetsResult()
       mockPortsResult()
       renderView(mockNetwork, "ports")
 
-      const table = screen.getByTestId("network-ports-table")
-      expect(table).toHaveAttribute("data-routers-available", "true")
-      expect(table).toHaveAttribute("data-project-id", "proj-1")
+      await user.click(screen.getByRole("button", { name: "Retry ports" }))
+      expect(mockRefetch).toHaveBeenCalled()
     })
   })
 
@@ -459,14 +459,13 @@ describe("NetworkDetailsView", () => {
       expect(mockRefetch).toHaveBeenCalled()
     })
 
-    it("passes routersAvailable and projectId to the routers tab", () => {
+    it("passes routersAvailable to the routers tab", () => {
       mockSubnetsResult()
       mockPortsResult()
       renderView(mockNetwork, "routers")
 
       const tab = screen.getByTestId("network-routers-tab")
       expect(tab).toHaveAttribute("data-routers-available", "true")
-      expect(tab).toHaveAttribute("data-project-id", "proj-1")
     })
   })
 
@@ -476,9 +475,9 @@ describe("NetworkDetailsView", () => {
       mockRouteContext.mockReturnValue({ enabledServices: ["networks", "routers"], deniedServices: undefined })
       mockSubnetsResult()
       mockPortsResult()
-      renderView(mockNetwork, "ports")
+      renderView(mockNetwork, "routers")
 
-      expect(screen.getByTestId("network-ports-table")).toHaveAttribute("data-routers-available", "true")
+      expect(screen.getByTestId("network-routers-tab")).toHaveAttribute("data-routers-available", "true")
     })
 
     it("marks routers unavailable when the Routers scope is disabled", () => {
@@ -486,9 +485,9 @@ describe("NetworkDetailsView", () => {
       mockRouteContext.mockReturnValue({ enabledServices: ["networks"], deniedServices: undefined })
       mockSubnetsResult()
       mockPortsResult()
-      renderView(mockNetwork, "ports")
+      renderView(mockNetwork, "routers")
 
-      expect(screen.getByTestId("network-ports-table")).toHaveAttribute("data-routers-available", "false")
+      expect(screen.getByTestId("network-routers-tab")).toHaveAttribute("data-routers-available", "false")
     })
 
     it("marks routers unavailable when the network service is absent from the catalog", () => {
@@ -515,8 +514,8 @@ describe("NetworkDetailsView", () => {
       expect(isNetworkDetailsTab(undefined)).toBe(false)
     })
 
-    it("defaults to the segmentation tab", () => {
-      expect(DEFAULT_NETWORK_DETAILS_TAB).toBe("segmentation")
+    it("defaults to the subnets tab", () => {
+      expect(DEFAULT_NETWORK_DETAILS_TAB).toBe("subnets")
     })
   })
 })

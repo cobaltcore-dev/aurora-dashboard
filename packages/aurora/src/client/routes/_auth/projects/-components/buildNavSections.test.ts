@@ -74,10 +74,10 @@ describe("buildNavSections", () => {
     const network = sections.find((s) => s.section === "network")
     expect(network?.services.map((s) => s.service)).toEqual([
       "networks",
-      "securitygroups",
-      "floatingips",
       "routers",
       "ports",
+      "floatingips",
+      "securitygroups",
     ])
 
     const storage = sections.find((s) => s.section === "storage")
@@ -121,7 +121,7 @@ describe("buildNavSections", () => {
   it("respects enabledServices filter for routers", () => {
     const sections = buildNavSections("proj-1", ALL_SERVICES, ["securitygroups", "floatingips"])
     const network = sections.find((s) => s.section === "network")
-    expect(network?.services.map((s) => s.service)).toEqual(["securitygroups", "floatingips"])
+    expect(network?.services.map((s) => s.service)).toEqual(["floatingips", "securitygroups"])
   })
 
   it("shows only routers in the network section when it is the only enabled network service", () => {
@@ -147,7 +147,7 @@ describe("buildNavSections", () => {
   it("respects enabledServices filter for ports", () => {
     const sections = buildNavSections("proj-1", ALL_SERVICES, ["securitygroups", "floatingips", "routers"])
     const network = sections.find((s) => s.section === "network")
-    expect(network?.services.map((s) => s.service)).toEqual(["securitygroups", "floatingips", "routers"])
+    expect(network?.services.map((s) => s.service)).toEqual(["routers", "floatingips", "securitygroups"])
   })
 
   it("shows only ports in the network section when it is the only enabled network service", () => {
@@ -201,7 +201,7 @@ describe("buildNavSections", () => {
     it("hides a service via deniedServices alone, with no allow/enabled list (deny-only)", () => {
       const sections = buildNavSections("proj-1", ALL_SERVICES, undefined, undefined, ["floatingips"])
       const network = sections.find((s) => s.section === "network")
-      expect(network?.services.map((s) => s.service)).toEqual(["networks", "securitygroups", "routers", "ports"])
+      expect(network?.services.map((s) => s.service)).toEqual(["networks", "routers", "ports", "securitygroups"])
     })
 
     it("deny wins over an explicit enabledServices entry", () => {

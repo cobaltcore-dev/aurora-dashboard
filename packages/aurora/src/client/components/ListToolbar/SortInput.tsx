@@ -31,7 +31,7 @@ export const SortInput: React.FC<SortInputProps> = ({
     onChange: onSortByChange,
     value: sortBy,
     "data-testid": "sort-select",
-    label: t`Sort by`,
+    label: t`Sort By`,
   })
 
   const getSortButtonProps = (): Omit<ButtonProps, "onChange"> & {
