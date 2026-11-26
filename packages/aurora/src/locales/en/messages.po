@@ -4140,11 +4140,11 @@ msgstr "Select an external network"
 msgid "Select at least one lifecycle action"
 msgstr "Select at least one lifecycle action"
 
-msgid "Select destination folder"
-msgstr "Select destination folder"
-
 msgid "Select destination folder within target bucket"
 msgstr "Select destination folder within target bucket"
+
+msgid "Select destination folder within target container"
+msgstr "Select destination folder within target container"
 
 msgid "Select disk format first"
 msgstr "Select disk format first"

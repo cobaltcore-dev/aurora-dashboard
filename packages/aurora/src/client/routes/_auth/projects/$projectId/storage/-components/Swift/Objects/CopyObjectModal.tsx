@@ -347,7 +347,7 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
           <div>
             <div className="mb-1 flex items-center justify-between">
               <span className="text-sm font-medium">
-                <Trans>Select destination folder</Trans>
+                <Trans>Select destination folder within target container</Trans>
               </span>
               <Button
                 size="small"
