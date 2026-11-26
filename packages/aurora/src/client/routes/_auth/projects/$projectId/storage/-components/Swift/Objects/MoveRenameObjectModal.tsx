@@ -376,6 +376,7 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
               }}
               invalid={!!newObjectNameError}
               errortext={newObjectNameError ?? undefined}
+              helptext={t`You can rename the object by changing the name here.`}
               required
             />
           </div>
