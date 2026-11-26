@@ -1,5 +1,47 @@
 # @cobaltcore-dev/aurora
 
+## 2.6.0
+
+### Minor Changes
+
+- 0f2fc73: - Add read-only volume and snapshot lists with search, filtering, sorting, and resource detail views
+  - Show volume metadata, attachments, source relationships, and scoped snapshots with independent permission checks
+  - Link resolved source-volume names and attached instances, and keep IDs copyable in detail views only
+  - Return through browser history from instance error pages, with an Instances fallback for direct entry
+  - Use extra-small Clear all buttons beside active filter pills
+  - Group Volumes under Storage and omit fetch timestamps from volume and snapshot lists
+- b08f0b4: - Add the catalog- and permission-gated Volumes scope with a Volumes/Snapshots tab scaffold
+  - Add project-scoped Cinder volume and snapshot read queries, complete pagination, and scoped snapshot filtering
+  - Keep Cinder permissions independent and fail closed when block storage policy configuration is missing
+  - Verify detail ownership for all roles and gate each route on its own read capability
+  - Resolve usable project-scoped v3 endpoints before exposing the Volumes scope
+  - Use Aurora's shared route errors and inline loading and access-denied states
+  - Align Cinder read policy defaults with Queens and check the detailed-list policy for Instances
+
+### Patch Changes
+
+- 56482da: - Apply the "Name / ID" column pattern consistently across Compute (Images, Flavors, Instances), Network (Networks, Ports, Routers, Security Groups, Subnets) and their detail sub-tables: the name on top (or "- -" when empty) with the ID beneath as a subdued copy affordance, extracted into a shared `NameIdCell`.
+  - Cross-link the name (or the ID when the name is empty) to the related resource's detail page in network sub-tables; the ID copy icon reveals on hover over the whole line.
+  - Title-case the "Sort By" and "Filter By" toolbar labels; use "Search…" as the search placeholder in network list views.
+  - Instances: show the instance status in the list with the power state as a hover tooltip, and surface Nova's fault reason in an error tooltip (list) and an error message with expandable details (detail view).
+  - Images: move item count and last-updated info into the DataGrid header's state zone and render the member-status filters as button tabs.
+  - Reorder the Network side-navigation (Networks, Routers, Fixed IPs / Ports, Floating IPs, Security Groups) and default the Networks detail view to the Subnets tab.
+  - Volumes/Snapshots: link only the name (not the whole row) when it cross-links, keep the ID copyable, and show the source volume as a copyable, linked Name / ID.
+- 0062e40: - Use Search… in Flavors, Volumes, Snapshots, and Instances. Expand Flavors and Volumes search to resource fields without dedicated filters.
+  - Show - - for missing flavor values while preserving real zero and false values.
+  - Replace deprecated image list tab components without changing the existing tabs.
+  - Allow native text selection and copying for attachment IDs in volume details.
+- fba0a12: - Show snapshot types and add Type filtering across all Images tabs using image type and block device snapshot markers
+  - Load all shared-image pages before filtering Accepted and Suggested images
+  - Limit shared-image membership lookups to ten concurrent requests to reduce throttling
+  - Capitalize the Images and Snapshot type labels
+  - Allow both Type pills; no selection or both selections shows all types without an All pill
+- 617048d: - Show volume attachments and snapshots as sections instead of tabs, hiding empty metadata and relationships while retaining loading and error feedback
+  - Match volume and snapshot section spacing to flavor details without custom heading styles
+  - Wait for initial snapshot results before revealing volume details so empty sections do not briefly flash
+  - Omit copy controls for linked resources while keeping unlinked detail IDs copyable
+  - Remove the count bar from volume and snapshot lists
+
 ## 2.5.0
 
 ### Minor Changes
