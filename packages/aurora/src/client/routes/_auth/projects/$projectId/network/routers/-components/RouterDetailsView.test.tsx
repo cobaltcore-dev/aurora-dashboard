@@ -19,6 +19,27 @@ vi.mock("@/client/trpcClient", () => ({
   },
 }))
 
+vi.mock("@tanstack/react-router", () => ({
+  Link: ({
+    to,
+    params,
+    children,
+    className,
+  }: {
+    to: string
+    params: Record<string, string>
+    children: ReactNode
+    className?: string
+  }) => {
+    const href = Object.entries(params ?? {}).reduce((acc, [k, v]) => acc.replace(`$${k}`, v), to)
+    return (
+      <a href={href} className={className}>
+        {children}
+      </a>
+    )
+  },
+}))
+
 vi.mock("@/client/hooks", () => ({
   useProjectId: () => "proj-1",
 }))
@@ -146,14 +167,13 @@ describe("RouterDetailsView", () => {
       expect(screen.getByText("Internal Networks")).toBeInTheDocument()
     })
 
-    it("renders all gateway field labels", () => {
+    it("renders the gateway table column headers", () => {
       mockInterfacesResult()
       renderView()
 
-      expect(screen.getByText("Network Name")).toBeInTheDocument()
-      expect(screen.getByText("Network ID")).toBeInTheDocument()
-      expect(screen.getByText("SNAT")).toBeInTheDocument()
+      expect(screen.getByText("Name / ID")).toBeInTheDocument()
       expect(screen.getByText("External Fixed IPs")).toBeInTheDocument()
+      expect(screen.getByText("SNAT")).toBeInTheDocument()
     })
 
     it("shows the gateway when the external tab is active", () => {
@@ -161,18 +181,13 @@ describe("RouterDetailsView", () => {
       renderView()
 
       expect(screen.getByText("FloatingIP-external-01")).toBeInTheDocument()
-      expect(screen.getByText("ext-net-1")).toBeInTheDocument()
+      // Network ID beneath the name with a copy affordance
+      expect(screen.getByRole("button", { name: /copy ext-net-1 to clipboard/i })).toBeInTheDocument()
       expect(screen.getByText("Enabled")).toBeInTheDocument()
-      expect(screen.getByTestId("external-fixed-ips")).toHaveTextContent("ext-subnet-1")
-      expect(screen.getByTestId("external-fixed-ips")).toHaveTextContent("10.236.36.217")
+      // Fixed IP over its subnet ID (subnet ID as a copy affordance)
+      expect(screen.getByText("10.236.36.217")).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: /copy ext-subnet-1 to clipboard/i })).toBeInTheDocument()
       expect(screen.queryByTestId("router-interfaces-table")).not.toBeInTheDocument()
-    })
-
-    it("renders the subnet name next to the subnet ID", () => {
-      mockInterfacesResult()
-      renderView()
-
-      expect(screen.getByTestId("external-fixed-ips")).toHaveTextContent("ext-subnet-1 (FloatingIP-sap-01)")
     })
 
     it("renders Disabled when SNAT is off", () => {
@@ -193,7 +208,7 @@ describe("RouterDetailsView", () => {
       })
 
       expect(screen.getAllByText("- -")).toHaveLength(1)
-      expect(screen.getByText("ext-net-1")).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: /copy ext-net-1 to clipboard/i })).toBeInTheDocument()
     })
 
     it("renders a dash when there are no external fixed IPs", () => {
@@ -203,18 +218,19 @@ describe("RouterDetailsView", () => {
         external_gateway_info: { ...mockRouter.external_gateway_info!, external_fixed_ips: [] },
       })
 
-      expect(screen.queryByTestId("external-fixed-ips")).not.toBeInTheDocument()
       expect(screen.getAllByText("- -")).toHaveLength(1)
     })
 
-    it("hides the SNAT row when enable_snat is not returned", () => {
+    it("renders a dash for SNAT when enable_snat is not returned", () => {
       mockInterfacesResult()
       renderView({
         ...mockRouter,
         external_gateway_info: { ...mockRouter.external_gateway_info!, enable_snat: undefined },
       })
 
-      expect(screen.queryByText("SNAT")).not.toBeInTheDocument()
+      // The SNAT column is always present; an absent value shows the placeholder.
+      expect(screen.getByText("SNAT")).toBeInTheDocument()
+      expect(screen.getAllByText("- -")).toHaveLength(1)
     })
 
     it("shows an empty state when the router has no gateway", () => {

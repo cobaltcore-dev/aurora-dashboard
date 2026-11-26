@@ -21,6 +21,7 @@ import {
   type NetworkStatusFilter,
 } from "./networkListFilters"
 import { NetworkListContainer } from "./NetworkListContainer"
+import { formatRelativeTime } from "@/client/utils/formatRelativeTime"
 
 type NetworkSortKey = "name" | "status" | "subnet_count"
 
@@ -90,15 +91,6 @@ function filterNetworks(
     if (external !== undefined && network["router:external"] !== (external === "true")) return false
     return true
   })
-}
-
-/** Locale-aware relative "last updated" label via Intl.RelativeTimeFormat (I16). */
-function formatRelativeTime(timestamp: number, locale: string): string {
-  const diffSeconds = Math.floor((Date.now() - timestamp) / 1000)
-  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: "auto" })
-  if (diffSeconds < 60) return rtf.format(-diffSeconds, "second")
-  if (diffSeconds < 3600) return rtf.format(-Math.floor(diffSeconds / 60), "minute")
-  return rtf.format(-Math.floor(diffSeconds / 3600), "hour")
 }
 
 /** Fetches every network visible to the project once (own + shared). Search/filter/sort are applied client-side. */
@@ -244,7 +236,7 @@ function NetworksContent({
               onChange={onFilterSelect}
             />
             <SearchInput
-              placeholder={t`Search by name or ID...`}
+              placeholder={t`Search...`}
               data-testid="searchbar"
               value={localSearchTerm}
               onInput={(e: React.FormEvent<HTMLInputElement>) => {

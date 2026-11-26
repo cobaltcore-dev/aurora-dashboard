@@ -6,14 +6,14 @@ import {
   PopupMenu,
   PopupMenuOptions,
   PopupMenuItem,
+  Stack,
 } from "@cloudoperators/juno-ui-components"
-import { useNavigate } from "@tanstack/react-router"
+import { Link, useNavigate } from "@tanstack/react-router"
 import { useLingui } from "@lingui/react/macro"
 import type { Volume } from "@/server/Volume/types/volume"
 import type { VolumeSnapshot } from "@/server/Volume/types/snapshot"
 import { StatusLabel } from "@/client/components/StatusLabel"
-import { SourceVolumeLink } from "./SourceVolumeLink"
-import { ResourceLink } from "./ResourceLink"
+import ClipboardText from "@/client/components/ClipboardText"
 import { formatCinderDate } from "../-utils/list"
 
 export function ResourceTable({
@@ -22,12 +22,19 @@ export function ResourceTable({
   projectId,
   canRead,
   compact = false,
+  nameLinkOnly = false,
 }: {
   items: (Volume | VolumeSnapshot)[]
   snapshots: boolean
   projectId: string
   canRead: boolean
   compact?: boolean
+  /**
+   * When true the row is not clickable and only the name links to the item's detail page.
+   * Use this where the table lists a different resource than the page it lives on (a cross-link),
+   * e.g. the "Snapshots of this volume" subtable on the volume detail view.
+   */
+  nameLinkOnly?: boolean
 }) {
   const { t, i18n } = useLingui()
   const navigate = useNavigate()
@@ -45,12 +52,9 @@ export function ResourceTable({
       data-testid={snapshots ? "snapshots-table" : "volumes-table"}
     >
       <DataGridRow>
+        <DataGridHeadCell>{t`Status`}</DataGridHeadCell>
         <DataGridHeadCell>{t`Name / ID`}</DataGridHeadCell>
-        {snapshots ? (
-          <DataGridHeadCell>{t`Status`}</DataGridHeadCell>
-        ) : (
-          <DataGridHeadCell>{t`Availability Zone`}</DataGridHeadCell>
-        )}
+        {!snapshots && <DataGridHeadCell>{t`Availability Zone`}</DataGridHeadCell>}
         <DataGridHeadCell>{t`Size (GiB)`}</DataGridHeadCell>
         {!snapshots && (
           <>
@@ -61,32 +65,51 @@ export function ResourceTable({
         )}
         {snapshots && !compact && <DataGridHeadCell>{t`Source volume`}</DataGridHeadCell>}
         <DataGridHeadCell>{t`Created`}</DataGridHeadCell>
-        {!snapshots && <DataGridHeadCell>{t`Status`}</DataGridHeadCell>}
         {!compact && <DataGridHeadCell />}
       </DataGridRow>
       {items.map((item) => {
         const volume = item as Volume
-        const name = item.name?.trim() ? item.name : item.id
+        const hasName = Boolean(item.name?.trim())
+        const name = hasName ? item.name : "- -"
         const attachments = volume.attachments?.filter((attachment) => attachment.server_id) ?? []
+        const sourceVolumeId = (item as VolumeSnapshot).volume_id
+        const detailLink = snapshots
+          ? {
+              to: "/projects/$projectId/volumes/snapshots/$snapshotId" as const,
+              params: { projectId, snapshotId: item.id },
+            }
+          : { to: "/projects/$projectId/volumes/$volumeId" as const, params: { projectId, volumeId: item.id } }
+        const rowIsClickable = canRead && !nameLinkOnly
         return (
           <DataGridRow
             key={item.id}
             data-testid={`storage-row-${item.id}`}
-            onClick={canRead ? () => open(item.id) : undefined}
-            tabIndex={canRead ? 0 : undefined}
+            onClick={rowIsClickable ? () => open(item.id) : undefined}
+            tabIndex={rowIsClickable ? 0 : undefined}
             onKeyDown={(event) => {
-              if (event.target === event.currentTarget && event.key === "Enter") open(item.id)
+              if (rowIsClickable && event.target === event.currentTarget && event.key === "Enter") open(item.id)
             }}
           >
-            <DataGridCell textContain="break-word">
-              {name}
-              {name !== item.id && (
-                <div className="text-theme-light text-sm break-all whitespace-normal">{item.id}</div>
-              )}
-            </DataGridCell>
             <DataGridCell>
-              {snapshots ? <StatusLabel value={item.status} /> : volume.availability_zone || "- -"}
+              <StatusLabel value={item.status} />
             </DataGridCell>
+            <DataGridCell textContain="break-word">
+              <Stack direction="vertical" gap="0.5" className="min-w-0">
+                {nameLinkOnly && canRead ? (
+                  <Link
+                    to={detailLink.to}
+                    params={detailLink.params}
+                    className="break-all text-inherit hover:underline"
+                  >
+                    {name}
+                  </Link>
+                ) : (
+                  <span className="break-all">{name}</span>
+                )}
+                <ClipboardText text={item.id} className="text-theme-light text-sm" />
+              </Stack>
+            </DataGridCell>
+            {!snapshots && <DataGridCell>{volume.availability_zone || "- -"}</DataGridCell>}
             <DataGridCell>{item.size ?? "- -"}</DataGridCell>
             {!snapshots && (
               <>
@@ -97,7 +120,7 @@ export function ResourceTable({
                     ? attachments.map((attachment, index) => (
                         <div className="inline-flex items-center" key={attachment.attachment_id || index}>
                           {index > 0 && ", "}
-                          <ResourceLink resource="instance" id={attachment.server_id} />
+                          <ClipboardText text={attachment.server_id ?? ""} className="break-all whitespace-normal" />
                         </div>
                       ))
                     : "- -"}
@@ -106,15 +129,14 @@ export function ResourceTable({
             )}
             {snapshots && !compact && (
               <DataGridCell textContain="break-word">
-                <SourceVolumeLink id={(item as VolumeSnapshot).volume_id} />
+                {sourceVolumeId ? (
+                  <ClipboardText text={sourceVolumeId} className="break-all whitespace-normal" />
+                ) : (
+                  "- -"
+                )}
               </DataGridCell>
             )}
             <DataGridCell>{formatCinderDate(item.created_at, i18n.locale)}</DataGridCell>
-            {!snapshots && (
-              <DataGridCell>
-                <StatusLabel value={item.status} />
-              </DataGridCell>
-            )}
             {!compact && (
               <DataGridCell>
                 {canRead && (

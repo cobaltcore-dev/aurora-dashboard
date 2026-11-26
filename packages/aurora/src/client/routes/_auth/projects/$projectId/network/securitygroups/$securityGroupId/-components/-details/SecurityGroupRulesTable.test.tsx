@@ -253,8 +253,8 @@ describe("SecurityGroupRulesTable", () => {
         { wrapper: createWrapper() }
       )
 
-      // FiltersInput has a "Filter by" label for the filter key select
-      const filterSelect = screen.getByLabelText("Filter by")
+      // FiltersInput has a "Filter By" label for the filter key select
+      const filterSelect = screen.getByLabelText("Filter By")
       expect(filterSelect).toBeInTheDocument()
     })
 
@@ -276,8 +276,8 @@ describe("SecurityGroupRulesTable", () => {
 
       const user = userEvent.setup()
 
-      // Step 1: Click the filter key select (labeled "Filter by")
-      const filterKeySelect = screen.getByLabelText("Filter by")
+      // Step 1: Click the filter key select (labeled "Filter By")
+      const filterKeySelect = screen.getByLabelText("Filter By")
       await user.click(filterKeySelect)
 
       // Step 2: Select "Direction" as the filter key (use data-testid)
@@ -418,7 +418,7 @@ describe("SecurityGroupRulesTable", () => {
         { wrapper: createWrapper() }
       )
 
-      const sortSelect = screen.getByLabelText("Sort by")
+      const sortSelect = screen.getByLabelText("Sort By")
       expect(sortSelect).toBeInTheDocument()
     })
 
@@ -438,7 +438,7 @@ describe("SecurityGroupRulesTable", () => {
         { wrapper: createWrapper() }
       )
 
-      const sortSelect = screen.getByLabelText("Sort by")
+      const sortSelect = screen.getByLabelText("Sort By")
       const user = userEvent.setup()
       await user.click(sortSelect)
 

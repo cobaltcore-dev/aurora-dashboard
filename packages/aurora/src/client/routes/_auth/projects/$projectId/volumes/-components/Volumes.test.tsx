@@ -206,17 +206,13 @@ beforeEach(() => {
 })
 
 describe("block storage lists", () => {
-  it.each([false, true])("omits the count bar and fetch timestamps (snapshots: %s)", (snapshots) => {
+  it.each([false, true])("shows the count bar and last-updated info (snapshots: %s)", (snapshots) => {
     render(<ResourceList projectId="project-1" snapshots={snapshots} />, { wrapper })
-    expect(screen.queryByText(/Showing \d+ of \d+/)).not.toBeInTheDocument()
-    const search = screen.getByPlaceholderText("Search…")
-    const table = screen.getByTestId(snapshots ? "snapshots-table" : "volumes-table")
-    // The filter/search toolbar is the final header element, with no count bar below it.
-    expect(table.previousElementSibling?.lastElementChild).toContainElement(search)
-    expect(screen.queryByText(/Last fetched:/)).not.toBeInTheDocument()
+    expect(screen.getByText(snapshots ? "Showing 1 snapshots" : "Showing 1 volumes")).toBeInTheDocument()
+    expect(screen.getByText(/Last updated:/)).toBeInTheDocument()
   })
 
-  it.each([undefined, "", volumeId])("does not repeat the ID below an ID used as the name (%s)", (name) => {
+  it.each([undefined, "", volumeId])("shows a copyable ID beneath the name (name: %s)", (name) => {
     render(
       <ResourceTable
         items={[volumeSchema.parse({ id: volumeId, name })]}
@@ -226,26 +222,26 @@ describe("block storage lists", () => {
       />,
       { wrapper }
     )
-    expect(screen.getAllByText(volumeId)).toHaveLength(1)
-    expect(screen.getByText(volumeId)).not.toHaveClass("text-theme-light")
+    // The ID is always rendered once, beneath the name, with a copy affordance
+    expect(screen.getByRole("button", { name: `Copy ${volumeId} to clipboard` })).toBeInTheDocument()
   })
 
-  it.each([false, true])("does not show copy controls in resource lists (snapshots: %s)", (snapshots) => {
+  it.each([false, true])("shows a copyable ID beneath the name in resource lists (snapshots: %s)", (snapshots) => {
     render(<ResourceList projectId="project-1" snapshots={snapshots} />, { wrapper })
     const id = snapshots ? snapshotId : volumeId
-    expect(screen.getByText(id)).toBeInTheDocument()
-    expect(screen.getByText(id)).toHaveClass("text-theme-light", "text-sm")
-    expect(screen.queryByRole("button", { name: /^Copy .* to clipboard$/ })).not.toBeInTheDocument()
+    expect(screen.getByRole("button", { name: `Copy ${id} to clipboard` })).toBeInTheDocument()
   })
 
-  it("does not show copy controls for inaccessible relationship IDs in lists", () => {
+  it("renders relationship IDs as copy affordances in lists", () => {
     const view = render(<ResourceList projectId="project-1" />, { wrapper })
-    expect(screen.getByText(serverId)).toBeInTheDocument()
-    expect(screen.queryByRole("button", { name: /^Copy .* to clipboard$/ })).not.toBeInTheDocument()
+    // Attached server ID is a copy affordance (no link)
+    expect(screen.getByRole("button", { name: `Copy ${serverId} to clipboard` })).toBeInTheDocument()
+    expect(screen.queryByRole("link", { name: serverId })).not.toBeInTheDocument()
     h.volumes = []
     view.rerender(<ResourceList projectId="project-1" snapshots />)
-    expect(screen.getByText(volumeId)).toBeInTheDocument()
-    expect(screen.queryByRole("button", { name: /^Copy .* to clipboard$/ })).not.toBeInTheDocument()
+    // Source volume ID is a copy affordance (no link)
+    expect(screen.getByRole("button", { name: `Copy ${volumeId} to clipboard` })).toBeInTheDocument()
+    expect(screen.queryByRole("link", { name: "Ubuntu" })).not.toBeInTheDocument()
   })
 
   it("places resource tabs beside sorting and navigates to snapshots", () => {
@@ -270,7 +266,7 @@ describe("block storage lists", () => {
     expect(within(tabs).getByText("Volumes")).toHaveClass("juno-navigation-item-active")
   })
 
-  it("renders the specified volume columns, real boolean values, and server links", () => {
+  it("renders the specified volume columns, real boolean values, and server copy affordances", () => {
     render(<ResourceList projectId="project-1" />, { wrapper })
     const table = screen.getByTestId("volumes-table")
     expect(
@@ -278,6 +274,7 @@ describe("block storage lists", () => {
         .getAllByRole("columnheader")
         .map((cell) => cell.textContent)
     ).toEqual([
+      "Status",
       "Name / ID",
       "Availability Zone",
       "Size (GiB)",
@@ -285,15 +282,12 @@ describe("block storage lists", () => {
       "Bootable",
       "Attached To",
       "Created",
-      "Status",
       "",
     ])
     expect(screen.getByText("No")).toBeInTheDocument()
-    const server = screen.getByRole("link", { name: serverId })
-    expect(server).toHaveAttribute("href", `/projects/project-1/compute/instances/${serverId}`)
-    expect(server).toHaveClass("hover:underline")
-    fireEvent.click(server)
-    expect(h.navigate).not.toHaveBeenCalled()
+    // The attached server is shown as a copy affordance, not a link
+    expect(screen.queryByRole("link", { name: serverId })).not.toBeInTheDocument()
+    expect(screen.getByRole("button", { name: `Copy ${serverId} to clipboard` })).toBeInTheDocument()
     expect(h.volumeList).toHaveBeenCalledWith({ project_id: "project-1" }, expect.objectContaining({ enabled: true }))
     expect(h.snapshotList).toHaveBeenCalledWith(
       { project_id: "project-1" },
@@ -346,15 +340,12 @@ describe("block storage lists", () => {
     expect(screen.getByText("No Volumes in This Project")).toBeInTheDocument()
   })
 
-  it("loads all snapshots without a volume filter and links the source volume", () => {
+  it("loads all snapshots without a volume filter and shows the source volume ID as a copy affordance", () => {
     render(<ResourceList projectId="project-1" snapshots />, { wrapper })
     expect(h.snapshotList).toHaveBeenCalledWith({ project_id: "project-1" }, expect.objectContaining({ enabled: true }))
-    const source = screen.getByRole("link", { name: "Ubuntu" })
-    expect(source).toHaveAttribute("href", `/projects/project-1/volumes/${volumeId}`)
-    expect(source).toHaveClass("text-inherit", "hover:underline")
-    expect(source.parentElement).toContainElement(screen.getByText(volumeId))
-    expect(screen.getByText(volumeId)).toHaveClass("text-theme-light", "text-sm")
-    fireEvent.click(source)
+    // Source volume is a copy affordance, not a link
+    expect(screen.queryByRole("link", { name: "Ubuntu" })).not.toBeInTheDocument()
+    expect(screen.getByRole("button", { name: `Copy ${volumeId} to clipboard` })).toBeInTheDocument()
     expect(h.navigate).not.toHaveBeenCalled()
   })
 
@@ -389,11 +380,18 @@ describe("block storage lists", () => {
     expect(h.volumeList).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ enabled: false }))
   })
 
-  it("row clicks and keyboard activation open details", () => {
+  it("opens details through the whole row in the main list (self-link)", () => {
     render(
-      <ResourceTable items={[volumeSchema.parse({ id: volumeId })]} snapshots={false} projectId="project-1" canRead />,
+      <ResourceTable
+        items={[volumeSchema.parse({ id: volumeId, name: "Ubuntu" })]}
+        snapshots={false}
+        projectId="project-1"
+        canRead
+      />,
       { wrapper }
     )
+    // Self-link: no name link, the whole row navigates
+    expect(screen.queryByRole("link", { name: /Ubuntu/ })).not.toBeInTheDocument()
     const row = screen.getByTestId(`storage-row-${volumeId}`)
     fireEvent.click(row)
     fireEvent.keyDown(row, { key: "Enter" })
@@ -404,22 +402,24 @@ describe("block storage lists", () => {
     })
   })
 
-  it("keeps names as plain text and opens details through the row", () => {
+  it("links only the name and does not make the row clickable when nameLinkOnly (cross-link)", () => {
     render(
       <ResourceTable
-        items={[volumeSchema.parse({ id: volumeId, name: "Ubuntu" })]}
-        snapshots={false}
+        items={[{ id: snapshotId, name: "Saved state", volume_id: volumeId }] as never}
+        snapshots
         projectId="project-1"
         canRead
+        nameLinkOnly
       />,
       { wrapper }
     )
-    fireEvent.click(screen.getByText("Ubuntu"))
-    expect(screen.queryByRole("link", { name: "Ubuntu" })).not.toBeInTheDocument()
-    expect(h.navigate).toHaveBeenCalledWith({
-      to: "/projects/$projectId/volumes/$volumeId",
-      params: { projectId: "project-1", volumeId },
-    })
+    const link = screen.getByRole("link", { name: /Saved state/ })
+    expect(link).toHaveAttribute("href", `/projects/project-1/volumes/snapshots/${snapshotId}`)
+    // Default text color (not the link accent), underline on hover
+    expect(link).toHaveClass("text-inherit", "hover:underline")
+    // Row does not navigate
+    fireEvent.click(screen.getByTestId(`storage-row-${snapshotId}`))
+    expect(h.navigate).not.toHaveBeenCalled()
   })
 })
 
@@ -578,23 +578,17 @@ describe("block storage details and links", () => {
     }
   )
 
-  it("opens snapshots through the full row in volume details without name links or copy controls", () => {
+  it("links the snapshot name and shows a copyable ID in volume details", () => {
     render(<VolumeDetails projectId="project-1" volumeId={volumeId} />, { wrapper })
     const table = screen.getByTestId("snapshots-table")
-    const name = within(table).getByText("Saved state")
-    expect(within(table).queryByRole("link", { name: "Saved state" })).not.toBeInTheDocument()
-    expect(within(table).queryByRole("button", { name: /^Copy .* to clipboard$/ })).not.toBeInTheDocument()
-    fireEvent.click(name)
-    expect(h.navigate).toHaveBeenCalledWith({
-      to: "/projects/$projectId/volumes/snapshots/$snapshotId",
-      params: { projectId: "project-1", snapshotId },
-    })
+    const link = within(table).getByRole("link", { name: /Saved state/ })
+    expect(link).toHaveAttribute("href", `/projects/project-1/volumes/snapshots/${snapshotId}`)
+    expect(within(table).getByRole("button", { name: `Copy ${snapshotId} to clipboard` })).toBeInTheDocument()
   })
 
-  it("links the source volume without a copy control in snapshot details", () => {
+  it("links the source volume name and offers a copy control for its ID in snapshot details", () => {
     render(<SnapshotDetails projectId="project-1" snapshotId={snapshotId} />, { wrapper })
-    expect(screen.queryByRole("button", { name: `Copy ${volumeId} to clipboard` })).not.toBeInTheDocument()
-    expect(screen.getByText(volumeId)).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: `Copy ${volumeId} to clipboard` })).toBeInTheDocument()
     expect(screen.getByRole("link", { name: "Ubuntu" })).toHaveAttribute(
       "href",
       `/projects/project-1/volumes/${volumeId}`
@@ -781,7 +775,7 @@ describe("block storage details and links", () => {
     expect(h.serverPermissions).not.toHaveBeenCalled()
   })
 
-  it("renders all attached server IDs as separate links", () => {
+  it("renders all attached server IDs as separate copy affordances", () => {
     const secondId = "123e4567-e89b-12d3-a456-426614174003"
     render(
       <ResourceTable
@@ -793,10 +787,8 @@ describe("block storage details and links", () => {
       { wrapper }
     )
     for (const id of [serverId, secondId]) {
-      expect(screen.getByRole("link", { name: id })).toHaveAttribute(
-        "href",
-        `/projects/project-1/compute/instances/${id}`
-      )
+      expect(screen.queryByRole("link", { name: id })).not.toBeInTheDocument()
+      expect(screen.getByRole("button", { name: `Copy ${id} to clipboard` })).toBeInTheDocument()
     }
   })
 
