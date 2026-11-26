@@ -147,15 +147,15 @@ describe("SideNavBar", () => {
           </TestingProvider>
         )
         expect(screen.queryByText("Block Storage")).not.toBeInTheDocument()
-        fireEvent.click(screen.getByText("Volumes"))
+        fireEvent.click(screen.getByText("Volumes & Snapshots"))
         expect(mockNavigate).toHaveBeenCalledWith({
           to: "/projects/$projectId/volumes",
           params: { projectId: "proj-1" },
         })
         fireEvent.click(screen.getByText("Storage"))
-        expect(screen.queryByText("Volumes")).not.toBeInTheDocument()
+        expect(screen.queryByText("Volumes & Snapshots")).not.toBeInTheDocument()
         fireEvent.click(screen.getByText("Storage"))
-        expect(screen.getByText("Volumes")).toBeInTheDocument()
+        expect(screen.getByText("Volumes & Snapshots")).toBeInTheDocument()
       })
 
       it("renders Storage section when storage services are available", () => {

@@ -483,8 +483,12 @@ describe("ImageListView — rename refetch", () => {
       )
     })
 
-    // Open the row menu (the only button until items mount) → Edit Details.
-    fireEvent.click(screen.getByRole("button"))
+    // Open the row menu (its toggle is the non-clipboard button) → Edit Details.
+    const row = screen.getByTestId(`image-row-${image.id}`)
+    const menuToggle = within(row)
+      .getAllByRole("button")
+      .find((b) => b.getAttribute("data-testid") !== "clipboard-copy-trigger")
+    fireEvent.click(menuToggle!)
     fireEvent.click(await screen.findByText("Edit Details"))
 
     // Rename and save.

@@ -13,7 +13,7 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import type { RouterListItem } from "@/server/Network/types/router"
 import { useProjectId } from "@/client/hooks"
-import ClipboardText from "@/client/components/ClipboardText"
+import { NameIdCell } from "@/client/components/NameIdCell"
 
 interface RouterTableRowProps {
   router: RouterListItem
@@ -44,16 +44,7 @@ export const RouterTableRow = ({ router }: RouterTableRowProps) => {
         <StatusLabel value={router.status} />
       </DataGridCell>
       <DataGridCell>
-        <Stack direction="vertical" gap="0.5" className="min-w-0">
-          {router.name ? (
-            <>
-              <span className="break-all">{router.name}</span>
-              <ClipboardText text={router.id} className="text-theme-light text-sm" iconVisible="hover" />
-            </>
-          ) : (
-            <ClipboardText text={router.id} iconVisible="hover" />
-          )}
-        </Stack>
+        <NameIdCell name={router.name} id={router.id} />
       </DataGridCell>
       <DataGridCell>
         {gateway ? <span className="break-all">{gateway.network_name || gateway.network_id}</span> : "- -"}

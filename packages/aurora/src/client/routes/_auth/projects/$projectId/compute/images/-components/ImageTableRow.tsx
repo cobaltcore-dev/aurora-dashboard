@@ -8,12 +8,15 @@ import {
   PopupMenuOptions,
   PopupMenuSectionSeparator,
   Spinner,
+  Stack,
   toast,
 } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
 import { GlanceImage, ImageVisibility, MemberStatus } from "@/server/Compute/types/image"
 import { SizeDisplay } from "./SizeDisplay"
 import { StatusLabel } from "@/client/components/StatusLabel"
+import ClipboardText from "@/client/components/ClipboardText"
+import { EMPTY_VALUE } from "@/client/components/TwoColumnDescriptionList"
 import { IMAGE_STATUSES, IMAGE_VISIBILITY, MEMBER_STATUSES } from "../../-constants/filters"
 import { trpcReact } from "@/client/trpcClient"
 import { TRPCClientError } from "@trpc/client"
@@ -124,8 +127,11 @@ export function ImageTableRow({
       <DataGridCell>
         <StatusLabel value={status} />
       </DataGridCell>
-      <DataGridCell textContain="truncate-end" title={name || id}>
-        {name || id}
+      <DataGridCell>
+        <Stack direction="vertical" gap="0.5" className="min-w-0">
+          <span className="break-all">{name || EMPTY_VALUE}</span>
+          <ClipboardText text={id} className="text-theme-light text-sm" />
+        </Stack>
       </DataGridCell>
       <DataGridCell>{isSnapshotImage(image) ? t`Snapshot` : "- -"}</DataGridCell>
       <DataGridCell>{visibility}</DataGridCell>

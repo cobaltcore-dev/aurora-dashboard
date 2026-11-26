@@ -84,8 +84,12 @@ const defaultProps = {
 const renderRow = (props: Partial<React.ComponentProps<typeof ImageTableRow>> = {}) =>
   render(<ImageTableRow image={makeImage()} {...defaultProps} {...props} />, { wrapper: TestingProvider })
 
-// Opens the row's PopupMenu (its toggle is the only button until items mount).
-const openRowMenu = () => fireEvent.click(screen.getByRole("button"))
+// Opens the row's PopupMenu. The row also renders a ClipboardText copy button
+// for the ID, so pick the menu toggle (the non-clipboard button).
+const openRowMenu = () => {
+  const toggle = screen.getAllByRole("button").find((b) => b.getAttribute("data-testid") !== "clipboard-copy-trigger")
+  fireEvent.click(toggle!)
+}
 
 describe("ImageTableRow", () => {
   beforeAll(() => {
@@ -179,7 +183,11 @@ describe("ImageTableRow", () => {
       renderRow({ isPending: true, permissions: { ...noPermissions, canUpdateMember: true } })
 
       // The action menu (and therefore its toggle button) is replaced by the spinner.
-      expect(screen.queryByRole("button")).not.toBeInTheDocument()
+      // The ID's ClipboardText copy button remains, so assert only the menu toggle is gone.
+      const menuToggle = screen
+        .queryAllByRole("button")
+        .find((b) => b.getAttribute("data-testid") !== "clipboard-copy-trigger")
+      expect(menuToggle).toBeUndefined()
     })
   })
 
