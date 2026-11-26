@@ -164,6 +164,48 @@ vi.mock("./DeleteContainerModal", () => ({
     ) : null,
 }))
 
+vi.mock("./ConfigureVersioningModal", () => ({
+  ConfigureVersioningModal: ({
+    isOpen,
+    container,
+    onSuccess,
+    onError,
+  }: {
+    isOpen: boolean
+    container: { name: string; count: number; bytes: number } | null
+    onSuccess?: (name: string) => void
+    onError?: (name: string, message: string) => void
+  }) =>
+    isOpen ? (
+      <div data-testid="configure-versioning-modal">
+        <span data-testid="configure-versioning-modal-container">{container?.name}</span>
+        <button onClick={() => onSuccess?.(container!.name)}>SimulateVersioningSuccess</button>
+        <button onClick={() => onError?.(container!.name, "versioning failed")}>SimulateVersioningError</button>
+      </div>
+    ) : null,
+}))
+
+vi.mock("./ConfigureStaticWebsiteModal", () => ({
+  ConfigureStaticWebsiteModal: ({
+    isOpen,
+    container,
+    onSuccess,
+    onError,
+  }: {
+    isOpen: boolean
+    container: { name: string; count: number; bytes: number } | null
+    onSuccess?: (name: string) => void
+    onError?: (name: string, message: string) => void
+  }) =>
+    isOpen ? (
+      <div data-testid="configure-static-website-modal">
+        <span data-testid="configure-static-website-modal-container">{container?.name}</span>
+        <button onClick={() => onSuccess?.(container!.name)}>SimulateStaticWebsiteSuccess</button>
+        <button onClick={() => onError?.(container!.name, "static website failed")}>SimulateStaticWebsiteError</button>
+      </div>
+    ) : null,
+}))
+
 const renderHeader = () =>
   render(
     <I18nProvider i18n={i18n}>
@@ -334,6 +376,74 @@ describe("ContainerHeader", () => {
       await user.click(screen.getByRole("button", { name: "SimulateEditSuccess" }))
 
       expect(toast.success).toHaveBeenCalledTimes(1)
+    })
+
+    test("clicking 'Configure Versioning' opens ConfigureVersioningModal", async () => {
+      const user = userEvent.setup()
+      renderHeader()
+      await openMenu(user)
+      await user.click(screen.getByTestId("container-actions-configure-versioning"))
+
+      expect(screen.getByTestId("configure-versioning-modal")).toBeInTheDocument()
+      expect(screen.getByTestId("configure-versioning-modal-container")).toHaveTextContent("alpha")
+      expect(screen.queryByTestId("manage-access-modal")).not.toBeInTheDocument()
+      expect(screen.queryByTestId("edit-metadata-modal")).not.toBeInTheDocument()
+      expect(screen.queryByTestId("empty-container-modal")).not.toBeInTheDocument()
+      expect(screen.queryByTestId("delete-container-modal")).not.toBeInTheDocument()
+    })
+
+    test("configure versioning success dispatches the update toast", async () => {
+      const user = userEvent.setup()
+      renderHeader()
+      await openMenu(user)
+      await user.click(screen.getByTestId("container-actions-configure-versioning"))
+      await user.click(screen.getByRole("button", { name: "SimulateVersioningSuccess" }))
+
+      expect(toast.success).toHaveBeenCalledTimes(1)
+    })
+
+    test("configure versioning error dispatches the error toast", async () => {
+      const user = userEvent.setup()
+      renderHeader()
+      await openMenu(user)
+      await user.click(screen.getByTestId("container-actions-configure-versioning"))
+      await user.click(screen.getByRole("button", { name: "SimulateVersioningError" }))
+
+      expect(toast.error).toHaveBeenCalledTimes(1)
+    })
+
+    test("clicking 'Configure Static Website' opens ConfigureStaticWebsiteModal", async () => {
+      const user = userEvent.setup()
+      renderHeader()
+      await openMenu(user)
+      await user.click(screen.getByTestId("container-actions-configure-static-website"))
+
+      expect(screen.getByTestId("configure-static-website-modal")).toBeInTheDocument()
+      expect(screen.getByTestId("configure-static-website-modal-container")).toHaveTextContent("alpha")
+      expect(screen.queryByTestId("manage-access-modal")).not.toBeInTheDocument()
+      expect(screen.queryByTestId("configure-versioning-modal")).not.toBeInTheDocument()
+      expect(screen.queryByTestId("empty-container-modal")).not.toBeInTheDocument()
+      expect(screen.queryByTestId("delete-container-modal")).not.toBeInTheDocument()
+    })
+
+    test("configure static website success dispatches the update toast", async () => {
+      const user = userEvent.setup()
+      renderHeader()
+      await openMenu(user)
+      await user.click(screen.getByTestId("container-actions-configure-static-website"))
+      await user.click(screen.getByRole("button", { name: "SimulateStaticWebsiteSuccess" }))
+
+      expect(toast.success).toHaveBeenCalledTimes(1)
+    })
+
+    test("configure static website error dispatches the error toast", async () => {
+      const user = userEvent.setup()
+      renderHeader()
+      await openMenu(user)
+      await user.click(screen.getByTestId("container-actions-configure-static-website"))
+      await user.click(screen.getByRole("button", { name: "SimulateStaticWebsiteError" }))
+
+      expect(toast.error).toHaveBeenCalledTimes(1)
     })
   })
 })
