@@ -33,6 +33,16 @@ export const serverSchema = z
 
     created: z.string().optional().nullable(),
     description: z.string().optional().nullable(),
+    // Nova returns a `fault` object for servers in the ERROR state, describing why.
+    fault: z
+      .object({
+        code: z.number().optional(),
+        created: z.string().optional(),
+        message: z.string().optional(),
+        details: z.string().optional(),
+      })
+      .optional()
+      .nullable(),
     flavor: z
       .object({
         disk: z.number().optional(),

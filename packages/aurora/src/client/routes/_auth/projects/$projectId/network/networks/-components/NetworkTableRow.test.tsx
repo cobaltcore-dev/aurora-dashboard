@@ -71,11 +71,11 @@ describe("NetworkTableRow", () => {
       expect(screen.getByRole("button", { name: /copy net-123 to clipboard/i })).toBeInTheDocument()
     })
 
-    it("renders only the ID (with copy affordance) when the network has no name", () => {
+    it("renders '- -' for the name and keeps the ID beneath when the network has no name", () => {
       renderComponent({ ...mockNetwork, name: "" })
 
-      // ID appears once: as the primary ClipboardText (no secondary line)
-      expect(screen.getAllByText("net-123")).toHaveLength(1)
+      // Name line falls back to the placeholder; ID still shown with its copy affordance
+      expect(screen.getByText("- -")).toBeInTheDocument()
       expect(screen.getByRole("button", { name: /copy net-123 to clipboard/i })).toBeInTheDocument()
     })
 

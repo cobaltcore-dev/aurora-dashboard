@@ -16,6 +16,8 @@ export type InstancesResult = {
   listError?: string
   // A 403 renders a friendly "Access Denied" Status rather than the raw message.
   listForbidden: boolean
+  // Epoch ms when the list was successfully fetched; drives the "Last updated" header info.
+  resolvedAt?: number
 }
 
 export const createInstancesPromise = (
@@ -33,7 +35,7 @@ export const createInstancesPromise = (
       name: searchTerm || undefined,
       ...filters,
     })
-    .then((servers) => ({ servers: servers ?? [], listForbidden: false }))
+    .then((servers) => ({ servers: servers ?? [], listForbidden: false, resolvedAt: Date.now() }))
     .catch((err: unknown) => {
       if (err instanceof TRPCClientError && err.data?.code === "FORBIDDEN") {
         return { servers: [] as Server[], listError: err.message, listForbidden: true }

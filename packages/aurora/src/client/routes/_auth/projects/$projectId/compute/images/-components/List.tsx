@@ -1,6 +1,7 @@
 import { use, Suspense, useState, startTransition, useEffect, useRef, ReactNode, useCallback } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import { Trans, useLingui } from "@lingui/react/macro"
+import { i18n } from "@lingui/core"
 import { TrpcClient, trpcReact } from "@/client/trpcClient"
 import { GlanceImage } from "@/server/Compute/types/image"
 import { useNavigate, useSearch } from "@tanstack/react-router"
@@ -25,6 +26,7 @@ import { SelectedFilters } from "@/client/components/ListToolbar/SelectedFilters
 import { FiltersInput } from "@/client/components/ListToolbar/FiltersInput"
 import { FilterSettings, SortSettings } from "@/client/components/ListToolbar/types"
 import { ImageListView } from "./ImageListView"
+import { formatRelativeTime } from "@/client/utils/formatRelativeTime"
 import { CONTAINER_FORMATS, DISK_FORMATS, IMAGE_STATUSES, IMAGE_VISIBILITY } from "../../-constants/filters"
 import { parseFiltersFromUrl, buildFilterParams, buildUrlSearchParams, applyFilterSelection } from "../urlHelpers"
 import { createImagesPromise, createPermissionsPromise } from "../apiHelpers"
@@ -62,6 +64,7 @@ type ImagesResult = {
   listError?: string
   listForbidden?: boolean
   totalCount?: number
+  resolvedAt?: number
 }
 
 type ImagesContentProps = {
@@ -194,6 +197,11 @@ function ImagesContent({
   // Detect pagination mode: server-paginated (totalCount present) vs client-paginated (member-status views)
   const isServerPaginated = imagesData.totalCount !== undefined
   const pageImages = isServerPaginated ? images : images.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
+
+  // Item count for the header: when the server reports a total, that is authoritative; otherwise
+  // (member-status views) the full filtered set lives client-side, so its length is the count.
+  const displayCount = imagesData.totalCount ?? images.length
+  const lastUpdatedText = imagesData.resolvedAt ? formatRelativeTime(imagesData.resolvedAt, i18n.locale) : null
   const displayedImageIds = new Set(pageImages.map((image: GlanceImage) => image.id))
   const validSelectedImages = selectedImages.filter((imageId) => displayedImageIds.has(imageId))
 
@@ -235,9 +243,13 @@ function ImagesContent({
 
   return (
     <>
-      {/* Zone 1 — tabs + sort + create / more actions, no background */}
+      {/* Zone 1 — predefined filter tabs (buttons) + sort + create, no background */}
       <Stack distribution="between" alignment="center" gap="2" className="pb-2">
-        <TabBar activeItem={memberStatusView} onActiveItemChange={memberStatusTabs.onActiveItemChange}>
+        <TabBar
+          appearance="buttons"
+          activeItem={memberStatusView}
+          onActiveItemChange={memberStatusTabs.onActiveItemChange}
+        >
           {memberStatusTabs.items.map((item) => (
             <TabBarItem key={item.value} label={item.label} value={item.value} />
           ))}
@@ -317,10 +329,10 @@ function ImagesContent({
         </Stack>
       </DataGridToolbar>
 
-      {/* Zone 3 — select all + bulk actions (only when at least one bulk action is available) */}
-      {(permissions.canDelete || permissions.canUpdate) && (
-        <DataGridToolbar>
-          <Stack distribution="between" alignment="center">
+      {/* Zone 3 — bulk actions (left, when available), item count (middle), last-updated (right) */}
+      <DataGridToolbar>
+        <Stack distribution="between" alignment="center" className="text-theme-light text-sm">
+          {permissions.canDelete || permissions.canUpdate ? (
             <Stack gap="2" alignment="center">
               <Checkbox
                 checked={
@@ -372,9 +384,21 @@ function ImagesContent({
                 </PopupMenuOptions>
               </PopupMenu>
             </Stack>
-          </Stack>
-        </DataGridToolbar>
-      )}
+          ) : (
+            <span />
+          )}
+          <span>
+            <Trans>Showing {displayCount} images</Trans>
+          </span>
+          {lastUpdatedText ? (
+            <span>
+              <Trans>Last updated: {lastUpdatedText}</Trans>
+            </span>
+          ) : (
+            <span />
+          )}
+        </Stack>
+      </DataGridToolbar>
       <ImageListView
         images={paginatedImages}
         permissions={permissions}

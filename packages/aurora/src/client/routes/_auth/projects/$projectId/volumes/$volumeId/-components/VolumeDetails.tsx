@@ -204,6 +204,7 @@ export function VolumeDetails({ projectId, volumeId }: { projectId: string; volu
               items={snapshotsQuery.data ?? []}
               snapshots
               compact
+              nameLinkOnly
               projectId={projectId}
               canRead={permissions.canReadSnapshots}
             />

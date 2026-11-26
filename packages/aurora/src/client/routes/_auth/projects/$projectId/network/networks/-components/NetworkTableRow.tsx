@@ -6,11 +6,11 @@ import {
   PopupMenu,
   PopupMenuItem,
   PopupMenuOptions,
-  Stack,
 } from "@cloudoperators/juno-ui-components"
 import type { NetworkListItem } from "@/server/Network/types/network"
 import { useProjectId } from "@/client/hooks"
 import ClipboardText from "@/client/components/ClipboardText"
+import { NameIdCell } from "@/client/components/NameIdCell"
 
 interface NetworkTableRowProps {
   network: NetworkListItem
@@ -33,26 +33,15 @@ export const NetworkTableRow = ({ network }: NetworkTableRowProps) => {
   return (
     <DataGridRow key={network.id} data-testid={`network-row-${network.id}`} onClick={navigateToDetailsPage}>
       <DataGridCell>{network.status.charAt(0) + network.status.slice(1).toLowerCase()}</DataGridCell>
-      {/* Name — ID shown beneath the name with a copy affordance (E2-adjacent, spec AC) */}
+      {/* Name — always shown ("- -" when empty); ID beneath with a copy affordance (E2-adjacent, spec AC) */}
       <DataGridCell>
-        <Stack direction="vertical" gap="0.5" className="min-w-0">
-          {network.name ? (
-            <>
-              <span className="break-all">{network.name}</span>
-              <ClipboardText text={network.id} className="text-theme-light text-sm" iconVisible="hover" />
-            </>
-          ) : (
-            <ClipboardText text={network.id} iconVisible="hover" />
-          )}
-        </Stack>
+        <NameIdCell name={network.name} id={network.id} />
       </DataGridCell>
       <DataGridCell>{network.admin_state_up ? t`Up` : t`Down`}</DataGridCell>
       {/* Subnet count — derived from subnets.length; no extra API call (spec AC) */}
       <DataGridCell>{network.subnets.length}</DataGridCell>
       {/* Shared — show owning project_id with copy when shared, "No" otherwise (E2) */}
-      <DataGridCell>
-        {network.shared ? <ClipboardText text={network.project_id} iconVisible="hover" /> : t`No`}
-      </DataGridCell>
+      <DataGridCell>{network.shared ? <ClipboardText text={network.project_id} /> : t`No`}</DataGridCell>
       <DataGridCell>{external === undefined || external === null ? "- -" : external ? t`Yes` : t`No`}</DataGridCell>
       <DataGridCell onClick={(e) => e.stopPropagation()}>
         <PopupMenu>

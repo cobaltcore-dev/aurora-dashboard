@@ -9,6 +9,7 @@ import {
 import { useLingui, Trans } from "@lingui/react/macro"
 import type { SecurityGroup } from "@/server/Network/types/securityGroup"
 import { EMPTY_VALUE } from "@/client/components/TwoColumnDescriptionList"
+import { NameIdCell } from "@/client/components/NameIdCell"
 
 export interface SecurityGroupPermissions {
   canView: boolean
@@ -69,7 +70,9 @@ export function SecurityGroupTableRow({
           <Checkbox checked={isSelected} onChange={() => onSelect?.(sg)} />
         </DataGridCell>
       )}
-      <DataGridCell>{sg.name}</DataGridCell>
+      <DataGridCell>
+        <NameIdCell name={sg.name} id={sg.id} />
+      </DataGridCell>
       <DataGridCell>{sg.description || EMPTY_VALUE}</DataGridCell>
       <DataGridCell>
         <BooleanValue value={sg.shared} />
