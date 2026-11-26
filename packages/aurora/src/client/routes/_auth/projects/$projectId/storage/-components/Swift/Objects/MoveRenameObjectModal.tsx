@@ -315,9 +315,8 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
   // ── Virtualized folder browser ─────────────────────────────────────────────
   // Must be declared before the early return to satisfy Rules of Hooks.
   const folderRows = rows.filter((r) => r.kind === "folder")
-  // Files are kept in `rows` for folder-name duplicate detection but are not
-  // rendered in the destination picker — only folders are valid destinations.
-  const allBrowserRows = folderRows
+  const objectRows = rows.filter((r) => r.kind === "object")
+  const allBrowserRows = [...folderRows, ...objectRows]
 
   const rowVirtualizer = useVirtualizer({
     count: allBrowserRows.length,

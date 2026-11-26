@@ -384,10 +384,9 @@ describe("MoveRenameObjectModal", () => {
       expect(screen.getByText("docs")).toBeInTheDocument()
     })
 
-    test("does not show files in the destination picker", () => {
+    test("shows files as non-interactive rows in the destination picker", () => {
       renderModal()
-      // Files are not valid destinations — only folders are rendered
-      expect(screen.queryByText("readme.txt")).not.toBeInTheDocument()
+      expect(screen.getByText("readme.txt")).toBeInTheDocument()
     })
 
     test("navigates into a folder when clicked", async () => {
