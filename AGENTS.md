@@ -12,4 +12,4 @@ Before editing files for a substantial task:
 
 ## Guardrails
 
-Before building or reviewing Aurora UI, read and follow docs/guardrails/guardrails.md — its guidance is mandatory.
+Before building or reviewing any Aurora UI, follow the Aurora guardrails — they are mandatory. The entry point is docs/guardrails/guardrails.md, which routes to the `guardrails` Intent skill (`pnpm exec intent load @cobaltcore-dev/aurora#guardrails`) that owns the rules; use `guardrails-validate` to audit existing UI.
