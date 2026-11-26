@@ -2088,13 +2088,10 @@ msgstr ""
 msgid "Failed to Load Container Information"
 msgstr ""
 
-msgid "Failed to Load Container Objects: {errorMessage}"
+msgid "Failed to Load Container Objects"
 msgstr ""
 
 msgid "Failed to Load Container Properties"
-msgstr ""
-
-msgid "Failed to Load Container Properties: {errorMessage}"
 msgstr ""
 
 msgid "Failed to Load Containers"

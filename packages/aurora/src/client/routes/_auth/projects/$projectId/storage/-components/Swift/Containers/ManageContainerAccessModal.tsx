@@ -329,19 +329,21 @@ export const ManageContainerAccessModal = ({
     >
       <div className="max-h-[70vh] overflow-y-auto pr-1 pl-1">
         {/* ── Info message ─────────────────────────────────────────────────── */}
-        <div className="mb-4">
-          <p className="text-theme-default mb-4">
-            <Trans>
-              Ensure that the Project ID and User ID you enter are correct. The system cannot validate these values —
-              incorrect IDs may apply access to wrong projects and users.
-            </Trans>
-          </p>
-          <p className="text-theme-default mb-4">
-            <Trans>
-              Container: <span className="font-semibold">{containerName}</span>
-            </Trans>
-          </p>
-        </div>
+        {!isLoading && !isMetaError && (
+          <div className="mb-4">
+            <p className="text-theme-default mb-4">
+              <Trans>
+                Ensure that the Project ID and User ID you enter are correct. The system cannot validate these values —
+                incorrect IDs may apply access to wrong projects and users.
+              </Trans>
+            </p>
+            <p className="text-theme-default mb-4">
+              <Trans>
+                Container: <span className="font-semibold">{containerName}</span>
+              </Trans>
+            </p>
+          </div>
+        )}
 
         {isLoading ? (
           <Status status="progress" title={t`Loading ACLs...`} className="mt-0" />

@@ -115,12 +115,12 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
       title={t`Empty Container`}
       open={isOpen}
       onCancel={handleClose}
-      confirmButtonLabel={showEmptyInfo ? undefined : t`Empty Container`}
+      confirmButtonLabel={showEmptyInfo && !objectsError ? undefined : t`Empty Container`}
       confirmButtonVariant="primary-danger"
-      onConfirm={showEmptyInfo ? undefined : form.handleSubmit}
-      cancelButtonLabel={showEmptyInfo ? undefined : t`Cancel`}
+      onConfirm={showEmptyInfo && !objectsError ? undefined : form.handleSubmit}
+      cancelButtonLabel={showEmptyInfo && !objectsError ? undefined : t`Cancel`}
       modalFooter={
-        showEmptyInfo ? (
+        showEmptyInfo && !objectsError ? (
           <ModalFooter className="flex justify-end">
             <ButtonRow>
               <Button variant="primary" onClick={handleClose} data-testid="empty-info-close-button">
@@ -131,19 +131,20 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
         ) : undefined
       }
       size="large"
-      disableConfirmButton={isLoadingObjects || emptyContainerMutation.isPending || (!showEmptyInfo && canEmpty)}
+      disableConfirmButton={
+        isLoadingObjects || !!objectsError || emptyContainerMutation.isPending || (!showEmptyInfo && canEmpty)
+      }
     >
-      {objectsError && (
-        <p className="text-theme-error mb-4">
-          {(() => {
-            const errorMessage = objectsError.message
-            return <Trans>Failed to Load Container Objects: {errorMessage}</Trans>
-          })()}
-        </p>
-      )}
       {isLoadingObjects ? (
         <Status status="progress" title={t`Loading Objects...`} className="mt-0" />
-      ) : showEmptyInfo && !objectsError ? (
+      ) : objectsError ? (
+        <Status
+          status="error"
+          title={t`Failed to Load Container Objects`}
+          body={objectsError.message}
+          className="mt-0"
+        />
+      ) : showEmptyInfo ? (
         // ── Case 2 & 3 ──────────────────────────────────────────────────────
         <p className="text-theme-default py-2">
           {isTrulyEmpty ? (
@@ -154,7 +155,7 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
             </Trans>
           )}
         </p>
-      ) : !objectsError ? (
+      ) : (
         // ── Case 1: container has objects ────────────────────────────────────
         <Stack direction="vertical" gap="6">
           <p className="text-theme-default">
@@ -231,7 +232,7 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
             </FormSection>
           </Form>
         </Stack>
-      ) : null}
+      )}
     </Modal>
   )
 }

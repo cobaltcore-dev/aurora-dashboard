@@ -203,6 +203,12 @@ describe("ManageContainerAccessModal", () => {
       expect(screen.getByRole("button", { name: /Save/i })).toBeDisabled()
     })
 
+    test("hides description text while loading", () => {
+      metadataLoading = true
+      renderModal()
+      expect(screen.queryByText(/incorrect IDs may apply access/i)).not.toBeInTheDocument()
+    })
+
     test("renders ACL inputs once loading finishes", () => {
       metadataLoading = false
       renderModal()
@@ -226,6 +232,12 @@ describe("ManageContainerAccessModal", () => {
       metadataError = { message: "Network error" }
       renderModal()
       expect(screen.getByRole("button", { name: /Save/i })).toBeDisabled()
+    })
+
+    test("hides description text when metadata query fails", () => {
+      metadataError = { message: "Network error" }
+      renderModal()
+      expect(screen.queryByText(/incorrect IDs may apply access/i)).not.toBeInTheDocument()
     })
   })
 
