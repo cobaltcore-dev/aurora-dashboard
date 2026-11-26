@@ -302,7 +302,7 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
       confirmButtonLabel={isPending ? t`Copying...` : t`Copy Object`}
       onConfirm={handleCopy}
       cancelButtonLabel={t`Cancel`}
-      size="xl"
+      size="large"
       disableConfirmButton={isPending || isLoadingContainers || isUnchanged}
       disableCancelButton={isPending || isLoadingContainers}
     >
