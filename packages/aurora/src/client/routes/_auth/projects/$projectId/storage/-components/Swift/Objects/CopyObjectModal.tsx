@@ -312,7 +312,8 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
         <Stack direction="vertical" gap="4">
           <p className="text-theme-default">
             <Trans>
-              Copying <span className="font-semibold">{displayName}</span> to a new location.
+              Copying <span className="font-semibold">{displayName}</span> — a new copy will be created at the selected
+              destination. The original remains in place.
             </Trans>
           </p>
 

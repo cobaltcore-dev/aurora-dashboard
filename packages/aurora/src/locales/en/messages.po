@@ -858,9 +858,6 @@ msgstr "certificate — Used for storing cryptographic certificates such as X.50
 msgid "Certificate is required for certificate containers"
 msgstr "Certificate is required for certificate containers"
 
-msgid "Change the name, destination container, or folder for"
-msgstr "Change the name, destination container, or folder for"
-
 msgid "Change your search or filters to see more results."
 msgstr "Change your search or filters to see more results."
 
@@ -1056,8 +1053,8 @@ msgstr "Copy object:"
 msgid "Copy URL"
 msgstr "Copy URL"
 
-msgid "Copying <0>{displayName}</0> to a new location."
-msgstr "Copying <0>{displayName}</0> to a new location."
+msgid "Copying <0>{displayName}</0> — a new copy will be created at the selected destination. The original remains in place."
+msgstr "Copying <0>{displayName}</0> — a new copy will be created at the selected destination. The original remains in place."
 
 msgid "Copying Object..."
 msgstr "Copying Object..."
@@ -3062,6 +3059,9 @@ msgstr "Move/Rename Object"
 
 msgid "Move/Rename object:"
 msgstr "Move/Rename object:"
+
+msgid "Moving <0>{displayName}</0> — the object will be copied to the new location and the original deleted. Use the fields below to change the name, container, or folder."
+msgstr "Moving <0>{displayName}</0> — the object will be copied to the new location and the original deleted. Use the fields below to change the name, container, or folder."
 
 msgid "Moving Object..."
 msgstr "Moving Object..."

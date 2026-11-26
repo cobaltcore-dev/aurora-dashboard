@@ -329,22 +329,21 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
 
   const isPending = copyMutation.isPending || deleteMutation.isPending
   const isLoading = isLoadingObjects
+  const displayName = object.displayName
 
   // ── Read-only target path preview ──────────────────────────────────────────
-  const targetPathDisplay = `${targetContainer}/${currentPrefix}${newObjectName.trim() || object.displayName}`
+  const targetPathDisplay = `${targetContainer}/${currentPrefix}${newObjectName.trim() || displayName}`
 
   // The initial prefix is the folder the source object lives in —
   // strip the displayName from the end of the full object name to get it.
-  const initialPrefix = object.name.endsWith(object.displayName)
-    ? object.name.slice(0, object.name.length - object.displayName.length)
+  const initialPrefix = object.name.endsWith(displayName)
+    ? object.name.slice(0, object.name.length - displayName.length)
     : ""
 
   // Disable submit when the destination is identical to the source —
   // same container, same folder prefix, and same object name means nothing would change.
   const isUnchanged =
-    targetContainer === sourceContainer &&
-    currentPrefix === initialPrefix &&
-    newObjectName.trim() === object.displayName
+    targetContainer === sourceContainer && currentPrefix === initialPrefix && newObjectName.trim() === displayName
   return (
     <Modal
       title={t`Move/Rename Object`}
@@ -361,25 +360,26 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
         <Status status="progress" title={t`Moving Object...`} className="mt-0" />
       ) : (
         <Stack direction="vertical" gap="4">
+          <p className="text-theme-default">
+            <Trans>
+              Moving <span className="font-semibold">{displayName}</span> — the object will be copied to the new
+              location and the original deleted. Use the fields below to change the name, container, or folder.
+            </Trans>
+          </p>
+
           {/* New object name */}
-          <div>
-            <p className="mb-1">
-              <Trans>Change the name, destination container, or folder for</Trans>{" "}
-              <span className="font-semibold">{object.displayName}</span>.
-            </p>
-            <TextInput
-              label={t`New object name`}
-              value={newObjectName}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                setNewObjectName(e.target.value)
-                if (newObjectNameError) setNewObjectNameError(null)
-              }}
-              invalid={!!newObjectNameError}
-              errortext={newObjectNameError ?? undefined}
-              helptext={t`You can rename the object by changing the name here.`}
-              required
-            />
-          </div>
+          <TextInput
+            label={t`New object name`}
+            value={newObjectName}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              setNewObjectName(e.target.value)
+              if (newObjectNameError) setNewObjectNameError(null)
+            }}
+            invalid={!!newObjectNameError}
+            errortext={newObjectNameError ?? undefined}
+            helptext={t`You can rename the object by changing the name here.`}
+            required
+          />
 
           {/* Target container */}
           <ComboBox
