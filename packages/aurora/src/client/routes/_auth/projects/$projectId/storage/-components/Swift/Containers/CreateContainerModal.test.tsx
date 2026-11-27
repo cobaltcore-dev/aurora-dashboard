@@ -165,6 +165,16 @@ describe("CreateContainerModal", () => {
       expect(screen.getByLabelText(/Container name/i)).toBeInTheDocument()
     })
 
+    test("renders helptext with character limit and slash restriction", () => {
+      renderModal()
+      expect(screen.getByText(/Up to 256 characters\. Slashes are not allowed\./i)).toBeInTheDocument()
+    })
+
+    test("renders helptext reflecting a custom maxContainerNameLength", () => {
+      renderModal({ maxContainerNameLength: 64 })
+      expect(screen.getByText(/Up to 64 characters\. Slashes are not allowed\./i)).toBeInTheDocument()
+    })
+
     test("renders Create and Cancel buttons", () => {
       renderModal()
       expect(screen.getByRole("button", { name: /Create/i })).toBeInTheDocument()
@@ -280,6 +290,29 @@ describe("CreateContainerModal", () => {
       await waitFor(() => {
         expect(mockMutate).toHaveBeenCalled()
       })
+    })
+
+    test("shows error on blur when name contains a slash", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      const input = screen.getByLabelText(/Container name/i)
+      await user.type(input, "invalid/name")
+      await user.tab()
+      await waitFor(() => {
+        expect(screen.getByText(/Container name cannot contain slashes/i)).toBeInTheDocument()
+      })
+    })
+
+    test("Create button is disabled while a validation error is active", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      const input = screen.getByLabelText(/Container name/i)
+      await user.type(input, "bad/name")
+      await user.keyboard("{Enter}")
+      await waitFor(() => {
+        expect(screen.getByText(/cannot contain slashes/i)).toBeInTheDocument()
+      })
+      expect(screen.getByRole("button", { name: /Create/i })).toBeDisabled()
     })
   })
 

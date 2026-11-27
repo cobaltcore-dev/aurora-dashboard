@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, TextInput, Stack } from "@cloudoperators/juno-ui-components"
+import { Modal, TextInput, Form, FormSection, Status } from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { useModalTracking } from "@/client/hooks/useModalTracking"
 import { ContainerSummary } from "@/server/Storage/types/swift"
@@ -99,6 +99,10 @@ export const CreateContainerModal = ({
     if (nameError) validateName(value)
   }
 
+  const handleNameBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    validateName(e.target.value)
+  }
+
   const handleSubmit = () => {
     if (!validateName(containerName)) return
     markSubmitted()
@@ -116,39 +120,55 @@ export const CreateContainerModal = ({
 
   if (!isOpen) return null
 
+  const isPending = createContainerMutation.isPending
+
   return (
     <Modal
       title={t`Create Container`}
       open={isOpen}
       onCancel={handleClose}
-      confirmButtonLabel={createContainerMutation.isPending ? t`Creating...` : t`Create`}
+      confirmButtonLabel={isPending ? t`Creating...` : t`Create`}
       onConfirm={handleSubmit}
       cancelButtonLabel={t`Cancel`}
       size="small"
-      disableConfirmButton={createContainerMutation.isPending || !containerName.trim()}
-      disableCancelButton={createContainerMutation.isPending}
-      disableCloseButton={createContainerMutation.isPending}
+      disableConfirmButton={isPending || !containerName.trim() || !!nameError}
+      disableCancelButton={isPending}
+      disableCloseButton={isPending}
     >
-      <Stack direction="vertical" gap="6">
-        <p className="text-theme-default">
-          <Trans>
-            Inside a project, objects are stored in containers. Containers are where you define access permissions and
-            quotas.
-          </Trans>
-        </p>
-        <TextInput
-          label={t`Container name`}
-          required
-          value={containerName}
-          onChange={handleNameChange}
-          onKeyDown={handleKeyDown}
-          invalid={!!nameError}
-          errortext={nameError || undefined}
-          disabled={createContainerMutation.isPending}
-          autoFocus
-          placeholder={t`Enter container name`}
-        />
-      </Stack>
+      {isPending && <Status status="progress" title={t`Creating Container...`} className="mt-0" />}
+
+      {!isPending && (
+        <Form
+          onSubmit={(e: React.FormEvent) => {
+            e.preventDefault()
+            handleSubmit()
+          }}
+        >
+          <FormSection>
+            <p className="text-theme-default mb-6">
+              <Trans>
+                Inside a project, objects are stored in containers. Containers are where you define access permissions
+                and quotas.
+              </Trans>
+            </p>
+
+            <TextInput
+              label={t`Container name`}
+              required
+              value={containerName}
+              onChange={handleNameChange}
+              onBlur={handleNameBlur}
+              onKeyDown={handleKeyDown}
+              invalid={!!nameError}
+              errortext={nameError || undefined}
+              helptext={t`Up to ${maxContainerNameLength} characters. Slashes are not allowed.`}
+              disabled={isPending}
+              autoFocus
+              placeholder={t`e.g. my-container`}
+            />
+          </FormSection>
+        </Form>
+      )}
     </Modal>
   )
 }

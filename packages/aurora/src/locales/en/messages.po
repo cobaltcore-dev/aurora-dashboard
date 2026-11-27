@@ -1281,6 +1281,9 @@ msgstr "Created"
 msgid "Created At"
 msgstr "Created At"
 
+msgid "Creating Container..."
+msgstr "Creating Container..."
+
 msgid "Creating Flavor..."
 msgstr "Creating Flavor..."
 
@@ -1644,6 +1647,9 @@ msgstr "e.g. Etag, Content-Length"
 msgid "e.g. https://example.com or *"
 msgstr "e.g. https://example.com or *"
 
+msgid "e.g. my-container"
+msgstr "e.g. my-container"
+
 msgid "e.g. my-lifecycle-rule"
 msgstr "e.g. my-lifecycle-rule"
 
@@ -1793,9 +1799,6 @@ msgstr "Enter an optional description for the floating IP (max 255 characters)."
 
 msgid "Enter bucket policy JSON..."
 msgstr "Enter bucket policy JSON..."
-
-msgid "Enter container name"
-msgstr "Enter container name"
 
 msgid "Enter DNS name"
 msgstr "Enter DNS name"
@@ -5105,6 +5108,9 @@ msgstr "Up"
 
 msgid "UP"
 msgstr "UP"
+
+msgid "Up to {maxContainerNameLength} characters. Slashes are not allowed."
+msgstr "Up to {maxContainerNameLength} characters. Slashes are not allowed."
 
 msgid "Update"
 msgstr "Update"

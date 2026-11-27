@@ -1281,6 +1281,9 @@ msgstr "Erstellt"
 msgid "Created At"
 msgstr "Erstellt am"
 
+msgid "Creating Container..."
+msgstr ""
+
 msgid "Creating Flavor..."
 msgstr ""
 
@@ -1644,6 +1647,9 @@ msgstr ""
 msgid "e.g. https://example.com or *"
 msgstr ""
 
+msgid "e.g. my-container"
+msgstr ""
+
 msgid "e.g. my-lifecycle-rule"
 msgstr ""
 
@@ -1793,9 +1799,6 @@ msgstr ""
 
 msgid "Enter bucket policy JSON..."
 msgstr ""
-
-msgid "Enter container name"
-msgstr "Container-Name eingeben"
 
 msgid "Enter DNS name"
 msgstr "DNS-Name eingeben"
@@ -5104,6 +5107,9 @@ msgid "Up"
 msgstr ""
 
 msgid "UP"
+msgstr ""
+
+msgid "Up to {maxContainerNameLength} characters. Slashes are not allowed."
 msgstr ""
 
 msgid "Update"
