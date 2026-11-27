@@ -1,6 +1,6 @@
 import React from "react"
 import { describe, test, expect, vi, beforeEach } from "vitest"
-import { render, screen, waitFor, act } from "@testing-library/react"
+import { render, screen, waitFor, act, fireEvent } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
@@ -366,6 +366,44 @@ describe("GenerateTempUrlModal", () => {
       await user.click(screen.getByRole("button", { name: /Generate URL/i }))
       expect(screen.getByText(/valid number of minutes/i)).toBeInTheDocument()
       expect(trpcState.mutate).not.toHaveBeenCalled()
+    })
+
+    test("renders helptext explaining the expected format", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      await selectPreset(user, "Custom")
+      expect(screen.getByText(/Positive whole number of minutes/i)).toBeInTheDocument()
+    })
+
+    test("shows error on blur when custom minutes is invalid", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      await selectPreset(user, "Custom")
+      await user.type(screen.getByLabelText(/Custom duration/i), "1.5")
+      fireEvent.blur(screen.getByLabelText(/Custom duration/i))
+      await waitFor(() => {
+        expect(screen.getByText(/valid number of minutes/i)).toBeInTheDocument()
+      })
+    })
+
+    test("does not show error on blur when custom minutes is empty", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      await selectPreset(user, "Custom")
+      fireEvent.blur(screen.getByLabelText(/Custom duration/i))
+      expect(screen.queryByText(/valid number of minutes/i)).not.toBeInTheDocument()
+    })
+
+    test("Generate URL button is disabled while a custom minutes error is active", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      await selectPreset(user, "Custom")
+      await user.type(screen.getByLabelText(/Custom duration/i), "1.5")
+      fireEvent.blur(screen.getByLabelText(/Custom duration/i))
+      await waitFor(() => {
+        expect(screen.getByText(/valid number of minutes/i)).toBeInTheDocument()
+      })
+      expect(screen.getByRole("button", { name: /Generate URL/i })).toBeDisabled()
     })
   })
 

@@ -143,6 +143,20 @@ export const GenerateTempUrlModal = ({
     return Number.isInteger(mins) && mins > 0 ? mins : null
   }
 
+  const validateCustomMinutes = (value: string): boolean => {
+    if (!value.trim()) {
+      setCustomMinutesError(null)
+      return false
+    }
+    const mins = Number(value)
+    if (!Number.isInteger(mins) || mins <= 0) {
+      setCustomMinutesError(t`Please enter a valid number of minutes greater than 0`)
+      return false
+    }
+    setCustomMinutesError(null)
+    return true
+  }
+
   const resolveExpiresIn = (): number | null => {
     if (selectedPreset === CUSTOM_VALUE) {
       const mins = parseCustomMinutes()
@@ -155,12 +169,7 @@ export const GenerateTempUrlModal = ({
   const handleGenerate = () => {
     if (!object) return
     if (selectedPreset === CUSTOM_VALUE) {
-      const mins = parseCustomMinutes()
-      if (mins === null) {
-        setCustomMinutesError(t`Please enter a valid number of minutes greater than 0`)
-        return
-      }
-      setCustomMinutesError(null)
+      if (!validateCustomMinutes(customMinutes)) return
     }
     const expiresIn = resolveExpiresIn()
     if (expiresIn === null) return
@@ -238,8 +247,9 @@ export const GenerateTempUrlModal = ({
   }
 
   const handleCustomMinutesChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setCustomMinutes(e.target.value)
-    if (customMinutesError) setCustomMinutesError(null)
+    const value = e.target.value
+    setCustomMinutes(value)
+    if (customMinutesError) validateCustomMinutes(value)
     // Reset generated URL when config changes
     setTempUrl(null)
     setExpiresAt(null)
@@ -356,8 +366,10 @@ export const GenerateTempUrlModal = ({
             label={t`Custom duration (minutes)`}
             value={customMinutes}
             onChange={handleCustomMinutesChange}
+            onBlur={(e) => validateCustomMinutes(e.target.value)}
             invalid={!!customMinutesError}
             errortext={customMinutesError || undefined}
+            helptext={t`Positive whole number of minutes (e.g. 60 for 1 hour).`}
             disabled={isPending}
             placeholder="60"
             type="number"

@@ -3639,6 +3639,9 @@ msgstr ""
 msgid "Ports"
 msgstr ""
 
+msgid "Positive whole number of minutes (e.g. 60 for 1 hour)."
+msgstr ""
+
 msgid "Power State"
 msgstr ""
 
