@@ -151,6 +151,11 @@ describe("CreateFolderModal", () => {
       expect(screen.getByLabelText(/Folder name/i)).toBeInTheDocument()
     })
 
+    test("renders helptext explaining naming restrictions", () => {
+      renderModal()
+      expect(screen.getByText(/No slashes or leading\/trailing spaces allowed\./i)).toBeInTheDocument()
+    })
+
     test("renders Create folder and Cancel buttons", () => {
       renderModal()
       expect(screen.getByRole("button", { name: /Create folder/i })).toBeInTheDocument()
@@ -293,6 +298,27 @@ describe("CreateFolderModal", () => {
       await waitFor(() => {
         expect(mockMutate).toHaveBeenCalled()
       })
+    })
+
+    test("shows error on blur when name contains a slash", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      await user.type(screen.getByLabelText(/Folder name/i), "invalid/name")
+      await user.tab()
+      await waitFor(() => {
+        expect(screen.getByText(/cannot contain slashes/i)).toBeInTheDocument()
+      })
+    })
+
+    test("Create folder button is disabled while a validation error is active", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      await user.type(screen.getByLabelText(/Folder name/i), "bad/name")
+      await user.keyboard("{Enter}")
+      await waitFor(() => {
+        expect(screen.getByText(/cannot contain slashes/i)).toBeInTheDocument()
+      })
+      expect(screen.getByRole("button", { name: /Create folder/i })).toBeDisabled()
     })
   })
 

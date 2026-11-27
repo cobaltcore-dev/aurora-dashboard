@@ -1287,6 +1287,9 @@ msgstr ""
 msgid "Creating Flavor..."
 msgstr ""
 
+msgid "Creating Folder..."
+msgstr ""
+
 msgid "Creating Image..."
 msgstr ""
 
@@ -3329,6 +3332,9 @@ msgstr ""
 
 msgid "No services available for this project."
 msgstr "Keine Dienste für dieses Projekt verfügbar."
+
+msgid "No slashes or leading/trailing spaces allowed."
+msgstr ""
 
 msgid "No Snapshots in This Project"
 msgstr ""

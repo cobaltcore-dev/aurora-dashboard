@@ -2,7 +2,7 @@ import { useState, useRef } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
-import { Modal, TextInput, Stack } from "@cloudoperators/juno-ui-components"
+import { Modal, TextInput, Form, FormSection, Status } from "@cloudoperators/juno-ui-components"
 import { useParams } from "@tanstack/react-router"
 import { BrowserRow } from "./"
 
@@ -92,6 +92,10 @@ export const CreateFolderModal = ({
     if (nameError) validateName(value)
   }
 
+  const handleNameBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    validateName(e.target.value)
+  }
+
   const handleSubmit = () => {
     if (!validateName(folderName)) return
     submittedNameRef.current = folderName.trim()
@@ -108,6 +112,8 @@ export const CreateFolderModal = ({
 
   if (!isOpen) return null
 
+  const isPending = createFolderMutation.isPending
+
   return (
     <Modal
       title={t`Create Folder`}
@@ -117,33 +123,46 @@ export const CreateFolderModal = ({
       onConfirm={handleSubmit}
       cancelButtonLabel={t`Cancel`}
       size="small"
-      disableConfirmButton={createFolderMutation.isPending || !folderName.trim()}
-      disableCancelButton={createFolderMutation.isPending}
-      disableCloseButton={createFolderMutation.isPending}
+      disableConfirmButton={isPending || !folderName.trim() || !!nameError}
+      disableCancelButton={isPending}
+      disableCloseButton={isPending}
     >
-      <Stack direction="vertical" gap="6">
-        <p className="text-theme-default">
-          <Trans>Location:</Trans> <span className="font-semibold">{parentPath}</span>
-        </p>
-        <p className="text-theme-default">
-          <Trans>
-            Folders in object storage are virtual — they are created as zero-byte placeholder objects with a trailing
-            slash. The folder will appear once created.
-          </Trans>
-        </p>
-        <TextInput
-          label={t`Folder name`}
-          required
-          value={folderName}
-          onChange={handleNameChange}
-          onKeyDown={handleKeyDown}
-          invalid={!!nameError}
-          errortext={nameError || undefined}
-          disabled={createFolderMutation.isPending}
-          autoFocus
-          placeholder={t`folder-name`}
-        />
-      </Stack>
+      {isPending && <Status status="progress" title={t`Creating Folder...`} className="mt-0" />}
+
+      {!isPending && (
+        <Form
+          onSubmit={(e: React.FormEvent) => {
+            e.preventDefault()
+            handleSubmit()
+          }}
+        >
+          <FormSection>
+            <p className="text-theme-default mb-6">
+              <Trans>Location:</Trans> <span className="font-semibold">{parentPath}</span>
+            </p>
+            <p className="text-theme-default mb-6">
+              <Trans>
+                Folders in object storage are virtual — they are created as zero-byte placeholder objects with a
+                trailing slash. The folder will appear once created.
+              </Trans>
+            </p>
+            <TextInput
+              label={t`Folder name`}
+              required
+              value={folderName}
+              onChange={handleNameChange}
+              onBlur={handleNameBlur}
+              onKeyDown={handleKeyDown}
+              invalid={!!nameError}
+              errortext={nameError || undefined}
+              helptext={t`No slashes or leading/trailing spaces allowed.`}
+              disabled={isPending}
+              autoFocus
+              placeholder={t`folder-name`}
+            />
+          </FormSection>
+        </Form>
+      )}
     </Modal>
   )
 }

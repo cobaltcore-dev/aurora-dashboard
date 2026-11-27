@@ -1287,6 +1287,9 @@ msgstr "Creating Container..."
 msgid "Creating Flavor..."
 msgstr "Creating Flavor..."
 
+msgid "Creating Folder..."
+msgstr "Creating Folder..."
+
 msgid "Creating Image..."
 msgstr "Creating Image..."
 
@@ -3329,6 +3332,9 @@ msgstr "No segmentation data available."
 
 msgid "No services available for this project."
 msgstr "No services available for this project."
+
+msgid "No slashes or leading/trailing spaces allowed."
+msgstr "No slashes or leading/trailing spaces allowed."
 
 msgid "No Snapshots in This Project"
 msgstr "No Snapshots in This Project"
