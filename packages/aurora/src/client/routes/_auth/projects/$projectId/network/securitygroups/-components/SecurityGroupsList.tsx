@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
+import { i18n } from "@lingui/core"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { Button, Stack, DataGridToolbar, SearchInput, Message, toast } from "@cloudoperators/juno-ui-components"
 import { CreateSecurityGroupInput, UpdateSecurityGroupInput } from "@/server/Network/types/securityGroup"
@@ -15,6 +16,7 @@ import { useSecurityGroupPermissions } from "../-hooks/useSecurityGroupPermissio
 import { parseFiltersFromUrl, buildUrlSearchParams, applyFilterSelection } from "../urlHelpers"
 import { buildSecurityGroupFilterParams, buildSecurityGroupFilters } from "../filterConfig"
 import { getSecurityGroupDeletedToast, getSecurityGroupUpdatedToast } from "./SecurityGroupToastNotifications"
+import { formatRelativeTime } from "@/client/utils/formatRelativeTime"
 
 const SEARCH_DEBOUNCE_MS = 500
 
@@ -92,6 +94,8 @@ export const SecurityGroups = ({ project: projectId }: SecurityGroupsProps) => {
     isLoading,
     isError,
     error,
+    dataUpdatedAt,
+    isFetching,
   } = trpcReact.network.securityGroup.list.useQuery(
     {
       project_id: projectId || "",
@@ -107,6 +111,8 @@ export const SecurityGroups = ({ project: projectId }: SecurityGroupsProps) => {
   )
 
   const securityGroups = securityGroupsData || []
+  const securityGroupCount = securityGroups.length
+  const lastUpdatedText = dataUpdatedAt && !isFetching ? formatRelativeTime(dataUpdatedAt, i18n.locale) : null
   const listError = isError
     ? error?.data?.code === "FORBIDDEN"
       ? t`You do not have permission to view security groups`
@@ -330,6 +336,17 @@ export const SecurityGroups = ({ project: projectId }: SecurityGroupsProps) => {
                   onClear={() => handleFilterChange({ ...filterSettings, selectedFilters: [] })}
                 />
               )}
+              {/* Zone 3: item count + last-updated */}
+              <Stack distribution="between" alignment="center" className="text-theme-light text-sm">
+                <span>
+                  <Trans>Showing {securityGroupCount} security groups</Trans>
+                </span>
+                {lastUpdatedText && (
+                  <span>
+                    <Trans>Last updated: {lastUpdatedText}</Trans>
+                  </span>
+                )}
+              </Stack>
             </Stack>
           </DataGridToolbar>
         </Stack>

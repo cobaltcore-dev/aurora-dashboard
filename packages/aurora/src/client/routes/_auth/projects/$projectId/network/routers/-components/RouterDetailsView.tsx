@@ -1,22 +1,14 @@
-import { Fragment, ReactNode } from "react"
+import { ReactNode } from "react"
 import { StatusLabel } from "@/client/components/StatusLabel"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import {
-  ContentHeading,
-  DescriptionDefinition,
-  DescriptionList,
-  DescriptionTerm,
-  Stack,
-  Status,
-  TabNavigation,
-  TabNavigationItem,
-} from "@cloudoperators/juno-ui-components"
+import { ContentHeading, Stack, Status, TabNavigation, TabNavigationItem } from "@cloudoperators/juno-ui-components"
 import type { RouterDetails } from "@/server/Network/types/router"
 import { useProjectId } from "@/client/hooks"
 import ClipboardText from "@/client/components/ClipboardText"
 import { TwoColumnDescriptionList, type DetailListItem } from "@/client/components/TwoColumnDescriptionList"
 import { RouterInterfacesTable } from "./RouterInterfacesTable"
+import { RouterExternalGatewayTable } from "./RouterExternalGatewayTable"
 
 /** Tabs of the router details view, in display order. The first one is the default. */
 export const ROUTER_DETAILS_TABS = ["external", "internal"] as const
@@ -34,20 +26,6 @@ interface RouterDetailsViewProps {
   activeTab: RouterDetailsTab
   onTabChange: (tab: RouterDetailsTab) => void
 }
-
-/** Single-column list for the external gateway details; shows "- -" for empty values. */
-const DetailsList = ({ items }: { items: DetailListItem[] }) => (
-  <DescriptionList alignTerms="right">
-    {items.map(({ id, label, value }, index) => (
-      <Fragment key={id ?? `detail-${index}`}>
-        <DescriptionTerm>{label}</DescriptionTerm>
-        <DescriptionDefinition>
-          <div className="break-all">{value === null || value === undefined || value === "" ? "- -" : value}</div>
-        </DescriptionDefinition>
-      </Fragment>
-    ))}
-  </DescriptionList>
-)
 
 export function RouterDetailsView({ router, activeTab, onTabChange }: RouterDetailsViewProps) {
   const { t } = useLingui()
@@ -71,41 +49,6 @@ export function RouterDetailsView({ router, activeTab, onTabChange }: RouterDeta
     { label: t`Status`, value: <StatusLabel value={router.status} /> },
     { label: t`Admin State`, value: <StatusLabel value={router.admin_state_up ? t`UP` : t`DOWN`} /> },
   ]
-
-  const externalNetworkItems: DetailListItem[] = gateway
-    ? [
-        { label: t`Network Name`, value: gateway.network_name || undefined },
-        { label: t`Network ID`, value: <ClipboardText text={gateway.network_id} /> },
-        ...(gateway.enable_snat !== undefined
-          ? [{ label: t`SNAT`, value: gateway.enable_snat ? t`Enabled` : t`Disabled` }]
-          : []),
-        {
-          label: t`External Fixed IPs`,
-          value:
-            gateway.external_fixed_ips && gateway.external_fixed_ips.length > 0 ? (
-              <ul className="list-disc pl-4" data-testid="external-fixed-ips">
-                {gateway.external_fixed_ips.map((fixedIp) => (
-                  <li key={`${fixedIp.subnet_id}-${fixedIp.ip_address}`}>
-                    <div>
-                      <span className="font-bold">
-                        <Trans>Subnet ID:</Trans>
-                      </span>{" "}
-                      {fixedIp.subnet_id}
-                      {fixedIp.subnet_name && <span className="text-theme-light"> ({fixedIp.subnet_name})</span>}
-                    </div>
-                    <div>
-                      <span className="font-bold">
-                        <Trans>IP:</Trans>
-                      </span>{" "}
-                      {fixedIp.ip_address}
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            ) : undefined,
-        },
-      ]
-    : []
 
   const tabLabels: Record<RouterDetailsTab, string> = {
     external: t`External Networks`,
@@ -135,7 +78,7 @@ export function RouterDetailsView({ router, activeTab, onTabChange }: RouterDeta
 
         {activeTab === "external" &&
           (gateway ? (
-            <DetailsList items={externalNetworkItems} />
+            <RouterExternalGatewayTable gateway={gateway} />
           ) : (
             <Status
               status="empty"

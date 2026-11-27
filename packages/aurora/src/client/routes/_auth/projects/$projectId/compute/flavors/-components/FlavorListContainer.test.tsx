@@ -76,7 +76,7 @@ describe("FlavorListContainer", () => {
     // Use findByText for async rendering
     expect(await screen.findByText("Loading...")).toBeInTheDocument()
     expect(screen.queryByText("No flavors found")).not.toBeInTheDocument()
-    expect(screen.queryByText("Name")).not.toBeInTheDocument()
+    expect(screen.queryByText("Name / ID")).not.toBeInTheDocument()
   })
 
   it("renders no flavors message when flavors is empty", async () => {
@@ -144,7 +144,7 @@ describe("FlavorListContainer", () => {
     expect(screen.queryByText("Loading...")).not.toBeInTheDocument()
     expect(screen.queryByText("No flavors found")).not.toBeInTheDocument()
 
-    expect(screen.getByText("Name")).toBeInTheDocument()
+    expect(screen.getByText("Name / ID")).toBeInTheDocument()
     expect(screen.getByText("vCPU")).toBeInTheDocument()
     expect(screen.getByText("RAM (MiB)")).toBeInTheDocument()
     expect(screen.getByText("Root Disk (GiB)")).toBeInTheDocument()

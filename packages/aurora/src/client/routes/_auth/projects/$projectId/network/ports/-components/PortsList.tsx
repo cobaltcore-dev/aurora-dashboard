@@ -12,6 +12,8 @@ import { SelectedFilters } from "@/client/components/ListToolbar/SelectedFilters
 import { Filter, SortSettings } from "@/client/components/ListToolbar/types"
 import type { PortsSearchParams } from "@/client/routes/_auth/projects/$projectId/network/ports/index"
 import { PortListContainer } from "./PortListContainer"
+import { i18n } from "@lingui/core"
+import { formatRelativeTime } from "@/client/utils/formatRelativeTime"
 
 const PAGE_SIZE = 50
 
@@ -37,7 +39,7 @@ type RequiredSortSettings = {
   sortDirection: "asc" | "desc"
 }
 
-type PortsResult = { ports: PortListItem[]; forbidden?: boolean; unauthorized?: boolean }
+type PortsResult = { ports: PortListItem[]; forbidden?: boolean; unauthorized?: boolean; resolvedAt?: number }
 
 /**
  * Fetches the full port list once per (project, network). Sorting, search and pagination are done
@@ -50,7 +52,7 @@ const createPortsPromise = (
 ): Promise<PortsResult> => {
   return client.network.ports.list
     .query({ project_id: project, network_id: networkId })
-    .then((ports) => ({ ports, forbidden: false }))
+    .then((ports) => ({ ports, forbidden: false, resolvedAt: Date.now() }))
     .catch((err: unknown) => {
       // 403 is an expected "no access" state, not a failure: render it as a page-level info message
       // (B.6) rather than letting it reach the error boundary.
@@ -152,7 +154,7 @@ function PortsContent({
   isNetworkScoped: boolean
 }) {
   const { t } = useLingui()
-  const { ports, forbidden, unauthorized } = use(portsPromise)
+  const { ports, forbidden, unauthorized, resolvedAt } = use(portsPromise)
 
   // Local input value for instant typing. The URL (searchTerm) stays the source of truth and is updated
   // debounced for shareable links; filtering uses the local value so results update on every keystroke.
@@ -193,6 +195,7 @@ function PortsContent({
   const isFiltered = Boolean(localSearchTerm.trim()) || Boolean(statusFilter)
   const matchingCount = visiblePorts.length
   const totalCount = ports.length
+  const lastUpdatedText = resolvedAt ? formatRelativeTime(resolvedAt, i18n.locale) : null
 
   // Reset to page 1 when the URL's page is past the end of the current (filtered) result
   useEffect(() => {
@@ -241,7 +244,7 @@ function PortsContent({
               onChange={(selected) => onStatusChange(selected.value || undefined)}
             />
             <SearchInput
-              placeholder={t`Search ports...`}
+              placeholder={t`Search...`}
               data-testid="searchbar"
               value={localSearchTerm}
               onInput={(e: React.FormEvent<HTMLInputElement>) => {
@@ -265,7 +268,7 @@ function PortsContent({
               onClear={() => onStatusChange(undefined)}
             />
           )}
-          {/* Zone 3 — item count */}
+          {/* Zone 3 — item count + last-updated */}
           <Stack distribution="between" alignment="center" className="text-theme-light text-sm">
             <span>
               {isFiltered ? (
@@ -276,6 +279,11 @@ function PortsContent({
                 <Trans>Showing {matchingCount} ports</Trans>
               )}
             </span>
+            {lastUpdatedText && (
+              <span>
+                <Trans>Last updated: {lastUpdatedText}</Trans>
+              </span>
+            )}
           </Stack>
         </Stack>
       </DataGridToolbar>

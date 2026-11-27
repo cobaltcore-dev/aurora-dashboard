@@ -10,6 +10,7 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import type { NetworkSubnet } from "@/server/Network/types/network"
 import ClipboardText from "@/client/components/ClipboardText"
+import { EMPTY_VALUE } from "@/client/components/TwoColumnDescriptionList"
 
 interface NetworkSubnetsTableProps {
   subnets: NetworkSubnet[]
@@ -45,7 +46,7 @@ export const NetworkSubnetsTable = ({ subnets, isLoading, isError, error, onRetr
   }
 
   const columns = [
-    t`Name`,
+    t`Name / ID`,
     t`CIDR`,
     t`IP Version`,
     t`Gateway IP`,
@@ -68,14 +69,8 @@ export const NetworkSubnetsTable = ({ subnets, isLoading, isError, error, onRetr
             {/* Name + ID copy affordance stacked */}
             <DataGridCell>
               <Stack direction="vertical" gap="0.5" className="min-w-0">
-                {subnet.name ? (
-                  <>
-                    <span className="break-all">{subnet.name}</span>
-                    <ClipboardText text={subnet.id} className="text-theme-light text-sm" iconVisible="hover" />
-                  </>
-                ) : (
-                  <ClipboardText text={subnet.id} iconVisible="hover" />
-                )}
+                <span className="break-all">{subnet.name || EMPTY_VALUE}</span>
+                <ClipboardText text={subnet.id} className="text-theme-light text-sm" />
               </Stack>
             </DataGridCell>
             <DataGridCell>{subnet.cidr}</DataGridCell>

@@ -8,6 +8,7 @@ import type {
   LifecycleNoncurrentVersionExpiration,
   LifecycleNoncurrentVersionTransition,
 } from "@/server/Storage/types/ceph"
+import { EMPTY_VALUE } from "@/client/components/TwoColumnDescriptionList"
 
 /**
  * Normalizes filter structure for consistency and S3 API compliance.
@@ -371,14 +372,14 @@ export function formatFilter(filter: LifecycleFilter | undefined, legacyPrefix?:
  * @returns Human-readable expiration description
  */
 export function formatExpiration(expiration: LifecycleExpiration | undefined): string {
-  if (!expiration) return "–"
+  if (!expiration) return EMPTY_VALUE
   if (expiration.Days) return `After ${expiration.Days} days`
   if (expiration.Date) {
     const date = typeof expiration.Date === "string" ? new Date(expiration.Date) : expiration.Date
     return `On ${date.toLocaleDateString()}`
   }
   if (expiration.ExpiredObjectDeleteMarker) return "Clean up expired delete markers"
-  return "–"
+  return EMPTY_VALUE
 }
 
 /**
@@ -388,7 +389,7 @@ export function formatExpiration(expiration: LifecycleExpiration | undefined): s
  * @returns Human-readable transitions description
  */
 export function formatTransitions(transitions: LifecycleTransition[] | undefined): string {
-  if (!transitions || transitions.length === 0) return "–"
+  if (!transitions || transitions.length === 0) return EMPTY_VALUE
   return transitions
     .map((t) => {
       const time = t.Days ? `${t.Days} days` : t.Date ? new Date(t.Date).toLocaleDateString() : "unknown"
@@ -404,7 +405,7 @@ export function formatTransitions(transitions: LifecycleTransition[] | undefined
  * @returns Human-readable description
  */
 export function formatNoncurrentExpiration(noncurrentExp: LifecycleNoncurrentVersionExpiration | undefined): string {
-  if (!noncurrentExp) return "–"
+  if (!noncurrentExp) return EMPTY_VALUE
   const parts: string[] = []
   if (noncurrentExp.NoncurrentDays) {
     parts.push(`After ${noncurrentExp.NoncurrentDays} days`)
@@ -412,7 +413,7 @@ export function formatNoncurrentExpiration(noncurrentExp: LifecycleNoncurrentVer
   if (noncurrentExp.NewerNoncurrentVersions !== undefined) {
     parts.push(`(keep ${noncurrentExp.NewerNoncurrentVersions} versions)`)
   }
-  return parts.length > 0 ? parts.join(" ") : "–"
+  return parts.length > 0 ? parts.join(" ") : EMPTY_VALUE
 }
 
 /**
@@ -422,7 +423,7 @@ export function formatNoncurrentExpiration(noncurrentExp: LifecycleNoncurrentVer
  * @returns Human-readable description
  */
 export function formatNoncurrentTransitions(transitions: LifecycleNoncurrentVersionTransition[] | undefined): string {
-  if (!transitions || transitions.length === 0) return "–"
+  if (!transitions || transitions.length === 0) return EMPTY_VALUE
   return transitions
     .map((t) => {
       const keep = t.NewerNoncurrentVersions !== undefined ? ` (keep ${t.NewerNoncurrentVersions})` : ""

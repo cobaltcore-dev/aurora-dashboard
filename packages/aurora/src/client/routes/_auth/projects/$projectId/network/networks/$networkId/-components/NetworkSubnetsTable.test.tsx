@@ -60,7 +60,7 @@ describe("NetworkSubnetsTable", () => {
     renderTable()
 
     for (const header of [
-      "Name",
+      "Name / ID",
       "CIDR",
       "IP Version",
       "Gateway IP",

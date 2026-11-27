@@ -1,4 +1,5 @@
 import { Link, useLoaderData, useRouteContext } from "@tanstack/react-router"
+import { Stack } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useVolumePermissions } from "@/client/hooks/useVolumePermissions"
 import ClipboardText from "@/client/components/ClipboardText"
@@ -21,16 +22,16 @@ export function SourceVolumeLink({ id, copyable = false }: { id: string | null |
   if (!name) return copyable ? <ClipboardText text={volume.id} /> : <span>{volume.id}</span>
 
   return (
-    <div>
+    <Stack direction="vertical" gap="0.5" className="min-w-0">
       <Link
         to="/projects/$projectId/volumes/$volumeId"
         params={{ projectId, volumeId: volume.id }}
-        className="text-inherit hover:underline"
+        className="break-all text-inherit hover:underline"
         onClick={(event) => event.stopPropagation()}
       >
         {name}
       </Link>
-      <div className="text-theme-light text-sm">{volume.id}</div>
-    </div>
+      <ClipboardText text={volume.id} className="text-theme-light text-sm" />
+    </Stack>
   )
 }

@@ -29,6 +29,10 @@ vi.mock("@tanstack/react-router", () => ({
   },
 }))
 
+vi.mock("@/client/hooks", () => ({
+  useProjectId: () => "proj-1",
+}))
+
 const TestWrapper = ({ children }: { children: ReactNode }) => (
   <I18nProvider i18n={i18n}>
     <PortalProvider>{children}</PortalProvider>
@@ -87,18 +91,9 @@ const mockPorts: Port[] = [
 ]
 
 const renderTable = (props: Partial<React.ComponentProps<typeof NetworkPortsTable>> = {}) =>
-  render(
-    <NetworkPortsTable
-      ports={mockPorts}
-      isLoading={false}
-      isError={false}
-      error={null}
-      projectId="proj-1"
-      routersAvailable={false}
-      {...props}
-    />,
-    { wrapper: TestWrapper }
-  )
+  render(<NetworkPortsTable ports={mockPorts} isLoading={false} isError={false} error={null} {...props} />, {
+    wrapper: TestWrapper,
+  })
 
 describe("NetworkPortsTable", () => {
   beforeAll(async () => {
@@ -116,7 +111,7 @@ describe("NetworkPortsTable", () => {
     renderTable()
 
     for (const header of [
-      "ID",
+      "Name / ID",
       "Status",
       "Admin State",
       "Fixed IPs",
@@ -142,6 +137,15 @@ describe("NetworkPortsTable", () => {
 
     const row = within(screen.getByTestId("network-port-row-port-1"))
     expect(row.getByRole("button", { name: /copy port-1 to clipboard/i })).toBeInTheDocument()
+  })
+
+  it("links the port name to the port detail page", () => {
+    renderTable()
+
+    const row = within(screen.getByTestId("network-port-row-port-1"))
+    const link = row.getByRole("link")
+    expect(link).toHaveAttribute("href", "/projects/proj-1/network/ports/port-1")
+    expect(link).toHaveClass("text-inherit", "hover:underline")
   })
 
   it("renders status and admin state", () => {
@@ -212,8 +216,8 @@ describe("NetworkPortsTable", () => {
     renderTable()
 
     const row3 = within(screen.getByTestId("network-port-row-port-3"))
-    // fixed_ips empty → "- -", device_id empty → "- -"
-    expect(row3.getAllByText("- -")).toHaveLength(2)
+    // empty name → "- -", fixed_ips empty → "- -", device_id empty → "- -"
+    expect(row3.getAllByText("- -")).toHaveLength(3)
   })
 
   it("renders the empty state", () => {
@@ -247,31 +251,14 @@ describe("NetworkPortsTable", () => {
     expect(screen.queryByRole("button", { name: "Try Again" })).not.toBeInTheDocument()
   })
 
-  describe("router deep-link", () => {
-    it("renders a link for a router_interface port when routersAvailable is true", () => {
-      renderTable({ routersAvailable: true })
+  describe("attached device", () => {
+    it("renders the device ID as a copy affordance without a link", () => {
+      renderTable()
 
       const row2 = within(screen.getByTestId("network-port-row-port-2"))
-      const link = row2.getByRole("link")
-      expect(link).toHaveAttribute("href", expect.stringContaining("router-456"))
-      expect(link).toHaveTextContent("router-456")
-      // Copy affordance sits beside the link (I12)
+      // The attached device ID is not a link (only the port name links to the port detail page)
+      expect(row2.queryByRole("link", { name: /router-456/ })).not.toBeInTheDocument()
       expect(row2.getByRole("button", { name: /copy router-456 to clipboard/i })).toBeInTheDocument()
-    })
-
-    it("does not render a link for a router_interface port when routersAvailable is false", () => {
-      renderTable({ routersAvailable: false })
-
-      const row2 = within(screen.getByTestId("network-port-row-port-2"))
-      expect(row2.queryByRole("link")).not.toBeInTheDocument()
-      expect(row2.getByRole("button", { name: /copy router-456 to clipboard/i })).toBeInTheDocument()
-    })
-
-    it("does not render a link for a non-router-interface port when routersAvailable is true", () => {
-      renderTable({ routersAvailable: true })
-
-      const row1 = within(screen.getByTestId("network-port-row-port-1"))
-      expect(row1.queryByRole("link")).not.toBeInTheDocument()
     })
   })
 })

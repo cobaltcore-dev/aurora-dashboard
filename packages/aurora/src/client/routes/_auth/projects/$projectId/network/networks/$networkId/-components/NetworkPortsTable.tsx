@@ -10,7 +10,9 @@ import {
   Status,
 } from "@cloudoperators/juno-ui-components"
 import type { Port } from "@/server/Network/types/port"
+import { useProjectId } from "@/client/hooks"
 import ClipboardText from "@/client/components/ClipboardText"
+import { NameIdCell, NAME_ID_LINK_CLASS } from "@/client/components/NameIdCell"
 
 interface NetworkPortsTableProps {
   ports: Port[]
@@ -18,20 +20,11 @@ interface NetworkPortsTableProps {
   isError: boolean
   error: { message?: string } | null
   onRetry?: () => void
-  projectId: string
-  routersAvailable: boolean
 }
 
-export function NetworkPortsTable({
-  ports,
-  isLoading,
-  isError,
-  error,
-  onRetry,
-  projectId,
-  routersAvailable,
-}: NetworkPortsTableProps) {
+export function NetworkPortsTable({ ports, isLoading, isError, error, onRetry }: NetworkPortsTableProps) {
   const { t } = useLingui()
+  const projectId = useProjectId()
 
   // Human-friendly device-owner labels (i18n); unrecognized owners fall back to the raw string.
   const deviceOwnerLabels: Record<string, string> = {
@@ -62,7 +55,15 @@ export function NetworkPortsTable({
     )
   }
 
-  const columns = [t`ID`, t`Status`, t`Admin State`, t`Fixed IPs`, t`MAC Address`, t`Device Owner`, t`Attached Device`]
+  const columns = [
+    t`Status`,
+    t`Name / ID`,
+    t`Admin State`,
+    t`Fixed IPs`,
+    t`MAC Address`,
+    t`Device Owner`,
+    t`Attached Device`,
+  ]
 
   return (
     <DataGrid columns={columns.length} data-testid="network-ports-table">
@@ -74,10 +75,22 @@ export function NetworkPortsTable({
       {ports.length > 0 ? (
         ports.map((port) => (
           <DataGridRow key={port.id} data-testid={`network-port-row-${port.id}`}>
-            <DataGridCell>
-              <ClipboardText text={port.id} iconVisible="hover" />
-            </DataGridCell>
             <DataGridCell>{port.status.charAt(0) + port.status.slice(1).toLowerCase()}</DataGridCell>
+            <DataGridCell>
+              <NameIdCell
+                name={port.name}
+                id={port.id}
+                renderLink={(text) => (
+                  <Link
+                    to="/projects/$projectId/network/ports/$portId"
+                    params={{ projectId, portId: port.id }}
+                    className={NAME_ID_LINK_CLASS}
+                  >
+                    {text}
+                  </Link>
+                )}
+              />
+            </DataGridCell>
             <DataGridCell>{port.admin_state_up ? t`Up` : t`Down`}</DataGridCell>
             <DataGridCell>
               {port.fixed_ips.length > 0 ? (
@@ -85,7 +98,7 @@ export function NetworkPortsTable({
                   {port.fixed_ips.map((ip) => (
                     <Stack key={`${ip.ip_address}-${ip.subnet_id}`} direction="vertical" gap="0.5" className="min-w-0">
                       <span className="break-all">{ip.ip_address}</span>
-                      <ClipboardText text={ip.subnet_id} className="text-theme-light text-sm" iconVisible="hover" />
+                      <ClipboardText text={ip.subnet_id} className="text-theme-light text-sm" />
                     </Stack>
                   ))}
                 </Stack>
@@ -95,27 +108,7 @@ export function NetworkPortsTable({
             </DataGridCell>
             <DataGridCell>{port.mac_address}</DataGridCell>
             <DataGridCell>{deviceOwnerLabel(port.device_owner)}</DataGridCell>
-            <DataGridCell>
-              {port.device_id ? (
-                port.device_owner === "network:router_interface" && routersAvailable ? (
-                  // Copy affordance sits beside the link, not inside the anchor (I12)
-                  <Stack direction="horizontal" gap="1" className="group min-w-0 items-center">
-                    <Link
-                      to="/projects/$projectId/network/routers/$routerId"
-                      params={{ projectId, routerId: port.device_id }}
-                      className="text-theme-link hover:text-theme-default break-all"
-                    >
-                      {port.device_id}
-                    </Link>
-                    <ClipboardText text={port.device_id} iconOnly iconVisible="hover" />
-                  </Stack>
-                ) : (
-                  <ClipboardText text={port.device_id} iconVisible="hover" />
-                )
-              ) : (
-                "- -"
-              )}
-            </DataGridCell>
+            <DataGridCell>{port.device_id ? <ClipboardText text={port.device_id} /> : "- -"}</DataGridCell>
           </DataGridRow>
         ))
       ) : (

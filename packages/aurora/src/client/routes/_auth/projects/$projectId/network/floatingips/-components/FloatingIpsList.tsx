@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
+import { i18n } from "@lingui/core"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { Button, Stack, DataGridToolbar, SearchInput, Message, Status } from "@cloudoperators/juno-ui-components"
 import { FloatingIpQueryParameters } from "@/server/Network/types/floatingIp"
@@ -11,6 +12,7 @@ import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import { trpcReact } from "@/client/trpcClient"
 import { useModal } from "@/client/utils/useModal"
 import { useProjectId } from "@/client/hooks"
+import { formatRelativeTime } from "@/client/utils/formatRelativeTime"
 import { FloatingIpListContainer } from "./-table/FloatingIpListContainer"
 import { AllocateFloatingIpModal } from "./-modals/AllocateFloatingIpModal"
 import {
@@ -129,6 +131,8 @@ export const FloatingIpsList = () => {
     isLoading,
     isError,
     error,
+    dataUpdatedAt,
+    isFetching,
   } = trpcReact.network.floatingIp.list.useQuery(
     {
       project_id: projectId,
@@ -139,6 +143,9 @@ export const FloatingIpsList = () => {
     },
     { placeholderData: (prev) => prev }
   )
+
+  const floatingIpCount = floatingIps.length
+  const lastUpdatedText = dataUpdatedAt && !isFetching ? formatRelativeTime(dataUpdatedAt, i18n.locale) : null
 
   if (isError && !floatingIps.length) {
     return <Status status="error" title={error?.message ?? t`Failed to Load Floating IPs`} />
@@ -230,6 +237,17 @@ export const FloatingIpsList = () => {
                 onClear={() => handleFilterChange({ ...filterSettings, selectedFilters: [] })}
               />
             )}
+            {/* Zone 3 — item count + last-updated */}
+            <Stack distribution="between" alignment="center" className="text-theme-light text-sm">
+              <span>
+                <Trans>Showing {floatingIpCount} floating IPs</Trans>
+              </span>
+              {lastUpdatedText && (
+                <span>
+                  <Trans>Last updated: {lastUpdatedText}</Trans>
+                </span>
+              )}
+            </Stack>
           </Stack>
         </DataGridToolbar>
 

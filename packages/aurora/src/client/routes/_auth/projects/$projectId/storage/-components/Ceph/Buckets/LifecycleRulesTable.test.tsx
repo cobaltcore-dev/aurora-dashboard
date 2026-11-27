@@ -218,7 +218,7 @@ describe("LifecycleRulesTable", () => {
       expect(screen.getByText("After 7 days")).toBeInTheDocument()
     })
 
-    it("renders the — placeholder when a rule has no ID", () => {
+    it("renders the - - placeholder when a rule has no ID", () => {
       render(
         <LifecycleRulesTable
           bucketName="test-bucket"
@@ -232,7 +232,7 @@ describe("LifecycleRulesTable", () => {
         { wrapper: Wrapper }
       )
 
-      expect(screen.getByTestId("lifecycle-rule-row-0")).toHaveTextContent("—")
+      expect(screen.getByTestId("lifecycle-rule-row-0")).toHaveTextContent("- -")
     })
   })
 

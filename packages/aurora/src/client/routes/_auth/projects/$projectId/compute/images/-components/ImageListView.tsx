@@ -633,7 +633,7 @@ export function ImageListView({
                   <Trans>Status</Trans>
                 </DataGridHeadCell>
                 <DataGridHeadCell>
-                  <Trans>Image Name</Trans>
+                  <Trans>Name / ID</Trans>
                 </DataGridHeadCell>
                 <DataGridHeadCell>
                   <Trans>Type</Trans>

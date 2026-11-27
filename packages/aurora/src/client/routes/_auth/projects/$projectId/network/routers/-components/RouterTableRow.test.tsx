@@ -79,12 +79,13 @@ describe("RouterTableRow", () => {
       expect(screen.getByRole("button", { name: /copy router-123 to clipboard/i })).toBeInTheDocument()
     })
 
-    it("renders only the ID when the router has no name", async () => {
+    it("renders '- -' for the name and keeps the ID beneath when the router has no name", async () => {
       renderComponent({ ...mockRouter, name: "" })
 
       await waitFor(() => {
-        // ID appears once in col 1 as name fallback
-        expect(screen.getAllByText("router-123")).toHaveLength(1)
+        // Name line falls back to the placeholder; ID still shown beneath it
+        expect(screen.getByText("- -")).toBeInTheDocument()
+        expect(screen.getByText("router-123")).toBeInTheDocument()
       })
     })
 

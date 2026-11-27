@@ -1,6 +1,7 @@
 import { use, Suspense, useState, useRef, startTransition, useEffect, useCallback } from "react"
 import { ErrorBoundary } from "react-error-boundary"
-import { useLingui } from "@lingui/react/macro"
+import { Trans, useLingui } from "@lingui/react/macro"
+import { i18n } from "@lingui/core"
 import { useSearch, useNavigate } from "@tanstack/react-router"
 import { TrpcClient } from "@/client/trpcClient"
 import { Button, Stack, DataGridToolbar, SearchInput, Status } from "@cloudoperators/juno-ui-components"
@@ -9,6 +10,7 @@ import { FiltersInput } from "@/client/components/ListToolbar/FiltersInput"
 import { SelectedFilters } from "@/client/components/ListToolbar/SelectedFilters"
 import { SortSettings, SelectedFilter, Filter } from "@/client/components/ListToolbar/types"
 import { InstanceListView } from "./InstanceListView"
+import { formatRelativeTime } from "@/client/utils/formatRelativeTime"
 import { availabilityZones, powerStateFacet } from "../-utils/instanceDisplay"
 import { createInstancesPromise, createPermissionsPromise, type InstancesResult } from "../apiHelpers"
 import { parseFiltersFromUrl, buildFilterParams, buildUrlFilterParams, applyFilterSelection } from "../urlHelpers"
@@ -75,7 +77,7 @@ function InstancesContent({
   onPageChange: (page: number) => void
 }) {
   const { t } = useLingui()
-  const { servers, listForbidden } = use(instancesPromise)
+  const { servers, listForbidden, resolvedAt } = use(instancesPromise)
   const { canList } = use(permissionsPromise)
   const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm)
   const debounceTimer = useRef<number | undefined>(undefined)
@@ -101,6 +103,13 @@ function InstancesContent({
   const safePage = Math.min(currentPage, totalPages)
   const paginated = servers.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
 
+  const isFiltered = Boolean(searchTerm.trim()) || selectedFilters.length > 0
+  const matchingCount = servers.length
+  // allServers holds the widest unfiltered result seen; until it is populated it may be
+  // empty or smaller than the current (filtered) result, so clamp to avoid "X of 0".
+  const totalCount = Math.max(allServers.length, matchingCount)
+  const lastUpdatedText = resolvedAt ? formatRelativeTime(resolvedAt, i18n.locale) : null
+
   return (
     <>
       {/* Zone 1 — sort, no background */}
@@ -117,7 +126,8 @@ function InstancesContent({
         />
       </Stack>
 
-      {/* Zone 2 — filter + search + active filter pills */}
+      {/* Zone 2+3 — filter, search, active filter pills (Zone 2) and item count + last-updated (Zone 3)
+          share a single DataGridToolbar per the Juno DataGrid header pattern. */}
       <DataGridToolbar>
         <Stack direction="vertical" gap="2">
           <Stack distribution="between" alignment="center">
@@ -156,6 +166,23 @@ function InstancesContent({
               onClear={onClearFilters}
             />
           )}
+          {/* Zone 3 — item count + last-updated */}
+          <Stack distribution="between" alignment="center" className="text-theme-light text-sm">
+            <span>
+              {isFiltered ? (
+                <Trans>
+                  Showing {matchingCount} of {totalCount} instances
+                </Trans>
+              ) : (
+                <Trans>Showing {matchingCount} instances</Trans>
+              )}
+            </span>
+            {lastUpdatedText && (
+              <span>
+                <Trans>Last updated: {lastUpdatedText}</Trans>
+              </span>
+            )}
+          </Stack>
         </Stack>
       </DataGridToolbar>
 
