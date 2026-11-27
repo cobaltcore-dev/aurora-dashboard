@@ -4326,6 +4326,9 @@ msgstr "Snapshot"
 msgid "Snapshot Details"
 msgstr "Snapshot Details"
 
+msgid "Snapshot Pagination"
+msgstr "Snapshot Pagination"
+
 msgid "Snapshots"
 msgstr "Snapshots"
 
@@ -5246,6 +5249,9 @@ msgstr "VM State"
 
 msgid "Volume Details"
 msgstr "Volume Details"
+
+msgid "Volume Pagination"
+msgstr "Volume Pagination"
 
 msgid "Volume type"
 msgstr "Volume type"

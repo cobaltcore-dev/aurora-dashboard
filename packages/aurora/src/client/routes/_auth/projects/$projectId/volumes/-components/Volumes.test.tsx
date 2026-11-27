@@ -18,7 +18,7 @@ const snapshotId = "123e4567-e89b-12d3-a456-426614174001"
 const serverId = "123e4567-e89b-12d3-a456-426614174002"
 
 const h = vi.hoisted(() => ({
-  search: {} as Record<string, string | undefined>,
+  search: {} as Record<string, string | number | undefined>,
   catalog: [
     { type: "compute", name: "nova" },
     { type: "volumev3", name: "cinderv3" },
@@ -207,6 +207,109 @@ beforeEach(() => {
 })
 
 describe("block storage lists", () => {
+  const setResourceCount = (count: number, snapshots: boolean) => {
+    const items = Array.from({ length: count }, (_, index) => ({
+      id: `resource-${index + 1}`,
+      name: `Resource ${String(index + 1).padStart(3, "0")}`,
+      status: "available",
+      size: 10,
+    }))
+    if (snapshots) h.snapshots = items.map((item) => ({ ...item, volume_id: volumeId }))
+    else h.volumes = items.map((item) => volumeSchema.parse(item))
+  }
+
+  it.each([false, true])("paginates at 30 items while keeping the full count (snapshots: %s)", (snapshots) => {
+    setResourceCount(31, snapshots)
+    const view = render(<ResourceList projectId="project-1" snapshots={snapshots} />, { wrapper })
+    const tableId = snapshots ? "snapshots-table" : "volumes-table"
+    const pagerName = snapshots ? "Snapshot Pagination" : "Volume Pagination"
+    expect(within(screen.getByTestId(tableId)).getAllByRole("row")).toHaveLength(31)
+    expect(screen.queryByText("Resource 031")).not.toBeInTheDocument()
+    expect(screen.getByText(snapshots ? "Showing 31 snapshots" : "Showing 31 volumes")).toBeInTheDocument()
+    const pager = screen.getByRole("navigation", { name: pagerName })
+    expect(within(pager).getByRole("button", { name: "Previous Page" })).toBeDisabled()
+    fireEvent.click(within(pager).getByRole("button", { name: "Next Page" }))
+    expect(h.navigate).toHaveBeenLastCalledWith(expect.objectContaining({ search: { page: 2 } }))
+    h.search = { page: 2 }
+    view.rerender(<ResourceList projectId="project-1" snapshots={snapshots} />)
+    expect(within(screen.getByTestId(tableId)).getAllByRole("row")).toHaveLength(2)
+    expect(screen.getByText("Resource 031")).toBeInTheDocument()
+    expect(within(pager).getByRole("button", { name: "Next Page" })).toBeDisabled()
+    fireEvent.click(within(pager).getByRole("button", { name: "Previous Page" }))
+    expect(h.navigate).toHaveBeenLastCalledWith(expect.objectContaining({ search: { page: undefined } }))
+    expect(h.volumeList.mock.calls.every(([input]) => Object.keys(input).join() === "project_id")).toBe(true)
+    expect(h.snapshotList.mock.calls.every(([input]) => Object.keys(input).join() === "project_id")).toBe(true)
+  })
+
+  it.each([
+    [false, 0],
+    [false, 30],
+    [true, 0],
+    [true, 30],
+  ] as const)("hides pagination for a single page (snapshots: %s, items: %s)", (snapshots, count) => {
+    setResourceCount(count, snapshots)
+    render(<ResourceList projectId="project-1" snapshots={snapshots} />, { wrapper })
+    expect(
+      screen.queryByRole("navigation", { name: snapshots ? "Snapshot Pagination" : "Volume Pagination" })
+    ).not.toBeInTheDocument()
+  })
+
+  it("uses a page selector through eight pages and a page input from nine pages", () => {
+    setResourceCount(240, false)
+    const view = render(<ResourceList projectId="project-1" />, { wrapper })
+    let pager = screen.getByRole("navigation", { name: "Volume Pagination" })
+    expect(within(pager).queryByRole("textbox")).not.toBeInTheDocument()
+    expect(
+      within(pager)
+        .getAllByRole("button")
+        .some((button) => button.getAttribute("aria-haspopup") === "listbox")
+    ).toBe(true)
+    setResourceCount(241, false)
+    view.rerender(<ResourceList projectId="project-1" />)
+    pager = screen.getByRole("navigation", { name: "Volume Pagination" })
+    const input = within(pager).getByRole("textbox")
+    fireEvent.change(input, { target: { value: "9" } })
+    expect(h.navigate).not.toHaveBeenCalled()
+    fireEvent.keyPress(input, { key: "Enter", code: "Enter", charCode: 13 })
+    expect(h.navigate).toHaveBeenLastCalledWith(expect.objectContaining({ search: { page: 9 } }))
+  })
+
+  it("clamps stale pages when the collection shrinks", () => {
+    setResourceCount(31, false)
+    h.search = { page: 90 }
+    render(<ResourceList projectId="project-1" />, { wrapper })
+    expect(screen.getByText("Resource 031")).toBeInTheDocument()
+    expect(within(screen.getByTestId("volumes-table")).getAllByRole("row")).toHaveLength(2)
+    expect(screen.queryByText("No Volumes in This Project")).not.toBeInTheDocument()
+  })
+
+  it("filters the full collection before pagination", () => {
+    setResourceCount(31, false)
+    h.search = { page: 2, search: "Resource 031" }
+    render(<ResourceList projectId="project-1" />, { wrapper })
+    expect(screen.getByText("Resource 031")).toBeInTheDocument()
+    expect(screen.getByText("Showing 1 of 31 volumes")).toBeInTheDocument()
+    expect(screen.queryByRole("navigation", { name: "Volume Pagination" })).not.toBeInTheDocument()
+  })
+
+  it("resets the page when search, sorting or filters change", () => {
+    setResourceCount(31, false)
+    h.search = { page: 2, sortDirection: "asc" }
+    render(<ResourceList projectId="project-1" />, { wrapper })
+    fireEvent.input(screen.getByPlaceholderText("Search…"), { target: { value: "Resource" } })
+    expect(h.navigate).toHaveBeenLastCalledWith(
+      expect.objectContaining({ search: expect.objectContaining({ page: undefined, search: "Resource" }) })
+    )
+    fireEvent.click(screen.getByText("Reverse sort"))
+    expect(h.navigate).toHaveBeenLastCalledWith(
+      expect.objectContaining({ search: expect.objectContaining({ page: undefined, sortDirection: "desc" }) })
+    )
+    fireEvent.click(screen.getByText("Filter available"))
+    expect(h.navigate).toHaveBeenLastCalledWith(
+      expect.objectContaining({ search: expect.objectContaining({ page: undefined, status: "available" }) })
+    )
+  })
+
   it.each([false, true])("shows the count bar and last-updated info (snapshots: %s)", (snapshots) => {
     render(<ResourceList projectId="project-1" snapshots={snapshots} />, { wrapper })
     expect(screen.getByText(snapshots ? "Showing 1 snapshots" : "Showing 1 volumes")).toBeInTheDocument()

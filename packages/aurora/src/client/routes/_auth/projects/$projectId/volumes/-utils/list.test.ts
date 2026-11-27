@@ -145,4 +145,11 @@ describe("volume list transforms", () => {
     expect(cinderTimestamp("2026-11-16T12:00:00+02:00")).toBe(Date.parse("2026-11-16T10:00:00Z"))
     expect(formatCinderDate("invalid", "en")).toBe("- -")
   })
+  it.each([0, -1, 1.5, "invalid", "", Infinity])("drops invalid page values (%s) without dropping filters", (page) => {
+    expect(volumeSearchSchema.parse({ page, search: "ubuntu" })).toEqual({ page: undefined, search: "ubuntu" })
+  })
+  it("accepts positive page numbers from the URL", () => {
+    expect(volumeSearchSchema.parse({ page: "2" })).toEqual({ page: 2 })
+    expect(volumeSearchSchema.parse({ page: 3 })).toEqual({ page: 3 })
+  })
 })

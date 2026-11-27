@@ -4,6 +4,7 @@ import type { VolumeSnapshot } from "@/server/Volume/types/snapshot"
 import { VOLUME_STATUSES, SNAPSHOT_STATUSES, VOLUME_TRANSITIONAL_STATUSES } from "@/types/volume"
 
 export const volumeSearchSchema = z.object({
+  page: z.coerce.number().int().min(1).optional().catch(undefined),
   search: z.string().optional().catch(undefined),
   sortBy: z.enum(["name", "status", "size", "created_at"]).optional().catch(undefined),
   sortDirection: z.enum(["asc", "desc"]).optional().catch(undefined),

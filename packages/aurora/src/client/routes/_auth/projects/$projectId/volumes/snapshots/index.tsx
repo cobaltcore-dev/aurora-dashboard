@@ -12,7 +12,9 @@ export const Route = createFileRoute("/_auth/projects/$projectId/volumes/snapsho
     analytics: { name: "volume.snapshots.list" },
   } satisfies RouteInfo,
   validateSearch: (search) =>
-    volumeSearchSchema.pick({ search: true, sortBy: true, sortDirection: true, status: true }).parse(search),
+    volumeSearchSchema
+      .pick({ page: true, search: true, sortBy: true, sortDirection: true, status: true })
+      .parse(search),
   head: () => ({ meta: [{ title: t`Snapshots` }] }),
   component: () => <ResourceList projectId={Route.useParams().projectId} snapshots />,
 })

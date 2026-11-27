@@ -1,4 +1,4 @@
-import { Button, DataGridToolbar, SearchInput, Stack, Status } from "@cloudoperators/juno-ui-components"
+import { Button, DataGridToolbar, Pagination, SearchInput, Stack, Status } from "@cloudoperators/juno-ui-components"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { i18n } from "@lingui/core"
@@ -13,6 +13,8 @@ import { filterAndSortVolumes, type VolumeSearch } from "../-utils/list"
 import { ResourceTable } from "./ResourceTable"
 import { formatRelativeTime } from "@/client/utils/formatRelativeTime"
 import { RouteError } from "@/client/components/Errors/RouteError"
+
+const PAGE_SIZE = 30
 
 export function ResourceList({ projectId, snapshots = false }: { projectId: string; snapshots?: boolean }) {
   const { t } = useLingui()
@@ -33,18 +35,25 @@ export function ResourceList({ projectId, snapshots = false }: { projectId: stri
   const query = snapshots ? snapshotsQuery : volumesQuery
   const allItems = query.data ?? []
   const items = filterAndSortVolumes(allItems, search, snapshots)
+  const totalPages = Math.max(1, Math.ceil(items.length / PAGE_SIZE))
+  const currentPage = Math.max(1, Math.min(search.page ?? 1, totalPages))
+  const pageItems = items.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
   const filterKeys = snapshots ? ["status"] : ["status", "volume_type", "bootable", "availability_zone"]
   const selectedFilters = filterKeys.flatMap((name) => {
     const value = search[name as keyof VolumeSearch]
-    return value ? [{ name, value }] : []
+    return typeof value === "string" && value ? [{ name, value }] : []
   })
   const updateSearch = (patch: Partial<VolumeSearch>) =>
     void navigate({
       to: snapshots ? "/projects/$projectId/volumes/snapshots" : "/projects/$projectId/volumes",
       params: { projectId },
-      search: { ...search, ...patch },
+      search: { ...search, page: undefined, ...patch },
       replace: true,
     })
+  const changePage = (page?: number) => {
+    if (page === undefined || !Number.isInteger(page) || page < 1 || page > totalPages || page === currentPage) return
+    updateSearch({ page: page === 1 ? undefined : page })
+  }
   const distinct = (key: "volume_type" | "availability_zone") =>
     [
       ...new Set(volumesQuery.data?.map((volume) => volume[key]).filter((value): value is string => Boolean(value))),
@@ -227,7 +236,25 @@ export function ResourceList({ projectId, snapshots = false }: { projectId: stri
           }
         />
       ) : (
-        <ResourceTable items={items} snapshots={snapshots} projectId={projectId} canRead={canRead} />
+        <ResourceTable items={pageItems} snapshots={snapshots} projectId={projectId} canRead={canRead} />
+      )}
+      {!query.error && totalPages > 1 && (
+        <div className="flex justify-center py-4">
+          <Pagination
+            role="navigation"
+            aria-label={snapshots ? t`Snapshot Pagination` : t`Volume Pagination`}
+            variant={totalPages <= 8 ? "select" : "input"}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPressPrevious={() => changePage(currentPage - 1)}
+            onPressNext={() => changePage(currentPage + 1)}
+            onSelectChange={changePage}
+            onKeyPress={(value) => {
+              if (typeof value === "number") changePage(value)
+            }}
+            onBlur={changePage}
+          />
+        </div>
       )}
     </Stack>
   )
