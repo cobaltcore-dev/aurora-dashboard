@@ -139,6 +139,7 @@ export const CreateContainerModal = ({
 
       {!isPending && (
         <Form
+          className="mb-0"
           onSubmit={(e: React.FormEvent) => {
             e.preventDefault()
             handleSubmit()
