@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach } from "vitest"
-import { render, screen, waitFor, act } from "@testing-library/react"
+import { render, screen, waitFor, act, fireEvent } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
@@ -303,8 +303,9 @@ describe("CreateFolderModal", () => {
     test("shows error on blur when name contains a slash", async () => {
       const user = userEvent.setup()
       renderModal()
-      await user.type(screen.getByLabelText(/Folder name/i), "invalid/name")
-      await user.tab()
+      const input = screen.getByLabelText(/Folder name/i)
+      await user.type(input, "invalid/name")
+      fireEvent.blur(input)
       await waitFor(() => {
         expect(screen.getByText(/cannot contain slashes/i)).toBeInTheDocument()
       })

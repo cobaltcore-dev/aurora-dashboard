@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach } from "vitest"
-import { render, screen, waitFor, act } from "@testing-library/react"
+import { render, screen, waitFor, act, fireEvent } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
@@ -360,7 +360,7 @@ describe("EditContainerMetadataModal", () => {
       renderModal()
       const countInput = screen.getByLabelText(/Object count quota/i)
       await user.type(countInput, "1.5")
-      await user.tab()
+      fireEvent.blur(countInput)
       await waitFor(() => {
         expect(screen.getByText(/Must be a whole number, 0 or greater/i)).toBeInTheDocument()
       })
@@ -371,7 +371,7 @@ describe("EditContainerMetadataModal", () => {
       renderModal()
       const bytesInput = screen.getByLabelText(/Total size quota/i)
       await user.type(bytesInput, "-5")
-      await user.tab()
+      fireEvent.blur(bytesInput)
       await waitFor(() => {
         expect(screen.getByText(/Must be a whole number, 0 or greater/i)).toBeInTheDocument()
       })
@@ -382,7 +382,7 @@ describe("EditContainerMetadataModal", () => {
       renderModal()
       const countInput = screen.getByLabelText(/Object count quota/i)
       await user.type(countInput, "abc")
-      await user.tab()
+      fireEvent.blur(countInput)
       await waitFor(() => {
         expect(screen.getAllByText(/Must be a whole number, 0 or greater/i)).toHaveLength(1)
       })
@@ -393,7 +393,7 @@ describe("EditContainerMetadataModal", () => {
       renderModal()
       const countInput = screen.getByLabelText(/Object count quota/i)
       await user.type(countInput, "bad")
-      await user.tab()
+      fireEvent.blur(countInput)
       await waitFor(() => {
         expect(screen.getByText(/Must be a whole number, 0 or greater/i)).toBeInTheDocument()
       })
@@ -405,7 +405,7 @@ describe("EditContainerMetadataModal", () => {
       renderModal()
       const countInput = screen.getByLabelText(/Object count quota/i)
       await user.type(countInput, "bad")
-      await user.tab()
+      fireEvent.blur(countInput)
       await waitFor(() => {
         expect(screen.getByText(/Must be a whole number, 0 or greater/i)).toBeInTheDocument()
       })
