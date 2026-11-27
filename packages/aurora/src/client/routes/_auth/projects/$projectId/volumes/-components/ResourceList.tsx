@@ -11,7 +11,6 @@ import type { Filter } from "@/client/components/ListToolbar/types"
 import { VOLUME_STATUSES, SNAPSHOT_STATUSES } from "@/types/volume"
 import { filterAndSortVolumes, type VolumeSearch } from "../-utils/list"
 import { ResourceTable } from "./ResourceTable"
-import { ResourceTabs } from "./ResourceTabs"
 import { formatRelativeTime } from "@/client/utils/formatRelativeTime"
 import { RouteError } from "@/client/components/Errors/RouteError"
 
@@ -73,10 +72,10 @@ export function ResourceList({ projectId, snapshots = false }: { projectId: stri
   const hasActiveFilters = Boolean(search.search?.trim() || selectedFilters.length)
   const matchingCount = items.length
   const totalCount = allItems.length
-  const lastUpdatedText =
-    query.dataUpdatedAt && !query.isFetching ? formatRelativeTime(query.dataUpdatedAt, i18n.locale) : null
+  const lastUpdatedText = query.dataUpdatedAt ? formatRelativeTime(query.dataUpdatedAt, i18n.locale) : null
 
-  if (permissions.isPending) return <Status status="progress" title={t`Loading Permissions...`} />
+  if (permissions.isPending)
+    return <Status status="progress" title={snapshots ? t`Loading Snapshots...` : t`Loading Volumes...`} />
   if (permissions.error?.data?.code === "FORBIDDEN" || (!permissions.error && !canList))
     return (
       <Status
@@ -100,11 +99,13 @@ export function ResourceList({ projectId, snapshots = false }: { projectId: stri
       </Stack>
     )
 
+  if (query.isPending)
+    return <Status status="progress" title={snapshots ? t`Loading Snapshots...` : t`Loading Volumes...`} />
+
   return (
     <Stack direction="vertical" className="juno-pattern-datagrid-outer">
       <Stack direction="vertical" className="juno-pattern-datagrid-header">
-        <Stack distribution="between" alignment="center" gap="2" wrap className="pb-2">
-          <ResourceTabs projectId={projectId} snapshots={snapshots} />
+        <Stack distribution="end" alignment="center" gap="2" wrap className="pb-2">
           <SortInput
             options={[
               { value: "name", label: t`Name` },
@@ -152,6 +153,10 @@ export function ResourceList({ projectId, snapshots = false }: { projectId: stri
                 )}
               </Stack>
             )}
+          </Stack>
+        </DataGridToolbar>
+        {!query.error && (
+          <DataGridToolbar>
             <Stack distribution="between" alignment="center" className="text-theme-light text-sm">
               <span>
                 {hasActiveFilters ? (
@@ -176,12 +181,10 @@ export function ResourceList({ projectId, snapshots = false }: { projectId: stri
                 </span>
               )}
             </Stack>
-          </Stack>
-        </DataGridToolbar>
+          </DataGridToolbar>
+        )}
       </Stack>
-      {query.isPending ? (
-        <Status status="progress" title={snapshots ? t`Loading Snapshots...` : t`Loading Volumes...`} />
-      ) : query.error?.data?.code === "FORBIDDEN" ? (
+      {query.error?.data?.code === "FORBIDDEN" ? (
         <Status
           status="error"
           title={t`Access Denied`}

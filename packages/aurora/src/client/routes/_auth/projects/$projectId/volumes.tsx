@@ -60,55 +60,59 @@ function VolumeLayout() {
     : detail
       ? permissions.canReadVolumes
       : permissions.canListVolumes
-  if (permissions.isPending) return <Status status="progress" title={t`Loading Volumes...`} />
-  if (permissions.error?.data?.code === "FORBIDDEN")
-    return (
-      <Status
-        status="error"
-        title={t`Access Denied`}
-        body={t`You don't have permission to view block storage in this project.`}
-      />
-    )
-  if (permissions.error)
-    return (
-      <Stack direction="vertical">
-        <RouteError
-          error={permissions.error}
-          title={permissions.error.data?.code === "UNAUTHORIZED" ? t`Session Expired` : t`Failed to Load Volumes`}
+  const renderContent = () => {
+    if (permissions.isPending)
+      return <Status status="progress" title={snapshots ? t`Loading Snapshots...` : t`Loading Volumes...`} />
+    if (permissions.error?.data?.code === "FORBIDDEN")
+      return (
+        <Status
+          status="error"
+          title={t`Access Denied`}
+          body={t`You don't have permission to view block storage in this project.`}
         />
-        <Button size="xs" label={t`Try again`} onClick={() => void permissions.refetch()} />
-      </Stack>
-    )
-  // Detail read permissions are independent of list permissions.
-  if (!detail && !permissions.canListVolumes && !permissions.canListSnapshots)
-    return (
+      )
+    if (permissions.error)
+      return (
+        <Stack direction="vertical">
+          <RouteError
+            error={permissions.error}
+            title={permissions.error.data?.code === "UNAUTHORIZED" ? t`Session Expired` : t`Failed to Load Volumes`}
+          />
+          <Button size="xs" label={t`Try again`} onClick={() => void permissions.refetch()} />
+        </Stack>
+      )
+    // Detail read permissions are independent of list permissions.
+    if (!detail && !permissions.canListVolumes && !permissions.canListSnapshots)
+      return (
+        <Status
+          status="error"
+          title={t`Access Denied`}
+          body={t`You don't have permission to view block storage in this project.`}
+        />
+      )
+    return canAccess ? (
+      <Outlet />
+    ) : (
       <Status
         status="error"
         title={t`Access Denied`}
-        body={t`You don't have permission to view block storage in this project.`}
+        body={
+          snapshots
+            ? t`You don't have permission to view snapshots in this project.`
+            : t`You don't have permission to view volumes in this project.`
+        }
       />
     )
+  }
   return (
     <div>
-      {!detail && <ContentHeader title={t`Volumes`} projectId={projectId} />}
-      <div className="mt-4">
-        {canAccess ? (
-          <Outlet />
-        ) : (
-          <Stack direction="vertical">
-            {!detail && <ResourceTabs projectId={projectId} snapshots={snapshots} />}
-            <Status
-              status="error"
-              title={t`Access Denied`}
-              body={
-                snapshots
-                  ? t`You don't have permission to view snapshots in this project.`
-                  : t`You don't have permission to view volumes in this project.`
-              }
-            />
-          </Stack>
-        )}
-      </div>
+      {!detail && (
+        <>
+          <ContentHeader title={t`Volumes`} projectId={projectId} />
+          <ResourceTabs projectId={projectId} snapshots={snapshots} />
+        </>
+      )}
+      <div className="mt-4">{renderContent()}</div>
     </div>
   )
 }

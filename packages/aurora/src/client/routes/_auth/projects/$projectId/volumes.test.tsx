@@ -106,14 +106,15 @@ describe("volume scope routing", () => {
     ).resolves.toBeUndefined()
     expect(query).toHaveBeenCalledWith({ project_id: "project-1" })
   })
-  it("leaves resource navigation to the list toolbar", () => {
+  it("places resource navigation below the page title like Key Manager", () => {
     render(
       <I18nProvider i18n={i18n}>
         <Layout />
       </I18nProvider>
     )
     expect(screen.getByRole("heading", { name: "Volumes" })).toBeInTheDocument()
-    expect(screen.queryByRole("navigation", { name: "Block storage resources" })).not.toBeInTheDocument()
+    const tabs = screen.getByRole("navigation", { name: "Block storage resources" })
+    expect(screen.getByRole("heading", { name: "Volumes" }).nextElementSibling).toBe(tabs)
     expect(screen.getByTestId("scope-content")).toBeInTheDocument()
   })
   it("suppresses the list shell on a detail route", () => {
@@ -170,16 +171,27 @@ describe("volume scope routing", () => {
     expect(screen.getByText("Access Denied")).toBeInTheDocument()
     expect(screen.queryByTestId("scope-content")).not.toBeInTheDocument()
   })
-  it("uses an inline loading Status while permissions load", () => {
-    h.pending = true
-    render(
-      <I18nProvider i18n={i18n}>
-        <Layout />
-      </I18nProvider>
-    )
-    expect(screen.getByText("Loading Volumes...")).toBeInTheDocument()
-    expect(screen.queryByTestId("scope-content")).not.toBeInTheDocument()
-  })
+  it.each([false, true])(
+    "keeps the page title and resource tabs during permission loading (snapshots: %s)",
+    (snapshots) => {
+      if (snapshots) h.matches = [{ routeId: "/_auth/projects/$projectId/volumes/snapshots/" }]
+      h.pending = true
+      render(
+        <I18nProvider i18n={i18n}>
+          <Layout />
+        </I18nProvider>
+      )
+      expect(screen.getByText(snapshots ? "Loading Snapshots..." : "Loading Volumes...")).toBeInTheDocument()
+      expect(screen.getByRole("heading", { name: "Volumes" })).toBeInTheDocument()
+      const tabs = screen.getByRole("navigation", { name: "Block storage resources" })
+      expect(screen.getByRole("button", { name: snapshots ? "Snapshots" : "Volumes" })).toHaveAttribute(
+        "aria-current",
+        "true"
+      )
+      expect(tabs).toBeInTheDocument()
+      expect(screen.queryByTestId("scope-content")).not.toBeInTheDocument()
+    }
+  )
   it("reuses the shared route error without exposing raw failures", () => {
     h.error = new Error("private diagnostic")
     render(

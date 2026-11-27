@@ -8,17 +8,19 @@ export function ResourceTabs({ projectId, snapshots = false }: { projectId: stri
 
   return (
     <TabBar
+      appearance="tabs"
       ariaLabel={t`Block storage resources`}
       activeItem={snapshots ? "snapshots" : "volumes"}
       onActiveItemChange={(value) => {
+        if (value !== "volumes" && value !== "snapshots") return
         void navigate({
           to: value === "snapshots" ? "/projects/$projectId/volumes/snapshots" : "/projects/$projectId/volumes",
           params: { projectId },
         })
       }}
     >
-      <TabBarItem label={t`Volumes`} value="volumes" active={!snapshots} />
-      <TabBarItem label={t`Snapshots`} value="snapshots" active={snapshots} />
+      <TabBarItem label={t`Volumes`} value="volumes" />
+      <TabBarItem label={t`Snapshots`} value="snapshots" />
     </TabBar>
   )
 }

@@ -5,6 +5,7 @@ import { i18n } from "@lingui/core"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import type { ReactNode } from "react"
 import { ResourceList } from "./ResourceList"
+import { ResourceTabs } from "./ResourceTabs"
 import { ResourceTable } from "./ResourceTable"
 import { ResourceLink } from "./ResourceLink"
 import { SourceVolumeLink } from "./SourceVolumeLink"
@@ -244,11 +245,16 @@ describe("block storage lists", () => {
     expect(screen.queryByRole("link", { name: "Ubuntu" })).not.toBeInTheDocument()
   })
 
-  it("places resource tabs beside sorting and navigates to snapshots", () => {
+  it("leaves the resource tabs to the page layout instead of placing them beside sorting", () => {
     render(<ResourceList projectId="project-1" />, { wrapper })
+    expect(screen.queryByRole("navigation", { name: "Block storage resources" })).not.toBeInTheDocument()
+    expect(screen.getByText("Reverse sort")).toBeInTheDocument()
+  })
+
+  it("navigates to snapshots through the page-level resource tabs", () => {
+    render(<ResourceTabs projectId="project-1" />, { wrapper })
     const tabs = screen.getByRole("navigation", { name: "Block storage resources" })
     expect(within(tabs).getByText("Volumes")).toHaveAttribute("aria-current", "true")
-    expect(tabs.parentElement).toContainElement(screen.getByText("Reverse sort"))
     fireEvent.click(within(tabs).getByText("Snapshots"))
     expect(h.navigate).toHaveBeenCalledWith({
       to: "/projects/$projectId/volumes/snapshots",
@@ -257,13 +263,13 @@ describe("block storage lists", () => {
   })
 
   it("keeps the active resource tab in sync with the route", () => {
-    const view = render(<ResourceList projectId="project-1" />, { wrapper })
+    const view = render(<ResourceTabs projectId="project-1" />, { wrapper })
     const tabs = screen.getByRole("navigation", { name: "Block storage resources" })
-    expect(within(tabs).getByText("Volumes")).toHaveClass("juno-navigation-item-active")
-    view.rerender(<ResourceList projectId="project-1" snapshots />)
-    expect(within(tabs).getByText("Snapshots")).toHaveClass("juno-navigation-item-active")
-    view.rerender(<ResourceList projectId="project-1" />)
-    expect(within(tabs).getByText("Volumes")).toHaveClass("juno-navigation-item-active")
+    expect(within(tabs).getByText("Volumes")).toHaveAttribute("aria-current", "true")
+    view.rerender(<ResourceTabs projectId="project-1" snapshots />)
+    expect(within(tabs).getByText("Snapshots")).toHaveAttribute("aria-current", "true")
+    view.rerender(<ResourceTabs projectId="project-1" />)
+    expect(within(tabs).getByText("Volumes")).toHaveAttribute("aria-current", "true")
   })
 
   it("renders the specified volume columns, real boolean values, and server copy affordances", () => {
@@ -355,12 +361,42 @@ describe("block storage lists", () => {
     expect(h.refetch).not.toHaveBeenCalled()
   })
 
+  it.each([false, true])(
+    "shows one loading state without a premature count or fetch time (snapshots: %s)",
+    (snapshots) => {
+      h.pending = true
+      render(<ResourceList projectId="project-1" snapshots={snapshots} />, { wrapper })
+      expect(screen.getByText(snapshots ? "Loading Snapshots..." : "Loading Volumes...")).toBeInTheDocument()
+      expect(screen.queryByText(/Showing /)).not.toBeInTheDocument()
+      expect(screen.queryByText(/Last updated:/)).not.toBeInTheDocument()
+      expect(screen.queryByText("Reverse sort")).not.toBeInTheDocument()
+      expect(screen.queryByTestId(snapshots ? "snapshots-table" : "volumes-table")).not.toBeInTheDocument()
+    }
+  )
+
+  it.each([false, true])("shows the filtered count against the full collection (snapshots: %s)", (snapshots) => {
+    h.search = { search: "no-match" }
+    render(<ResourceList projectId="project-1" snapshots={snapshots} />, { wrapper })
+    expect(screen.getByText(snapshots ? "Showing 0 of 1 snapshots" : "Showing 0 of 1 volumes")).toBeInTheDocument()
+    expect(screen.getByText(/Last updated:/)).toBeInTheDocument()
+  })
+
+  it("keeps the last successful fetch time visible during a background refetch", () => {
+    h.snapshotFetching = true
+    render(<ResourceList projectId="project-1" snapshots />, { wrapper })
+    expect(screen.getByText("Showing 1 snapshots")).toBeInTheDocument()
+    expect(screen.getByText(/Last updated:/)).toBeInTheDocument()
+    expect(screen.getByTestId("snapshots-table")).toBeInTheDocument()
+  })
+
   it.each(["FORBIDDEN", "UNAUTHORIZED", "INTERNAL_SERVER_ERROR"])(
     "handles %s without showing stale resources",
     (code) => {
       h.error = { data: { code } }
       render(<ResourceList projectId="project-1" />, { wrapper })
       expect(screen.queryByTestId("volumes-table")).not.toBeInTheDocument()
+      expect(screen.queryByText(/Showing /)).not.toBeInTheDocument()
+      expect(screen.queryByText(/Last updated:/)).not.toBeInTheDocument()
       expect(
         screen.getByText(
           code === "FORBIDDEN"
