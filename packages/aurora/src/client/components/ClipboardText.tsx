@@ -11,8 +11,14 @@ export interface ClipboardTextProps extends React.HTMLAttributes<HTMLDivElement>
   showTooltip?: boolean
   /** Render only the copy icon (no text), e.g. as a copy affordance beside a link. */
   iconOnly?: boolean
-  /** Whether the copy icon is always visible or only revealed on hover. Defaults to "always". */
+  /** Whether the copy icon is always visible or only revealed on hover. Defaults to "hover". */
   iconVisible?: "always" | "hover"
+  /**
+   * Reveal the icon on hover of an ancestor marked `group` instead of this component.
+   * Drops this component's own `group` wrapper so the icon follows the parent's hover —
+   * useful when the copy affordance sits beside a link and should appear on hover over the whole line.
+   */
+  revealOnGroupHover?: boolean
   /** Allow selecting the displayed text for native copy/paste in addition to the copy button. */
   selectable?: boolean
 }
@@ -24,7 +30,8 @@ const ClipboardText: React.FC<ClipboardTextProps> = ({
   truncateAt,
   showTooltip = true,
   iconOnly = false,
-  iconVisible = "always",
+  iconVisible = "hover",
+  revealOnGroupHover = false,
   selectable = false,
   ...props
 }) => {
@@ -32,7 +39,10 @@ const ClipboardText: React.FC<ClipboardTextProps> = ({
   const [copied, setCopied] = useState(false)
   const [isHovering, setIsHovering] = useState(false)
 
-  const combinedClassName = `copyableTooltip group inline-flex items-center gap-1 ${className || ""}`
+  // Normally this component forms its own hover `group`. When reveal is driven by a parent
+  // group (revealOnGroupHover), omit the inner group so the icon follows the parent's hover
+  // (e.g. hovering a sibling link in the same line), using the shared `group-hover:` classes.
+  const combinedClassName = `copyableTooltip ${revealOnGroupHover ? "" : "group"} inline-flex items-center gap-1 ${className || ""}`
 
   // The copy icon is revealed on hover when iconVisible="hover" is requested.
   // Otherwise it is always visible: when explicitly configured, when there is no

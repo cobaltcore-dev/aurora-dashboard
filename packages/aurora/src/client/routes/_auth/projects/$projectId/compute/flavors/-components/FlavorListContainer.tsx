@@ -18,6 +18,7 @@ import { TrpcClient } from "@/client/trpcClient"
 import { EditSpecModal } from "./EditSpecModal"
 import { ManageAccessModal } from "./ManageAccessModal"
 import { useParams, useNavigate } from "@tanstack/react-router"
+import { NameIdCell } from "@/client/components/NameIdCell"
 
 interface FlavorListContainerProps {
   flavors?: Flavor[]
@@ -105,7 +106,7 @@ export const FlavorListContainer = ({
       <DataGrid columns={7} minContentColumns={[6]} className="flavors" data-testid="flavors-table">
         <DataGridRow>
           <DataGridHeadCell>
-            <Trans>Name</Trans>
+            <Trans>Name / ID</Trans>
           </DataGridHeadCell>
           <DataGridHeadCell>
             <Trans>vCPU</Trans>
@@ -137,7 +138,9 @@ export const FlavorListContainer = ({
                 })
               }
             >
-              <DataGridCell>{flavor.name.trim() || flavor.id}</DataGridCell>
+              <DataGridCell>
+                <NameIdCell name={flavor.name} id={flavor.id} />
+              </DataGridCell>
               <DataGridCell>{flavor.vcpus ?? "- -"}</DataGridCell>
               <DataGridCell>{flavor.ram ?? "- -"}</DataGridCell>
               <DataGridCell>{flavor.disk ?? "- -"}</DataGridCell>

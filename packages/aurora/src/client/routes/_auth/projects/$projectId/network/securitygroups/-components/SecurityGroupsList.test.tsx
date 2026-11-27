@@ -81,6 +81,8 @@ vi.mock("@/client/trpcClient", () => ({
             isLoading: false,
             isError: false,
             error: null,
+            dataUpdatedAt: Date.now(),
+            isFetching: false,
           }),
         },
         create: { useMutation: () => ({ mutateAsync: vi.fn(), isPending: false }) },
@@ -136,6 +138,12 @@ describe("SecurityGroups", () => {
     expect(zones[zones.length - 1]).toBe(within(container).getByTestId("sg-list-container"))
     // The old `div.relative` wrapper around the list is gone: the outer Stack is a top-level zone
     expect(outer!.parentElement!.querySelector(":scope > div.relative")).toBeNull()
+  })
+
+  it("shows the security group count and last-updated info in the header", () => {
+    renderList()
+    expect(screen.getByText("Showing 1 security groups")).toBeInTheDocument()
+    expect(screen.getByText(/Last updated:/)).toBeInTheDocument()
   })
 
   it("shows a success toast with the group name after deletion", async () => {

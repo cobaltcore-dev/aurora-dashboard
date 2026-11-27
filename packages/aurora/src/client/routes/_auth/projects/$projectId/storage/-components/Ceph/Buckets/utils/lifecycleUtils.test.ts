@@ -368,8 +368,8 @@ describe("lifecycleUtils", () => {
   })
 
   describe("formatExpiration", () => {
-    it("should return '–' when no expiration", () => {
-      expect(formatExpiration(undefined)).toBe("–")
+    it("should return '- -' when no expiration", () => {
+      expect(formatExpiration(undefined)).toBe("- -")
     })
 
     it("should format Days", () => {
@@ -388,9 +388,9 @@ describe("lifecycleUtils", () => {
   })
 
   describe("formatTransitions", () => {
-    it("should return '–' for empty or undefined", () => {
-      expect(formatTransitions(undefined)).toBe("–")
-      expect(formatTransitions([])).toBe("–")
+    it("should return '- -' for empty or undefined", () => {
+      expect(formatTransitions(undefined)).toBe("- -")
+      expect(formatTransitions([])).toBe("- -")
     })
 
     it("should format transition with Days", () => {
@@ -414,8 +414,8 @@ describe("lifecycleUtils", () => {
   })
 
   describe("formatNoncurrentExpiration", () => {
-    it("should return '–' when undefined", () => {
-      expect(formatNoncurrentExpiration(undefined)).toBe("–")
+    it("should return '- -' when undefined", () => {
+      expect(formatNoncurrentExpiration(undefined)).toBe("- -")
     })
 
     it("should format NoncurrentDays", () => {
@@ -430,9 +430,9 @@ describe("lifecycleUtils", () => {
   })
 
   describe("formatNoncurrentTransitions", () => {
-    it("should return '–' for empty or undefined", () => {
-      expect(formatNoncurrentTransitions(undefined)).toBe("–")
-      expect(formatNoncurrentTransitions([])).toBe("–")
+    it("should return '- -' for empty or undefined", () => {
+      expect(formatNoncurrentTransitions(undefined)).toBe("- -")
+      expect(formatNoncurrentTransitions([])).toBe("- -")
     })
 
     it("should format transition with NoncurrentDays", () => {

@@ -42,6 +42,8 @@ type MockQueryResult<TData> = {
   isLoading: boolean
   isError: boolean
   error: { message?: string } | null
+  dataUpdatedAt: number
+  isFetching: boolean
   trpc: { path: string }
 }
 
@@ -51,6 +53,8 @@ const createMockQueryResult = <TData,>(overrides: Partial<MockQueryResult<TData>
     isLoading: false,
     isError: false,
     error: null,
+    dataUpdatedAt: Date.now(),
+    isFetching: false,
     trpc: { path: "network.floatingIp.list" },
     ...overrides,
   }) as ReturnType<typeof trpcReact.network.floatingIp.list.useQuery>
@@ -283,6 +287,17 @@ describe("FloatingIps List", () => {
       render(<FloatingIpsList />, { wrapper: createWrapper() })
 
       expect(screen.getByTestId("floating-ips-data")).toHaveTextContent("2 floating IPs")
+    })
+
+    it("shows the floating IP count and last-updated info in the header", () => {
+      vi.mocked(trpcReact.network.floatingIp.list.useQuery).mockReturnValue(
+        createMockQueryResult<FloatingIp[]>({ data: mockFloatingIps })
+      )
+
+      render(<FloatingIpsList />, { wrapper: createWrapper() })
+
+      expect(screen.getByText("Showing 2 floating IPs")).toBeInTheDocument()
+      expect(screen.getByText(/Last updated:/)).toBeInTheDocument()
     })
   })
 

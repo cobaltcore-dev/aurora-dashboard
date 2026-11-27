@@ -135,7 +135,7 @@ describe("CorsRulesTable", () => {
     expect(screen.getByText("Max Age")).toBeInTheDocument()
   })
 
-  it("renders — for missing ID, AllowedHeaders, ExposeHeaders, MaxAgeSeconds", () => {
+  it("renders - - for missing ID, AllowedHeaders, ExposeHeaders, MaxAgeSeconds", () => {
     render(
       <CorsRulesTable
         bucketName="test-bucket"
@@ -149,8 +149,8 @@ describe("CorsRulesTable", () => {
       { wrapper: Wrapper }
     )
 
-    // Count the em-dashes rendered in the table cells (should be 4: ID, AllowedHeaders, ExposeHeaders, MaxAge)
-    const cells = screen.getAllByText("—")
+    // Count the placeholders rendered in the table cells (should be 4: ID, AllowedHeaders, ExposeHeaders, MaxAge)
+    const cells = screen.getAllByText("- -")
     expect(cells.length).toBeGreaterThanOrEqual(4)
   })
 

@@ -21,6 +21,7 @@ const emptyResult = {
   // A 403 is distinct from a generic failure: the list renders a friendly "Access Denied"
   // Status rather than echoing the raw "Forbidden" message. Matches the Ceph/Storage pages.
   listForbidden: false,
+  resolvedAt: undefined as number | undefined,
 }
 
 export const createImagesPromise = (
@@ -45,7 +46,7 @@ export const createImagesPromise = (
         protected: filters.protected,
         sort: `${sortBy}:${sortDirection}`,
       })
-      .then((images) => ({ ...emptyResult, images }))
+      .then((images) => ({ ...emptyResult, images, resolvedAt: Date.now() }))
       .catch((err: unknown) => {
         if (err instanceof TRPCClientError && err.data?.code === "FORBIDDEN") {
           return { ...emptyResult, listError: err.message, listForbidden: true }
@@ -63,7 +64,7 @@ export const createImagesPromise = (
       member_status: undefined,
       marker,
     })
-    .then((res) => ({ ...res, listError: undefined, listForbidden: false }))
+    .then((res) => ({ ...res, listError: undefined, listForbidden: false, resolvedAt: Date.now() }))
     .catch((err: unknown) => {
       if (err instanceof TRPCClientError && err.data?.code === "FORBIDDEN") {
         return { ...emptyResult, listError: err.message, listForbidden: true }

@@ -16,6 +16,7 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import type { CorsRuleRead } from "@/server/Storage/types/ceph"
 import { DeleteCorsRuleModal } from "./DeleteCorsRuleModal"
 import { getCorsRuleDeletedToast, getCorsRuleDeleteErrorToast } from "./BucketToastNotifications"
+import { EMPTY_VALUE } from "@/client/components/TwoColumnDescriptionList"
 
 interface CorsRuleWithIndex {
   rule: CorsRuleRead
@@ -151,16 +152,16 @@ export function CorsRulesTable({
                     />
                   </DataGridCell>
                 )}
-                <DataGridCell>{rule.ID || t`—`}</DataGridCell>
+                <DataGridCell>{rule.ID || EMPTY_VALUE}</DataGridCell>
                 <DataGridCell className="break-all">{rule.AllowedOrigins.join(", ")}</DataGridCell>
                 <DataGridCell>{rule.AllowedMethods.join(", ")}</DataGridCell>
                 <DataGridCell>
-                  {rule.AllowedHeaders && rule.AllowedHeaders.length > 0 ? rule.AllowedHeaders.join(", ") : t`—`}
+                  {rule.AllowedHeaders && rule.AllowedHeaders.length > 0 ? rule.AllowedHeaders.join(", ") : EMPTY_VALUE}
                 </DataGridCell>
                 <DataGridCell>
-                  {rule.ExposeHeaders && rule.ExposeHeaders.length > 0 ? rule.ExposeHeaders.join(", ") : t`—`}
+                  {rule.ExposeHeaders && rule.ExposeHeaders.length > 0 ? rule.ExposeHeaders.join(", ") : EMPTY_VALUE}
                 </DataGridCell>
-                <DataGridCell>{rule.MaxAgeSeconds !== undefined ? rule.MaxAgeSeconds : t`—`}</DataGridCell>
+                <DataGridCell>{rule.MaxAgeSeconds !== undefined ? rule.MaxAgeSeconds : EMPTY_VALUE}</DataGridCell>
                 <DataGridCell onClick={(e) => e.stopPropagation()} className="justify-end pr-0">
                   {hasAnyRowAction && (
                     <div className="flex h-full items-center justify-end">

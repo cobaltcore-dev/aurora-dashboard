@@ -24,6 +24,7 @@ import {
   formatNoncurrentExpiration,
   formatNoncurrentTransitions,
 } from "./utils/lifecycleUtils"
+import { EMPTY_VALUE } from "@/client/components/TwoColumnDescriptionList"
 
 interface LifecycleRuleWithIndex {
   rule: LifecycleRuleRead
@@ -123,8 +124,8 @@ export function LifecycleRulesTable({
               </span>
             </DataGridHeadCell>
           )}
-          <DataGridHeadCell>{t`Rule ID`}</DataGridHeadCell>
           <DataGridHeadCell>{t`Status`}</DataGridHeadCell>
+          <DataGridHeadCell>{t`Rule ID`}</DataGridHeadCell>
           <DataGridHeadCell>{t`Scope`}</DataGridHeadCell>
           <DataGridHeadCell>{t`Expiration`}</DataGridHeadCell>
           <DataGridHeadCell>{t`Noncurrent Versions`}</DataGridHeadCell>
@@ -163,20 +164,20 @@ export function LifecycleRulesTable({
               }[]
             )
             const noncurrentText =
-              noncurrentExpirationText === "–" && noncurrentTransitionsText === "–"
-                ? "–"
-                : [noncurrentExpirationText, noncurrentTransitionsText].filter((t) => t !== "–").join("; ")
+              noncurrentExpirationText === EMPTY_VALUE && noncurrentTransitionsText === EMPTY_VALUE
+                ? EMPTY_VALUE
+                : [noncurrentExpirationText, noncurrentTransitionsText].filter((t) => t !== EMPTY_VALUE).join("; ")
 
             // Format other actions column (transitions + abort)
             const transitionsText = formatTransitions(
               rule.Transitions as unknown as { StorageClass: string; Days?: number; Date?: string }[]
             )
             const abortDays = rule.AbortIncompleteMultipartUpload?.DaysAfterInitiation
-            const abortText = abortDays !== undefined ? t`After ${abortDays} days` : "–"
+            const abortText = abortDays !== undefined ? t`After ${abortDays} days` : EMPTY_VALUE
             const otherActionsText =
-              transitionsText === "–" && abortText === "–"
-                ? "–"
-                : [transitionsText, abortText].filter((t) => t !== "–").join("; ")
+              transitionsText === EMPTY_VALUE && abortText === EMPTY_VALUE
+                ? EMPTY_VALUE
+                : [transitionsText, abortText].filter((t) => t !== EMPTY_VALUE).join("; ")
 
             const ruleLabel = rule.ID || String(originalIndex + 1)
 
@@ -194,11 +195,11 @@ export function LifecycleRulesTable({
                     />
                   </DataGridCell>
                 )}
-                <DataGridCell>{rule.ID || t`—`}</DataGridCell>
                 <DataGridCell>
                   <StatusLabel value={rule.Status} />
                 </DataGridCell>
-                <DataGridCell className="break-all">{formatFilter(rule.Filter, rule.Prefix)}</DataGridCell>
+                <DataGridCell>{rule.ID || EMPTY_VALUE}</DataGridCell>
+                <DataGridCell className="break-all">{formatFilter(rule.Filter, rule.Prefix)}</DataGridCell>{" "}
                 <DataGridCell>
                   {formatExpiration(
                     rule.Expiration as unknown as { Days?: number; Date?: string; ExpiredObjectDeleteMarker?: boolean }
