@@ -423,6 +423,7 @@ export function buildObjectMetadataHeaders(options: {
   etag?: string
   deleteAt?: number
   deleteAfter?: number
+  removeDeleteAt?: boolean
   objectManifest?: string
   detectContentType?: boolean
   copyFrom?: string
@@ -460,6 +461,10 @@ export function buildObjectMetadataHeaders(options: {
 
   if (options.deleteAfter !== undefined) {
     headers["X-Delete-After"] = options.deleteAfter.toString()
+  }
+
+  if (options.removeDeleteAt) {
+    headers["X-Remove-Delete-At"] = "x"
   }
 
   if (options.objectManifest !== undefined) {

@@ -97,6 +97,7 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
 
   if (!isOpen || !container) return null
 
+  const { name: containerName } = container
   const actualObjectCount = objects?.length ?? 0
 
   // ── Case 2: container.count === 0 and listed objects === 0 ────────────────
@@ -109,28 +110,17 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
 
   const showEmptyInfo = isTrulyEmpty || isConsistencyDelay
 
-  const modalTitle = (
-    <span className="flex max-w-100 items-center gap-2">
-      <span className="shrink-0">
-        <Trans>Empty:</Trans>
-      </span>
-      <span className="truncate" title={container.name}>
-        {container.name}
-      </span>
-    </span>
-  )
-
   return (
     <Modal
-      title={modalTitle}
+      title={t`Empty Container`}
       open={isOpen}
       onCancel={handleClose}
-      confirmButtonLabel={showEmptyInfo ? undefined : t`Empty Container`}
+      confirmButtonLabel={showEmptyInfo && !objectsError ? undefined : t`Empty Container`}
       confirmButtonVariant="primary-danger"
-      onConfirm={showEmptyInfo ? undefined : form.handleSubmit}
-      cancelButtonLabel={showEmptyInfo ? undefined : t`Cancel`}
+      onConfirm={showEmptyInfo && !objectsError ? undefined : form.handleSubmit}
+      cancelButtonLabel={showEmptyInfo && !objectsError ? undefined : t`Cancel`}
       modalFooter={
-        showEmptyInfo ? (
+        showEmptyInfo && !objectsError ? (
           <ModalFooter className="flex justify-end">
             <ButtonRow>
               <Button variant="primary" onClick={handleClose} data-testid="empty-info-close-button">
@@ -141,19 +131,20 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
         ) : undefined
       }
       size="large"
-      disableConfirmButton={isLoadingObjects || emptyContainerMutation.isPending || (!showEmptyInfo && canEmpty)}
+      disableConfirmButton={
+        isLoadingObjects || !!objectsError || emptyContainerMutation.isPending || (!showEmptyInfo && canEmpty)
+      }
     >
-      {objectsError && (
-        <p className="text-theme-error mb-4">
-          {(() => {
-            const errorMessage = objectsError.message
-            return <Trans>Failed to Load Container Objects: {errorMessage}</Trans>
-          })()}
-        </p>
-      )}
       {isLoadingObjects ? (
         <Status status="progress" title={t`Loading Objects...`} className="mt-0" />
-      ) : showEmptyInfo && !objectsError ? (
+      ) : objectsError ? (
+        <Status
+          status="error"
+          title={t`Failed to Load Container Objects`}
+          body={objectsError.message}
+          className="mt-0"
+        />
+      ) : showEmptyInfo ? (
         // ── Case 2 & 3 ──────────────────────────────────────────────────────
         <p className="text-theme-default py-2">
           {isTrulyEmpty ? (
@@ -164,12 +155,13 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
             </Trans>
           )}
         </p>
-      ) : !objectsError ? (
+      ) : (
         // ── Case 1: container has objects ────────────────────────────────────
         <Stack direction="vertical" gap="6">
           <p className="text-theme-default">
             <Trans>
-              This action is permanent. All objects in the container will be deleted and this cannot be undone.
+              All objects in <span className="font-semibold">{containerName}</span> will be permanently deleted and this
+              cannot be undone.
             </Trans>
             <br />
             <Trans>
@@ -240,7 +232,7 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
             </FormSection>
           </Form>
         </Stack>
-      ) : null}
+      )}
     </Modal>
   )
 }

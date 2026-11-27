@@ -1,6 +1,6 @@
 import { useState, useRef } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { Modal, Stack, Spinner } from "@cloudoperators/juno-ui-components"
+import { Modal, ProgressBar, Stack, Spinner } from "@cloudoperators/juno-ui-components"
 import { MdCloudUpload } from "react-icons/md"
 import { trpcClient, trpcReact } from "@/client/trpcClient"
 import { cn } from "@/client/utils/cn"
@@ -35,7 +35,6 @@ export const UploadObjectModal = ({
   const [fileError, setFileError] = useState<string | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [uploadId, setUploadId] = useState<string | null>(null)
-  const [uploadError, setUploadError] = useState<string | null>(null)
   const [isPending, setIsPending] = useState(false)
 
   const submittedNameRef = useRef("")
@@ -65,7 +64,6 @@ export const UploadObjectModal = ({
     setFileError(null)
     setIsDragging(false)
     setUploadId(null)
-    setUploadError(null)
     if (fileInputRef.current) fileInputRef.current.value = ""
     onClose()
   }
@@ -74,7 +72,6 @@ export const UploadObjectModal = ({
     const file = e.target.files?.[0]
     if (file) {
       setFileError(null)
-      setUploadError(null)
       setSelectedFile(file)
     }
   }
@@ -101,7 +98,6 @@ export const UploadObjectModal = ({
     const file = e.dataTransfer.files?.[0]
     if (file) {
       setFileError(null)
-      setUploadError(null)
       setSelectedFile(file)
     }
   }
@@ -115,7 +111,6 @@ export const UploadObjectModal = ({
     const objectName = `${currentPrefix}${selectedFile.name}`
     const activeUploadId = `${container}:${objectName}:${crypto.randomUUID()}`
     submittedNameRef.current = selectedFile.name
-    setUploadError(null)
 
     const controller = new AbortController()
     abortControllerRef.current = controller
@@ -161,8 +156,8 @@ export const UploadObjectModal = ({
         return
       }
       const message = err instanceof Error ? err.message : String(err)
-      setUploadError(message)
       onError?.(submittedNameRef.current, message)
+      resetAndClose()
     } finally {
       setIsPending(false)
       setUploadId(null)
@@ -180,16 +175,7 @@ export const UploadObjectModal = ({
 
   return (
     <Modal
-      title={
-        <span className="flex max-w-100 items-center gap-1">
-          <span className="shrink-0">
-            <Trans>Upload object to:</Trans>
-          </span>
-          <span className="truncate" title={parentPath}>
-            {parentPath}
-          </span>
-        </span>
-      }
+      title={t`Upload Object`}
       open={isOpen}
       onCancel={isPending ? handleCancelUpload : handleClose}
       confirmButtonLabel={isPending ? t`Uploading...` : t`Upload`}
@@ -200,12 +186,9 @@ export const UploadObjectModal = ({
       disableCloseButton={isPending}
     >
       <Stack direction="vertical" gap="4">
-        {/* Upload error */}
-        {uploadError && (
-          <p className="text-theme-error">
-            <Trans>Upload failed: {uploadError}</Trans>
-          </p>
-        )}
+        <p className="text-theme-default">
+          <Trans>Destination:</Trans> <span className="font-semibold">{parentPath}</span>
+        </p>
 
         {/* Object path preview */}
         {selectedFile && !isPending && (
@@ -273,7 +256,6 @@ export const UploadObjectModal = ({
                   onClick={() => {
                     setSelectedFile(null)
                     setFileError(null)
-                    setUploadError(null)
                     if (fileInputRef.current) fileInputRef.current.value = ""
                   }}
                   className="ml-2 shrink-0 font-medium text-red-600 hover:text-red-800"
@@ -294,14 +276,7 @@ export const UploadObjectModal = ({
               <Spinner size="small" />
               {progressPct !== null ? <Trans>Uploading... {progressPct}%</Trans> : <Trans>Uploading...</Trans>}
             </span>
-            {progressPct !== null && (
-              <div className="bg-theme-background-lvl-2 h-1.5 w-full overflow-hidden rounded-full">
-                <div
-                  className="bg-theme-accent h-1.5 rounded-full transition-all duration-150"
-                  style={{ width: `${progressPct}%` }}
-                />
-              </div>
-            )}
+            {progressPct !== null && <ProgressBar value={progressPct} aria-label="Upload progress" />}
           </div>
         )}
       </Stack>

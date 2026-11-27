@@ -23,6 +23,7 @@ import { parseSwiftDate } from "@/client/utils/formatSwiftDate"
 import { ContainerTableView } from "./ContainerTableView"
 import {
   getContainerCreatedToast,
+  getContainerCreateErrorToast,
   getContainerCreatedWithWarningToast,
   getContainerEmptiedToast,
   getContainerEmptyErrorToast,
@@ -32,6 +33,10 @@ import {
   getContainerUpdateErrorToast,
   getContainerAclUpdatedToast,
   getContainerAclUpdateErrorToast,
+  getContainerVersioningUpdatedToast,
+  getContainerVersioningUpdateErrorToast,
+  getContainerStaticWebsiteUpdatedToast,
+  getContainerStaticWebsiteUpdateErrorToast,
   getContainersEmptyCompleteToast,
 } from "./ContainerToastNotifications"
 import { ContainerLimitsTooltip } from "./ContainerLimitsTooltip"
@@ -87,6 +92,11 @@ export const SwiftContainers = () => {
     toast.warning(message, options)
   }
 
+  const handleCreateContainerError = (containerName: string, errorMessage: string) => {
+    const { message, ...options } = getContainerCreateErrorToast(containerName, errorMessage)
+    toast.error(message, options)
+  }
+
   const handleEmptySuccess = (containerName: string, deletedCount: number) => {
     const { message, ...options } = getContainerEmptiedToast(containerName, deletedCount)
     toast.success(message, options)
@@ -124,6 +134,26 @@ export const SwiftContainers = () => {
 
   const handleAclError = (containerName: string, errorMessage: string) => {
     const { message, ...options } = getContainerAclUpdateErrorToast(containerName, errorMessage)
+    toast.error(message, options)
+  }
+
+  const handleVersioningSuccess = (containerName: string) => {
+    const { message, ...options } = getContainerVersioningUpdatedToast(containerName)
+    toast.success(message, options)
+  }
+
+  const handleVersioningError = (containerName: string, errorMessage: string) => {
+    const { message, ...options } = getContainerVersioningUpdateErrorToast(containerName, errorMessage)
+    toast.error(message, options)
+  }
+
+  const handleStaticWebsiteSuccess = (containerName: string) => {
+    const { message, ...options } = getContainerStaticWebsiteUpdatedToast(containerName)
+    toast.success(message, options)
+  }
+
+  const handleStaticWebsiteError = (containerName: string, errorMessage: string) => {
+    const { message, ...options } = getContainerStaticWebsiteUpdateErrorToast(containerName, errorMessage)
     toast.error(message, options)
   }
 
@@ -299,7 +329,7 @@ export const SwiftContainers = () => {
               options={sortSettings.options}
               sortBy={sortSettings.sortBy}
               sortDirection={sortSettings.sortDirection ?? "asc"}
-              selectClassName="min-w-40"
+              selectClassName="min-w-45"
               onSortByChange={(v) =>
                 handleSortChange({ ...sortSettings, sortBy: v, sortDirection: sortSettings.sortDirection })
               }
@@ -321,7 +351,7 @@ export const SwiftContainers = () => {
           <Stack direction="vertical" gap="2">
             <Stack distribution="end" alignment="center">
               <SearchInput
-                placeholder={t`Search containers...`}
+                placeholder={t`Search...`}
                 data-testid="searchbar"
                 value={localSearchTerm}
                 onInput={(e: React.FormEvent<HTMLInputElement>) => {
@@ -417,6 +447,7 @@ export const SwiftContainers = () => {
         existingContainers={containers}
         onCreateSuccess={handleCreateSuccess}
         onCreatePartialSuccess={handleCreatePartialSuccess}
+        onCreateContainerError={handleCreateContainerError}
         onEmptySuccess={handleEmptySuccess}
         onEmptyError={handleEmptyError}
         onDeleteSuccess={handleDeleteSuccess}
@@ -425,6 +456,10 @@ export const SwiftContainers = () => {
         onPropertiesError={handlePropertiesError}
         onAclSuccess={handleAclSuccess}
         onAclError={handleAclError}
+        onVersioningSuccess={handleVersioningSuccess}
+        onVersioningError={handleVersioningError}
+        onStaticWebsiteSuccess={handleStaticWebsiteSuccess}
+        onStaticWebsiteError={handleStaticWebsiteError}
         selectedContainers={selectedContainers}
         setSelectedContainers={setSelectedContainers}
         hasAnyBulkAction={hasAnyBulkAction}

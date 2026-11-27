@@ -94,7 +94,6 @@ let capturedOnMoveObjectSuccess: ((objectName: string, targetContainer: string, 
 let capturedOnMoveObjectError: ((objectName: string, errorMessage: string) => void) | undefined
 let capturedOnTempUrlCopySuccess: ((objectName: string) => void) | undefined
 let capturedOnEditMetadataSuccess: ((objectName: string) => void) | undefined
-let capturedOnEditMetadataError: ((objectName: string, errorMessage: string) => void) | undefined
 let capturedOnUploadSuccess: ((objectName: string) => void) | undefined
 let capturedOnUploadError: ((objectName: string, errorMessage: string) => void) | undefined
 let capturedOnUploadCancelled: ((objectName: string) => void) | undefined
@@ -116,7 +115,6 @@ vi.mock("./ObjectsTableView", () => ({
       onMoveObjectError,
       onTempUrlCopySuccess,
       onEditMetadataSuccess,
-      onEditMetadataError,
       selectedObjects,
       setSelectedObjects,
     }) => {
@@ -128,7 +126,6 @@ vi.mock("./ObjectsTableView", () => ({
       capturedOnMoveObjectError = onMoveObjectError
       capturedOnTempUrlCopySuccess = onTempUrlCopySuccess
       capturedOnEditMetadataSuccess = onEditMetadataSuccess
-      capturedOnEditMetadataError = onEditMetadataError
       return (
         <div
           data-testid="objects-table-view"
@@ -146,7 +143,6 @@ vi.mock("./ObjectsTableView", () => ({
           data-has-move-object-error={typeof onMoveObjectError === "function" ? "true" : "false"}
           data-has-temp-url-copy-success={typeof onTempUrlCopySuccess === "function" ? "true" : "false"}
           data-has-edit-metadata-success={typeof onEditMetadataSuccess === "function" ? "true" : "false"}
-          data-has-edit-metadata-error={typeof onEditMetadataError === "function" ? "true" : "false"}
           data-selected-count={selectedObjects?.length ?? 0}
           data-has-set-selected={typeof setSelectedObjects === "function" ? "true" : "false"}
         >
@@ -517,11 +513,6 @@ describe("SwiftObjects (index)", () => {
       expect(screen.getByTestId("objects-table-view")).toHaveAttribute("data-has-edit-metadata-success", "true")
     })
 
-    test("passes onEditMetadataError callback to ObjectsTableView", () => {
-      renderObjects()
-      expect(screen.getByTestId("objects-table-view")).toHaveAttribute("data-has-edit-metadata-error", "true")
-    })
-
     test("onEditMetadataSuccess shows success toast via getObjectMetadataUpdatedToast", async () => {
       const { getObjectMetadataUpdatedToast } = await import("./ObjectToastNotifications")
       renderObjects()
@@ -529,15 +520,6 @@ describe("SwiftObjects (index)", () => {
         capturedOnEditMetadataSuccess?.("sample.txt")
       })
       expect(getObjectMetadataUpdatedToast).toHaveBeenCalledWith("sample.txt")
-    })
-
-    test("onEditMetadataError shows error toast via getObjectMetadataUpdateErrorToast", async () => {
-      const { getObjectMetadataUpdateErrorToast } = await import("./ObjectToastNotifications")
-      renderObjects()
-      await act(async () => {
-        capturedOnEditMetadataError?.("sample.txt", "403 Forbidden")
-      })
-      expect(getObjectMetadataUpdateErrorToast).toHaveBeenCalledWith("sample.txt", "403 Forbidden")
     })
 
     test("subtracts 1 from deletedCount before passing to getFolderDeletedToast", async () => {

@@ -1,6 +1,6 @@
 import React from "react"
 import { describe, test, expect, vi, beforeEach } from "vitest"
-import { render, screen, act } from "@testing-library/react"
+import { render, screen, act, waitFor, fireEvent } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
@@ -71,13 +71,9 @@ let trpcState = {
   copyMutate: vi.fn(),
   copyReset: vi.fn(),
   copyIsPending: false,
-  copyIsError: false,
-  copyError: null as { message: string } | null,
   deleteMutate: vi.fn(),
   deleteReset: vi.fn(),
   deleteIsPending: false,
-  deleteIsError: false,
-  deleteError: null as { message: string } | null,
 }
 
 const mockInvalidate = vi.fn()
@@ -125,8 +121,6 @@ vi.mock("@/client/trpcClient", () => ({
               },
               reset: trpcState.copyReset,
               isPending: trpcState.copyIsPending,
-              isError: trpcState.copyIsError,
-              error: trpcState.copyError,
             }
           },
         },
@@ -143,8 +137,6 @@ vi.mock("@/client/trpcClient", () => ({
               },
               reset: trpcState.deleteReset,
               isPending: trpcState.deleteIsPending,
-              isError: trpcState.deleteIsError,
-              error: trpcState.deleteError,
             }
           },
         },
@@ -208,13 +200,9 @@ describe("MoveRenameObjectModal", () => {
       copyMutate: vi.fn(),
       copyReset: vi.fn(),
       copyIsPending: false,
-      copyIsError: false,
-      copyError: null,
       deleteMutate: vi.fn(),
       deleteReset: vi.fn(),
       deleteIsPending: false,
-      deleteIsError: false,
-      deleteError: null,
     }
     await act(async () => {
       i18n.activate("en")
@@ -261,7 +249,8 @@ describe("MoveRenameObjectModal", () => {
 
     test("target path shows root path with object name by default", () => {
       renderModal({ object: makeObject("report.pdf", "report.pdf") })
-      expect(screen.getByText("/source-container/report.pdf")).toBeInTheDocument()
+      const targetPath = screen.getAllByText("source-container/report.pdf")[1]
+      expect(targetPath).toBeInTheDocument()
     })
 
     test("shows Root breadcrumb when at root level", () => {
@@ -353,7 +342,7 @@ describe("MoveRenameObjectModal", () => {
       const nameInput = screen.getByDisplayValue("report.pdf")
       await user.clear(nameInput)
       await user.type(nameInput, "renamed.pdf")
-      expect(screen.getByText("/source-container/renamed.pdf")).toBeInTheDocument()
+      expect(screen.getByText("source-container/renamed.pdf")).toBeInTheDocument()
     })
 
     test("shows error when name is cleared and Move is clicked", async () => {
@@ -385,6 +374,36 @@ describe("MoveRenameObjectModal", () => {
       await user.type(nameInput, "a")
       expect(screen.queryByText(/Object name is required/i)).not.toBeInTheDocument()
     })
+
+    test("renders helptext explaining naming constraints", () => {
+      renderModal({ object: makeObject("report.pdf", "report.pdf") })
+      expect(screen.getByText(/No slashes or leading\/trailing spaces allowed\./i)).toBeInTheDocument()
+    })
+
+    test("shows error on blur when name contains a slash", async () => {
+      const user = userEvent.setup()
+      renderModal({ object: makeObject("report.pdf", "report.pdf") })
+      const nameInput = screen.getByLabelText(/New object name/i)
+      await user.clear(nameInput)
+      await user.type(nameInput, "invalid/name")
+      fireEvent.blur(nameInput)
+      await waitFor(() => {
+        expect(screen.getByText(/cannot contain slashes/i)).toBeInTheDocument()
+      })
+    })
+
+    test("Move button is disabled while a name validation error is active", async () => {
+      const user = userEvent.setup()
+      renderModal({ object: makeObject("report.pdf", "report.pdf") })
+      const nameInput = screen.getByLabelText(/New object name/i)
+      await user.clear(nameInput)
+      await user.type(nameInput, "bad/name")
+      fireEvent.blur(nameInput)
+      await waitFor(() => {
+        expect(screen.getByText(/cannot contain slashes/i)).toBeInTheDocument()
+      })
+      expect(screen.getByRole("button", { name: /^Move\/Rename Object$/i })).toBeDisabled()
+    })
   })
 
   // ── Folder browser ────────────────────────────────────────────────────────
@@ -395,10 +414,9 @@ describe("MoveRenameObjectModal", () => {
       expect(screen.getByText("docs")).toBeInTheDocument()
     })
 
-    test("does not show files in the destination picker", () => {
+    test("shows files as non-interactive rows in the destination picker", () => {
       renderModal()
-      // Files are not valid destinations — only folders are rendered
-      expect(screen.queryByText("readme.txt")).not.toBeInTheDocument()
+      expect(screen.getByText("readme.txt")).toBeInTheDocument()
     })
 
     test("navigates into a folder when clicked", async () => {
@@ -412,7 +430,7 @@ describe("MoveRenameObjectModal", () => {
       const user = userEvent.setup()
       renderModal({ object: makeObject("report.pdf", "report.pdf") })
       await user.click(screen.getByText("docs"))
-      expect(screen.getByText("/source-container/docs/report.pdf")).toBeInTheDocument()
+      expect(screen.getByText("source-container/docs/report.pdf")).toBeInTheDocument()
     })
 
     test("navigates back to root when Back is clicked", async () => {
@@ -661,21 +679,6 @@ describe("MoveRenameObjectModal", () => {
       trpcState.deleteIsPending = true
       renderModal()
       expect(screen.getByRole("button", { name: /Moving\.\.\./i })).toBeDisabled()
-    })
-
-    test("shows copy error message when copy fails", () => {
-      trpcState.copyIsError = true
-      trpcState.copyError = { message: "Forbidden" }
-      renderModal()
-      expect(screen.getByText(/Failed to move object/i)).toBeInTheDocument()
-      expect(screen.getByText(/Forbidden/i)).toBeInTheDocument()
-    })
-
-    test("shows partial failure message when delete fails after copy", () => {
-      trpcState.deleteIsError = true
-      trpcState.deleteError = { message: "Delete failed" }
-      renderModal()
-      expect(screen.getByText(/could not be deleted from the source/i)).toBeInTheDocument()
     })
   })
 

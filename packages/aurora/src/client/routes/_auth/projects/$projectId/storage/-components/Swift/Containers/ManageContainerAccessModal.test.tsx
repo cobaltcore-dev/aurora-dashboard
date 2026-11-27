@@ -145,12 +145,12 @@ describe("ManageContainerAccessModal", () => {
   describe("Visibility", () => {
     test("does not render when isOpen is false", () => {
       renderModal({ isOpen: false })
-      expect(screen.queryByText(/Access Control for Container/i)).not.toBeInTheDocument()
+      expect(screen.queryByText(/Manage Container Access/i)).not.toBeInTheDocument()
     })
 
     test("does not render when container is null", () => {
       renderModal({ container: null })
-      expect(screen.queryByText(/Access Control for Container/i)).not.toBeInTheDocument()
+      expect(screen.queryByText(/Manage Container Access/i)).not.toBeInTheDocument()
     })
 
     test("renders when isOpen is true and container is set", () => {
@@ -163,11 +163,9 @@ describe("ManageContainerAccessModal", () => {
       expect(screen.getByText("special-container")).toBeInTheDocument()
     })
 
-    test("renders warning Message about ID validation", () => {
+    test("renders warning about ID validation", () => {
       renderModal()
-      const warningEl = screen.getByText(/incorrect IDs may apply access/i).closest(".juno-message")
-      expect(warningEl).toBeInTheDocument()
-      expect(warningEl).toHaveClass("juno-message-warning")
+      expect(screen.getByText(/incorrect IDs may apply access/i)).toBeInTheDocument()
     })
 
     test("renders reference panel with ACL examples", () => {
@@ -205,6 +203,12 @@ describe("ManageContainerAccessModal", () => {
       expect(screen.getByRole("button", { name: /Save/i })).toBeDisabled()
     })
 
+    test("hides description text while loading", () => {
+      metadataLoading = true
+      renderModal()
+      expect(screen.queryByText(/incorrect IDs may apply access/i)).not.toBeInTheDocument()
+    })
+
     test("renders ACL inputs once loading finishes", () => {
       metadataLoading = false
       renderModal()
@@ -228,6 +232,12 @@ describe("ManageContainerAccessModal", () => {
       metadataError = { message: "Network error" }
       renderModal()
       expect(screen.getByRole("button", { name: /Save/i })).toBeDisabled()
+    })
+
+    test("hides description text when metadata query fails", () => {
+      metadataError = { message: "Network error" }
+      renderModal()
+      expect(screen.queryByText(/incorrect IDs may apply access/i)).not.toBeInTheDocument()
     })
   })
 
@@ -619,7 +629,7 @@ describe("ManageContainerAccessModal", () => {
       })
     })
 
-    test("does not close the modal on mutation failure", async () => {
+    test("closes the modal on mutation failure so the error surfaces via toast", async () => {
       mutationError = "Server error"
       const onClose = vi.fn()
       const user = userEvent.setup()
@@ -629,20 +639,7 @@ describe("ManageContainerAccessModal", () => {
       await user.type(textareas[0], ".r:*")
       await user.click(screen.getByRole("button", { name: /Save/i }))
       await waitFor(() => {
-        expect(onClose).not.toHaveBeenCalled()
-      })
-    })
-
-    test("shows inline mutation error message after failed save", async () => {
-      mutationError = "Permission denied"
-      const user = userEvent.setup()
-      mockContainerInfo = makeContainerInfo()
-      renderModal()
-      const textareas = screen.getAllByRole("textbox") as HTMLTextAreaElement[]
-      await user.type(textareas[0], ".r:*")
-      await user.click(screen.getByRole("button", { name: /Save/i }))
-      await waitFor(() => {
-        expect(screen.getByText(/Failed to update ACLs/i)).toBeInTheDocument()
+        expect(onClose).toHaveBeenCalled()
       })
     })
   })

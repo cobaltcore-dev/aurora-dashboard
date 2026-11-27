@@ -119,6 +119,38 @@ vi.mock("./ManageContainerAccessModal", () => ({
   ),
 }))
 
+// ─── Mock ConfigureVersioningModal ───────────────────────────────────────────
+
+vi.mock("./ConfigureVersioningModal", () => ({
+  ConfigureVersioningModal: vi.fn(({ isOpen, container, onClose, onSuccess, onError }) =>
+    isOpen && container ? (
+      <div data-testid="configure-versioning-modal">
+        <span data-testid="versioning-modal-container-name">{container.name}</span>
+        <button onClick={onClose}>CloseVersioning</button>
+        <button onClick={() => onSuccess?.(container.name)}>SimulateVersioningSuccess</button>
+        <button onClick={() => onError?.(container.name, "Versioning update failed")}>SimulateVersioningError</button>
+      </div>
+    ) : null
+  ),
+}))
+
+// ─── Mock ConfigureStaticWebsiteModal ─────────────────────────────────────────
+
+vi.mock("./ConfigureStaticWebsiteModal", () => ({
+  ConfigureStaticWebsiteModal: vi.fn(({ isOpen, container, onClose, onSuccess, onError }) =>
+    isOpen && container ? (
+      <div data-testid="configure-static-website-modal">
+        <span data-testid="static-website-modal-container-name">{container.name}</span>
+        <button onClick={onClose}>CloseStaticWebsite</button>
+        <button onClick={() => onSuccess?.(container.name)}>SimulateStaticWebsiteSuccess</button>
+        <button onClick={() => onError?.(container.name, "Static website update failed")}>
+          SimulateStaticWebsiteError
+        </button>
+      </div>
+    ) : null
+  ),
+}))
+
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
 
 const makeContainer = (name: string, overrides: Partial<ContainerSummary> = {}): ContainerSummary => ({
@@ -152,6 +184,10 @@ const renderView = ({
   onPropertiesError = vi.fn(),
   onAclSuccess = vi.fn(),
   onAclError = vi.fn(),
+  onVersioningSuccess = vi.fn(),
+  onVersioningError = vi.fn(),
+  onStaticWebsiteSuccess = vi.fn(),
+  onStaticWebsiteError = vi.fn(),
   selectedContainers = [],
   setSelectedContainers = vi.fn(),
 }: {
@@ -169,6 +205,10 @@ const renderView = ({
   onPropertiesError?: (containerName: string, errorMessage: string) => void
   onAclSuccess?: (containerName: string) => void
   onAclError?: (containerName: string, errorMessage: string) => void
+  onVersioningSuccess?: (containerName: string) => void
+  onVersioningError?: (containerName: string, errorMessage: string) => void
+  onStaticWebsiteSuccess?: (containerName: string) => void
+  onStaticWebsiteError?: (containerName: string, errorMessage: string) => void
   selectedContainers?: string[]
   setSelectedContainers?: (containers: string[]) => void
 } = {}) =>
@@ -190,6 +230,10 @@ const renderView = ({
           onPropertiesError={onPropertiesError}
           onAclSuccess={onAclSuccess}
           onAclError={onAclError}
+          onVersioningSuccess={onVersioningSuccess}
+          onVersioningError={onVersioningError}
+          onStaticWebsiteSuccess={onStaticWebsiteSuccess}
+          onStaticWebsiteError={onStaticWebsiteError}
           selectedContainers={selectedContainers}
           setSelectedContainers={setSelectedContainers}
         />
@@ -425,7 +469,7 @@ describe("ContainerTableView", () => {
       const [firstMenuTrigger] = screen.getAllByRole("button", { name: "Container actions" })
       await user.click(firstMenuTrigger)
       expect(screen.getByText("Manage Access")).toBeInTheDocument()
-      expect(screen.getByText("Preview and Edit metadata")).toBeInTheDocument()
+      expect(screen.getByText("Edit/Preview Metadata")).toBeInTheDocument()
       expect(screen.getByText("Empty Container")).toBeInTheDocument()
       expect(screen.getByText("Delete Container")).toBeInTheDocument()
     })
@@ -554,6 +598,50 @@ describe("ContainerTableView", () => {
       await user.click(screen.getByTestId("access-control-action-alpha"))
       await user.click(screen.getByRole("button", { name: "SimulateAclError" }))
       expect(onAclError).toHaveBeenCalledWith("alpha", "ACL update failed")
+    })
+
+    test("calls onVersioningSuccess when versioning modal fires success", async () => {
+      const onVersioningSuccess = vi.fn()
+      const user = userEvent.setup()
+      renderView({ onVersioningSuccess })
+      const row = screen.getByTestId("container-row-alpha")
+      await user.click(row.querySelector("button") as HTMLElement)
+      await user.click(screen.getByTestId("versioning-action-alpha"))
+      await user.click(screen.getByRole("button", { name: "SimulateVersioningSuccess" }))
+      expect(onVersioningSuccess).toHaveBeenCalledWith("alpha")
+    })
+
+    test("calls onVersioningError when versioning modal fires error", async () => {
+      const onVersioningError = vi.fn()
+      const user = userEvent.setup()
+      renderView({ onVersioningError })
+      const row = screen.getByTestId("container-row-alpha")
+      await user.click(row.querySelector("button") as HTMLElement)
+      await user.click(screen.getByTestId("versioning-action-alpha"))
+      await user.click(screen.getByRole("button", { name: "SimulateVersioningError" }))
+      expect(onVersioningError).toHaveBeenCalledWith("alpha", "Versioning update failed")
+    })
+
+    test("calls onStaticWebsiteSuccess when static website modal fires success", async () => {
+      const onStaticWebsiteSuccess = vi.fn()
+      const user = userEvent.setup()
+      renderView({ onStaticWebsiteSuccess })
+      const row = screen.getByTestId("container-row-alpha")
+      await user.click(row.querySelector("button") as HTMLElement)
+      await user.click(screen.getByTestId("static-website-action-alpha"))
+      await user.click(screen.getByRole("button", { name: "SimulateStaticWebsiteSuccess" }))
+      expect(onStaticWebsiteSuccess).toHaveBeenCalledWith("alpha")
+    })
+
+    test("calls onStaticWebsiteError when static website modal fires error", async () => {
+      const onStaticWebsiteError = vi.fn()
+      const user = userEvent.setup()
+      renderView({ onStaticWebsiteError })
+      const row = screen.getByTestId("container-row-alpha")
+      await user.click(row.querySelector("button") as HTMLElement)
+      await user.click(screen.getByTestId("static-website-action-alpha"))
+      await user.click(screen.getByRole("button", { name: "SimulateStaticWebsiteError" }))
+      expect(onStaticWebsiteError).toHaveBeenCalledWith("alpha", "Static website update failed")
     })
   })
 

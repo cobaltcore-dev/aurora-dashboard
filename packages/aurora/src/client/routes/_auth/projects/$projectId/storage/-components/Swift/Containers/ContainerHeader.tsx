@@ -9,16 +9,23 @@ import type { ContainerProbe } from "../../utils/containerExistence"
 import { ContainerHeaderActions, type ContainerModalType } from "./ContainerHeaderActions"
 import { ManageContainerAccessModal } from "./ManageContainerAccessModal"
 import { EditContainerMetadataModal } from "./EditContainerMetadataModal"
+import { ConfigureVersioningModal } from "./ConfigureVersioningModal"
+import { ConfigureStaticWebsiteModal } from "./ConfigureStaticWebsiteModal"
 import { EmptyContainerModal } from "./EmptyContainerModal"
 import { DeleteContainerModal } from "./DeleteContainerModal"
 import {
   getContainerAclUpdatedToast,
   getContainerAclUpdateErrorToast,
   getContainerUpdatedToast,
+  getContainerUpdateErrorToast,
   getContainerEmptiedToast,
   getContainerEmptyErrorToast,
   getContainerDeletedToast,
   getContainerDeleteErrorToast,
+  getContainerVersioningUpdatedToast,
+  getContainerVersioningUpdateErrorToast,
+  getContainerStaticWebsiteUpdatedToast,
+  getContainerStaticWebsiteUpdateErrorToast,
 } from "./ContainerToastNotifications"
 
 interface ContainerHeaderProps {
@@ -80,9 +87,11 @@ export const ContainerHeader = ({ containerName }: ContainerHeaderProps) => {
     const { message, ...options } = getContainerUpdatedToast(containerName)
     toast.success(message, options)
   }
-  // No onError handler wired for EditContainerMetadataModal: the modal declares
-  // the prop for API compatibility but never calls it - update errors are shown
-  // inline in the modal (see #1162 / #1191), not via toast.
+
+  const handlePropertiesError = (containerName: string, errorMessage: string) => {
+    const { message, ...options } = getContainerUpdateErrorToast(containerName, errorMessage)
+    toast.error(message, options)
+  }
 
   const handleEmptySuccess = (containerName: string, deletedCount: number) => {
     const { message, ...options } = getContainerEmptiedToast(containerName, deletedCount)
@@ -107,6 +116,26 @@ export const ContainerHeader = ({ containerName }: ContainerHeaderProps) => {
 
   const handleDeleteError = (containerName: string, errorMessage: string) => {
     const { message, ...options } = getContainerDeleteErrorToast(containerName, errorMessage)
+    toast.error(message, options)
+  }
+
+  const handleVersioningSuccess = (containerName: string) => {
+    const { message, ...options } = getContainerVersioningUpdatedToast(containerName)
+    toast.success(message, options)
+  }
+
+  const handleVersioningError = (containerName: string, errorMessage: string) => {
+    const { message, ...options } = getContainerVersioningUpdateErrorToast(containerName, errorMessage)
+    toast.error(message, options)
+  }
+
+  const handleStaticWebsiteSuccess = (containerName: string) => {
+    const { message, ...options } = getContainerStaticWebsiteUpdatedToast(containerName)
+    toast.success(message, options)
+  }
+
+  const handleStaticWebsiteError = (containerName: string, errorMessage: string) => {
+    const { message, ...options } = getContainerStaticWebsiteUpdateErrorToast(containerName, errorMessage)
     toast.error(message, options)
   }
 
@@ -140,6 +169,23 @@ export const ContainerHeader = ({ containerName }: ContainerHeaderProps) => {
         container={container}
         onClose={closeModal}
         onSuccess={handlePropertiesSuccess}
+        onError={handlePropertiesError}
+      />
+
+      <ConfigureVersioningModal
+        isOpen={activeModal === "configureVersioning"}
+        container={container}
+        onClose={closeModal}
+        onSuccess={handleVersioningSuccess}
+        onError={handleVersioningError}
+      />
+
+      <ConfigureStaticWebsiteModal
+        isOpen={activeModal === "configureStaticWebsite"}
+        container={container}
+        onClose={closeModal}
+        onSuccess={handleStaticWebsiteSuccess}
+        onError={handleStaticWebsiteError}
       />
 
       <EmptyContainerModal

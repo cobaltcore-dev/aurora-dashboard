@@ -191,7 +191,7 @@ describe("DeleteContainerModal", () => {
   describe("Case 1: container is empty — allow deletion", () => {
     test("renders warning message about permanent deletion", () => {
       renderModal()
-      expect(screen.getByText(/The container will be deleted. This action is permanent/i)).toBeInTheDocument()
+      expect(screen.getByText(/will be deleted. This action is permanent/i)).toBeInTheDocument()
     })
 
     test("renders confirmation text input", () => {
@@ -237,7 +237,7 @@ describe("DeleteContainerModal", () => {
 
     test("renders plain text message about non-empty container", () => {
       renderModal({ container: makeContainer({ count: 1 }) })
-      expect(screen.getByText(/The container cannot be deleted as it contains objects/i)).toBeInTheDocument()
+      expect(screen.getByText(/cannot be deleted as it contains objects/i)).toBeInTheDocument()
     })
 
     test("renders Close button instead of Delete", () => {
@@ -272,7 +272,7 @@ describe("DeleteContainerModal", () => {
     test("still blocks deletion when container.count > 0", () => {
       listObjectsData = []
       renderModal({ container: makeContainer({ count: 5 }) })
-      expect(screen.getByText(/The container cannot be deleted as it contains objects/i)).toBeInTheDocument()
+      expect(screen.getByText(/cannot be deleted as it contains objects/i)).toBeInTheDocument()
     })
 
     test("renders Close button when count > 0 even if listed === 0", () => {
@@ -510,69 +510,59 @@ describe("DeleteContainerModal", () => {
   })
 
   describe("Fetch error banners", () => {
-    test("renders objects error banner when listObjects fails", () => {
+    test("shows error Status when listObjects fails", () => {
       listObjectsError = { message: "Resource not found container: my-container" }
       renderModal()
-      expect(
-        screen.getByText(/Failed to Load Container Objects: Resource not found container: my-container/i)
-      ).toBeInTheDocument()
+      expect(screen.getByText(/Failed to Load Container Properties/i)).toBeInTheDocument()
+      expect(screen.getByText(/Resource not found container: my-container/i)).toBeInTheDocument()
     })
 
-    test("renders metadata error banner when getContainerMetadata fails", () => {
+    test("shows error Status when getContainerMetadata fails", () => {
       mockContainerMetadataError = { message: "Resource not found container: my-container" }
       renderModal()
-      expect(
-        screen.getByText(/Failed to Load Container Properties: Resource not found container: my-container/i)
-      ).toBeInTheDocument()
+      expect(screen.getByText(/Failed to Load Container Properties/i)).toBeInTheDocument()
+      expect(screen.getByText(/Resource not found container: my-container/i)).toBeInTheDocument()
     })
 
-    test("renders both error banners when both queries fail", () => {
+    test("shows single error Status when both queries fail (objectsError body takes priority)", () => {
       listObjectsError = { message: "Objects error" }
       mockContainerMetadataError = { message: "Metadata error" }
       renderModal()
-      expect(screen.getByText(/Failed to Load Container Objects: Objects error/i)).toBeInTheDocument()
-      expect(screen.getByText(/Failed to Load Container Properties: Metadata error/i)).toBeInTheDocument()
+      expect(screen.getByText(/Failed to Load Container Properties/i)).toBeInTheDocument()
+      expect(screen.getByText(/Objects error/i)).toBeInTheDocument()
     })
 
-    test("still renders modal content below error banners", () => {
+    test("hides modal content when errors are present", () => {
       listObjectsError = { message: "Not found" }
       renderModal()
-      expect(screen.getByText(/The container will be deleted. This action is permanent/i)).toBeInTheDocument()
-      expect(screen.getByLabelText(/Type "delete" to confirm/i)).toBeInTheDocument()
+      expect(screen.queryByText(/will be deleted. This action is permanent/i)).not.toBeInTheDocument()
+      expect(screen.queryByLabelText(/Type "delete" to confirm/i)).not.toBeInTheDocument()
     })
 
-    test("Delete button is disabled when listObjects query errors", async () => {
-      const user = userEvent.setup()
+    test("Delete button is disabled when listObjects query errors", () => {
       listObjectsError = { message: "Not found" }
       renderModal()
-      await user.type(screen.getByLabelText(/Type "delete" to confirm/i), "delete")
       expect(screen.getByRole("button", { name: /^Delete Container$/i })).toBeDisabled()
     })
 
-    test("Delete button is disabled when getContainerMetadata query errors", async () => {
-      const user = userEvent.setup()
+    test("Delete button is disabled when getContainerMetadata query errors", () => {
       mockContainerMetadataError = { message: "Not found" }
       renderModal()
-      await user.type(screen.getByLabelText(/Type "delete" to confirm/i), "delete")
       expect(screen.getByRole("button", { name: /^Delete Container$/i })).toBeDisabled()
     })
 
-    test("does not call mutate when listObjects query has errored", async () => {
-      const user = userEvent.setup()
+    test("does not call mutate when listObjects query has errored", () => {
       listObjectsError = { message: "Not found" }
       renderModal()
-      await user.type(screen.getByLabelText(/Type "delete" to confirm/i), "delete")
-      await user.keyboard("{Enter}")
       expect(mockMutate).not.toHaveBeenCalled()
+      expect(screen.getByRole("button", { name: /^Delete Container$/i })).toBeDisabled()
     })
 
-    test("does not call mutate when getContainerMetadata query has errored", async () => {
-      const user = userEvent.setup()
+    test("does not call mutate when getContainerMetadata query has errored", () => {
       mockContainerMetadataError = { message: "Not found" }
       renderModal()
-      await user.type(screen.getByLabelText(/Type "delete" to confirm/i), "delete")
-      await user.keyboard("{Enter}")
       expect(mockMutate).not.toHaveBeenCalled()
+      expect(screen.getByRole("button", { name: /^Delete Container$/i })).toBeDisabled()
     })
   })
 })

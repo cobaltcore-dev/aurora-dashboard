@@ -83,7 +83,7 @@ describe("NetworkTableRow", () => {
       renderComponent()
 
       const [status, , adminState, subnets, , external] = cells()
-      expect(status).toHaveTextContent("Active")
+      expect(status).toHaveTextContent("ACTIVE")
       expect(adminState).toHaveTextContent("Up")
       expect(subnets).toHaveTextContent("2")
       expect(external).toHaveTextContent("No")

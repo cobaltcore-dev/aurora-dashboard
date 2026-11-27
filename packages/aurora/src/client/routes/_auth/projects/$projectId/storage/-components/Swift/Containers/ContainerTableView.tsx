@@ -10,6 +10,7 @@ import {
   PopupMenu,
   PopupMenuItem,
   PopupMenuOptions,
+  PopupMenuSectionSeparator,
   PopupMenuToggle,
   Status,
 } from "@cloudoperators/juno-ui-components"
@@ -23,6 +24,8 @@ import { EmptyContainerModal } from "./EmptyContainerModal"
 import { DeleteContainerModal } from "./DeleteContainerModal"
 import { EditContainerMetadataModal } from "./EditContainerMetadataModal"
 import { ManageContainerAccessModal } from "./ManageContainerAccessModal"
+import { ConfigureVersioningModal } from "./ConfigureVersioningModal"
+import { ConfigureStaticWebsiteModal } from "./ConfigureStaticWebsiteModal"
 
 interface ContainerTableViewProps {
   containers: ContainerSummary[]
@@ -32,14 +35,19 @@ interface ContainerTableViewProps {
   existingContainers?: ContainerSummary[]
   onCreateSuccess: (containerName: string) => void
   onCreatePartialSuccess: (containerName: string, reason: string) => void
+  onCreateContainerError?: (containerName: string, errorMessage: string) => void
   onEmptySuccess: (containerName: string, deletedCount: number) => void
   onEmptyError: (containerName: string, errorMessage: string) => void
   onDeleteSuccess: (containerName: string) => void
   onDeleteError: (containerName: string, errorMessage: string) => void
   onPropertiesSuccess: (containerName: string) => void
-  onPropertiesError: (containerName: string, errorMessage: string) => void
+  onPropertiesError?: (containerName: string, errorMessage: string) => void
   onAclSuccess: (containerName: string) => void
   onAclError: (containerName: string, errorMessage: string) => void
+  onVersioningSuccess: (containerName: string) => void
+  onVersioningError: (containerName: string, errorMessage: string) => void
+  onStaticWebsiteSuccess: (containerName: string) => void
+  onStaticWebsiteError: (containerName: string, errorMessage: string) => void
   selectedContainers: string[]
   setSelectedContainers: (containers: string[]) => void
   // When false, the row-selection column (header checkbox + per-row checkboxes)
@@ -56,6 +64,7 @@ export const ContainerTableView = ({
   existingContainers = [],
   onCreateSuccess,
   onCreatePartialSuccess,
+  onCreateContainerError,
   onEmptySuccess,
   onEmptyError,
   onDeleteSuccess,
@@ -64,6 +73,10 @@ export const ContainerTableView = ({
   onPropertiesError,
   onAclSuccess,
   onAclError,
+  onVersioningSuccess,
+  onVersioningError,
+  onStaticWebsiteSuccess,
+  onStaticWebsiteError,
   selectedContainers,
   setSelectedContainers,
   hasAnyBulkAction = true,
@@ -80,6 +93,8 @@ export const ContainerTableView = ({
   const [deleteModalContainer, setDeleteModalContainer] = useState<ContainerSummary | null>(null)
   const [propertiesModalContainer, setPropertiesModalContainer] = useState<ContainerSummary | null>(null)
   const [accessControlModalContainer, setAccessControlModalContainer] = useState<ContainerSummary | null>(null)
+  const [versioningModalContainer, setVersioningModalContainer] = useState<ContainerSummary | null>(null)
+  const [staticWebsiteModalContainer, setStaticWebsiteModalContainer] = useState<ContainerSummary | null>(null)
 
   // Height measured from the space actually left below the table, plus a
   // virtualizer that stays silent until that height is known.
@@ -252,15 +267,26 @@ export const ContainerTableView = ({
                           data-testid={`access-control-action-${container.name}`}
                         />
                         <PopupMenuItem
-                          label={t`Preview and Edit metadata`}
+                          label={t`Edit/Preview Metadata`}
                           onClick={() => setPropertiesModalContainer(container)}
                           data-testid={`properties-action-${container.name}`}
+                        />
+                        <PopupMenuItem
+                          label={t`Configure Versioning`}
+                          onClick={() => setVersioningModalContainer(container)}
+                          data-testid={`versioning-action-${container.name}`}
+                        />
+                        <PopupMenuItem
+                          label={t`Configure Static Website`}
+                          onClick={() => setStaticWebsiteModalContainer(container)}
+                          data-testid={`static-website-action-${container.name}`}
                         />
                         <PopupMenuItem
                           label={t`Empty Container`}
                           onClick={() => setEmptyModalContainer(container)}
                           data-testid={`empty-action-${container.name}`}
                         />
+                        <PopupMenuSectionSeparator />
                         <PopupMenuItem
                           label={t`Delete Container`}
                           onClick={() => setDeleteModalContainer(container)}
@@ -281,6 +307,7 @@ export const ContainerTableView = ({
         onClose={() => setCreateModalOpen(false)}
         onSuccess={onCreateSuccess}
         onPartialSuccess={onCreatePartialSuccess}
+        onError={onCreateContainerError}
         maxContainerNameLength={maxContainerNameLength}
         existingContainers={existingContainers}
       />
@@ -315,6 +342,22 @@ export const ContainerTableView = ({
         onClose={() => setAccessControlModalContainer(null)}
         onSuccess={onAclSuccess}
         onError={onAclError}
+      />
+
+      <ConfigureVersioningModal
+        isOpen={versioningModalContainer !== null}
+        container={versioningModalContainer}
+        onClose={() => setVersioningModalContainer(null)}
+        onSuccess={onVersioningSuccess}
+        onError={onVersioningError}
+      />
+
+      <ConfigureStaticWebsiteModal
+        isOpen={staticWebsiteModalContainer !== null}
+        container={staticWebsiteModalContainer}
+        onClose={() => setStaticWebsiteModalContainer(null)}
+        onSuccess={onStaticWebsiteSuccess}
+        onError={onStaticWebsiteError}
       />
     </>
   )

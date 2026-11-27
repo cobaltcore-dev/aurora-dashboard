@@ -13,6 +13,10 @@ import {
   getContainerUpdateErrorToast,
   getContainerAclUpdatedToast,
   getContainerAclUpdateErrorToast,
+  getContainerVersioningUpdatedToast,
+  getContainerVersioningUpdateErrorToast,
+  getContainerStaticWebsiteUpdatedToast,
+  getContainerStaticWebsiteUpdateErrorToast,
   getContainersEmptiedToast,
   getContainersEmptyErrorToast,
   getContainersEmptyCompleteToast,
@@ -174,6 +178,46 @@ describe("ContainerToastNotifications", () => {
     })
   })
 
+  // ── Container versioning ───────────────────────────────────────────────────
+
+  describe("getContainerVersioningUpdatedToast", () => {
+    it("renders correct message content", () => {
+      renderNotification(getContainerVersioningUpdatedToast("my-container"))
+      expect(screen.getByText("Versioning Updated")).toBeInTheDocument()
+      expect(screen.getByText(/my-container/)).toBeInTheDocument()
+      expect(screen.getByText(/successfully updated/)).toBeInTheDocument()
+    })
+  })
+
+  describe("getContainerVersioningUpdateErrorToast", () => {
+    it("renders correct error message content", () => {
+      renderNotification(getContainerVersioningUpdateErrorToast("my-container", "Conflict"))
+      expect(screen.getByText("Failed to Update Versioning")).toBeInTheDocument()
+      expect(screen.getByText(/Could not update versioning for container/)).toBeInTheDocument()
+      expect(screen.getByText(/Conflict/)).toBeInTheDocument()
+    })
+  })
+
+  // ── Container static website ───────────────────────────────────────────────
+
+  describe("getContainerStaticWebsiteUpdatedToast", () => {
+    it("renders correct message content", () => {
+      renderNotification(getContainerStaticWebsiteUpdatedToast("my-container"))
+      expect(screen.getByText("Static Website Updated")).toBeInTheDocument()
+      expect(screen.getByText(/my-container/)).toBeInTheDocument()
+      expect(screen.getByText(/successfully updated/)).toBeInTheDocument()
+    })
+  })
+
+  describe("getContainerStaticWebsiteUpdateErrorToast", () => {
+    it("renders correct error message content", () => {
+      renderNotification(getContainerStaticWebsiteUpdateErrorToast("my-container", "Conflict"))
+      expect(screen.getByText("Failed to Update Static Website")).toBeInTheDocument()
+      expect(screen.getByText(/Could not update static website settings for container/)).toBeInTheDocument()
+      expect(screen.getByText(/Conflict/)).toBeInTheDocument()
+    })
+  })
+
   // ── Empty-all (bulk) ───────────────────────────────────────────────────────
 
   describe("getContainersEmptiedToast", () => {
@@ -243,6 +287,10 @@ describe("ContainerToastNotifications", () => {
         getContainerUpdateErrorToast("c", "err"),
         getContainerAclUpdatedToast("c"),
         getContainerAclUpdateErrorToast("c", "err"),
+        getContainerVersioningUpdatedToast("c"),
+        getContainerVersioningUpdateErrorToast("c", "err"),
+        getContainerStaticWebsiteUpdatedToast("c"),
+        getContainerStaticWebsiteUpdateErrorToast("c", "err"),
         getContainersEmptiedToast(2, 5),
         getContainersEmptyErrorToast("err"),
         getContainersEmptyCompleteToast(2, 5, []),

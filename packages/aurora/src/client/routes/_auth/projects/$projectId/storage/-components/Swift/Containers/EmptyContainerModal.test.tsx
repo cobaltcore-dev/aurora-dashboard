@@ -178,7 +178,7 @@ describe("EmptyContainerModal", () => {
   describe("Case 1: container has objects", () => {
     test("renders warning message (Are you sure)", () => {
       renderModal()
-      expect(screen.getByText(/This action is permanent/i)).toBeInTheDocument()
+      expect(screen.getByText(/will be permanently deleted/i)).toBeInTheDocument()
     })
 
     test("renders warning about large objects", () => {
@@ -446,12 +446,11 @@ describe("EmptyContainerModal", () => {
   })
 
   describe("Fetch error banner", () => {
-    test("renders error banner when listObjects fails", () => {
+    test("shows error Status when listObjects fails", () => {
       listObjectsError = { message: "Resource not found container: empty" }
       renderModal()
-      expect(
-        screen.getByText(/Failed to Load Container Objects: Resource not found container: empty/i)
-      ).toBeInTheDocument()
+      expect(screen.getByText(/Failed to Load Container Objects/i)).toBeInTheDocument()
+      expect(screen.getByText(/Resource not found container: empty/i)).toBeInTheDocument()
     })
 
     test("does not render info message when fetch error is present (truly empty container)", () => {

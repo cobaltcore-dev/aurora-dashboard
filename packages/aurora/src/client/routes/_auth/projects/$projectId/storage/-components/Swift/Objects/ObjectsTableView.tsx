@@ -9,6 +9,8 @@ import {
   PopupMenu,
   PopupMenuItem,
   PopupMenuOptions,
+  PopupMenuSectionSeparator,
+  ProgressBar,
   Spinner,
   toast,
   Tooltip,
@@ -30,6 +32,7 @@ import { CopyObjectModal } from "./CopyObjectModal"
 import { MoveRenameObjectModal } from "./MoveRenameObjectModal"
 import { GenerateTempUrlModal } from "./GenerateTempUrlModal"
 import { EditObjectMetadataModal } from "./EditObjectMetadataModal"
+import { ScheduleObjectDeletionModal } from "./ScheduleObjectDeletionModal"
 import { getObjectDownloadCancelledToast } from "./ObjectToastNotifications"
 import {
   startObjectDownload,
@@ -69,14 +72,7 @@ function RowTransferProgress({ downloadId, isPreviewing }: { downloadId: string;
           <Trans>Downloading...</Trans>
         )}
       </span>
-      {percent != null && (
-        <div className="bg-theme-background-lvl-2 h-1 w-full overflow-hidden rounded-full">
-          <div
-            className="bg-theme-accent h-1 rounded-full transition-all duration-150"
-            style={{ width: `${percent}%` }}
-          />
-        </div>
-      )}
+      {percent != null && <ProgressBar value={percent} aria-label="Download progress" />}
     </span>
   )
 }
@@ -104,6 +100,8 @@ interface ObjectsTableViewProps {
   onTempUrlCopySuccess: (objectName: string) => void
   onEditMetadataSuccess: (objectName: string) => void
   onEditMetadataError: (objectName: string, errorMessage: string) => void
+  onScheduleDeletionSuccess: (objectName: string) => void
+  onScheduleDeletionError: (objectName: string, errorMessage: string) => void
   selectedObjects: string[]
   setSelectedObjects: (objects: string[]) => void
   // When false, the selection column (header select-all + per-row checkboxes) is
@@ -130,6 +128,8 @@ export const ObjectsTableView = ({
   onTempUrlCopySuccess,
   onEditMetadataSuccess,
   onEditMetadataError,
+  onScheduleDeletionSuccess,
+  onScheduleDeletionError,
   selectedObjects,
   setSelectedObjects,
   hasAnyBulkAction = true,
@@ -147,6 +147,7 @@ export const ObjectsTableView = ({
   const [moveRenameObjectTarget, setMoveRenameObjectTarget] = useState<ObjectRow | null>(null)
   const [tempUrlTarget, setTempUrlTarget] = useState<ObjectRow | null>(null)
   const [editMetadataTarget, setEditMetadataTarget] = useState<ObjectRow | null>(null)
+  const [scheduleDeletionTarget, setScheduleDeletionTarget] = useState<ObjectRow | null>(null)
 
   // The "Downloading..." notification is raised by the store (one toast for all
   // in-flight transfers, dismissed when the last finishes), so starting a
@@ -407,14 +408,14 @@ export const ObjectsTableView = ({
                         </button>
                       </div>
                     ) : !isFolder && row.last_modified ? (
-                      (formatSwiftDate(row.last_modified) ?? "—")
+                      (formatSwiftDate(row.last_modified) ?? "- -")
                     ) : (
-                      "—"
+                      "- -"
                     )}
                   </DataGridCell>
 
                   {/* Size */}
-                  <DataGridCell>{!isFolder ? formatBytesBinary(row.bytes) : "—"}</DataGridCell>
+                  <DataGridCell>{!isFolder ? formatBytesBinary(row.bytes) : "- -"}</DataGridCell>
 
                   {/* Actions */}
                   <DataGridCell onClick={(e) => e.stopPropagation()}>
@@ -437,7 +438,13 @@ export const ObjectsTableView = ({
                               data-testid={`download-action-${row.name}`}
                             />
                             <PopupMenuItem
-                              label={t`Edit Object Metadata`}
+                              label={t`Share Object URL`}
+                              disabled={isStreaming}
+                              onClick={() => setTempUrlTarget(row as ObjectRow)}
+                              data-testid={`temp-url-action-${row.name}`}
+                            />
+                            <PopupMenuItem
+                              label={t`Edit/Preview Metadata`}
                               disabled={isStreaming}
                               onClick={() => setEditMetadataTarget(row as ObjectRow)}
                               data-testid={`edit-metadata-action-${row.name}`}
@@ -455,11 +462,12 @@ export const ObjectsTableView = ({
                               data-testid={`move-rename-action-${row.name}`}
                             />
                             <PopupMenuItem
-                              label={t`Share Object URL`}
+                              label={t`Schedule Deletion`}
                               disabled={isStreaming}
-                              onClick={() => setTempUrlTarget(row as ObjectRow)}
-                              data-testid={`temp-url-action-${row.name}`}
+                              onClick={() => setScheduleDeletionTarget(row as ObjectRow)}
+                              data-testid={`schedule-deletion-action-${row.name}`}
                             />
+                            <PopupMenuSectionSeparator />
                             <PopupMenuItem
                               label={t`Delete Object`}
                               disabled={isStreaming}
@@ -524,6 +532,14 @@ export const ObjectsTableView = ({
         onClose={() => setEditMetadataTarget(null)}
         onSuccess={onEditMetadataSuccess}
         onError={onEditMetadataError}
+      />
+
+      <ScheduleObjectDeletionModal
+        isOpen={scheduleDeletionTarget !== null}
+        object={scheduleDeletionTarget}
+        onClose={() => setScheduleDeletionTarget(null)}
+        onSuccess={onScheduleDeletionSuccess}
+        onError={onScheduleDeletionError}
       />
     </>
   )

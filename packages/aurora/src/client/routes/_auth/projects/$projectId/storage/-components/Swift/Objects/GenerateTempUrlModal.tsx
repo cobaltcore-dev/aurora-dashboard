@@ -11,8 +11,13 @@ import {
   Select,
   SelectOption,
   Message,
+  DescriptionList,
+  DescriptionTerm,
+  DescriptionDefinition,
 } from "@cloudoperators/juno-ui-components"
 import { useParams } from "@tanstack/react-router"
+import { formatBytesBinary } from "@/client/utils/formatBytes"
+import { formatSwiftDate } from "@/client/utils/formatSwiftDate"
 import { ObjectRow } from "./"
 
 // ── Expiry presets ────────────────────────────────────────────────────────────
@@ -99,6 +104,11 @@ export const GenerateTempUrlModal = ({
 
   const generateMutation = trpcReact.storage.swift.generateTempUrl.useMutation()
 
+  const { data: metadataRaw } = trpcReact.storage.swift.getObjectMetadata.useQuery(
+    { project_id: projectId, container: containerName, object: object?.name ?? "" },
+    { enabled: isOpen && object !== null, refetchOnWindowFocus: false }
+  )
+
   useEffect(() => {
     if (!isOpen) {
       requestIdRef.current += 1
@@ -133,6 +143,20 @@ export const GenerateTempUrlModal = ({
     return Number.isInteger(mins) && mins > 0 ? mins : null
   }
 
+  const validateCustomMinutes = (value: string): boolean => {
+    if (!value.trim()) {
+      setCustomMinutesError(null)
+      return false
+    }
+    const mins = Number(value)
+    if (!Number.isInteger(mins) || mins <= 0) {
+      setCustomMinutesError(t`Please enter a valid number of minutes greater than 0`)
+      return false
+    }
+    setCustomMinutesError(null)
+    return true
+  }
+
   const resolveExpiresIn = (): number | null => {
     if (selectedPreset === CUSTOM_VALUE) {
       const mins = parseCustomMinutes()
@@ -145,12 +169,7 @@ export const GenerateTempUrlModal = ({
   const handleGenerate = () => {
     if (!object) return
     if (selectedPreset === CUSTOM_VALUE) {
-      const mins = parseCustomMinutes()
-      if (mins === null) {
-        setCustomMinutesError(t`Please enter a valid number of minutes greater than 0`)
-        return
-      }
-      setCustomMinutesError(null)
+      if (!validateCustomMinutes(customMinutes)) return
     }
     const expiresIn = resolveExpiresIn()
     if (expiresIn === null) return
@@ -228,8 +247,9 @@ export const GenerateTempUrlModal = ({
   }
 
   const handleCustomMinutesChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setCustomMinutes(e.target.value)
-    if (customMinutesError) setCustomMinutesError(null)
+    const value = e.target.value
+    setCustomMinutes(value)
+    if (customMinutesError) validateCustomMinutes(value)
     // Reset generated URL when config changes
     setTempUrl(null)
     setExpiresAt(null)
@@ -260,32 +280,16 @@ export const GenerateTempUrlModal = ({
 
   return (
     <Modal
-      title={
-        <span className="flex max-w-100 items-center gap-1">
-          <span className="shrink-0">
-            <Trans>Share URL:</Trans>
-          </span>
-          <span className="truncate" title={displayName}>
-            {displayName}
-          </span>
-        </span>
-      }
+      title={t`Generate Temporary URL`}
       open={isOpen}
       onCancel={onClose}
       confirmButtonLabel={isPending ? t`Generating...` : t`Generate URL`}
       onConfirm={handleGenerate}
       cancelButtonLabel={t`Cancel`}
-      size="small"
+      size="large"
       disableConfirmButton={isPending || noKeyError || (isCustom && (!customMinutes.trim() || !!customMinutesError))}
     >
       <Stack direction="vertical" gap="4">
-        <p className="text-theme-default">
-          <Trans>
-            A temporary URL grants time-limited read access to this object without requiring authentication. Anyone with
-            the link can download it until it expires.
-          </Trans>
-        </p>
-
         {/* No key configured error */}
         {noKeyError && (
           <Message variant="warning">
@@ -299,17 +303,54 @@ export const GenerateTempUrlModal = ({
 
         {/* General error */}
         {generalError && (
-          <p className="text-theme-error" role="alert" aria-live="assertive">
+          <Message variant="error">
             <Trans>Failed to generate temporary URL: {generalError}</Trans>
-          </p>
+          </Message>
         )}
 
         {/* Clipboard copy error */}
-        {copyError && (
-          <p className="text-theme-error" role="alert" aria-live="assertive">
-            {copyError}
-          </p>
-        )}
+        {copyError && <Message variant="error">{copyError}</Message>}
+
+        <p className="text-theme-default">
+          <Trans>
+            A temporary URL grants time-limited read access to this object without requiring authentication. Anyone with
+            the link can download it until it expires.
+          </Trans>
+        </p>
+        <DescriptionList>
+          <DescriptionTerm>
+            <Trans>Name</Trans>
+          </DescriptionTerm>
+          <DescriptionDefinition>{displayName}</DescriptionDefinition>
+          <DescriptionTerm>
+            <Trans>Content type</Trans>
+          </DescriptionTerm>
+          <DescriptionDefinition>{metadataRaw?.contentType ?? object.content_type ?? "- -"}</DescriptionDefinition>
+          <DescriptionTerm>
+            <Trans>MD5 checksum</Trans>
+          </DescriptionTerm>
+          <DescriptionDefinition className="break-all">{metadataRaw?.etag ?? "- -"}</DescriptionDefinition>
+          <DescriptionTerm>
+            <Trans>Size</Trans>
+          </DescriptionTerm>
+          <DescriptionDefinition>
+            {metadataRaw?.contentLength != null
+              ? formatBytesBinary(metadataRaw.contentLength)
+              : object.bytes != null
+                ? formatBytesBinary(object.bytes)
+                : "- -"}
+          </DescriptionDefinition>
+          <DescriptionTerm>
+            <Trans>Last modified</Trans>
+          </DescriptionTerm>
+          <DescriptionDefinition>
+            {metadataRaw?.lastModified
+              ? (formatSwiftDate(metadataRaw.lastModified) ?? "- -")
+              : object.last_modified
+                ? (formatSwiftDate(object.last_modified) ?? "- -")
+                : "- -"}
+          </DescriptionDefinition>
+        </DescriptionList>
 
         {/* Expiry selector */}
         <Select label={t`Expires in`} value={selectedPreset} onChange={handlePresetChange} disabled={isPending}>
@@ -325,8 +366,10 @@ export const GenerateTempUrlModal = ({
             label={t`Custom duration (minutes)`}
             value={customMinutes}
             onChange={handleCustomMinutesChange}
+            onBlur={(e) => validateCustomMinutes(e.target.value)}
             invalid={!!customMinutesError}
             errortext={customMinutesError || undefined}
+            helptext={t`Positive whole number of minutes (e.g. 60 for 1 hour).`}
             disabled={isPending}
             placeholder="60"
             type="number"

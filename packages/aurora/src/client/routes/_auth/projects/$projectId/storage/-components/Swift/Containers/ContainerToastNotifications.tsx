@@ -2,15 +2,23 @@ import { ReactNode } from "react"
 import { NotificationOptions, Stack } from "@cloudoperators/juno-ui-components"
 import { Trans, Plural } from "@lingui/react/macro"
 
-export const getContainerCreatedToast = (containerName: string): { message: ReactNode } & NotificationOptions => ({
+type ContainerToast = { message: ReactNode } & NotificationOptions
+
+export const getContainerCreatedToast = (containerName: string): ContainerToast => ({
   message: <Trans>Container Created</Trans>,
   description: <Trans>Container "{containerName}" was successfully created.</Trans>,
 })
 
-export const getContainerCreatedWithWarningToast = (
-  containerName: string,
-  reason: string
-): { message: ReactNode } & NotificationOptions => ({
+export const getContainerCreateErrorToast = (containerName: string, errorMessage: string): ContainerToast => ({
+  message: <Trans>Failed to Create Container</Trans>,
+  description: (
+    <Trans>
+      Could not create container "{containerName}": {errorMessage}
+    </Trans>
+  ),
+})
+
+export const getContainerCreatedWithWarningToast = (containerName: string, reason: string): ContainerToast => ({
   message: <Trans>Container Created with Warnings</Trans>,
   description: (
     <Trans>
@@ -19,10 +27,7 @@ export const getContainerCreatedWithWarningToast = (
   ),
 })
 
-export const getContainerEmptiedToast = (
-  containerName: string,
-  deletedCount: number
-): { message: ReactNode } & NotificationOptions => ({
+export const getContainerEmptiedToast = (containerName: string, deletedCount: number): ContainerToast => ({
   message: <Trans>Container Emptied</Trans>,
   description:
     deletedCount === 0 ? (
@@ -38,10 +43,7 @@ export const getContainerEmptiedToast = (
     ),
 })
 
-export const getContainerEmptyErrorToast = (
-  containerName: string,
-  errorMessage: string
-): { message: ReactNode } & NotificationOptions => ({
+export const getContainerEmptyErrorToast = (containerName: string, errorMessage: string): ContainerToast => ({
   message: <Trans>Failed to Empty Container</Trans>,
   description: (
     <Trans>
@@ -50,15 +52,12 @@ export const getContainerEmptyErrorToast = (
   ),
 })
 
-export const getContainerDeletedToast = (containerName: string): { message: ReactNode } & NotificationOptions => ({
+export const getContainerDeletedToast = (containerName: string): ContainerToast => ({
   message: <Trans>Container Deleted</Trans>,
   description: <Trans>Container "{containerName}" was successfully deleted.</Trans>,
 })
 
-export const getContainerDeleteErrorToast = (
-  containerName: string,
-  errorMessage: string
-): { message: ReactNode } & NotificationOptions => ({
+export const getContainerDeleteErrorToast = (containerName: string, errorMessage: string): ContainerToast => ({
   message: <Trans>Failed to Delete Container</Trans>,
   description: (
     <Trans>
@@ -67,15 +66,12 @@ export const getContainerDeleteErrorToast = (
   ),
 })
 
-export const getContainerUpdatedToast = (containerName: string): { message: ReactNode } & NotificationOptions => ({
+export const getContainerUpdatedToast = (containerName: string): ContainerToast => ({
   message: <Trans>Container Updated</Trans>,
   description: <Trans>Container "{containerName}" properties were successfully updated.</Trans>,
 })
 
-export const getContainerUpdateErrorToast = (
-  containerName: string,
-  errorMessage: string
-): { message: ReactNode } & NotificationOptions => ({
+export const getContainerUpdateErrorToast = (containerName: string, errorMessage: string): ContainerToast => ({
   message: <Trans>Failed to Update Container</Trans>,
   description: (
     <Trans>
@@ -84,15 +80,12 @@ export const getContainerUpdateErrorToast = (
   ),
 })
 
-export const getContainerAclUpdatedToast = (containerName: string): { message: ReactNode } & NotificationOptions => ({
+export const getContainerAclUpdatedToast = (containerName: string): ContainerToast => ({
   message: <Trans>Access Control Updated</Trans>,
   description: <Trans>ACLs for container "{containerName}" were successfully updated.</Trans>,
 })
 
-export const getContainerAclUpdateErrorToast = (
-  containerName: string,
-  errorMessage: string
-): { message: ReactNode } & NotificationOptions => ({
+export const getContainerAclUpdateErrorToast = (containerName: string, errorMessage: string): ContainerToast => ({
   message: <Trans>Failed to Update Access Control</Trans>,
   description: (
     <Trans>
@@ -101,10 +94,41 @@ export const getContainerAclUpdateErrorToast = (
   ),
 })
 
-export const getContainersEmptiedToast = (
-  emptiedCount: number,
-  totalDeleted: number
-): { message: ReactNode } & NotificationOptions => ({
+export const getContainerStaticWebsiteUpdatedToast = (containerName: string): ContainerToast => ({
+  message: <Trans>Static Website Updated</Trans>,
+  description: <Trans>Static website settings for container "{containerName}" were successfully updated.</Trans>,
+})
+
+export const getContainerStaticWebsiteUpdateErrorToast = (
+  containerName: string,
+  errorMessage: string
+): ContainerToast => ({
+  message: <Trans>Failed to Update Static Website</Trans>,
+  description: (
+    <Trans>
+      Could not update static website settings for container "{containerName}": {errorMessage}
+    </Trans>
+  ),
+})
+
+export const getContainerVersioningUpdatedToast = (containerName: string): ContainerToast => ({
+  message: <Trans>Versioning Updated</Trans>,
+  description: <Trans>Versioning for container "{containerName}" was successfully updated.</Trans>,
+})
+
+export const getContainerVersioningUpdateErrorToast = (
+  containerName: string,
+  errorMessage: string
+): ContainerToast => ({
+  message: <Trans>Failed to Update Versioning</Trans>,
+  description: (
+    <Trans>
+      Could not update versioning for container "{containerName}": {errorMessage}
+    </Trans>
+  ),
+})
+
+export const getContainersEmptiedToast = (emptiedCount: number, totalDeleted: number): ContainerToast => ({
   message: <Trans>Containers Emptied</Trans>,
   description:
     totalDeleted === 0 ? (
@@ -117,7 +141,7 @@ export const getContainersEmptiedToast = (
     ),
 })
 
-export const getContainersEmptyErrorToast = (errorMessage: string): { message: ReactNode } & NotificationOptions => ({
+export const getContainersEmptyErrorToast = (errorMessage: string): ContainerToast => ({
   message: <Trans>Failed to Empty Containers</Trans>,
   description: (
     <span className="whitespace-pre-line">

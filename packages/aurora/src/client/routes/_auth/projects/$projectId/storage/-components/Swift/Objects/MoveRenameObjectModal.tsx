@@ -14,6 +14,7 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import { useParams } from "@tanstack/react-router"
 import { MdFolder, MdDescription, MdCreateNewFolder, MdArrowBack } from "react-icons/md"
+import { formatBytesBinary } from "@/client/utils/formatBytes"
 import { useVirtualizer } from "@tanstack/react-virtual"
 import { ObjectRow, buildRows, BrowserRow } from "./"
 import { ObjectSummary } from "@/server/Storage/types/swift"
@@ -314,9 +315,8 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
   // ── Virtualized folder browser ─────────────────────────────────────────────
   // Must be declared before the early return to satisfy Rules of Hooks.
   const folderRows = rows.filter((r) => r.kind === "folder")
-  // Files are kept in `rows` for folder-name duplicate detection but are not
-  // rendered in the destination picker — only folders are valid destinations.
-  const allBrowserRows = folderRows
+  const objectRows = rows.filter((r) => r.kind === "object")
+  const allBrowserRows = [...folderRows, ...objectRows]
 
   const rowVirtualizer = useVirtualizer({
     count: allBrowserRows.length,
@@ -329,81 +329,59 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
 
   const isPending = copyMutation.isPending || deleteMutation.isPending
   const isLoading = isLoadingObjects
+  const displayName = object.displayName
 
   // ── Read-only target path preview ──────────────────────────────────────────
-  const targetPathDisplay = `/${targetContainer}/${currentPrefix}${newObjectName.trim() || object.displayName}`
+  const targetPathDisplay = `${targetContainer}/${currentPrefix}${newObjectName.trim() || displayName}`
 
   // The initial prefix is the folder the source object lives in —
   // strip the displayName from the end of the full object name to get it.
-  const initialPrefix = object.name.endsWith(object.displayName)
-    ? object.name.slice(0, object.name.length - object.displayName.length)
+  const initialPrefix = object.name.endsWith(displayName)
+    ? object.name.slice(0, object.name.length - displayName.length)
     : ""
 
   // Disable submit when the destination is identical to the source —
   // same container, same folder prefix, and same object name means nothing would change.
   const isUnchanged =
-    targetContainer === sourceContainer &&
-    currentPrefix === initialPrefix &&
-    newObjectName.trim() === object.displayName
-
+    targetContainer === sourceContainer && currentPrefix === initialPrefix && newObjectName.trim() === displayName
   return (
     <Modal
-      title={
-        <span className="flex max-w-125 items-center gap-1">
-          <span className="shrink-0">
-            <Trans>Move/Rename Object:</Trans>
-          </span>
-          <span className="truncate" title={object.displayName}>
-            {object.displayName}
-          </span>
-        </span>
-      }
+      title={t`Move/Rename Object`}
       open={isOpen}
       onCancel={handleClose}
       confirmButtonLabel={isPending ? t`Moving...` : t`Move/Rename Object`}
       onConfirm={handleMove}
       cancelButtonLabel={t`Cancel`}
-      size="large"
-      disableConfirmButton={isPending || isLoadingContainers || isUnchanged}
+      size="xl"
+      disableConfirmButton={isPending || isLoadingContainers || isUnchanged || !!newObjectNameError}
       disableCancelButton={isPending || isLoadingContainers}
-      disableCloseButton={isPending || isLoadingContainers || isUnchanged}
     >
       {isPending ? (
         <Status status="progress" title={t`Moving Object...`} className="mt-0" />
       ) : (
-        <Stack direction="vertical" gap="4">
-          {(copyMutation.isError || deleteMutation.isError) &&
-            (() => {
-              const copyErrorMessage = copyMutation.error?.message ?? ""
-              const deleteErrorMessage = deleteMutation.error?.message ?? ""
-              return (
-                <p className="text-theme-error">
-                  {copyMutation.isError ? (
-                    <Trans>Failed to move object: {copyErrorMessage}</Trans>
-                  ) : (
-                    <Trans>Object was copied but could not be deleted from the source: {deleteErrorMessage}</Trans>
-                  )}
-                </p>
-              )
-            })()}
+        <Stack direction="vertical" gap="6">
+          <p className="text-theme-default">
+            <Trans>
+              Moving <span className="font-semibold">{displayName}</span> — the object will be copied to the new
+              location and the original deleted. Use the fields below to change the name, container, or folder.
+            </Trans>
+          </p>
 
           {/* New object name */}
-          <div>
-            <p className="mb-1">
-              <Trans>Change the name, destination container, or folder to move this object.</Trans>
-            </p>
-            <TextInput
-              label={t`New object name`}
-              value={newObjectName}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                setNewObjectName(e.target.value)
-                if (newObjectNameError) setNewObjectNameError(null)
-              }}
-              invalid={!!newObjectNameError}
-              errortext={newObjectNameError ?? undefined}
-              required
-            />
-          </div>
+          <TextInput
+            label={t`New object name`}
+            value={newObjectName}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              const value = e.target.value
+              setNewObjectName(value)
+              if (newObjectNameError) validateObjectName(value)
+            }}
+            onBlur={(e: React.FocusEvent<HTMLInputElement>) => validateObjectName(e.target.value)}
+            invalid={!!newObjectNameError}
+            errortext={newObjectNameError ?? undefined}
+            helptext={t`No slashes or leading/trailing spaces allowed.`}
+            required
+          />
 
           {/* Target container */}
           <ComboBox
@@ -436,7 +414,7 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
           <div>
             <div className="mb-1 flex items-center justify-between">
               <span className="text-sm font-medium">
-                <Trans>Select destination folder</Trans>
+                <Trans>Select destination folder within target container</Trans>
               </span>
               <Button
                 size="small"
@@ -560,7 +538,7 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
                       </Button>
                       <Button
                         size="small"
-                        variant="primary"
+                        variant="default"
                         onClick={handleCreateFolder}
                         disabled={!newFolderName.trim()}
                       >
@@ -573,12 +551,25 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
             </div>
           </div>
 
-          {/* Read-only target path preview */}
-          <div>
-            <p className="mb-1">
-              <Trans>The object will be moved to this path. Navigate folders above to change the destination.</Trans>
-            </p>
-            <p className="text-sm">{targetPathDisplay}</p>
+          {/* Source + Target info box */}
+          <div className="bg-theme-background-lvl-2 rounded p-3">
+            <Stack direction="vertical" gap="2">
+              <div>
+                <div className="text-theme-light mb-1 text-sm">
+                  <Trans>Source</Trans>
+                </div>
+                <div className="text-sm break-all">{`${sourceContainer}/${object.name}`}</div>
+                {object.bytes != null && (
+                  <div className="text-theme-light mt-1 text-xs">{formatBytesBinary(object.bytes)}</div>
+                )}
+              </div>
+              <div>
+                <div className="text-theme-light mb-1 text-sm">
+                  <Trans>Target path</Trans>
+                </div>
+                <div className="text-sm break-all">{targetPathDisplay}</div>
+              </div>
+            </Stack>
           </div>
         </Stack>
       )}

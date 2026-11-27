@@ -2,7 +2,7 @@ import { useState, useRef } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
-import { Modal, TextInput, Stack, Message } from "@cloudoperators/juno-ui-components"
+import { Modal, TextInput, Form, FormSection, Status } from "@cloudoperators/juno-ui-components"
 import { useParams } from "@tanstack/react-router"
 import { BrowserRow } from "./"
 
@@ -11,6 +11,7 @@ interface CreateFolderModalProps {
   currentPrefix: string
   onClose: () => void
   onSuccess?: (folderName: string) => void
+  onError?: (folderName: string, errorMessage: string) => void
   existingRows?: BrowserRow[]
 }
 
@@ -19,6 +20,7 @@ export const CreateFolderModal = ({
   currentPrefix,
   onClose,
   onSuccess,
+  onError,
   existingRows = [],
 }: CreateFolderModalProps) => {
   const { t } = useLingui()
@@ -29,7 +31,6 @@ export const CreateFolderModal = ({
 
   const [folderName, setFolderName] = useState("")
   const [nameError, setNameError] = useState<string | null>(null)
-  const [submitError, setSubmitError] = useState<string | null>(null)
 
   const utils = trpcReact.useUtils()
 
@@ -46,9 +47,9 @@ export const CreateFolderModal = ({
     onError: (error) => {
       if (error.data?.code === "CONFLICT") {
         setNameError(t`A folder with this name already exists`)
-        setSubmitError(null)
       } else {
-        setSubmitError(error.message || t`The folder could not be created. Try again.`)
+        onError?.(submittedNameRef.current, error.message)
+        handleClose()
       }
     },
   })
@@ -56,7 +57,6 @@ export const CreateFolderModal = ({
   const handleClose = () => {
     setFolderName("")
     setNameError(null)
-    setSubmitError(null)
     createFolderMutation.reset()
     onClose()
   }
@@ -89,13 +89,15 @@ export const CreateFolderModal = ({
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     setFolderName(value)
-    setSubmitError(null)
     if (nameError) validateName(value)
+  }
+
+  const handleNameBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    validateName(e.target.value)
   }
 
   const handleSubmit = () => {
     if (!validateName(folderName)) return
-    setSubmitError(null)
     submittedNameRef.current = folderName.trim()
     const folderPath = `${currentPrefix}${submittedNameRef.current}/`
     createFolderMutation.mutate({ project_id: projectId, container: containerName, folderPath })
@@ -110,60 +112,58 @@ export const CreateFolderModal = ({
 
   if (!isOpen) return null
 
+  const isPending = createFolderMutation.isPending
+
   return (
     <Modal
-      title={
-        <span className="flex max-w-100 items-center gap-1">
-          <span className="shrink-0">
-            <Trans>Create folder below:</Trans>
-          </span>
-          <span className="truncate" title={parentPath}>
-            {parentPath}
-          </span>
-        </span>
-      }
+      title={t`Create Folder`}
       open={isOpen}
       onCancel={handleClose}
       confirmButtonLabel={t`Create Folder`}
       onConfirm={handleSubmit}
       cancelButtonLabel={t`Cancel`}
       size="small"
-      disableConfirmButton={createFolderMutation.isPending || !folderName.trim()}
-      disableCancelButton={createFolderMutation.isPending}
-      disableCloseButton={createFolderMutation.isPending}
+      disableConfirmButton={isPending || !folderName.trim() || !!nameError}
+      disableCancelButton={isPending}
+      disableCloseButton={isPending}
     >
-      <Stack direction="vertical" gap="6">
-        {submitError && (
-          <Message
-            variant="error"
-            dismissible
-            onDismiss={() => setSubmitError(null)}
-            role="alert"
-            aria-live="assertive"
-            data-testid="create-folder-error"
-          >
-            {submitError}
-          </Message>
-        )}
-        <p className="text-theme-default">
-          <Trans>
-            Folders in object storage are virtual — they are created as zero-byte placeholder objects with a trailing
-            slash. The folder will appear once created.
-          </Trans>
-        </p>
-        <TextInput
-          label={t`Folder name`}
-          required
-          value={folderName}
-          onChange={handleNameChange}
-          onKeyDown={handleKeyDown}
-          invalid={!!nameError}
-          errortext={nameError || undefined}
-          disabled={createFolderMutation.isPending}
-          autoFocus
-          placeholder={t`folder-name`}
-        />
-      </Stack>
+      {isPending && <Status status="progress" title={t`Creating Folder...`} className="mt-0" />}
+
+      {!isPending && (
+        <Form
+          className="mb-0"
+          onSubmit={(e: React.FormEvent) => {
+            e.preventDefault()
+            handleSubmit()
+          }}
+        >
+          <FormSection>
+            <p className="text-theme-default mb-6">
+              <Trans>Location:</Trans> <span className="font-semibold">{parentPath}</span>
+            </p>
+            <p className="text-theme-default mb-6">
+              <Trans>
+                Folders in object storage are virtual — they are created as zero-byte placeholder objects with a
+                trailing slash. The folder will appear once created.
+              </Trans>
+            </p>
+            <TextInput
+              label={t`Folder name`}
+              required
+              value={folderName}
+              onChange={handleNameChange}
+              onBlur={handleNameBlur}
+              onKeyDown={handleKeyDown}
+              invalid={!!nameError}
+              errortext={nameError || undefined}
+              helptext={t`No slashes or leading/trailing spaces allowed.`}
+              disabled={isPending}
+              autoFocus
+              placeholder={t`folder-name`}
+            />
+          </FormSection>
+        </Form>
+      )}
     </Modal>
   )
 }

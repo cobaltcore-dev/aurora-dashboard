@@ -214,7 +214,8 @@ describe("CopyObjectModal", () => {
 
     test("target path shows root path with object name by default", () => {
       renderModal({ object: makeObject("report.pdf", "report.pdf") })
-      expect(screen.getByText("/source-container/report.pdf")).toBeInTheDocument()
+      const targetPath = screen.getAllByText("source-container/report.pdf")[1]
+      expect(targetPath).toBeInTheDocument()
     })
 
     test("Copy metadata checkbox is checked by default", () => {
@@ -291,10 +292,9 @@ describe("CopyObjectModal", () => {
       expect(screen.getByText("docs")).toBeInTheDocument()
     })
 
-    test("does not show files in the destination picker", () => {
+    test("shows files as non-interactive rows in the destination picker", () => {
       renderModal()
-      // Files are not valid destinations — only folders are rendered
-      expect(screen.queryByText("readme.txt")).not.toBeInTheDocument()
+      expect(screen.getByText("readme.txt")).toBeInTheDocument()
     })
 
     test("navigates into a folder when clicked", async () => {
@@ -309,7 +309,7 @@ describe("CopyObjectModal", () => {
       const user = userEvent.setup()
       renderModal({ object: makeObject("report.pdf", "report.pdf") })
       await user.click(screen.getByText("docs"))
-      expect(screen.getByText("/source-container/docs/report.pdf")).toBeInTheDocument()
+      expect(screen.getByText("source-container/docs/report.pdf")).toBeInTheDocument()
     })
 
     test("navigates back to root when Back is clicked", async () => {
@@ -500,7 +500,7 @@ describe("CopyObjectModal", () => {
       expect(onError).toHaveBeenCalledWith("report.pdf", "Forbidden")
     })
 
-    test("does not call onClose after failed copy", async () => {
+    test("closes the modal after a failed copy so the error surfaces via toast", async () => {
       trpcState.copyIsError = true
       trpcState.copyError = { message: "Forbidden" }
       const user = userEvent.setup()
@@ -508,7 +508,7 @@ describe("CopyObjectModal", () => {
       renderModal({ onClose })
       await user.click(screen.getByText("docs"))
       await user.click(screen.getByRole("button", { name: /^Copy Object$/i }))
-      expect(onClose).not.toHaveBeenCalled()
+      expect(onClose).toHaveBeenCalled()
     })
 
     test("includes current prefix in destination when navigated into folder", async () => {

@@ -889,7 +889,7 @@ describe("SwiftContainers (List)", () => {
       })
     })
 
-    test("shows error toast when updating container properties fails", async () => {
+    test("shows error toast when container properties update fails", async () => {
       const user = userEvent.setup()
       renderList()
       await openMenu(user, "alpha")
@@ -900,7 +900,7 @@ describe("SwiftContainers (List)", () => {
         expect(toast.error).toHaveBeenCalledWith(
           expect.anything(),
           expect.objectContaining({
-            description: expect.stringContaining('Could not update container "alpha": Update failed'),
+            description: expect.stringContaining('Could not update container "alpha"'),
           })
         )
       })

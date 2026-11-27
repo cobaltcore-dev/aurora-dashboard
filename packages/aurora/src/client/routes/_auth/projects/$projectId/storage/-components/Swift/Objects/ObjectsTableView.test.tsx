@@ -165,6 +165,16 @@ vi.mock("./EditObjectMetadataModal", () => ({
   ),
 }))
 
+vi.mock("./ScheduleObjectDeletionModal", () => ({
+  ScheduleObjectDeletionModal: vi.fn(({ isOpen, onClose, object }) =>
+    isOpen ? (
+      <div data-testid="schedule-deletion-modal" data-object={object?.name}>
+        <button onClick={onClose}>Cancel</button>
+      </div>
+    ) : null
+  ),
+}))
+
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
 
 const makeFolder = (name: string): BrowserRow => ({
@@ -224,6 +234,8 @@ const renderView = ({
   account = undefined as string | undefined,
   onEditMetadataSuccess = vi.fn(),
   onEditMetadataError = vi.fn(),
+  onScheduleDeletionSuccess = vi.fn(),
+  onScheduleDeletionError = vi.fn(),
   selectedObjects = [] as string[],
   setSelectedObjects = vi.fn(),
   hasAnyBulkAction = true,
@@ -245,6 +257,8 @@ const renderView = ({
   onTempUrlCopySuccess?: (objectName: string) => void
   onEditMetadataSuccess?: (objectName: string) => void
   onEditMetadataError?: (objectName: string, errorMessage: string) => void
+  onScheduleDeletionSuccess?: (objectName: string) => void
+  onScheduleDeletionError?: (objectName: string, errorMessage: string) => void
   selectedObjects?: string[]
   setSelectedObjects?: (objects: string[]) => void
   hasAnyBulkAction?: boolean
@@ -270,6 +284,8 @@ const renderView = ({
           onTempUrlCopySuccess={onTempUrlCopySuccess}
           onEditMetadataSuccess={onEditMetadataSuccess}
           onEditMetadataError={onEditMetadataError}
+          onScheduleDeletionSuccess={onScheduleDeletionSuccess}
+          onScheduleDeletionError={onScheduleDeletionError}
           selectedObjects={selectedObjects}
           setSelectedObjects={setSelectedObjects}
           hasAnyBulkAction={hasAnyBulkAction}
@@ -368,13 +384,13 @@ describe("ObjectsTableView", () => {
     test("renders — for last modified on folder rows", () => {
       renderView({ rows: [makeFolder("docs")] })
       const row = screen.getByTestId("object-row-docs/")
-      expect(row).toHaveTextContent("—")
+      expect(row).toHaveTextContent("- -")
     })
 
     test("renders — for size on folder rows", () => {
       renderView({ rows: [makeFolder("docs")] })
       const row = screen.getByTestId("object-row-docs/")
-      expect(row.textContent?.match(/—/g)?.length).toBeGreaterThanOrEqual(2)
+      expect(row.textContent?.match(/- -/g)?.length).toBeGreaterThanOrEqual(2)
     })
 
     test("renders formatted size for object rows", () => {
@@ -385,7 +401,7 @@ describe("ObjectsTableView", () => {
     test("renders — for missing last_modified on objects", () => {
       renderView({ rows: [makeObject("file.txt", { last_modified: undefined })] })
       const row = screen.getByTestId("object-row-file.txt")
-      expect(row).toHaveTextContent("—")
+      expect(row).toHaveTextContent("- -")
     })
   })
 

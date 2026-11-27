@@ -103,12 +103,12 @@ describe("UploadObjectModal", () => {
   describe("Visibility", () => {
     test("does not render when isOpen is false", () => {
       renderModal({ isOpen: false })
-      expect(screen.queryByText(/Upload object to:/i)).not.toBeInTheDocument()
+      expect(screen.queryByText(/Upload Object/i)).not.toBeInTheDocument()
     })
 
     test("renders when isOpen is true", () => {
       renderModal()
-      expect(screen.getByText(/Upload object to:/i)).toBeInTheDocument()
+      expect(screen.getByText(/Upload Object/i)).toBeInTheDocument()
     })
 
     test("shows root prefix '/' in title when currentPrefix is empty", () => {
@@ -311,15 +311,16 @@ describe("UploadObjectModal", () => {
   // ── Error handling ────────────────────────────────────────────────────────
 
   describe("Error handling", () => {
-    test("shows error message when upload fails", async () => {
+    test("closes the modal when upload fails so the error surfaces via toast", async () => {
       mutationError = "Quota exceeded"
+      const onClose = vi.fn()
       const user = userEvent.setup()
-      renderModal()
+      renderModal({ onClose })
       const fileInput = document.querySelector("input[type=file]") as HTMLInputElement
       await user.upload(fileInput, makeFile())
       await user.click(screen.getByRole("button", { name: /^Upload$/i }))
       await waitFor(() => {
-        expect(screen.getByText(/Quota exceeded/i)).toBeInTheDocument()
+        expect(onClose).toHaveBeenCalled()
       })
     })
 

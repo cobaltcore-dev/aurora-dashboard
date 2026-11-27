@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach } from "vitest"
-import { render, screen, waitFor, act } from "@testing-library/react"
+import { render, screen, waitFor, act, fireEvent } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
@@ -171,10 +171,10 @@ describe("EditContainerMetadataModal", () => {
 
   test("renders nothing when closed or container is null", () => {
     renderModal({ isOpen: false })
-    expect(screen.queryByText(/Container:/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/Edit\/Preview Container Metadata/i)).not.toBeInTheDocument()
 
     renderModal({ isOpen: true, container: null })
-    expect(screen.queryByText(/Container:/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/Edit\/Preview Container Metadata/i)).not.toBeInTheDocument()
   })
 
   test("renders modal with container name when open", () => {
@@ -203,10 +203,9 @@ describe("EditContainerMetadataModal", () => {
     const user = userEvent.setup()
     renderModal()
     await user.click(screen.getByRole("button", { name: /Add Property/i }))
-    await user.click(getIconButton(/Save/i))
-    await waitFor(() => {
-      expect(screen.getByText(/Key is required/i)).toBeInTheDocument()
-    })
+    // Save is disabled while key is empty — matches images modal pattern
+    const saveBtn = screen.getAllByRole("button").find((btn) => /Save/i.test(btn.getAttribute("title") ?? ""))!
+    expect(saveBtn).toBeDisabled()
   })
 
   test("validates metadata key contains only valid characters", async () => {
@@ -328,17 +327,19 @@ describe("EditContainerMetadataModal", () => {
     })
   })
 
-  test("shows error message on mutation failure", async () => {
+  test("reports mutation failure via onError and closes the modal", async () => {
     mutationError = "Forbidden"
     mockContainerInfo = makeContainerInfo({ metadata: { k: "v" } })
+    const onError = vi.fn()
+    const onClose = vi.fn()
     const user = userEvent.setup()
-    renderModal()
+    renderModal({ onError, onClose })
     await user.click(getIconButton(/Delete/i))
     await user.click(getModalSaveButton())
     await waitFor(() => {
-      expect(screen.getByText(/Failed to update container/i)).toBeInTheDocument()
+      expect(onError).toHaveBeenCalledWith("my-container", "Forbidden")
     })
-    expect(screen.getByText(/Forbidden/)).toBeInTheDocument()
+    expect(onClose).toHaveBeenCalled()
   })
 
   // ── Modal lifecycle ─────────────────────────────────────────────────────────
@@ -349,5 +350,70 @@ describe("EditContainerMetadataModal", () => {
     renderModal({ onClose })
     await user.click(screen.getByRole("button", { name: /Cancel/i }))
     expect(onClose).toHaveBeenCalled()
+  })
+
+  // ── Quota validation ────────────────────────────────────────────────────────
+
+  describe("Quota validation", () => {
+    test("shows error on blur when object count quota is not a whole number", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      const countInput = screen.getByLabelText(/Object count quota/i)
+      await user.type(countInput, "1.5")
+      fireEvent.blur(countInput)
+      await waitFor(() => {
+        expect(screen.getByText(/Must be a whole number, 0 or greater/i)).toBeInTheDocument()
+      })
+    })
+
+    test("shows error on blur when total size quota is not a whole number", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      const bytesInput = screen.getByLabelText(/Total size quota/i)
+      await user.type(bytesInput, "-5")
+      fireEvent.blur(bytesInput)
+      await waitFor(() => {
+        expect(screen.getByText(/Must be a whole number, 0 or greater/i)).toBeInTheDocument()
+      })
+    })
+
+    test("blurring one quota field does not show an error on the other field", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      const countInput = screen.getByLabelText(/Object count quota/i)
+      await user.type(countInput, "abc")
+      fireEvent.blur(countInput)
+      await waitFor(() => {
+        expect(screen.getAllByText(/Must be a whole number, 0 or greater/i)).toHaveLength(1)
+      })
+    })
+
+    test("Save button is disabled while a quota error is active", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      const countInput = screen.getByLabelText(/Object count quota/i)
+      await user.type(countInput, "bad")
+      fireEvent.blur(countInput)
+      await waitFor(() => {
+        expect(screen.getByText(/Must be a whole number, 0 or greater/i)).toBeInTheDocument()
+      })
+      expect(getModalSaveButton()).toBeDisabled()
+    })
+
+    test("clears error when quota field is corrected", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      const countInput = screen.getByLabelText(/Object count quota/i)
+      await user.type(countInput, "bad")
+      fireEvent.blur(countInput)
+      await waitFor(() => {
+        expect(screen.getByText(/Must be a whole number, 0 or greater/i)).toBeInTheDocument()
+      })
+      await user.clear(countInput)
+      await user.type(countInput, "100")
+      await waitFor(() => {
+        expect(screen.queryByText(/Must be a whole number, 0 or greater/i)).not.toBeInTheDocument()
+      })
+    })
   })
 })

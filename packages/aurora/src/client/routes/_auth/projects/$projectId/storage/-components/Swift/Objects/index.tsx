@@ -31,6 +31,7 @@ import { DeleteObjectsModal } from "./DeleteObjectsModal"
 import {
   getContainerAccessErrorToast,
   getFolderCreatedToast,
+  getFolderCreateErrorToast,
   getFolderDeletedToast,
   getFolderDeleteErrorToast,
   getObjectDownloadErrorToast,
@@ -48,6 +49,8 @@ import {
   getObjectUploadErrorToast,
   getObjectsBulkDeletedToast,
   getObjectsBulkDeleteErrorToast,
+  getObjectDeletionScheduledToast,
+  getObjectDeletionScheduleErrorToast,
 } from "./ObjectToastNotifications"
 import { encodePrefix, decodePrefix } from "../../utils/prefixEncoding"
 
@@ -233,12 +236,27 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
     const { message, ...options } = getTempUrlCopiedToast(objectName)
     toast.success(message, options)
   }
+  const handleCreateFolderError = (folderName: string, errorMessage: string) => {
+    const { message, ...options } = getFolderCreateErrorToast(folderName, errorMessage)
+    toast.error(message, options)
+  }
   const handleEditMetadataSuccess = (objectName: string) => {
     const { message, ...options } = getObjectMetadataUpdatedToast(objectName)
     toast.success(message, options)
   }
+
   const handleEditMetadataError = (objectName: string, errorMessage: string) => {
     const { message, ...options } = getObjectMetadataUpdateErrorToast(objectName, errorMessage)
+    toast.error(message, options)
+  }
+
+  const handleScheduleDeletionSuccess = (objectName: string) => {
+    const { message, ...options } = getObjectDeletionScheduledToast(objectName)
+    toast.success(message, options)
+  }
+
+  const handleScheduleDeletionError = (objectName: string, errorMessage: string) => {
+    const { message, ...options } = getObjectDeletionScheduleErrorToast(objectName, errorMessage)
     toast.error(message, options)
   }
 
@@ -460,7 +478,7 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
           <Stack direction="vertical" gap="2">
             <Stack distribution="end" alignment="center">
               <SearchInput
-                placeholder={t`Search objects...`}
+                placeholder={t`Search...`}
                 data-testid="searchbar"
                 value={localSearchTerm}
                 onInput={(e: React.FormEvent<HTMLInputElement>) => {
@@ -560,6 +578,8 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
         onTempUrlCopySuccess={handleTempUrlCopySuccess}
         onEditMetadataSuccess={handleEditMetadataSuccess}
         onEditMetadataError={handleEditMetadataError}
+        onScheduleDeletionSuccess={handleScheduleDeletionSuccess}
+        onScheduleDeletionError={handleScheduleDeletionError}
         selectedObjects={selectedObjects}
         setSelectedObjects={setSelectedObjects}
         hasAnyBulkAction={hasAnyBulkAction}
@@ -580,6 +600,7 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
         currentPrefix={currentPrefix}
         onClose={() => setCreateFolderModalOpen(false)}
         onSuccess={handleCreateFolderSuccess}
+        onError={handleCreateFolderError}
         existingRows={allRows}
       />
 

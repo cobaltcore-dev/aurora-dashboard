@@ -351,9 +351,6 @@ msgstr "Accepted Images"
 msgid "Access Added"
 msgstr "Access Added"
 
-msgid "Access Control for Container:"
-msgstr "Access Control for Container:"
-
 msgid "Access Control Updated"
 msgstr "Access Control Updated"
 
@@ -533,6 +530,9 @@ msgstr "All containers"
 
 msgid "All Images"
 msgstr "All Images"
+
+msgid "All objects in <0>{containerName}</0> will be permanently deleted and this cannot be undone."
+msgstr "All objects in <0>{containerName}</0> will be permanently deleted and this cannot be undone."
 
 msgid "All objects in the selected containers will be permanently deleted. This cannot be undone."
 msgstr "All objects in the selected containers will be permanently deleted. This cannot be undone."
@@ -858,9 +858,6 @@ msgstr "certificate — Used for storing cryptographic certificates such as X.50
 msgid "Certificate is required for certificate containers"
 msgstr "Certificate is required for certificate containers"
 
-msgid "Change the name, destination container, or folder to move this object."
-msgstr "Change the name, destination container, or folder to move this object."
-
 msgid "Change your search or filters to see more results."
 msgstr "Change your search or filters to see more results."
 
@@ -902,6 +899,12 @@ msgstr "Compute & State"
 
 msgid "Configuration Unavailable"
 msgstr "Configuration Unavailable"
+
+msgid "Configure Static Website"
+msgstr "Configure Static Website"
+
+msgid "Configure Versioning"
+msgstr "Configure Versioning"
 
 msgid "Confirm deletion of {displayName}. All objects inside this folder will be marked as deleted but can be restored from version history."
 msgstr "Confirm deletion of {displayName}. All objects inside this folder will be marked as deleted but can be restored from version history."
@@ -947,6 +950,12 @@ msgstr "Container \"{name}\" was successfully created."
 
 msgid "Container \"{name}\" was successfully deleted."
 msgstr "Container \"{name}\" was successfully deleted."
+
+msgid "Container <0>{containerName}</0> cannot be deleted as it contains objects. Empty the container first."
+msgstr "Container <0>{containerName}</0> cannot be deleted as it contains objects. Empty the container first."
+
+msgid "Container <0>{containerName}</0> will be deleted. This action is permanent and cannot be undone."
+msgstr "Container <0>{containerName}</0> will be deleted. This action is permanent and cannot be undone."
 
 msgid "Container actions"
 msgstr "Container actions"
@@ -1002,8 +1011,8 @@ msgstr "Container syncing"
 msgid "Container Updated"
 msgstr "Container Updated"
 
-msgid "Container:"
-msgstr "Container:"
+msgid "Container: <0>{containerName}</0>"
+msgstr "Container: <0>{containerName}</0>"
 
 msgid "Containers"
 msgstr "Containers"
@@ -1041,11 +1050,11 @@ msgstr "Copy Object"
 msgid "Copy object:"
 msgstr "Copy object:"
 
-msgid "Copy Object:"
-msgstr "Copy Object:"
-
 msgid "Copy URL"
 msgstr "Copy URL"
+
+msgid "Copying <0>{displayName}</0> — a new copy will be created at the selected destination. The original remains in place."
+msgstr "Copying <0>{displayName}</0> — a new copy will be created at the selected destination. The original remains in place."
 
 msgid "Copying Object..."
 msgstr "Copying Object..."
@@ -1082,6 +1091,9 @@ msgstr "Could not copy \"{objectName}\": {errorMessage}"
 
 msgid "Could not create bucket \"{bucketName}\": {errorMessage}"
 msgstr "Could not create bucket \"{bucketName}\": {errorMessage}"
+
+msgid "Could not create container \"{containerName}\": {errorMessage}"
+msgstr "Could not create container \"{containerName}\": {errorMessage}"
 
 msgid "Could not create folder \"{folderName}\": {errorMessage}"
 msgstr "Could not create folder \"{folderName}\": {errorMessage}"
@@ -1146,6 +1158,9 @@ msgstr "Could not empty container \"{containerName}\": {errorMessage}"
 msgid "Could not enable versioning for bucket \"{bucketName}\": {errorMessage}"
 msgstr "Could not enable versioning for bucket \"{bucketName}\": {errorMessage}"
 
+msgid "Could not generate temporary URL for \"{objectName}\": {errorMessage}"
+msgstr "Could not generate temporary URL for \"{objectName}\": {errorMessage}"
+
 msgid "Could Not Load Access Keys"
 msgstr "Could Not Load Access Keys"
 
@@ -1188,6 +1203,15 @@ msgstr "Could not update ACLs for container \"{containerName}\": {errorMessage}"
 msgid "Could not update container \"{containerName}\": {errorMessage}"
 msgstr "Could not update container \"{containerName}\": {errorMessage}"
 
+msgid "Could not update deletion schedule for \"{objectName}\": {errorMessage}"
+msgstr "Could not update deletion schedule for \"{objectName}\": {errorMessage}"
+
+msgid "Could not update static website settings for container \"{containerName}\": {errorMessage}"
+msgstr "Could not update static website settings for container \"{containerName}\": {errorMessage}"
+
+msgid "Could not update versioning for container \"{containerName}\": {errorMessage}"
+msgstr "Could not update versioning for container \"{containerName}\": {errorMessage}"
+
 msgid "Could not upload \"{objectName}\": {errorMessage}"
 msgstr "Could not upload \"{objectName}\": {errorMessage}"
 
@@ -1224,9 +1248,6 @@ msgstr "Create Flavor"
 msgid "Create Folder"
 msgstr "Create Folder"
 
-msgid "Create folder below:"
-msgstr "Create folder below:"
-
 msgid "Create Image"
 msgstr "Create Image"
 
@@ -1260,8 +1281,14 @@ msgstr "Created"
 msgid "Created At"
 msgstr "Created At"
 
+msgid "Creating Container..."
+msgstr "Creating Container..."
+
 msgid "Creating Flavor..."
 msgstr "Creating Flavor..."
+
+msgid "Creating Folder..."
+msgstr "Creating Folder..."
 
 msgid "Creating Image..."
 msgstr "Creating Image..."
@@ -1286,6 +1313,12 @@ msgstr "Custom"
 
 msgid "Custom duration (minutes)"
 msgstr "Custom duration (minutes)"
+
+msgid "Custom metadata lets you attach arbitrary key-value pairs to this container. Each entry is stored as a Swift container header (<0>X-Container-Meta-*</0>) and returned with every request. Keys are case-insensitive. The following keys are reserved and managed through dedicated form fields: <1>web-index, web-listings, quota-count, quota-bytes</1>."
+msgstr "Custom metadata lets you attach arbitrary key-value pairs to this container. Each entry is stored as a Swift container header (<0>X-Container-Meta-*</0>) and returned with every request. Keys are case-insensitive. The following keys are reserved and managed through dedicated form fields: <1>web-index, web-listings, quota-count, quota-bytes</1>."
+
+msgid "Custom metadata lets you attach arbitrary key-value pairs to this object. Each entry is stored as a Swift object header (<0>X-Object-Meta-*</0>) and returned with every request. Keys are case-insensitive."
+msgstr "Custom metadata lets you attach arbitrary key-value pairs to this object. Each entry is stored as a Swift object header (<0>X-Object-Meta-*</0>) and returned with every request. Keys are case-insensitive."
 
 msgid "Date:"
 msgstr "Date:"
@@ -1356,9 +1389,6 @@ msgstr "Delete Bucket Policy"
 msgid "Delete Container"
 msgstr "Delete Container"
 
-msgid "Delete container:"
-msgstr "Delete container:"
-
 msgid "Delete CORS Rule"
 msgstr "Delete CORS Rule"
 
@@ -1376,9 +1406,6 @@ msgstr "Delete Folder"
 
 msgid "Delete Folder \"{displayName}\""
 msgstr "Delete Folder \"{displayName}\""
-
-msgid "Delete folder:"
-msgstr "Delete folder:"
 
 msgid "Delete Group"
 msgstr "Delete Group"
@@ -1403,9 +1430,6 @@ msgstr "Delete Marker"
 
 msgid "Delete Object"
 msgstr "Delete Object"
-
-msgid "Delete object:"
-msgstr "Delete object:"
 
 msgid "Delete Objects"
 msgstr "Delete Objects"
@@ -1461,6 +1485,12 @@ msgstr "Deleting the policy will remove all access restrictions defined by it. T
 msgid "Deleting..."
 msgstr "Deleting..."
 
+msgid "Deletion schedule for \"{objectName}\" was successfully updated."
+msgstr "Deletion schedule for \"{objectName}\" was successfully updated."
+
+msgid "Deletion Scheduled"
+msgstr "Deletion Scheduled"
+
 msgid "Denied referrer: {host}"
 msgstr "Denied referrer: {host}"
 
@@ -1478,6 +1508,9 @@ msgstr "Description must be at most 255 characters."
 
 msgid "Description must be less than 65535 characters."
 msgstr "Description must be less than 65535 characters."
+
+msgid "Destination:"
+msgstr "Destination:"
 
 msgid "Detach"
 msgstr "Detach"
@@ -1590,6 +1623,12 @@ msgstr "Drop your image file here"
 msgid "e.g. .r:*,.rlistings"
 msgstr "e.g. .r:*,.rlistings"
 
+msgid "e.g. 1000"
+msgstr "e.g. 1000"
+
+msgid "e.g. 10737418240"
+msgstr "e.g. 10737418240"
+
 msgid "e.g. 3600 (1 hour) or 604800 (7 days)"
 msgstr "e.g. 3600 (1 hour) or 604800 (7 days)"
 
@@ -1610,6 +1649,9 @@ msgstr "e.g. Etag, Content-Length"
 
 msgid "e.g. https://example.com or *"
 msgstr "e.g. https://example.com or *"
+
+msgid "e.g. my-container"
+msgstr "e.g. my-container"
 
 msgid "e.g. my-lifecycle-rule"
 msgstr "e.g. my-lifecycle-rule"
@@ -1653,6 +1695,15 @@ msgstr "Edit Policy"
 msgid "Edit Security Group"
 msgstr "Edit Security Group"
 
+msgid "Edit/Preview Container Metadata"
+msgstr "Edit/Preview Container Metadata"
+
+msgid "Edit/Preview Metadata"
+msgstr "Edit/Preview Metadata"
+
+msgid "Edit/Preview Object Metadata"
+msgstr "Edit/Preview Object Metadata"
+
 msgid "Edit/View Bucket Policy"
 msgstr "Edit/View Bucket Policy"
 
@@ -1679,9 +1730,6 @@ msgstr "Empty Container"
 
 msgid "Empty the bucket"
 msgstr "Empty the bucket"
-
-msgid "Empty:"
-msgstr "Empty:"
 
 msgid "Emptying Bucket {progressCurrent} of {progressTotal}, Please Wait..."
 msgstr "Emptying Bucket {progressCurrent} of {progressTotal}, Please Wait..."
@@ -1740,9 +1788,6 @@ msgstr "Enter a name for the new folder."
 msgid "Enter a tag and press Enter or click Add"
 msgstr "Enter a tag and press Enter or click Add"
 
-msgid "Enter a timestamp like \"YYYY-MM-DD HH:mm:ss\" to schedule automatic deletion."
-msgstr "Enter a timestamp like \"YYYY-MM-DD HH:mm:ss\" to schedule automatic deletion."
-
 msgid "Enter a URL and press Enter. Use * to allow all origins."
 msgstr "Enter a URL and press Enter. Use * to allow all origins."
 
@@ -1757,9 +1802,6 @@ msgstr "Enter an optional description for the floating IP (max 255 characters)."
 
 msgid "Enter bucket policy JSON..."
 msgstr "Enter bucket policy JSON..."
-
-msgid "Enter container name"
-msgstr "Enter container name"
 
 msgid "Enter DNS name"
 msgstr "Enter DNS name"
@@ -1839,9 +1881,6 @@ msgstr "Ethertype"
 msgid "Existing versions remain accessible"
 msgstr "Existing versions remain accessible"
 
-msgid "Expected format: YYYY-MM-DD HH:mm:ss"
-msgstr "Expected format: YYYY-MM-DD HH:mm:ss"
-
 msgid "Expiration"
 msgstr "Expiration"
 
@@ -1857,8 +1896,8 @@ msgstr "Expire non-current versions"
 msgid "Expire objects"
 msgstr "Expire objects"
 
-msgid "Expires at (UTC)"
-msgstr "Expires at (UTC)"
+msgid "Expires at"
+msgstr "Expires at"
 
 msgid "Expires in"
 msgstr "Expires in"
@@ -1925,6 +1964,9 @@ msgstr "Failed to copy the temporary URL to the clipboard"
 
 msgid "Failed to Create Bucket"
 msgstr "Failed to Create Bucket"
+
+msgid "Failed to Create Container"
+msgstr "Failed to Create Container"
 
 msgid "Failed to create extra specs. Please try again."
 msgstr "Failed to create extra specs. Please try again."
@@ -2037,6 +2079,9 @@ msgstr "Failed to fetch flavors from server."
 msgid "Failed to generate pre-signed URL: {generalError}"
 msgstr "Failed to generate pre-signed URL: {generalError}"
 
+msgid "Failed to Generate Temporary URL"
+msgstr "Failed to Generate Temporary URL"
+
 msgid "Failed to generate temporary URL: {generalError}"
 msgstr "Failed to generate temporary URL: {generalError}"
 
@@ -2055,14 +2100,11 @@ msgstr "Failed to Load Container ACLs"
 msgid "Failed to Load Container Information"
 msgstr "Failed to Load Container Information"
 
-msgid "Failed to Load Container Objects: {errorMessage}"
-msgstr "Failed to Load Container Objects: {errorMessage}"
+msgid "Failed to Load Container Objects"
+msgstr "Failed to Load Container Objects"
 
 msgid "Failed to Load Container Properties"
 msgstr "Failed to Load Container Properties"
-
-msgid "Failed to Load Container Properties: {errorMessage}"
-msgstr "Failed to Load Container Properties: {errorMessage}"
 
 msgid "Failed to Load Containers"
 msgstr "Failed to Load Containers"
@@ -2205,6 +2247,9 @@ msgstr "Failed to Save Lifecycle Rule"
 msgid "Failed to Save Policy"
 msgstr "Failed to Save Policy"
 
+msgid "Failed to Schedule Deletion"
+msgstr "Failed to Schedule Deletion"
+
 msgid "Failed to Suspend Versioning"
 msgstr "Failed to Suspend Versioning"
 
@@ -2214,14 +2259,8 @@ msgstr "Failed to Update Access Control"
 msgid "Failed to update access status"
 msgstr "Failed to update access status"
 
-msgid "Failed to update ACLs: {errorMessage}"
-msgstr "Failed to update ACLs: {errorMessage}"
-
 msgid "Failed to Update Container"
 msgstr "Failed to Update Container"
-
-msgid "Failed to update container: {errorMessage}"
-msgstr "Failed to update container: {errorMessage}"
 
 msgid "Failed to Update Object"
 msgstr "Failed to Update Object"
@@ -2231,6 +2270,12 @@ msgstr "Failed to update object: {mutationErrorMessage}"
 
 msgid "Failed to update security group"
 msgstr "Failed to update security group"
+
+msgid "Failed to Update Static Website"
+msgstr "Failed to Update Static Website"
+
+msgid "Failed to Update Versioning"
+msgstr "Failed to Update Versioning"
 
 msgid "Failed to update visibility for \"{imageName}\": {errorMessage}"
 msgstr "Failed to update visibility for \"{imageName}\": {errorMessage}"
@@ -2426,6 +2471,9 @@ msgstr "General Information"
 
 msgid "General Instance Data"
 msgstr "General Instance Data"
+
+msgid "Generate Temporary URL"
+msgstr "Generate Temporary URL"
 
 msgid "Generate URL"
 msgstr "Generate URL"
@@ -2685,9 +2733,6 @@ msgstr "Last modified"
 msgid "Last Modified"
 msgstr "Last Modified"
 
-msgid "Last modified (UTC)"
-msgstr "Last modified (UTC)"
-
 msgid "Last update: {lastUpdated}"
 msgstr "Last update: {lastUpdated}"
 
@@ -2883,6 +2928,9 @@ msgstr "Loading..."
 msgid "Loading…"
 msgstr "Loading…"
 
+msgid "Location:"
+msgstr "Location:"
+
 msgid "MAC"
 msgstr "MAC"
 
@@ -2897,6 +2945,9 @@ msgstr "Manage Access - {flavorName}"
 
 msgid "Manage Access for Image - {imageName}"
 msgstr "Manage Access for Image - {imageName}"
+
+msgid "Manage Container Access"
+msgstr "Manage Container Access"
 
 msgid "Manage Credentials"
 msgstr "Manage Credentials"
@@ -2942,6 +2993,12 @@ msgstr "Max object name length"
 
 msgid "Max SLO segments"
 msgstr "Max SLO segments"
+
+msgid "Maximum number of objects. Leave empty for no limit."
+msgstr "Maximum number of objects. Leave empty for no limit."
+
+msgid "Maximum total storage in bytes (e.g. 10 GiB = 10737418240). Leave empty for no limit."
+msgstr "Maximum total storage in bytes (e.g. 10 GiB = 10737418240). Leave empty for no limit."
 
 msgid "MD5 checksum"
 msgstr "MD5 checksum"
@@ -3009,8 +3066,8 @@ msgstr "Move/Rename Object"
 msgid "Move/Rename object:"
 msgstr "Move/Rename object:"
 
-msgid "Move/Rename Object:"
-msgstr "Move/Rename Object:"
+msgid "Moving <0>{displayName}</0> — the object will be copied to the new location and the original deleted. Use the fields below to change the name, container, or folder."
+msgstr "Moving <0>{displayName}</0> — the object will be copied to the new location and the original deleted. Use the fields below to change the name, container, or folder."
 
 msgid "Moving Object..."
 msgstr "Moving Object..."
@@ -3159,9 +3216,6 @@ msgstr "No Internal Networks"
 msgid "No Lifecycle Rules Matching the Current Search Criteria."
 msgstr "No Lifecycle Rules Matching the Current Search Criteria."
 
-msgid "No limit"
-msgstr "No limit"
-
 msgid "No Metadata Properties Found"
 msgstr "No Metadata Properties Found"
 
@@ -3279,6 +3333,9 @@ msgstr "No segmentation data available."
 msgid "No services available for this project."
 msgstr "No services available for this project."
 
+msgid "No slashes or leading/trailing spaces allowed."
+msgstr "No slashes or leading/trailing spaces allowed."
+
 msgid "No Snapshots in This Project"
 msgstr "No Snapshots in This Project"
 
@@ -3326,9 +3383,6 @@ msgstr "Object \"{displayName}\" was permanently deleted."
 
 msgid "Object \"{objectName}\" was permanently deleted."
 msgstr "Object \"{objectName}\" was permanently deleted."
-
-msgid "Object <0>\"{displayName}\"</0> will be permanently deleted. This cannot be undone."
-msgstr "Object <0>\"{displayName}\"</0> will be permanently deleted. This cannot be undone."
 
 msgid "Object Copied"
 msgstr "Object Copied"
@@ -3381,9 +3435,6 @@ msgstr "Object Updated"
 msgid "Object Uploaded"
 msgstr "Object Uploaded"
 
-msgid "Object versioning"
-msgstr "Object versioning"
-
 msgid "Object was copied but could not be deleted from the source: {deleteErrorMessage}"
 msgstr "Object was copied but could not be deleted from the source: {deleteErrorMessage}"
 
@@ -3428,9 +3479,6 @@ msgstr "opaque — Used for backwards compatibility with previous versions of th
 
 msgid "Open {displayName}"
 msgstr "Open {displayName}"
-
-msgid "Open in new tab"
-msgstr "Open in new tab"
 
 msgid "optional"
 msgstr "optional"
@@ -3591,6 +3639,9 @@ msgstr "Port Security"
 msgid "Ports"
 msgstr "Ports"
 
+msgid "Positive whole number of minutes (e.g. 60 for 1 hour)."
+msgstr "Positive whole number of minutes (e.g. 60 for 1 hour)."
+
 msgid "Power State"
 msgstr "Power State"
 
@@ -3617,9 +3668,6 @@ msgstr "Preview {rowDisplayName}"
 
 msgid "Preview and download aren't available for older versions yet"
 msgstr "Preview and download aren't available for older versions yet"
-
-msgid "Preview and Edit metadata"
-msgstr "Preview and Edit metadata"
 
 msgid "Private"
 msgstr "Private"
@@ -3716,6 +3764,9 @@ msgstr "Public"
 
 msgid "public — Used for storing the public key of an asymmetric keypair"
 msgstr "public — Used for storing the public key of an asymmetric keypair"
+
+msgid "Public Access URL"
+msgstr "Public Access URL"
 
 msgid "Public Flavor"
 msgstr "Public Flavor"
@@ -3815,9 +3866,6 @@ msgstr "Remove RBAC Policy"
 
 msgid "Removing..."
 msgstr "Removing..."
-
-msgid "Reserved keys: web-index, web-listings, quota-count, quota-bytes"
-msgstr "Reserved keys: web-index, web-listings, quota-count, quota-bytes"
 
 msgid "Resource Not Accessible"
 msgstr "Resource Not Accessible"
@@ -3936,6 +3984,12 @@ msgstr "Saving Image Details..."
 msgid "Saving..."
 msgstr "Saving..."
 
+msgid "Schedule automatic deletion of this object by setting an expiry date and time."
+msgstr "Schedule automatic deletion of this object by setting an expiry date and time."
+
+msgid "Schedule Deletion"
+msgstr "Schedule Deletion"
+
 msgid "Scope"
 msgstr "Scope"
 
@@ -3947,9 +4001,6 @@ msgstr "Search by name"
 
 msgid "Search by name or ID"
 msgstr "Search by name or ID"
-
-msgid "Search containers..."
-msgstr "Search containers..."
 
 msgid "Search CORS rules..."
 msgstr "Search CORS rules..."
@@ -4101,11 +4152,11 @@ msgstr "Select an external network"
 msgid "Select at least one lifecycle action"
 msgstr "Select at least one lifecycle action"
 
-msgid "Select destination folder"
-msgstr "Select destination folder"
-
 msgid "Select destination folder within target bucket"
 msgstr "Select destination folder within target bucket"
+
+msgid "Select destination folder within target container"
+msgstr "Select destination folder within target container"
 
 msgid "Select disk format first"
 msgstr "Select disk format first"
@@ -4124,6 +4175,9 @@ msgstr "Select..."
 
 msgid "Serve objects as index when file name is:"
 msgstr "Serve objects as index when file name is:"
+
+msgid "Serve objects in container <0>{containerName}</0> as a static website."
+msgstr "Serve objects in container <0>{containerName}</0> as a static website."
 
 msgid "Server error occurred while adding tenant access. Please try again later."
 msgstr "Server error occurred while adding tenant access. Please try again later."
@@ -4374,8 +4428,11 @@ msgstr "Stateful groups track connections, so return traffic is allowed automati
 msgid "Static large object support"
 msgstr "Static large object support"
 
-msgid "Static website serving"
-msgstr "Static website serving"
+msgid "Static website settings for container \"{containerName}\" were successfully updated."
+msgstr "Static website settings for container \"{containerName}\" were successfully updated."
+
+msgid "Static Website Updated"
+msgstr "Static Website Updated"
 
 msgid "Status"
 msgstr "Status"
@@ -4398,11 +4455,11 @@ msgstr "Store old object versions"
 msgid "Store old object versions in container:"
 msgstr "Store old object versions in container:"
 
+msgid "Store previous versions of objects in container <0>{containerName}</0> when they are overwritten or deleted."
+msgstr "Store previous versions of objects in container <0>{containerName}</0> when they are overwritten or deleted."
+
 msgid "Stored as x-amz-meta-* headers. Keys are case-insensitive."
 msgstr "Stored as x-amz-meta-* headers. Keys are case-insensitive."
-
-msgid "Stored as X-Object-Meta-* headers. Keys are case-insensitive."
-msgstr "Stored as X-Object-Meta-* headers. Keys are case-insensitive."
 
 msgid "Sub Status"
 msgstr "Sub Status"
@@ -4512,20 +4569,11 @@ msgstr "The compute service is currently unavailable for this project. Please tr
 msgid "The container \"{containerName}\" will be permanently deleted. This action cannot be undone."
 msgstr "The container \"{containerName}\" will be permanently deleted. This action cannot be undone."
 
-msgid "The container cannot be deleted as it contains objects. Empty the container first."
-msgstr "The container cannot be deleted as it contains objects. Empty the container first."
-
-msgid "The container could not be created. Try again or choose a different name."
-msgstr "The container could not be created. Try again or choose a different name."
-
 msgid "The container metadata reports objects but none were listed. This may be a temporary synchronization delay — please wait a moment and try again."
 msgstr "The container metadata reports objects but none were listed. This may be a temporary synchronization delay — please wait a moment and try again."
 
 msgid "The container was successfully created."
 msgstr "The container was successfully created."
-
-msgid "The container will be deleted. This action is permanent and cannot be undone."
-msgstr "The container will be deleted. This action is permanent and cannot be undone."
 
 msgid "The container's settings could not be applied."
 msgstr "The container's settings could not be applied."
@@ -4602,11 +4650,8 @@ msgstr "The network could not be loaded."
 msgid "The network could not be loaded. Try again."
 msgstr "The network could not be loaded. Try again."
 
-msgid "The object will be copied to this path. Navigate folders above to change the destination."
-msgstr "The object will be copied to this path. Navigate folders above to change the destination."
-
-msgid "The object will be moved to this path. Navigate folders above to change the destination."
-msgstr "The object will be moved to this path. Navigate folders above to change the destination."
+msgid "The object will be permanently deleted. This action cannot be undone."
+msgstr "The object will be permanently deleted. This action cannot be undone."
 
 msgid "The order \"{orderName}\" will be permanently deleted. This action cannot be undone."
 msgstr "The order \"{orderName}\" will be permanently deleted. This action cannot be undone."
@@ -4793,9 +4838,6 @@ msgstr "This action cannot be undone. The target project will lose access to thi
 
 msgid "This action is irreversible. Deleting a bucket permanently removes it and cannot be undone. The bucket must be empty before deletion."
 msgstr "This action is irreversible. Deleting a bucket permanently removes it and cannot be undone. The bucket must be empty before deletion."
-
-msgid "This action is permanent. All objects in the container will be deleted and this cannot be undone."
-msgstr "This action is permanent. All objects in the container will be deleted and this cannot be undone."
 
 msgid "This action is permanent. The address will be removed from your project and returned to the public pool. This action cannot be undone."
 msgstr "This action is permanent. The address will be removed from your project and returned to the public pool. This action cannot be undone."
@@ -5076,6 +5118,9 @@ msgstr "Up"
 msgid "UP"
 msgstr "UP"
 
+msgid "Up to {maxContainerNameLength} characters. Slashes are not allowed."
+msgstr "Up to {maxContainerNameLength} characters. Slashes are not allowed."
+
 msgid "Update"
 msgstr "Update"
 
@@ -5132,9 +5177,6 @@ msgstr "Uploading... {progressPct}%"
 
 msgid "URL Copied"
 msgstr "URL Copied"
-
-msgid "URL for public access"
-msgstr "URL for public access"
 
 msgid "Used"
 msgstr "Used"
@@ -5205,11 +5247,17 @@ msgstr "Versioned writes"
 msgid "Versioning Enabled"
 msgstr "Versioning Enabled"
 
+msgid "Versioning for container \"{containerName}\" was successfully updated."
+msgstr "Versioning for container \"{containerName}\" was successfully updated."
+
 msgid "Versioning is enabled"
 msgstr "Versioning is enabled"
 
 msgid "Versioning Suspended"
 msgstr "Versioning Suspended"
+
+msgid "Versioning Updated"
+msgstr "Versioning Updated"
 
 msgid "Versioning was successfully enabled for bucket \"{bucketName}\"."
 msgstr "Versioning was successfully enabled for bucket \"{bucketName}\"."
@@ -5267,6 +5315,9 @@ msgstr "What happens when suspended:"
 
 msgid "When checked, all tenants can use this flavor. Otherwise, grant access explicitly."
 msgstr "When checked, all tenants can use this flavor. Otherwise, grant access explicitly."
+
+msgid "When set, the object is automatically deleted at this date and time. Clear the field to remove an existing expiry."
+msgstr "When set, the object is automatically deleted at this date and time. Clear the field to remove an existing expiry."
 
 msgid "Whether the rule applies to IPv4 or IPv6 traffic."
 msgstr "Whether the rule applies to IPv4 or IPv6 traffic."
@@ -5423,6 +5474,3 @@ msgstr "Your session has expired. Please log in again."
 
 msgid "Your session was changed or ended in another browser tab. This can happen if you logged out or switched to a different account or domain elsewhere. Log in again to continue."
 msgstr "Your session was changed or ended in another browser tab. This can happen if you logged out or switched to a different account or domain elsewhere. Log in again to continue."
-
-msgid "YYYY-MM-DD HH:mm:ss"
-msgstr "YYYY-MM-DD HH:mm:ss"

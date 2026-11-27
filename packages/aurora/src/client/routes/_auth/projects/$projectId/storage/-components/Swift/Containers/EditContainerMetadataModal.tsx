@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import {
@@ -6,18 +6,11 @@ import {
   TextInput,
   Stack,
   Status,
-  DataGrid,
-  DataGridRow,
-  DataGridHeadCell,
-  DataGridCell,
   Button,
-  Checkbox,
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
   Icon,
-  ComboBox,
-  ComboBoxOption,
+  DescriptionList,
+  DescriptionTerm,
+  DescriptionDefinition,
 } from "@cloudoperators/juno-ui-components"
 import { ContainerSummary } from "@/server/Storage/types/swift"
 import { useProjectId } from "@/client/hooks/useProjectId"
@@ -31,8 +24,6 @@ const RESERVED_META_KEYS = new Set([
   "web-listings-css",
   "web-error",
 ])
-
-const MAX_COMBO_OPTIONS = 50
 
 // RFC 7230 token allowlist — letters, digits, and safe symbols only.
 // Using a positive allowlist avoids the ESLint no-control-regex rule.
@@ -63,6 +54,7 @@ export const EditContainerMetadataModal = ({
   container,
   onClose,
   onSuccess,
+  onError,
 }: EditContainerMetadataModalProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
@@ -85,32 +77,6 @@ export const EditContainerMetadataModal = ({
     { enabled: isOpen && container !== null && isPublicAccess }
   )
 
-  const { data: containers } = trpcReact.storage.swift.listContainers.useQuery(
-    { project_id: projectId },
-    { enabled: isOpen }
-  )
-
-  const [containerSearch, setContainerSearch] = useState("")
-  const [debouncedSearch, setDebouncedSearch] = useState("")
-  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  const handleContainerSearch = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    setContainerSearch(value)
-    if (debounceTimer.current) clearTimeout(debounceTimer.current)
-    debounceTimer.current = setTimeout(() => setDebouncedSearch(value), 300)
-  }, [])
-
-  const filteredContainers =
-    debouncedSearch.trim().length > 0
-      ? (containers ?? []).filter(
-          (c) => c.name !== container?.name && c.name.toLowerCase().includes(debouncedSearch.toLowerCase())
-        )
-      : []
-
-  const visibleContainers = filteredContainers.slice(0, MAX_COMBO_OPTIONS)
-  const hiddenCount = filteredContainers.length - visibleContainers.length
-
   const utils = trpcReact.useUtils()
 
   // ── Form state ────────────────────────────────────────────────────────────
@@ -120,14 +86,6 @@ export const EditContainerMetadataModal = ({
   const [quotaCount, setQuotaCount] = useState("")
   const [quotaCountError, setQuotaCountError] = useState<string | null>(null)
 
-  // Static website fields
-  const [webIndex, setWebIndex] = useState("")
-  const [webListings, setWebListings] = useState(false)
-
-  // Versioning
-  const [versionsEnabled, setVersionsEnabled] = useState(false)
-  const [versionsLocation, setVersionsLocation] = useState("")
-
   // Custom metadata
   const [metadata, setMetadata] = useState<MetadataEntry[]>([])
   const [metaErrors, setMetaErrors] = useState<Record<string, string>>({})
@@ -136,6 +94,8 @@ export const EditContainerMetadataModal = ({
   const [newValue, setNewValue] = useState("")
   const [newKeyError, setNewKeyError] = useState<string | null>(null)
   const [newValueError, setNewValueError] = useState<string | null>(null)
+  const [copiedPublicUrl, setCopiedPublicUrl] = useState(false)
+  const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // ── Populate form when data arrives ──────────────────────────────────────
   useEffect(() => {
@@ -143,12 +103,6 @@ export const EditContainerMetadataModal = ({
 
     setQuotaBytes(info.quotaBytes != null ? String(info.quotaBytes) : "")
     setQuotaCount(info.quotaCount != null ? String(info.quotaCount) : "")
-    setVersionsEnabled(!!(info.versionsEnabled || info.versionsLocation || info.historyLocation))
-    setVersionsLocation(info.versionsLocation || info.historyLocation || "")
-
-    const rawMetaForWeb = info.metadata ?? {}
-    setWebIndex(rawMetaForWeb["web-index"] ?? "")
-    setWebListings(rawMetaForWeb["web-listings"] === "1" || rawMetaForWeb["web-listings"] === "true")
 
     // Custom metadata — exclude reserved keys
     const rawMeta = info.metadata ?? {}
@@ -177,13 +131,6 @@ export const EditContainerMetadataModal = ({
     setQuotaBytesError(null)
     setQuotaCount("")
     setQuotaCountError(null)
-    setWebIndex("")
-    setWebListings(false)
-    setVersionsEnabled(false)
-    setVersionsLocation("")
-    setContainerSearch("")
-    setDebouncedSearch("")
-    if (debounceTimer.current) clearTimeout(debounceTimer.current)
     setMetadata([])
     setMetaErrors({})
     setIsAddingNew(false)
@@ -202,36 +149,26 @@ export const EditContainerMetadataModal = ({
       onSuccess?.(container!.name)
       handleClose()
     },
-    onError: () => {
-      // #1162: container-metadata update is recoverable, so we surface the
-      // failure via the inline banner in the modal body (updateMutation.isError)
-      // and deliberately do NOT also fire a toast. The modal stays open so the
-      // user can adjust and retry. Showing both was the double-error bug.
+    onError: (error) => {
+      onError?.(container!.name, error.message)
+      handleClose()
     },
   })
 
   // ── Validation ────────────────────────────────────────────────────────────
+  const validateQuotaValue = (value: string): string | null => {
+    if (value === "") return null
+    if (isNaN(Number(value)) || !Number.isInteger(Number(value)) || Number(value) < 0)
+      return t`Must be a whole number, 0 or greater`
+    return null
+  }
+
   const validateQuotas = (): boolean => {
-    let valid = true
-    if (
-      quotaBytes !== "" &&
-      (isNaN(Number(quotaBytes)) || !Number.isInteger(Number(quotaBytes)) || Number(quotaBytes) < 0)
-    ) {
-      setQuotaBytesError(t`Must be a whole number, 0 or greater`)
-      valid = false
-    } else {
-      setQuotaBytesError(null)
-    }
-    if (
-      quotaCount !== "" &&
-      (isNaN(Number(quotaCount)) || !Number.isInteger(Number(quotaCount)) || Number(quotaCount) < 0)
-    ) {
-      setQuotaCountError(t`Must be a whole number, 0 or greater`)
-      valid = false
-    } else {
-      setQuotaCountError(null)
-    }
-    return valid
+    const bytesErr = validateQuotaValue(quotaBytes)
+    const countErr = validateQuotaValue(quotaCount)
+    setQuotaBytesError(bytesErr)
+    setQuotaCountError(countErr)
+    return !bytesErr && !countErr
   }
 
   const validateMetaKey = (key: string, originalKey?: string): string | null => {
@@ -356,24 +293,6 @@ export const EditContainerMetadataModal = ({
       if (!currentOriginalKeys.includes(k) && !removeMetadata.includes(k)) removeMetadata.push(k)
     })
 
-    // Web index / listings — only relevant when public access is enabled
-    if (isPublicAccess) {
-      if (webIndex) {
-        metadataToSet["web-index"] = webIndex
-      } else if (info?.metadata?.["web-index"]) {
-        removeMetadata.push("web-index")
-      }
-      if (webListings) {
-        metadataToSet["web-listings"] = "1"
-      } else if (info?.metadata?.["web-listings"]) {
-        removeMetadata.push("web-listings")
-      }
-    }
-
-    // Determine versioning changes
-    const wasVersioned = !!(info?.versionsEnabled || info?.versionsLocation || info?.historyLocation)
-    const previousLocation = info?.versionsLocation || info?.historyLocation || ""
-
     updateMutation.mutate({
       project_id: projectId,
       container: container.name,
@@ -381,13 +300,22 @@ export const EditContainerMetadataModal = ({
       removeMetadata: removeMetadata.length ? removeMetadata : undefined,
       quotaBytes: quotaBytes !== "" ? Number(quotaBytes) : undefined,
       quotaCount: quotaCount !== "" ? Number(quotaCount) : undefined,
-      // Enable versioning with selected container, update if location changed, or remove if disabled
-      versionsLocation:
-        versionsEnabled && (!wasVersioned || versionsLocation !== previousLocation) && versionsLocation
-          ? versionsLocation
-          : undefined,
-      removeVersionsLocation: !versionsEnabled && wasVersioned ? true : undefined,
     })
+  }
+
+  const handleCopyPublicUrl = () => {
+    if (!publicUrl) return
+    navigator.clipboard
+      .writeText(publicUrl)
+      .then(() => {
+        setCopiedPublicUrl(true)
+        if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current)
+        copyTimeoutRef.current = setTimeout(() => {
+          setCopiedPublicUrl(false)
+          copyTimeoutRef.current = null
+        }, 2000)
+      })
+      .catch(() => {})
   }
 
   const handleClose = () => {
@@ -403,56 +331,30 @@ export const EditContainerMetadataModal = ({
 
   const initialQuotaBytes = info?.quotaBytes != null ? String(info.quotaBytes) : ""
   const initialQuotaCount = info?.quotaCount != null ? String(info.quotaCount) : ""
-  const initialVersionsEnabled = !!info?.versionsEnabled
-  const initialVersionsLocation = info?.versionsLocation || info?.historyLocation || ""
-  const initialWebIndex = info?.metadata?.["web-index"] ?? ""
-  const initialWebListings = info?.metadata?.["web-listings"] === "1" || info?.metadata?.["web-listings"] === "true"
   const initialMetadataKeys = Object.keys(info?.metadata ?? {}).filter((k) => !RESERVED_META_KEYS.has(k))
 
   const metadataUnchanged =
     metadata.length === initialMetadataKeys.length &&
     metadata.every((e) => !e.isNew && e.key === e.originalKey && e.value === e.originalValue)
 
-  const isUnchanged =
-    quotaBytes === initialQuotaBytes &&
-    quotaCount === initialQuotaCount &&
-    versionsEnabled === initialVersionsEnabled &&
-    versionsLocation === initialVersionsLocation &&
-    webIndex === initialWebIndex &&
-    webListings === initialWebListings &&
-    metadataUnchanged
+  const isUnchanged = quotaBytes === initialQuotaBytes && quotaCount === initialQuotaCount && metadataUnchanged
 
   // ── Render ────────────────────────────────────────────────────────────────
   const displayedQuotaBytes = info?.quotaBytes != null ? `${info.quotaBytes} B` : null
 
   return (
     <Modal
-      title={
-        <span className="flex max-w-125 items-center gap-2">
-          <span className="shrink-0">
-            <Trans>Container:</Trans>
-          </span>
-          <span className="truncate" title={container.name}>
-            {container.name}
-          </span>
-        </span>
-      }
+      title={t`Edit/Preview Container Metadata`}
       open={isOpen}
       onCancel={handleClose}
-      confirmButtonLabel={t`Save`}
+      confirmButtonLabel={updateMutation.isPending ? t`Saving...` : t`Save`}
       onConfirm={handleSubmit}
       cancelButtonLabel={t`Cancel`}
-      size="large"
-      disableConfirmButton={isBusy || isAddingNew || hasEditing || isUnchanged || isMetaFailed}
+      size="xl"
+      disableConfirmButton={
+        isBusy || isAddingNew || hasEditing || isUnchanged || isMetaFailed || !!quotaBytesError || !!quotaCountError
+      }
     >
-      {updateMutation.isError && (
-        <p className="text-theme-error mb-4">
-          {(() => {
-            const errorMessage = updateMutation.error.message
-            return <Trans>Failed to update container: {errorMessage}</Trans>
-          })()}
-        </p>
-      )}
       {isLoading ? (
         <Status status="progress" title={t`Loading Container Properties...`} className="mt-0" />
       ) : isMetaFailed ? (
@@ -465,20 +367,52 @@ export const EditContainerMetadataModal = ({
       ) : (
         <div className="max-h-[65vh] overflow-y-auto pr-1 pl-1">
           <Stack direction="vertical" gap="6">
+            {/* ── Description ──────────────────────────────────────────────── */}
+            <p className="text-theme-default mb-4">
+              <Trans>
+                Custom metadata lets you attach arbitrary key-value pairs to this container. Each entry is stored as a
+                Swift container header (<strong>X-Container-Meta-*</strong>) and returned with every request. Keys are
+                case-insensitive. The following keys are reserved and managed through dedicated form fields:{" "}
+                <strong>web-index, web-listings, quota-count, quota-bytes</strong>.
+              </Trans>
+            </p>
+
             {/* ── Read-only stats ─────────────────────────────────────────── */}
-            <div className="grid grid-cols-2 gap-4">
-              <TextInput label={t`Object count`} value={String(container.count)} disabled readOnly />
-              <TextInput
-                label={t`Total size`}
-                value={
-                  info?.bytesUsed != null
-                    ? `${info.bytesUsed.toLocaleString()} B`
-                    : `${container.bytes.toLocaleString()} B`
-                }
-                disabled
-                readOnly
-              />
-            </div>
+            <DescriptionList>
+              <DescriptionTerm>
+                <Trans>Name</Trans>
+              </DescriptionTerm>
+              <DescriptionDefinition>{container.name}</DescriptionDefinition>
+              <DescriptionTerm>
+                <Trans>Object count</Trans>
+              </DescriptionTerm>
+              <DescriptionDefinition>{String(container.count)}</DescriptionDefinition>
+              <DescriptionTerm>
+                <Trans>Total size</Trans>
+              </DescriptionTerm>
+              <DescriptionDefinition>
+                {info?.bytesUsed != null
+                  ? `${info.bytesUsed.toLocaleString()} B`
+                  : `${container.bytes.toLocaleString()} B`}
+              </DescriptionDefinition>
+            </DescriptionList>
+
+            {/* ── Public URL ──────────────────────────────────────────────── */}
+            {isPublicAccess && publicUrl && (
+              <div className="relative">
+                <TextInput label={t`Public Access URL`} value={publicUrl} readOnly className="pr-10 text-xs" />
+                <button
+                  type="button"
+                  onClick={handleCopyPublicUrl}
+                  title={copiedPublicUrl ? t`Copied!` : t`Copy URL`}
+                  aria-label={copiedPublicUrl ? t`Copied!` : t`Copy URL`}
+                  className="text-theme-light hover:text-theme-default absolute top-1/2 right-2 inline-flex items-center transition-colors"
+                  style={{ transform: "translateY(-50%)" }}
+                >
+                  <Icon icon={copiedPublicUrl ? "checkCircle" : "contentCopy"} size="18" />
+                </button>
+              </div>
+            )}
 
             {/* ── Quotas ──────────────────────────────────────────────────── */}
             <div className="grid grid-cols-2 gap-4">
@@ -490,10 +424,14 @@ export const EditContainerMetadataModal = ({
                     setQuotaCount(e.target.value)
                     if (quotaCountError) setQuotaCountError(null)
                   }}
-                  placeholder={t`No limit`}
+                  onBlur={(e: React.FocusEvent<HTMLInputElement>) =>
+                    setQuotaCountError(validateQuotaValue(e.target.value))
+                  }
+                  placeholder={t`e.g. 1000`}
                   invalid={!!quotaCountError}
                   errortext={quotaCountError ?? undefined}
                   disabled={isBusy}
+                  helptext={t`Maximum number of objects. Leave empty for no limit.`}
                 />
               </div>
               <div>
@@ -504,327 +442,167 @@ export const EditContainerMetadataModal = ({
                     setQuotaBytes(e.target.value)
                     if (quotaBytesError) setQuotaBytesError(null)
                   }}
-                  placeholder={t`No limit`}
+                  onBlur={(e: React.FocusEvent<HTMLInputElement>) =>
+                    setQuotaBytesError(validateQuotaValue(e.target.value))
+                  }
+                  placeholder={t`e.g. 10737418240`}
                   invalid={!!quotaBytesError}
                   errortext={quotaBytesError ?? undefined}
                   disabled={isBusy}
-                  helptext={quotaBytes && displayedQuotaBytes ? displayedQuotaBytes : undefined}
+                  helptext={
+                    quotaBytes && displayedQuotaBytes
+                      ? displayedQuotaBytes
+                      : t`Maximum total storage in bytes (e.g. 10 GiB = 10737418240). Leave empty for no limit.`
+                  }
                 />
               </div>
-            </div>
-
-            {/* ── Public URL ──────────────────────────────────────────────── */}
-            {isPublicAccess && publicUrl && (
-              <div>
-                <p className="text-theme-default mb-1 text-sm font-semibold">
-                  <Trans>URL for public access</Trans>{" "}
-                  <a
-                    href={publicUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-theme-info text-xs font-normal underline"
-                  >
-                    <Trans>Open in new tab</Trans>
-                  </a>
-                </p>
-                <TextInput value={publicUrl} disabled readOnly />
-              </div>
-            )}
-
-            {/* ── Static website serving ───────────────────────────────────── */}
-            <div>
-              <p className="text-theme-default mb-3 text-sm font-semibold">
-                <Trans>Static website serving</Trans>
-              </p>
-              {isPublicAccess ? (
-                <Stack direction="vertical" gap="4">
-                  <Stack direction="vertical" gap="1">
-                    <Checkbox
-                      label={t`Serve objects as index when file name is:`}
-                      checked={!!webIndex}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        if (!e.target.checked) setWebIndex("")
-                        else if (!webIndex) setWebIndex("index.html")
-                      }}
-                      disabled={isBusy}
-                    />
-                    <div className="pl-6">
-                      <TextInput
-                        value={webIndex}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWebIndex(e.target.value)}
-                        placeholder="index.html"
-                        disabled={isBusy || !webIndex}
-                        className="flex-1"
-                      />
-                    </div>
-                  </Stack>
-                  <Stack direction="horizontal" alignment="start" gap="2">
-                    <Checkbox
-                      label={t`Enable file listing`}
-                      checked={webListings}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWebListings(e.target.checked)}
-                      disabled={isBusy}
-                    />
-                    <Tooltip triggerEvent="hover">
-                      <TooltipTrigger>
-                        <Icon icon="help" size="16" className="text-theme-light cursor-help" />
-                      </TooltipTrigger>
-                      <TooltipContent className="z-10 max-w-55">
-                        <Trans>If there is no index file, the URL displays a list of objects in the container.</Trans>
-                      </TooltipContent>
-                    </Tooltip>
-                  </Stack>
-                </Stack>
-              ) : (
-                <p className="text-theme-default text-sm">
-                  <Trans>
-                    Public read access is not enabled. Before configuring static website serving, go to{" "}
-                    <strong>Manage Access</strong> and enable public read access.
-                  </Trans>
-                </p>
-              )}
-            </div>
-
-            {/* ── Object versioning ────────────────────────────────────────── */}
-            <div>
-              <p className="text-theme-default mb-2 text-sm font-semibold">
-                <Trans>Object versioning</Trans>
-              </p>
-
-              {/* Case 1: server-side versioning active, no user changes yet */}
-              {initialVersionsEnabled && !versionsLocation ? (
-                <Checkbox
-                  label={t`Versioning is enabled`}
-                  checked
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    if (!e.target.checked) {
-                      setVersionsEnabled(false)
-                      setVersionsLocation("")
-                      setContainerSearch("")
-                      setDebouncedSearch("")
-                    }
-                  }}
-                  disabled={true}
-                />
-              ) : !versionsEnabled && !versionsLocation ? (
-                /* Case 2: nothing enabled, nothing selected */
-                <Checkbox
-                  label={t`Store old object versions`}
-                  checked={false}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setVersionsEnabled(e.target.checked)}
-                  disabled={isBusy}
-                />
-              ) : (
-                /* Case 3: checkbox checked or a container is selected */
-                <Stack direction="vertical" gap="1">
-                  <Checkbox
-                    label={t`Store old object versions in container:`}
-                    checked={versionsEnabled}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                      setVersionsEnabled(e.target.checked)
-                      if (!e.target.checked) {
-                        setVersionsLocation("")
-                        setContainerSearch("")
-                        setDebouncedSearch("")
-                      }
-                    }}
-                    disabled={isBusy}
-                  />
-                  {versionsEnabled && (
-                    <div className="pl-6">
-                      <ComboBox
-                        value={versionsLocation}
-                        onChange={(value: string) => setVersionsLocation(value)}
-                        onInputChange={handleContainerSearch}
-                        placeholder={t`Type to search containers...`}
-                        helptext={(() => {
-                          if (containerSearch.trim().length === 0) return t`Start typing to search for a container`
-                          if (hiddenCount > 0) {
-                            const maxOptions = MAX_COMBO_OPTIONS
-                            const totalCount = filteredContainers.length
-                            return t`Showing first ${maxOptions} of ${totalCount} — refine your search to narrow results`
-                          }
-                          return undefined
-                        })()}
-                        disabled={isBusy}
-                      >
-                        {visibleContainers.map((c) => (
-                          <ComboBoxOption key={c.name} value={c.name}>
-                            {c.name}
-                          </ComboBoxOption>
-                        ))}
-                      </ComboBox>
-                    </div>
-                  )}
-                </Stack>
-              )}
             </div>
 
             {/* ── Custom Metadata ──────────────────────────────────────────── */}
             <div>
-              <Stack direction="horizontal" alignment="center" distribution="between" className="mb-3">
-                <p className="text-theme-default text-sm font-semibold">
-                  <Trans>Metadata</Trans>
-                </p>
-                <p className="text-theme-light text-xs">
-                  <Trans>Reserved keys: web-index, web-listings, quota-count, quota-bytes</Trans>
-                </p>
-              </Stack>
-
-              {/* Add Property button */}
-              <Stack direction="horizontal" className="jn:bg-theme-background-lvl-1 justify-end p-2">
+              <div className="mb-2 flex justify-end">
                 <Button
                   label={t`Add Property`}
                   onClick={() => setIsAddingNew(true)}
-                  variant="primary"
-                  icon="addCircle"
-                  size="small"
                   disabled={isAddingNew || hasEditing || isBusy}
                 />
-              </Stack>
+              </div>
 
-              <DataGrid columns={3}>
-                <DataGridRow>
-                  <DataGridHeadCell>
-                    <Trans>Key</Trans>
-                  </DataGridHeadCell>
-                  <DataGridHeadCell>
-                    <Trans>Value</Trans>
-                  </DataGridHeadCell>
-                  <DataGridHeadCell>
-                    <Trans>Actions</Trans>
-                  </DataGridHeadCell>
-                </DataGridRow>
-
-                {/* New row input */}
-                {isAddingNew && (
-                  <DataGridRow>
-                    <DataGridCell>
-                      <TextInput
-                        value={newKey}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                          setNewKey(e.target.value)
-                          if (newKeyError) setNewKeyError(null)
-                        }}
-                        placeholder={t`property_key`}
-                        errortext={newKeyError ?? undefined}
-                        invalid={!!newKeyError}
-                        autoFocus
-                      />
-                    </DataGridCell>
-                    <DataGridCell>
-                      <TextInput
-                        value={newValue}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                          setNewValue(e.target.value)
-                          if (newValueError) setNewValueError(null)
-                        }}
-                        placeholder={t`Value`}
-                        errortext={newValueError ?? undefined}
-                        invalid={!!newValueError}
-                      />
-                    </DataGridCell>
-                    <DataGridCell>
-                      <Stack direction="horizontal" gap="2">
-                        <Button size="small" variant="primary" onClick={handleAddNew} icon="check" title={t`Save`} />
-                        <Button
-                          size="small"
-                          variant="subdued"
-                          onClick={handleCancelAdd}
-                          icon="close"
-                          title={t`Discard`}
-                        />
-                      </Stack>
-                    </DataGridCell>
-                  </DataGridRow>
-                )}
-
-                {/* Existing metadata rows */}
-                {metadata.map((entry, index) => (
-                  <DataGridRow key={index}>
-                    <DataGridCell>
-                      {entry.isEditing ? (
-                        <TextInput
-                          value={entry.key}
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleKeyChange(index, e.target.value)}
-                          errortext={metaErrors[`edit-${index}`]}
-                          invalid={!!metaErrors[`edit-${index}`]}
-                        />
-                      ) : (
-                        <span className="block max-w-xs truncate text-sm" title={entry.key}>
-                          {entry.key}
-                        </span>
-                      )}
-                    </DataGridCell>
-                    <DataGridCell>
-                      {entry.isEditing ? (
-                        <TextInput
-                          value={entry.value}
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                            handleValueChange(index, e.target.value)
-                          }
-                        />
-                      ) : (
-                        <span className="block max-w-md truncate text-sm" title={entry.value}>
-                          {entry.value}
-                        </span>
-                      )}
-                    </DataGridCell>
-                    <DataGridCell>
-                      {entry.isEditing ? (
-                        <Stack direction="horizontal" gap="2">
-                          <Button
-                            size="small"
-                            variant="primary"
-                            onClick={() => handleSaveEdit(index)}
-                            icon="check"
-                            title={t`Save`}
+              {metadata.length === 0 && !isAddingNew ? (
+                <p className="jn:text-theme-light py-8 text-center">
+                  <Trans>No custom metadata. Click "Add Property" to create one.</Trans>
+                </p>
+              ) : (
+                <DescriptionList className="mb-6" alignTerms="left">
+                  <>
+                    {isAddingNew && (
+                      <>
+                        <DescriptionTerm>
+                          <TextInput
+                            value={newKey}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                              setNewKey(e.target.value)
+                              if (newKeyError) setNewKeyError(null)
+                            }}
+                            placeholder={t`property_key`}
+                            errortext={newKeyError ?? undefined}
+                            invalid={!!newKeyError}
+                            autoFocus
                           />
-                          <Button
-                            size="small"
-                            variant="subdued"
-                            onClick={() => handleCancelEdit(index)}
-                            icon="close"
-                            title={t`Discard`}
-                          />
-                        </Stack>
-                      ) : (
-                        <Stack direction="horizontal" gap="2">
-                          <Button
-                            size="small"
-                            variant="subdued"
-                            onClick={() => handleEdit(index)}
-                            icon="edit"
-                            title={t`Edit`}
-                            disabled={isAddingNew || hasEditing || isBusy}
-                          />
-                          <Button
-                            size="small"
-                            variant="default"
-                            onClick={() => handleDeleteMeta(index)}
-                            icon="deleteForever"
-                            title={t`Delete`}
-                            disabled={isAddingNew || hasEditing || isBusy}
-                          />
-                        </Stack>
-                      )}
-                    </DataGridCell>
-                  </DataGridRow>
-                ))}
-
-                {/* Empty state */}
-                {metadata.length === 0 && !isAddingNew && (
-                  <DataGridRow>
-                    <DataGridCell colSpan={3} className="py-6 text-center">
-                      <Stack alignment="center">
-                        <span className="text-theme-light text-sm">
-                          <Trans>No custom metadata. Click "Add Property" to create one.</Trans>
-                        </span>
-                      </Stack>
-                    </DataGridCell>
-                  </DataGridRow>
-                )}
-              </DataGrid>
+                        </DescriptionTerm>
+                        <DescriptionDefinition>
+                          <Stack direction="horizontal" gap="2" alignment="center" className="justify-between">
+                            <div className="flex-1">
+                              <TextInput
+                                value={newValue}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                  setNewValue(e.target.value)
+                                  if (newValueError) setNewValueError(null)
+                                }}
+                                placeholder={t`Value`}
+                                errortext={newValueError ?? undefined}
+                                invalid={!!newValueError}
+                              />
+                            </div>
+                            <Stack direction="horizontal" gap="2" className="shrink-0">
+                              <Button
+                                size="small"
+                                variant="primary"
+                                onClick={handleAddNew}
+                                icon="check"
+                                title={t`Save`}
+                                disabled={!newKey.trim()}
+                              />
+                              <Button
+                                size="small"
+                                variant="subdued"
+                                onClick={handleCancelAdd}
+                                icon="close"
+                                title={t`Discard`}
+                              />
+                            </Stack>
+                          </Stack>
+                        </DescriptionDefinition>
+                      </>
+                    )}
+                  </>
+                  <>
+                    {metadata.map((entry, index) => (
+                      <React.Fragment key={`${entry.originalKey ?? entry.key}-${index}`}>
+                        <DescriptionTerm>
+                          {entry.isEditing ? (
+                            <TextInput
+                              value={entry.key}
+                              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                                handleKeyChange(index, e.target.value)
+                              }
+                              errortext={metaErrors[`edit-${index}`]}
+                              invalid={!!metaErrors[`edit-${index}`]}
+                            />
+                          ) : (
+                            <span className="jn:text-theme-high block max-w-xs truncate" title={entry.key}>
+                              {entry.key}
+                            </span>
+                          )}
+                        </DescriptionTerm>
+                        <DescriptionDefinition className="flex items-center justify-between gap-2">
+                          {entry.isEditing ? (
+                            <>
+                              <div className="flex-1">
+                                <TextInput
+                                  value={entry.value}
+                                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                                    handleValueChange(index, e.target.value)
+                                  }
+                                />
+                              </div>
+                              <Stack direction="horizontal" gap="2" className="shrink-0">
+                                <Button
+                                  size="small"
+                                  variant="primary"
+                                  onClick={() => handleSaveEdit(index)}
+                                  icon="check"
+                                  title={t`Save`}
+                                />
+                                <Button
+                                  size="small"
+                                  variant="subdued"
+                                  onClick={() => handleCancelEdit(index)}
+                                  icon="close"
+                                  title={t`Discard`}
+                                />
+                              </Stack>
+                            </>
+                          ) : (
+                            <>
+                              <span className="jn:text-theme-default block max-w-md truncate" title={entry.value}>
+                                {entry.value}
+                              </span>
+                              <Stack direction="horizontal" gap="2">
+                                <Button
+                                  size="small"
+                                  variant="subdued"
+                                  onClick={() => handleEdit(index)}
+                                  icon="edit"
+                                  title={t`Edit`}
+                                  disabled={isAddingNew || hasEditing || isBusy}
+                                />
+                                <Button
+                                  size="small"
+                                  onClick={() => handleDeleteMeta(index)}
+                                  icon="deleteForever"
+                                  title={t`Delete`}
+                                  disabled={isAddingNew || hasEditing || isBusy}
+                                />
+                              </Stack>
+                            </>
+                          )}
+                        </DescriptionDefinition>
+                      </React.Fragment>
+                    ))}
+                  </>
+                </DescriptionList>
+              )}
             </div>
           </Stack>
         </div>

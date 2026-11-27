@@ -5,8 +5,8 @@ import { useProjectId } from "@/client/hooks/useProjectId"
 import {
   Modal,
   Stack,
-  Status,
   Spinner,
+  Status,
   ComboBox,
   ComboBoxOption,
   TextInput,
@@ -14,6 +14,7 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import { useParams } from "@tanstack/react-router"
 import { MdFolder, MdDescription, MdCreateNewFolder, MdArrowBack } from "react-icons/md"
+import { formatBytesBinary } from "@/client/utils/formatBytes"
 import { useVirtualizer } from "@tanstack/react-virtual"
 import { ObjectRow, buildRows, BrowserRow } from "./"
 import { ObjectSummary } from "@/server/Storage/types/swift"
@@ -151,6 +152,7 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
     },
     onError: (error) => {
       onError?.(submittedNameRef.current, error.message)
+      handleClose()
     },
   })
 
@@ -263,9 +265,8 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
   // ── Virtualized folder browser ─────────────────────────────────────────────
   // Must be declared before the early return to satisfy Rules of Hooks.
   const folderRows = rows.filter((r) => r.kind === "folder")
-  // Files are kept in `rows` for folder-name duplicate detection but are not
-  // rendered in the destination picker — only folders are valid destinations.
-  const allBrowserRows = folderRows
+  const objectRows = rows.filter((r) => r.kind === "object")
+  const allBrowserRows = [...folderRows, ...objectRows]
 
   const rowVirtualizer = useVirtualizer({
     count: allBrowserRows.length,
@@ -281,7 +282,7 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
   const isLoading = isLoadingObjects
 
   // ── Read-only target path field value ─────────────────────────────────────
-  const targetPathDisplay = `/${targetContainer}/${currentPrefix}${displayName}`
+  const targetPathDisplay = `${targetContainer}/${currentPrefix}${displayName}`
 
   // The initial prefix is the folder the source object lives in —
   // strip the displayName from the end of the full object name to get it.
@@ -295,39 +296,26 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
 
   return (
     <Modal
-      title={
-        <span className="flex max-w-125 items-center gap-1">
-          <span className="shrink-0">
-            <Trans>Copy Object:</Trans>
-          </span>
-          <span className="truncate" title={displayName}>
-            {displayName}
-          </span>
-        </span>
-      }
+      title={t`Copy Object`}
       open={isOpen}
       onCancel={handleClose}
       confirmButtonLabel={isPending ? t`Copying...` : t`Copy Object`}
       onConfirm={handleCopy}
       cancelButtonLabel={t`Cancel`}
-      size="large"
+      size="xl"
       disableConfirmButton={isPending || isLoadingContainers || isUnchanged}
       disableCancelButton={isPending || isLoadingContainers}
-      disableCloseButton={isPending || isLoadingContainers || isUnchanged}
     >
       {isPending ? (
         <Status status="progress" title={t`Copying Object...`} className="mt-0" />
       ) : (
-        <Stack direction="vertical" gap="4">
-          {copyMutation.isError &&
-            (() => {
-              const errorMessage = copyMutation.error.message
-              return (
-                <p className="text-theme-error text-sm">
-                  <Trans>Failed to copy object: {errorMessage}</Trans>
-                </p>
-              )
-            })()}
+        <Stack direction="vertical" gap="6">
+          <p className="text-theme-default">
+            <Trans>
+              Copying <span className="font-semibold">{displayName}</span> — a new copy will be created at the selected
+              destination. The original remains in place.
+            </Trans>
+          </p>
 
           {/* Target container — ComboBox with debounced search to handle large lists */}
           <ComboBox
@@ -360,7 +348,7 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
           <div>
             <div className="mb-1 flex items-center justify-between">
               <span className="text-sm font-medium">
-                <Trans>Select destination folder</Trans>
+                <Trans>Select destination folder within target container</Trans>
               </span>
               <Button
                 size="small"
@@ -485,7 +473,7 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
                       </Button>
                       <Button
                         size="small"
-                        variant="primary"
+                        variant="default"
                         onClick={handleCreateFolder}
                         disabled={!newFolderName.trim()}
                       >
@@ -498,12 +486,25 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
             </div>
           </div>
 
-          {/* Read-only target path */}
-          <div>
-            <p className="mb-1">
-              <Trans>The object will be copied to this path. Navigate folders above to change the destination.</Trans>
-            </p>
-            <p className="text-sm">{targetPathDisplay}</p>
+          {/* Source + Target info box */}
+          <div className="bg-theme-background-lvl-2 rounded p-3">
+            <Stack direction="vertical" gap="2">
+              <div>
+                <div className="text-theme-light mb-1 text-sm">
+                  <Trans>Source</Trans>
+                </div>
+                <div className="text-sm break-all">{`${sourceContainer}/${object.name}`}</div>
+                {object.bytes != null && (
+                  <div className="text-theme-light mt-1 text-xs">{formatBytesBinary(object.bytes)}</div>
+                )}
+              </div>
+              <div>
+                <div className="text-theme-light mb-1 text-sm">
+                  <Trans>Target path</Trans>
+                </div>
+                <div className="text-sm break-all">{targetPathDisplay}</div>
+              </div>
+            </Stack>
           </div>
 
           {/* Copy metadata checkbox */}

@@ -1,6 +1,6 @@
 import React from "react"
 import { describe, test, expect, vi, beforeEach } from "vitest"
-import { render, screen, waitFor, act } from "@testing-library/react"
+import { render, screen, waitFor, act, fireEvent } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
@@ -60,6 +60,9 @@ vi.mock("@/client/trpcClient", () => ({
             isPending: trpcState.isPending,
             reset: trpcState.reset,
           }),
+        },
+        getObjectMetadata: {
+          useQuery: () => ({ data: undefined, isLoading: false, isError: false, error: null }),
         },
       },
     },
@@ -156,11 +159,10 @@ describe("GenerateTempUrlModal", () => {
       expect(screen.getByRole("dialog")).toBeInTheDocument()
     })
 
-    test("shows object displayName in modal title", () => {
+    test("shows object displayName in modal body", () => {
       renderModal()
-      expect(screen.getByTitle("report.pdf")).toBeInTheDocument()
-      // Title prefix is "Share URL:" per finding 1
-      expect(screen.getByText(/Share URL:/i)).toBeInTheDocument()
+      expect(screen.getByText("report.pdf")).toBeInTheDocument()
+      expect(screen.getByText(/Generate Temporary URL/i)).toBeInTheDocument()
     })
   })
 
@@ -184,7 +186,7 @@ describe("GenerateTempUrlModal", () => {
 
     test("does not show generated URL field before generation", () => {
       renderModal()
-      expect(screen.queryByLabelText(/Temporary URL/i)).not.toBeInTheDocument()
+      expect(screen.queryByLabelText("Temporary URL")).not.toBeInTheDocument()
     })
 
     test("shows info message about temporary URLs", () => {
@@ -364,6 +366,44 @@ describe("GenerateTempUrlModal", () => {
       await user.click(screen.getByRole("button", { name: /Generate URL/i }))
       expect(screen.getByText(/valid number of minutes/i)).toBeInTheDocument()
       expect(trpcState.mutate).not.toHaveBeenCalled()
+    })
+
+    test("renders helptext explaining the expected format", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      await selectPreset(user, "Custom")
+      expect(screen.getByText(/Positive whole number of minutes/i)).toBeInTheDocument()
+    })
+
+    test("shows error on blur when custom minutes is invalid", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      await selectPreset(user, "Custom")
+      await user.type(screen.getByLabelText(/Custom duration/i), "1.5")
+      fireEvent.blur(screen.getByLabelText(/Custom duration/i))
+      await waitFor(() => {
+        expect(screen.getByText(/valid number of minutes/i)).toBeInTheDocument()
+      })
+    })
+
+    test("does not show error on blur when custom minutes is empty", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      await selectPreset(user, "Custom")
+      fireEvent.blur(screen.getByLabelText(/Custom duration/i))
+      expect(screen.queryByText(/valid number of minutes/i)).not.toBeInTheDocument()
+    })
+
+    test("Generate URL button is disabled while a custom minutes error is active", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      await selectPreset(user, "Custom")
+      await user.type(screen.getByLabelText(/Custom duration/i), "1.5")
+      fireEvent.blur(screen.getByLabelText(/Custom duration/i))
+      await waitFor(() => {
+        expect(screen.getByText(/valid number of minutes/i)).toBeInTheDocument()
+      })
+      expect(screen.getByRole("button", { name: /Generate URL/i })).toBeDisabled()
     })
   })
 

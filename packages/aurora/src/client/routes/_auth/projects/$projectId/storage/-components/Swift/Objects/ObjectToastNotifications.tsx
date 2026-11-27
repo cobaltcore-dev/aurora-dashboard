@@ -200,6 +200,18 @@ export const getTempUrlCopiedToast = (objectName: string): { message: ReactNode 
   description: <Trans>Temporary URL for "{objectName}" was copied to clipboard.</Trans>,
 })
 
+export const getTempUrlGenerateErrorToast = (
+  objectName: string,
+  errorMessage: string
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Failed to Generate Temporary URL</Trans>,
+  description: (
+    <Trans>
+      Could not generate temporary URL for "{objectName}": {errorMessage}
+    </Trans>
+  ),
+})
+
 // ── Object metadata update ─────────────────────────────────────────────────────
 
 export const getObjectMetadataUpdatedToast = (objectName: string): { message: ReactNode } & NotificationOptions => ({
@@ -215,6 +227,25 @@ export const getObjectMetadataUpdateErrorToast = (
   description: (
     <Trans>
       Could not update "{objectName}": {errorMessage}
+    </Trans>
+  ),
+})
+
+// ── Object deletion scheduling ────────────────────────────────────────────────
+
+export const getObjectDeletionScheduledToast = (objectName: string): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Deletion Scheduled</Trans>,
+  description: <Trans>Deletion schedule for "{objectName}" was successfully updated.</Trans>,
+})
+
+export const getObjectDeletionScheduleErrorToast = (
+  objectName: string,
+  errorMessage: string
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Failed to Schedule Deletion</Trans>,
+  description: (
+    <Trans>
+      Could not update deletion schedule for "{objectName}": {errorMessage}
     </Trans>
   ),
 })

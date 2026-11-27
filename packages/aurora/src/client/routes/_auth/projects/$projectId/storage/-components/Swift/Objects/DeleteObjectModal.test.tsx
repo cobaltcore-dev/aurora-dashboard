@@ -179,14 +179,14 @@ describe("DeleteObjectModal", () => {
   // ── Regular object (delete variant) ──────────────────────────────────────
 
   describe("Regular object", () => {
-    it("shows Delete object title", () => {
+    it("shows Delete Object title", () => {
       renderModal()
-      expect(screen.getByText(/Delete object:/i)).toBeInTheDocument()
+      expect(screen.getByRole("heading", { name: /Delete Object/i })).toBeInTheDocument()
     })
 
-    it("shows the object display name in the title", () => {
+    it("shows the object display name in the description list", () => {
       renderModal()
-      expect(screen.getByTitle("report.pdf")).toBeInTheDocument()
+      expect(screen.getByText("report.pdf")).toBeInTheDocument()
     })
 
     it("shows plain text warning about permanent deletion", () => {

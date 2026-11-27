@@ -31,18 +31,20 @@ describe("ContainerHeaderActions", () => {
     expect(screen.getByRole("button", { name: "Container actions" })).toBeInTheDocument()
   })
 
-  test("all four items are present after opening the menu", async () => {
+  test("all six items are present after opening the menu", async () => {
     const user = userEvent.setup()
     renderActions()
     await openMenu(user)
 
     expect(screen.getByTestId("container-actions-manage-access")).toBeInTheDocument()
     expect(screen.getByTestId("container-actions-edit-metadata")).toBeInTheDocument()
+    expect(screen.getByTestId("container-actions-configure-versioning")).toBeInTheDocument()
+    expect(screen.getByTestId("container-actions-configure-static-website")).toBeInTheDocument()
     expect(screen.getByTestId("container-actions-empty")).toBeInTheDocument()
     expect(screen.getByTestId("container-actions-delete")).toBeInTheDocument()
   })
 
-  test("items appear in the agreed order: Manage Access, Preview and Edit metadata, Empty Container, Delete Container", async () => {
+  test("items appear in the agreed order", async () => {
     const user = userEvent.setup()
     renderActions()
     await openMenu(user)
@@ -50,7 +52,9 @@ describe("ContainerHeaderActions", () => {
     const items = screen.getAllByRole("menuitem")
     expect(items.map((item) => item.textContent)).toEqual([
       "Manage Access",
-      "Preview and Edit metadata",
+      "Edit/Preview Metadata",
+      "Configure Versioning",
+      "Configure Static Website",
       "Empty Container",
       "Delete Container",
     ])
@@ -59,6 +63,8 @@ describe("ContainerHeaderActions", () => {
   test.each<[string, ContainerModalType]>([
     ["container-actions-manage-access", "manageAccess"],
     ["container-actions-edit-metadata", "editMetadata"],
+    ["container-actions-configure-versioning", "configureVersioning"],
+    ["container-actions-configure-static-website", "configureStaticWebsite"],
     ["container-actions-empty", "emptyContainer"],
     ["container-actions-delete", "deleteContainer"],
   ])("clicking %s invokes onOpenModal with '%s'", async (testId, expectedModal) => {

@@ -29,10 +29,12 @@ export const parseSwiftDate = (value: string | null | undefined): Date | null =>
   const trimmed = value.trim()
   if (!trimmed) return null
 
-  // Only a full date-time (has a "T") that lacks a zone needs normalizing to
-  // UTC. A date-only string ("2024-03-01") is already parsed as UTC by the
-  // engine, and appending "Z" to it would make it invalid.
-  const needsUtc = trimmed.includes("T") && !HAS_ZONE.test(trimmed)
+  // Only a full ISO 8601 date-time (starts with YYYY-MM-DDT) that lacks a zone
+  // needs normalizing to UTC. A date-only string ("2024-03-01") is already
+  // parsed as UTC by the engine. HTTP dates ("Mon, 03 Mar 2026 20:24:01 GMT")
+  // contain "T" inside "GMT" but are not ISO 8601 — they parse correctly as-is
+  // via the Date constructor, so must not have "Z" appended.
+  const needsUtc = /^\d{4}-\d{2}-\d{2}T/.test(trimmed) && !HAS_ZONE.test(trimmed)
   const normalized = needsUtc ? `${trimmed}Z` : trimmed
 
   const date = new Date(normalized)

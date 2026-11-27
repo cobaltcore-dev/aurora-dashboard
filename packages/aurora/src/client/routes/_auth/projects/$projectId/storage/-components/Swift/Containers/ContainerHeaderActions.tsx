@@ -1,7 +1,20 @@
 import { useLingui } from "@lingui/react/macro"
-import { Button, PopupMenu, PopupMenuItem, PopupMenuOptions, PopupMenuToggle } from "@cloudoperators/juno-ui-components"
+import {
+  Button,
+  PopupMenu,
+  PopupMenuItem,
+  PopupMenuOptions,
+  PopupMenuSectionSeparator,
+  PopupMenuToggle,
+} from "@cloudoperators/juno-ui-components"
 
-export type ContainerModalType = "manageAccess" | "editMetadata" | "emptyContainer" | "deleteContainer"
+export type ContainerModalType =
+  | "manageAccess"
+  | "editMetadata"
+  | "configureVersioning"
+  | "configureStaticWebsite"
+  | "emptyContainer"
+  | "deleteContainer"
 
 interface ContainerHeaderActionsProps {
   onOpenModal: (modal: ContainerModalType) => void
@@ -31,15 +44,26 @@ export const ContainerHeaderActions = ({ onOpenModal }: ContainerHeaderActionsPr
           data-testid="container-actions-manage-access"
         />
         <PopupMenuItem
-          label={t`Preview and Edit metadata`}
+          label={t`Edit/Preview Metadata`}
           onClick={() => onOpenModal("editMetadata")}
           data-testid="container-actions-edit-metadata"
+        />
+        <PopupMenuItem
+          label={t`Configure Versioning`}
+          onClick={() => onOpenModal("configureVersioning")}
+          data-testid="container-actions-configure-versioning"
+        />
+        <PopupMenuItem
+          label={t`Configure Static Website`}
+          onClick={() => onOpenModal("configureStaticWebsite")}
+          data-testid="container-actions-configure-static-website"
         />
         <PopupMenuItem
           label={t`Empty Container`}
           onClick={() => onOpenModal("emptyContainer")}
           data-testid="container-actions-empty"
         />
+        <PopupMenuSectionSeparator />
         <PopupMenuItem
           label={t`Delete Container`}
           onClick={() => onOpenModal("deleteContainer")}

@@ -12,6 +12,7 @@ import {
 import type { Port } from "@/server/Network/types/port"
 import { useProjectId } from "@/client/hooks"
 import ClipboardText from "@/client/components/ClipboardText"
+import { StatusLabel } from "@/client/components/StatusLabel"
 import { NameIdCell, NAME_ID_LINK_CLASS } from "@/client/components/NameIdCell"
 
 interface NetworkPortsTableProps {
@@ -75,7 +76,9 @@ export function NetworkPortsTable({ ports, isLoading, isError, error, onRetry }:
       {ports.length > 0 ? (
         ports.map((port) => (
           <DataGridRow key={port.id} data-testid={`network-port-row-${port.id}`}>
-            <DataGridCell>{port.status.charAt(0) + port.status.slice(1).toLowerCase()}</DataGridCell>
+            <DataGridCell>
+              <StatusLabel value={port.status} />
+            </DataGridCell>
             <DataGridCell>
               <NameIdCell
                 name={port.name}

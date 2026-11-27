@@ -123,7 +123,7 @@ const makeObjectMetadata = (overrides: Partial<ObjectMetadata> = {}): ObjectMeta
 const getIconButton = (name: RegExp) =>
   screen.getAllByRole("button").find((btn) => name.test(btn.getAttribute("title") ?? ""))!
 
-const getModalUpdateButton = () => screen.getByRole("button", { name: /Update object/i })
+const getModalSaveButton = () => screen.getByRole("button", { name: /^Save$/i })
 
 const flushEffects = () => act(async () => {})
 
@@ -176,17 +176,17 @@ describe("EditObjectMetadataModal", () => {
 
   test("renders nothing when closed or object is null", () => {
     renderModal({ isOpen: false })
-    expect(screen.queryByText(/Edit metadata:/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/Edit\/Preview Object Metadata/i)).not.toBeInTheDocument()
 
     renderModal({ isOpen: true, object: null })
-    expect(screen.queryByText(/Edit metadata:/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/Edit\/Preview Object Metadata/i)).not.toBeInTheDocument()
   })
 
   test("renders modal with object name when open", async () => {
     mockObjectMetadata = makeObjectMetadata()
     renderModal()
     await flushEffects()
-    expect(screen.getByText("Edit metadata:")).toBeInTheDocument()
+    expect(screen.getByText(/Edit\/Preview Object Metadata/i)).toBeInTheDocument()
     expect(screen.getByText("sample.txt")).toBeInTheDocument()
   })
 
@@ -213,10 +213,9 @@ describe("EditObjectMetadataModal", () => {
     renderModal()
     await flushEffects()
     await user.click(screen.getByRole("button", { name: /Add Property/i }))
-    await user.click(getIconButton(/^Save$/i))
-    await waitFor(() => {
-      expect(screen.getByText(/Key is required/i)).toBeInTheDocument()
-    })
+    // Save is disabled while key is empty — matches images modal pattern
+    const saveBtn = screen.getAllByRole("button").find((btn) => /^Save$/i.test(btn.getAttribute("title") ?? ""))!
+    expect(saveBtn).toBeDisabled()
   })
 
   test("validates metadata key contains only valid characters", async () => {
@@ -257,34 +256,6 @@ describe("EditObjectMetadataModal", () => {
     await waitFor(() => {
       expect(screen.getByText("my-key-1")).toBeInTheDocument()
     })
-  })
-
-  // ── Expires at validation ───────────────────────────────────────────────────
-
-  test("validates expires at timestamp format", async () => {
-    vi.useFakeTimers({ shouldAdvanceTime: true })
-    mockObjectMetadata = makeObjectMetadata()
-    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
-    renderModal()
-    await flushEffects()
-    await user.type(screen.getByLabelText(/Expires at/i), "not-a-date")
-    act(() => vi.advanceTimersByTime(700))
-    await waitFor(() => {
-      expect(screen.getByText(/Expected format: YYYY-MM-DD HH:mm:ss/i)).toBeInTheDocument()
-    })
-    vi.useRealTimers()
-  }, 10000)
-
-  test("blocks submission when expires at format is invalid", async () => {
-    mockObjectMetadata = makeObjectMetadata()
-    const user = userEvent.setup()
-    renderModal()
-    await flushEffects()
-    const input = screen.getByLabelText(/Expires at/i)
-    await user.clear(input)
-    await user.type(input, "bad-format")
-    await user.click(getModalUpdateButton())
-    expect(mockMutate).not.toHaveBeenCalled()
   })
 
   // ── Metadata CRUD ───────────────────────────────────────────────────────────
@@ -356,7 +327,7 @@ describe("EditObjectMetadataModal", () => {
     await user.type(screen.getByPlaceholderText(/Property Key/i), "owner")
     await user.type(screen.getByPlaceholderText(/Value/i), "Alice")
     await user.click(getIconButton(/^Save$/i))
-    await user.click(getModalUpdateButton())
+    await user.click(getModalSaveButton())
     expect(mockMutate).toHaveBeenCalledWith(
       expect.objectContaining({
         project_id: mockProjectId,
@@ -367,18 +338,6 @@ describe("EditObjectMetadataModal", () => {
     )
   })
 
-  test("submits deleteAt when expires at is set", async () => {
-    mockObjectMetadata = makeObjectMetadata()
-    const user = userEvent.setup()
-    renderModal()
-    await flushEffects()
-    await user.type(screen.getByLabelText(/Expires at/i), "2026-05-16 18:14:57")
-    await user.click(getModalUpdateButton())
-    expect(mockMutate).toHaveBeenCalledWith(
-      expect.objectContaining({ project_id: mockProjectId, deleteAt: expect.any(Number) })
-    )
-  })
-
   test("calls onSuccess and invalidates cache after successful mutation", async () => {
     const onSuccess = vi.fn()
     mockObjectMetadata = makeObjectMetadata({ customMetadata: { k: "v" } })
@@ -386,7 +345,7 @@ describe("EditObjectMetadataModal", () => {
     renderModal({ onSuccess })
     await flushEffects()
     await user.click(getIconButton(/^Delete$/i))
-    await user.click(getModalUpdateButton())
+    await user.click(getModalSaveButton())
     await waitFor(() => {
       expect(onSuccess).toHaveBeenCalledWith("sample.txt")
       expect(mockInvalidateObjectMetadata).toHaveBeenCalled()
@@ -394,20 +353,20 @@ describe("EditObjectMetadataModal", () => {
     })
   })
 
-  test("calls onError and shows error message on mutation failure", async () => {
+  test("reports mutation failure via onError and closes the modal", async () => {
     mutationError = "Forbidden"
-    const onError = vi.fn()
     mockObjectMetadata = makeObjectMetadata({ customMetadata: { k: "v" } })
+    const onError = vi.fn()
+    const onClose = vi.fn()
     const user = userEvent.setup()
-    renderModal({ onError })
+    renderModal({ onError, onClose })
     await flushEffects()
     await user.click(getIconButton(/^Delete$/i))
-    await user.click(getModalUpdateButton())
+    await user.click(getModalSaveButton())
     await waitFor(() => {
       expect(onError).toHaveBeenCalledWith("sample.txt", "Forbidden")
-      expect(screen.getByText(/Failed to update object/i)).toBeInTheDocument()
-      expect(screen.getByText(/Forbidden/)).toBeInTheDocument()
     })
+    expect(onClose).toHaveBeenCalled()
   })
 
   // ── Modal lifecycle ─────────────────────────────────────────────────────────
@@ -420,35 +379,5 @@ describe("EditObjectMetadataModal", () => {
     await flushEffects()
     await user.click(screen.getByRole("button", { name: /Cancel/i }))
     expect(onClose).toHaveBeenCalled()
-  })
-
-  test("resets form state when modal is reopened", async () => {
-    mockObjectMetadata = makeObjectMetadata()
-    const { rerender } = render(
-      <I18nProvider i18n={i18n}>
-        <PortalProvider>
-          <EditObjectMetadataModal isOpen={true} object={makeObjectRow()} onClose={vi.fn()} />
-        </PortalProvider>
-      </I18nProvider>
-    )
-    const user = userEvent.setup()
-    await user.type(screen.getByLabelText(/Expires at/i), "2026-05-16 18:14:57")
-    rerender(
-      <I18nProvider i18n={i18n}>
-        <PortalProvider>
-          <EditObjectMetadataModal isOpen={false} object={makeObjectRow()} onClose={vi.fn()} />
-        </PortalProvider>
-      </I18nProvider>
-    )
-    rerender(
-      <I18nProvider i18n={i18n}>
-        <PortalProvider>
-          <EditObjectMetadataModal isOpen={true} object={makeObjectRow()} onClose={vi.fn()} />
-        </PortalProvider>
-      </I18nProvider>
-    )
-    await waitFor(() => {
-      expect(screen.getByLabelText(/Expires at/i)).toHaveValue("")
-    })
   })
 })

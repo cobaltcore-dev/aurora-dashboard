@@ -107,6 +107,7 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
 
   if (!isOpen || !container) return null
 
+  const { name: containerName } = container
   const actualObjectCount = objects?.length ?? 0
 
   // Container has objects — cannot delete, must empty first.
@@ -118,20 +119,9 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
   const isConsistencyDelay = !isLoadingObjects && container.count > 0 && actualObjectCount === 0
   const hasPreflightError = !!(objectsError || metaError)
 
-  const modalTitle = (
-    <span className="flex max-w-100 items-center gap-2">
-      <span className="shrink-0">
-        <Trans>Delete container:</Trans>
-      </span>
-      <span className="truncate" title={container.name}>
-        {container.name}
-      </span>
-    </span>
-  )
-
   return (
     <Modal
-      title={modalTitle}
+      title={t`Delete Container`}
       open={isOpen}
       onCancel={handleClose}
       confirmButtonLabel={hasObjects ? t`Close` : t`Delete Container`}
@@ -147,33 +137,23 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
         (!hasObjects && isVersioned && !versionsConfirmed)
       }
     >
-      {(objectsError || metaError) && (
-        <Stack direction="vertical" gap="2" className="mb-4" role="alert" aria-live="assertive">
-          {objectsError && (
-            <p className="text-theme-error">
-              {(() => {
-                const errorMessage = objectsError.message
-                return <Trans>Failed to Load Container Objects: {errorMessage}</Trans>
-              })()}
-            </p>
-          )}
-          {metaError && (
-            <p className="text-theme-error">
-              {(() => {
-                const errorMessage = metaError.message
-                return <Trans>Failed to Load Container Properties: {errorMessage}</Trans>
-              })()}
-            </p>
-          )}
-        </Stack>
-      )}
       {isLoadingObjects ? (
         <Status status="progress" title={t`Loading...`} className="mt-0" />
+      ) : hasPreflightError ? (
+        <Status
+          status="error"
+          title={t`Failed to Load Container Properties`}
+          body={objectsError?.message ?? metaError?.message ?? t`Unknown Error`}
+          className="mt-0"
+        />
       ) : hasObjects ? (
         // ── Container has objects — block deletion ───────────────────────────
         <Stack direction="vertical" gap="3">
           <p className="text-theme-default">
-            <Trans>The container cannot be deleted as it contains objects. Empty the container first.</Trans>
+            <Trans>
+              Container <span className="font-semibold">{containerName}</span> cannot be deleted as it contains objects.
+              Empty the container first.
+            </Trans>
           </p>
           {isConsistencyDelay && (
             <p className="text-theme-default">
@@ -188,7 +168,10 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
         // ── Container is empty — allow deletion ──────────────────────────────
         <Stack direction="vertical" gap="6">
           <p className="text-theme-default">
-            <Trans>The container will be deleted. This action is permanent and cannot be undone.</Trans>
+            <Trans>
+              Container <span className="font-semibold">{containerName}</span> will be deleted. This action is permanent
+              and cannot be undone.
+            </Trans>
             <br />
             <Trans>
               To confirm type <strong>delete</strong> in the field below.
