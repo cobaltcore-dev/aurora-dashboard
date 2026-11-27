@@ -30,6 +30,8 @@ export function ShareSnapshotDetailsView({ snapshot, projectId }: ShareSnapshotD
         <SharedFileSystemIdLink target="share" id={snapshot.share_id} projectId={projectId} />
       ) : undefined,
     },
+    // Admin-only field: shown when available, hidden (- -) otherwise
+    { label: t`Provider Location`, value: snapshot.provider_location },
   ]
 
   return (

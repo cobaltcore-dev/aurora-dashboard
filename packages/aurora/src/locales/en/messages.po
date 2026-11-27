@@ -3885,6 +3885,9 @@ msgstr "Protocol"
 msgid "Protocol name (e.g. tcp, udp, icmp, gre) or IP protocol number 0-255."
 msgstr "Protocol name (e.g. tcp, udp, icmp, gre) or IP protocol number 0-255."
 
+msgid "Provider Location"
+msgstr "Provider Location"
+
 msgid "Public"
 msgstr "Public"
 

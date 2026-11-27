@@ -14,6 +14,8 @@ export const shareSnapshotSchema = z.object({
   updated_at: optionalText,
   size: optionalSize,
   share_size: optionalSize,
+  // Admin-only field (v2.12+): non-admins receive null or the field is omitted
+  provider_location: optionalText,
 })
 
 export const listShareSnapshotsInputSchema = projectScopedInputSchema.extend({
