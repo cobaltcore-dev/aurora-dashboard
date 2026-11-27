@@ -113,6 +113,18 @@ describe("ClipboardText", () => {
   })
 
   describe("Copy functionality", () => {
+    it("allows native text selection while retaining the copy button when selectable", async () => {
+      await act(async () => {
+        render(<ClipboardText text="attachment-1" selectable />, { wrapper: TestingProvider })
+      })
+      expect(screen.getByText("attachment-1")).toHaveClass("select-text")
+      expect(screen.getByText("attachment-1")).not.toHaveClass("select-none")
+      await act(async () => {
+        fireEvent.click(screen.getByRole("button", { name: "Copy attachment-1 to clipboard" }))
+      })
+      expect(mockWriteText).toHaveBeenCalledWith("attachment-1")
+    })
+
     it("copies text to clipboard when clicked", async () => {
       await act(async () => {
         render(
@@ -310,11 +322,28 @@ describe("ClipboardText", () => {
   })
 
   describe("Icon visibility", () => {
-    it("renders the copy icon visible by default (iconVisible='always')", async () => {
+    it("hides the copy icon until hover by default (iconVisible='hover')", async () => {
       await act(async () => {
         render(
           <TestingProvider>
             <ClipboardText text="Test text" />
+          </TestingProvider>
+        )
+      })
+
+      const trigger = screen.getByTestId("clipboard-copy-trigger")
+      // Hidden by default, revealed via group-hover / group-focus-within
+      expect(trigger).toHaveClass("opacity-0")
+      expect(trigger).toHaveClass("group-hover:opacity-100")
+      expect(trigger).toHaveClass("group-focus-within:opacity-100")
+      expect(trigger).not.toHaveClass("opacity-100")
+    })
+
+    it("keeps the copy icon visible when iconVisible='always'", async () => {
+      await act(async () => {
+        render(
+          <TestingProvider>
+            <ClipboardText text="Test text" iconVisible="always" />
           </TestingProvider>
         )
       })
@@ -361,11 +390,11 @@ describe("ClipboardText", () => {
       expect(trigger).not.toHaveClass("opacity-0")
     })
 
-    it("keeps the icon visible when iconOnly (default iconVisible='always')", async () => {
+    it("keeps the icon visible when iconOnly and iconVisible='always'", async () => {
       await act(async () => {
         render(
           <TestingProvider>
-            <ClipboardText text="Test text" iconOnly />
+            <ClipboardText text="Test text" iconOnly iconVisible="always" />
           </TestingProvider>
         )
       })
@@ -393,6 +422,25 @@ describe("ClipboardText", () => {
       expect(trigger).toHaveClass("group-focus-within:opacity-100")
       // iconOnly must not render the display text
       expect(screen.queryByText("Test text")).not.toBeInTheDocument()
+    })
+
+    it("drops its own group and follows the parent group hover when revealOnGroupHover", async () => {
+      await act(async () => {
+        render(
+          <TestingProvider>
+            <ClipboardText text="Test text" iconOnly revealOnGroupHover />
+          </TestingProvider>
+        )
+      })
+
+      const trigger = screen.getByTestId("clipboard-copy-trigger")
+      // Reveal uses the shared group-hover classes, driven by an ancestor `group`
+      expect(trigger).toHaveClass("opacity-0")
+      expect(trigger).toHaveClass("group-hover:opacity-100")
+      expect(trigger).toHaveClass("group-focus-within:opacity-100")
+      // The component must not create its own competing `group`
+      const root = trigger.closest(".copyableTooltip")
+      expect(root).not.toHaveClass("group")
     })
 
     it("renders the display text outside the copy trigger (only the icon copies)", async () => {

@@ -86,12 +86,13 @@ describe("PortTableRow", () => {
       expect(screen.getByRole("button", { name: /copy port-123 to clipboard/i })).toBeInTheDocument()
     })
 
-    it("renders only the ID when the port has no name", async () => {
+    it("renders '- -' for the name and keeps the ID beneath when the port has no name", async () => {
       renderComponent({ ...mockPort, name: "" })
 
       await waitFor(() => {
-        // ID appears once in col 2 as name fallback
-        expect(screen.getAllByText("port-123")).toHaveLength(1)
+        // Name line falls back to the placeholder; ID still shown beneath it
+        expect(screen.getByText("- -")).toBeInTheDocument()
+        expect(screen.getByText("port-123")).toBeInTheDocument()
       })
     })
 
@@ -190,11 +191,11 @@ describe("PortTableRow", () => {
   })
 
   describe("Empty values", () => {
-    it("renders '- -' for description, fixed IPs and device when not set", async () => {
+    it("renders '- -' for name, description, fixed IPs and device when not set", async () => {
       renderComponent(unattachedPort)
 
       await waitFor(() => {
-        expect(screen.getAllByText("- -")).toHaveLength(3)
+        expect(screen.getAllByText("- -")).toHaveLength(4)
       })
     })
   })

@@ -9,7 +9,6 @@ export function ResourceTabs({ projectId, snapshots = false }: { projectId: stri
   return (
     <TabBar
       ariaLabel={t`Block storage resources`}
-      appearance="content"
       activeItem={snapshots ? "snapshots" : "volumes"}
       onActiveItemChange={(value) => {
         void navigate({

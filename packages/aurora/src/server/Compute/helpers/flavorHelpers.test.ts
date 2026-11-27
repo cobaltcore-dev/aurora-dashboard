@@ -73,6 +73,29 @@ const mockFlavors: Flavor[] = [
 ]
 
 describe("includesSearchTerm", () => {
+  it.each([
+    ["rxtx_factor", 7.25, "7.25"],
+    ["OS-FLV-EXT-DATA:ephemeral", 73, "73"],
+    ["OS-FLV-DISABLED:disabled", true, "true"],
+    ["os-flavor-access:is_public", false, "private"],
+    ["extra_specs", { "hw:cpu_policy": "dedicated" }, "cpu_policy"],
+    ["extra_specs", { "hw:cpu_policy": "dedicated" }, "DEDICATED"],
+  ])("searches %s", (field, value, term) => {
+    expect(includesSearchTerm({ ...mockFlavors[0], [field]: value }, term as string)).toBe(true)
+  })
+
+  it("matches literal punctuation and treats blank search as unrestricted", () => {
+    const flavor = { ...mockFlavors[0], name: "flavor[small]" }
+    expect(includesSearchTerm(flavor, "[")).toBe(true)
+    expect(includesSearchTerm(flavor, ".*")).toBe(false)
+    expect(includesSearchTerm(flavor, "  FLAVOR[SMALL]  ")).toBe(true)
+    expect(includesSearchTerm(flavor, "   ")).toBe(true)
+    expect(includesSearchTerm({ ...flavor, description: undefined }, "undefined")).toBe(false)
+    expect(includesSearchTerm({ ...flavor, links: [{ href: "https://unique-link.invalid" }] }, "unique-link")).toBe(
+      false
+    )
+  })
+
   it("should return true if search term is in id", () => {
     const flavor: Flavor = {
       id: "test-123",

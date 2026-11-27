@@ -160,9 +160,9 @@ function handleHttpError(
 }
 
 export function includesSearchTerm(flavor: Flavor, searchTerm: string): boolean {
-  const regex = new RegExp(searchTerm, "i")
+  const term = searchTerm.trim().toLocaleLowerCase()
 
-  // Search across all visible fields in the flavor list: id, name, description, vcpus, ram, disk, swap
+  // Flavors has no dedicated filters. Search resource data, not API navigation links.
   const searchableValues = [
     flavor.id,
     flavor.name,
@@ -171,13 +171,23 @@ export function includesSearchTerm(flavor: Flavor, searchTerm: string): boolean 
     flavor.ram,
     flavor.disk,
     flavor.swap,
+    flavor.rxtx_factor,
+    flavor["OS-FLV-EXT-DATA:ephemeral"],
+    flavor["OS-FLV-DISABLED:disabled"],
+    flavor["os-flavor-access:is_public"],
+    flavor["os-flavor-access:is_public"] == null
+      ? undefined
+      : flavor["os-flavor-access:is_public"]
+        ? "public"
+        : "private",
+    ...Object.entries(flavor.extra_specs ?? {}).flat(),
   ]
 
+  if (!term) return true
   return searchableValues.some((value) => {
     if (value == null) return false
-    if (typeof value === "string") return regex.test(value)
-    if (typeof value === "number") return regex.test(value.toString())
-    return false
+    if (typeof value === "boolean" && (value ? "yes" : "no").includes(term)) return true
+    return String(value).toLocaleLowerCase().includes(term)
   })
 }
 

@@ -6,7 +6,7 @@ import {
   Status,
 } from "@cloudoperators/juno-ui-components/index"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { Fragment } from "react"
+import { Fragment, type ReactNode } from "react"
 import type { Flavor } from "@/server/Compute/types/flavor"
 import ClipboardText from "@/client/components/ClipboardText"
 import { trpcReact } from "@/client/trpcClient"
@@ -20,7 +20,11 @@ interface FlavorDetailsViewProps {
 export function FlavorDetailsView({ flavor, canListSpecs = false }: FlavorDetailsViewProps) {
   const { t } = useLingui()
   const projectId = useProjectId()
-  const formatWithUnit = (value: number, unit: string) => `${value} ${unit}`
+  const displayValue = (value: ReactNode) =>
+    value == null || (typeof value === "string" && !value.trim()) ? "- -" : value
+  const formatWithUnit = (value: number | undefined, unit: string) => (value == null ? "- -" : `${value} ${unit}`)
+  const formatBoolean = (value: boolean | undefined) =>
+    value == null ? "- -" : value ? <Trans>Yes</Trans> : <Trans>No</Trans>
 
   const {
     data: extraSpecs,
@@ -37,16 +41,16 @@ export function FlavorDetailsView({ flavor, canListSpecs = false }: FlavorDetail
   )
 
   const basicInfoItems = [
-    { label: t`ID`, value: <ClipboardText text={flavor.id} /> },
+    { label: t`ID`, value: flavor.id.trim() ? <ClipboardText text={flavor.id} /> : "- -" },
     { label: t`Name`, value: flavor.name },
-    { label: t`Description`, value: flavor?.description ?? "" },
+    { label: t`Description`, value: flavor.description },
     {
       label: t`Public`,
-      value: flavor["os-flavor-access:is_public"] ? <Trans>Yes</Trans> : <Trans>No</Trans>,
+      value: formatBoolean(flavor["os-flavor-access:is_public"]),
     },
     {
       label: t`Disabled`,
-      value: flavor["OS-FLV-DISABLED:disabled"] ? <Trans>Yes</Trans> : <Trans>No</Trans>,
+      value: formatBoolean(flavor["OS-FLV-DISABLED:disabled"]),
     },
   ]
 
@@ -56,13 +60,20 @@ export function FlavorDetailsView({ flavor, canListSpecs = false }: FlavorDetail
     { label: t`Root Disk`, value: formatWithUnit(flavor.disk, "GiB") },
     {
       label: t`Ephemeral Disk`,
-      value: formatWithUnit(flavor["OS-FLV-EXT-DATA:ephemeral"] || 0, "GiB"),
+      value: formatWithUnit(flavor["OS-FLV-EXT-DATA:ephemeral"], "GiB"),
     },
     {
       label: t`Swap`,
-      value: flavor.swap === 0 || flavor.swap === "" ? <Trans>None</Trans> : formatWithUnit(Number(flavor.swap), "MiB"),
+      value:
+        flavor.swap == null || (typeof flavor.swap === "string" && !flavor.swap.trim()) ? (
+          "- -"
+        ) : Number(flavor.swap) === 0 ? (
+          <Trans>None</Trans>
+        ) : (
+          formatWithUnit(Number(flavor.swap), "MiB")
+        ),
     },
-    { label: t`RX/TX Factor`, value: flavor.rxtx_factor ?? "" },
+    { label: t`RX/TX Factor`, value: flavor.rxtx_factor },
   ]
 
   const extraSpecItems = extraSpecs ? Object.entries(extraSpecs).map(([key, value]) => ({ label: key, value })) : []
@@ -79,7 +90,7 @@ export function FlavorDetailsView({ flavor, canListSpecs = false }: FlavorDetail
               <Fragment key={`basic-${index}`}>
                 <DescriptionTerm>{label}</DescriptionTerm>
                 <DescriptionDefinition>
-                  <div className="truncate">{value}</div>
+                  <div className="truncate">{displayValue(value)}</div>
                 </DescriptionDefinition>
               </Fragment>
             ))}
@@ -95,7 +106,7 @@ export function FlavorDetailsView({ flavor, canListSpecs = false }: FlavorDetail
               <Fragment key={`hardware-${index}`}>
                 <DescriptionTerm>{label}</DescriptionTerm>
                 <DescriptionDefinition>
-                  <div className="truncate">{value}</div>
+                  <div className="truncate">{displayValue(value)}</div>
                 </DescriptionDefinition>
               </Fragment>
             ))}
@@ -118,7 +129,7 @@ export function FlavorDetailsView({ flavor, canListSpecs = false }: FlavorDetail
                 <Fragment key={`extra-${index}`}>
                   <DescriptionTerm className="col-span-1 break-all">{label}</DescriptionTerm>
                   <DescriptionDefinition className="col-span-1">
-                    <div className="break-all">{value}</div>
+                    <div className="break-all">{displayValue(value)}</div>
                   </DescriptionDefinition>
                 </Fragment>
               ))}

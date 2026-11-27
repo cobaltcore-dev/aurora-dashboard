@@ -166,7 +166,7 @@ export function VolumeDetails({ projectId, volumeId }: { projectId: string; volu
                 </DataGridCell>
                 <DataGridCell>{attachment.device || "- -"}</DataGridCell>
                 <DataGridCell textContain="break-word">
-                  {attachment.attachment_id ? <ClipboardText text={attachment.attachment_id} /> : "- -"}
+                  {attachment.attachment_id ? <ClipboardText text={attachment.attachment_id} selectable /> : "- -"}
                 </DataGridCell>
                 <DataGridCell>{formatCinderDate(attachment.attached_at, i18n.locale)}</DataGridCell>
               </DataGridRow>
@@ -204,6 +204,7 @@ export function VolumeDetails({ projectId, volumeId }: { projectId: string; volu
               items={snapshotsQuery.data ?? []}
               snapshots
               compact
+              nameLinkOnly
               projectId={projectId}
               canRead={permissions.canReadSnapshots}
             />

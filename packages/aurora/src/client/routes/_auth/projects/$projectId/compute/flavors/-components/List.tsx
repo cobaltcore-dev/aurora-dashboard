@@ -1,6 +1,7 @@
 import { use, Suspense, useState, useRef, startTransition, useEffect, useCallback } from "react"
 import { ErrorBoundary } from "react-error-boundary"
-import { useLingui } from "@lingui/react/macro"
+import { Trans, useLingui } from "@lingui/react/macro"
+import { i18n } from "@lingui/core"
 import { useSearch, useNavigate } from "@tanstack/react-router"
 import { TrpcClient } from "@/client/trpcClient"
 import { Flavor } from "@/server/Compute/types/flavor"
@@ -11,6 +12,7 @@ import { SortSettings } from "@/client/components/ListToolbar/types"
 import { FlavorListContainer } from "./FlavorListContainer"
 import { CreateFlavorModal } from "./CreateFlavorModal"
 import { getFlavorCreatedToast, getFlavorDeletedToast } from "./FlavorToastNotifications"
+import { formatRelativeTime } from "@/client/utils/formatRelativeTime"
 import type { FlavorsSearchParams } from "@/client/routes/_auth/projects/$projectId/compute/flavors"
 
 const PAGE_SIZE = 50
@@ -35,7 +37,7 @@ const createFlavorsPromise = (
 ) => {
   return client.compute.getFlavorsByProjectId
     .query({ project_id: project, sortBy, sortDirection, searchTerm })
-    .then((res) => ({ ...res, listError: undefined as string | undefined }))
+    .then((res) => ({ ...res, listError: undefined as string | undefined, resolvedAt: Date.now() }))
     .catch((err: unknown) => {
       if (err instanceof TRPCClientError && err.data?.code === "FORBIDDEN") {
         return { flavors: [] as Flavor[], privateFlavorError: undefined, listError: err.message }
@@ -81,7 +83,7 @@ function FlavorsContent({
   currentPage,
   onPageChange,
 }: {
-  flavorsPromise: Promise<{ flavors: Flavor[]; privateFlavorError?: string; listError?: string }>
+  flavorsPromise: Promise<{ flavors: Flavor[]; privateFlavorError?: string; listError?: string; resolvedAt?: number }>
   permissionsPromise: Promise<{
     canCreate: boolean
     canDelete: boolean
@@ -102,7 +104,7 @@ function FlavorsContent({
   onPageChange: (page: number) => void
 }) {
   const { t } = useLingui()
-  const { flavors, privateFlavorError, listError } = use(flavorsPromise)
+  const { flavors, privateFlavorError, listError, resolvedAt } = use(flavorsPromise)
   const permissions = use(permissionsPromise)
   const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm)
   const debounceTimer = useRef<number | undefined>(undefined)
@@ -116,6 +118,9 @@ function FlavorsContent({
   const totalPages = Math.max(1, Math.ceil(flavors.length / PAGE_SIZE))
   const safePage = Math.min(currentPage, totalPages)
   const paginatedFlavors = flavors.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
+
+  const flavorCount = flavors.length
+  const lastUpdatedText = resolvedAt ? formatRelativeTime(resolvedAt, i18n.locale) : null
 
   useEffect(() => {
     if (currentPage > totalPages) onPageChange(1)
@@ -159,29 +164,43 @@ function FlavorsContent({
         </Stack>
       </Stack>
 
-      {/* Zone 2 — search bar */}
+      {/* Zone 2+3 — search (Zone 2) and item count + last-updated (Zone 3)
+          share a single DataGridToolbar per the Juno DataGrid header pattern. */}
       <DataGridToolbar>
-        <Stack distribution="end" alignment="center">
-          <SearchInput
-            placeholder={t`Search flavors...`}
-            data-testid="searchbar"
-            value={localSearchTerm}
-            onInput={(e: React.FormEvent<HTMLInputElement>) => {
-              const v = e.currentTarget.value
-              setLocalSearchTerm(v)
-              clearTimeout(debounceTimer.current)
-              debounceTimer.current = window.setTimeout(() => setSearchTerm(v), 500)
-            }}
-            onSearch={(v) => {
-              clearTimeout(debounceTimer.current)
-              setSearchTerm(typeof v === "string" ? v : "")
-            }}
-            onClear={() => {
-              clearTimeout(debounceTimer.current)
-              setLocalSearchTerm("")
-              setSearchTerm("")
-            }}
-          />
+        <Stack direction="vertical" gap="2">
+          <Stack distribution="end" alignment="center">
+            <SearchInput
+              placeholder={t`Search…`}
+              data-testid="searchbar"
+              value={localSearchTerm}
+              onInput={(e: React.FormEvent<HTMLInputElement>) => {
+                const v = e.currentTarget.value
+                setLocalSearchTerm(v)
+                clearTimeout(debounceTimer.current)
+                debounceTimer.current = window.setTimeout(() => setSearchTerm(v), 500)
+              }}
+              onSearch={(v) => {
+                clearTimeout(debounceTimer.current)
+                setSearchTerm(typeof v === "string" ? v : "")
+              }}
+              onClear={() => {
+                clearTimeout(debounceTimer.current)
+                setLocalSearchTerm("")
+                setSearchTerm("")
+              }}
+            />
+          </Stack>
+          {/* Zone 3 — item count + last-updated */}
+          <Stack distribution="between" alignment="center" className="text-theme-light text-sm">
+            <span>
+              <Trans>Showing {flavorCount} flavors</Trans>
+            </span>
+            {lastUpdatedText && (
+              <span>
+                <Trans>Last updated: {lastUpdatedText}</Trans>
+              </span>
+            )}
+          </Stack>
         </Stack>
       </DataGridToolbar>
 

@@ -1,6 +1,7 @@
 import { Button, DataGridToolbar, SearchInput, Stack, Status } from "@cloudoperators/juno-ui-components"
 import { useNavigate, useSearch } from "@tanstack/react-router"
-import { useLingui } from "@lingui/react/macro"
+import { Trans, useLingui } from "@lingui/react/macro"
+import { i18n } from "@lingui/core"
 import { trpcReact } from "@/client/trpcClient"
 import { useVolumePermissions } from "@/client/hooks/useVolumePermissions"
 import { SortInput } from "@/client/components/ListToolbar/SortInput"
@@ -11,6 +12,7 @@ import { VOLUME_STATUSES, SNAPSHOT_STATUSES } from "@/types/volume"
 import { filterAndSortVolumes, type VolumeSearch } from "../-utils/list"
 import { ResourceTable } from "./ResourceTable"
 import { ResourceTabs } from "./ResourceTabs"
+import { formatRelativeTime } from "@/client/utils/formatRelativeTime"
 import { RouteError } from "@/client/components/Errors/RouteError"
 
 export function ResourceList({ projectId, snapshots = false }: { projectId: string; snapshots?: boolean }) {
@@ -69,6 +71,10 @@ export function ResourceList({ projectId, snapshots = false }: { projectId: stri
       : []),
   ]
   const hasActiveFilters = Boolean(search.search?.trim() || selectedFilters.length)
+  const matchingCount = items.length
+  const totalCount = allItems.length
+  const lastUpdatedText =
+    query.dataUpdatedAt && !query.isFetching ? formatRelativeTime(query.dataUpdatedAt, i18n.locale) : null
 
   if (permissions.isPending) return <Status status="progress" title={t`Loading Permissions...`} />
   if (permissions.error?.data?.code === "FORBIDDEN" || (!permissions.error && !canList))
@@ -122,7 +128,7 @@ export function ResourceList({ projectId, snapshots = false }: { projectId: stri
                 onChange={({ name, value }) => updateSearch({ [name]: value || undefined })}
               />
               <SearchInput
-                placeholder={snapshots ? t`Search snapshots by name or ID...` : t`Search volumes by name or ID...`}
+                placeholder={t`Search…`}
                 value={search.search ?? ""}
                 onInput={(event) => updateSearch({ search: event.currentTarget.value || undefined })}
                 onSearch={(value) => updateSearch({ search: typeof value === "string" ? value : undefined })}
@@ -146,6 +152,30 @@ export function ResourceList({ projectId, snapshots = false }: { projectId: stri
                 )}
               </Stack>
             )}
+            <Stack distribution="between" alignment="center" className="text-theme-light text-sm">
+              <span>
+                {hasActiveFilters ? (
+                  snapshots ? (
+                    <Trans>
+                      Showing {matchingCount} of {totalCount} snapshots
+                    </Trans>
+                  ) : (
+                    <Trans>
+                      Showing {matchingCount} of {totalCount} volumes
+                    </Trans>
+                  )
+                ) : snapshots ? (
+                  <Trans>Showing {matchingCount} snapshots</Trans>
+                ) : (
+                  <Trans>Showing {matchingCount} volumes</Trans>
+                )}
+              </span>
+              {lastUpdatedText && (
+                <span>
+                  <Trans>Last updated: {lastUpdatedText}</Trans>
+                </span>
+              )}
+            </Stack>
           </Stack>
         </DataGridToolbar>
       </Stack>

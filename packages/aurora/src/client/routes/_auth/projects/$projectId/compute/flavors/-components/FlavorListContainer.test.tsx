@@ -1,4 +1,4 @@
-import { render, screen, act, fireEvent } from "@testing-library/react"
+import { render, screen, act, fireEvent, within } from "@testing-library/react"
 import { describe, it, expect, beforeAll, vi } from "vitest"
 import { FlavorListContainer } from "./FlavorListContainer"
 import { Flavor } from "@/server/Compute/types/flavor"
@@ -76,7 +76,7 @@ describe("FlavorListContainer", () => {
     // Use findByText for async rendering
     expect(await screen.findByText("Loading...")).toBeInTheDocument()
     expect(screen.queryByText("No flavors found")).not.toBeInTheDocument()
-    expect(screen.queryByText("Name")).not.toBeInTheDocument()
+    expect(screen.queryByText("Name / ID")).not.toBeInTheDocument()
   })
 
   it("renders no flavors message when flavors is empty", async () => {
@@ -144,13 +144,66 @@ describe("FlavorListContainer", () => {
     expect(screen.queryByText("Loading...")).not.toBeInTheDocument()
     expect(screen.queryByText("No flavors found")).not.toBeInTheDocument()
 
-    expect(screen.getByText("Name")).toBeInTheDocument()
+    expect(screen.getByText("Name / ID")).toBeInTheDocument()
     expect(screen.getByText("vCPU")).toBeInTheDocument()
     expect(screen.getByText("RAM (MiB)")).toBeInTheDocument()
     expect(screen.getByText("Root Disk (GiB)")).toBeInTheDocument()
     expect(screen.getByText("Swap (MiB)")).toBeInTheDocument()
     expect(screen.getByText("Flavor1")).toBeInTheDocument()
     expect(screen.getByText("Flavor2")).toBeInTheDocument()
+  })
+
+  it.each([undefined, "", "   "])(
+    "shows placeholders for missing list values (%j) and preserves zero",
+    async (swap) => {
+      await act(async () => {
+        render(
+          <FlavorListContainer
+            flavors={[{ ...mockFlavors[0], disk: 0, swap }]}
+            isLoading={false}
+            client={mockClient}
+            project={mockProject}
+          />,
+          { wrapper: TestingProvider }
+        )
+      })
+      const cells = within(screen.getByTestId("flavor-row-1")).getAllByRole("gridcell")
+      expect(cells[3]).toHaveTextContent("0")
+      expect(cells[4]).toHaveTextContent("- -")
+      expect(cells[5]).toHaveTextContent("- -")
+    }
+  )
+
+  it("keeps zero swap and private access as real values", async () => {
+    await act(async () => {
+      render(
+        <FlavorListContainer
+          flavors={[{ ...mockFlavors[0], "os-flavor-access:is_public": false }]}
+          isLoading={false}
+          client={mockClient}
+          project={mockProject}
+        />,
+        { wrapper: TestingProvider }
+      )
+    })
+    const cells = within(screen.getByTestId("flavor-row-1")).getAllByRole("gridcell")
+    expect(cells[4]).toHaveTextContent("0")
+    expect(cells[5]).toHaveTextContent("Private")
+  })
+
+  it("uses the ID when the name is whitespace-only", async () => {
+    await act(async () => {
+      render(
+        <FlavorListContainer
+          flavors={[{ ...mockFlavors[0], name: "   " }]}
+          isLoading={false}
+          client={mockClient}
+          project={mockProject}
+        />,
+        { wrapper: TestingProvider }
+      )
+    })
+    expect(within(screen.getByTestId("flavor-row-1")).getAllByRole("gridcell")[0]).toHaveTextContent("1")
   })
 
   it("calls onPageChange with a valid page number when Enter is pressed", async () => {

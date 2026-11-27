@@ -181,7 +181,7 @@ function RoutersContent({
               onChange={(selected) => onStatusChange(selected.value || undefined)}
             />
             <SearchInput
-              placeholder={t`Search routers...`}
+              placeholder={t`Search...`}
               data-testid="searchbar"
               value={localSearchTerm}
               onInput={(e: React.FormEvent<HTMLInputElement>) => {

@@ -6,6 +6,7 @@ import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import type { Port } from "@/server/Network/types/port"
+import type { RouterListItem } from "@/server/Network/types/router"
 import { NetworkRoutersTab } from "./NetworkRoutersTab"
 
 vi.mock("@tanstack/react-router", () => ({
@@ -27,6 +28,10 @@ vi.mock("@tanstack/react-router", () => ({
       </a>
     )
   },
+}))
+
+vi.mock("@/client/hooks", () => ({
+  useProjectId: () => "proj-1",
 }))
 
 const TestWrapper = ({ children }: { children: ReactNode }) => (
@@ -51,6 +56,17 @@ const basePort: Port = {
   project_id: "proj-1",
 }
 
+const mockRouter: RouterListItem = {
+  id: "router-abc",
+  name: "edge-router",
+  description: "",
+  status: "ACTIVE",
+  admin_state_up: true,
+  project_id: "proj-1",
+  routes: [],
+  external_gateway_info: { network_id: "ext-net-1", network_name: "FloatingIP-external-01" },
+}
+
 const renderTab = (ports: Port[], props: Partial<React.ComponentProps<typeof NetworkRoutersTab>> = {}) =>
   render(
     <NetworkRoutersTab
@@ -58,7 +74,6 @@ const renderTab = (ports: Port[], props: Partial<React.ComponentProps<typeof Net
       isLoading={false}
       isError={false}
       error={null}
-      projectId="proj-1"
       routersAvailable={false}
       {...props}
     />,
@@ -143,21 +158,58 @@ describe("NetworkRoutersTab", () => {
     expect(screen.queryByRole("button", { name: "Try Again" })).not.toBeInTheDocument()
   })
 
-  describe("router deep-link", () => {
-    it("renders a link for each router when routersAvailable is true", () => {
-      renderTab([basePort], { routersAvailable: true })
+  describe("resolved router data", () => {
+    it("renders the column headers", () => {
+      renderTab([basePort], { routersAvailable: true, routersById: new Map([[mockRouter.id, mockRouter]]) })
 
-      const link = screen.getByRole("link")
-      expect(link).toHaveAttribute("href", expect.stringContaining("router-abc"))
-      expect(link).toHaveTextContent("router-abc")
-      // Copy affordance sits beside the link (I12)
+      expect(screen.getAllByRole("columnheader").map((cell) => cell.textContent)).toEqual([
+        "Status",
+        "Name / ID",
+        "Admin State",
+        "External Gateway",
+      ])
+    })
+
+    it("shows the resolved name, status, admin state and external gateway", () => {
+      renderTab([basePort], { routersAvailable: true, routersById: new Map([[mockRouter.id, mockRouter]]) })
+
+      expect(screen.getByText("edge-router")).toBeInTheDocument()
+      expect(screen.getByText("FloatingIP-external-01")).toBeInTheDocument()
+      // ID beneath the name with a copy affordance
       expect(screen.getByRole("button", { name: /copy router-abc to clipboard/i })).toBeInTheDocument()
     })
 
-    it("renders plain copy affordance when routersAvailable is false", () => {
-      renderTab([basePort], { routersAvailable: false })
+    it("links the resolved router name to its detail page", () => {
+      renderTab([basePort], { routersAvailable: true, routersById: new Map([[mockRouter.id, mockRouter]]) })
+
+      const link = screen.getByRole("link", { name: /edge-router/ })
+      expect(link).toHaveAttribute("href", expect.stringContaining("router-abc"))
+      // Default text color (not the link accent), underline on hover
+      expect(link).toHaveClass("text-inherit", "hover:underline")
+    })
+
+    it("renders the name as plain text (no link) when routersAvailable is false", () => {
+      renderTab([basePort], { routersAvailable: false, routersById: new Map([[mockRouter.id, mockRouter]]) })
 
       expect(screen.queryByRole("link")).not.toBeInTheDocument()
+    })
+
+    it("falls back to the ID link and placeholders when the router can't be resolved", () => {
+      renderTab([basePort], { routersAvailable: true })
+
+      // Name, Status, Admin State and External Gateway show the placeholder
+      expect(screen.getAllByText("- -")).toHaveLength(4)
+      // The unnamed router's ID line becomes the link, still with a copy affordance
+      const link = screen.getByRole("link", { name: /router-abc/ })
+      expect(link).toHaveAttribute("href", expect.stringContaining("router-abc"))
+      expect(screen.getByRole("button", { name: /copy router-abc to clipboard/i })).toBeInTheDocument()
+    })
+
+    it("does not resolve details when routersAvailable is false", () => {
+      renderTab([basePort], { routersAvailable: false, routersById: new Map([[mockRouter.id, mockRouter]]) })
+
+      // Without the Routers scope the tab shows only the ID, not the resolved name
+      expect(screen.queryByText("edge-router")).not.toBeInTheDocument()
       expect(screen.getByRole("button", { name: /copy router-abc to clipboard/i })).toBeInTheDocument()
     })
   })

@@ -82,28 +82,6 @@ export function buildNavSections(
               },
             ]
           : []),
-        ...(isEnabled("securitygroups")
-          ? [
-              {
-                service: "securitygroups",
-                label: t`Security Groups`,
-                navigate: (nav: NavigateFn) =>
-                  nav({ to: "/projects/$projectId/network/securitygroups", params: { projectId } }),
-                params: { projectId },
-              },
-            ]
-          : []),
-        ...(isEnabled("floatingips")
-          ? [
-              {
-                service: "floatingips",
-                label: t`Floating IPs`,
-                navigate: (nav: NavigateFn) =>
-                  nav({ to: "/projects/$projectId/network/floatingips", params: { projectId } }),
-                params: { projectId },
-              },
-            ]
-          : []),
         ...(isEnabled("routers")
           ? [
               {
@@ -121,6 +99,28 @@ export function buildNavSections(
                 service: "ports",
                 label: t`Fixed IPs / Ports`,
                 navigate: (nav: NavigateFn) => nav({ to: "/projects/$projectId/network/ports", params: { projectId } }),
+                params: { projectId },
+              },
+            ]
+          : []),
+        ...(isEnabled("floatingips")
+          ? [
+              {
+                service: "floatingips",
+                label: t`Floating IPs`,
+                navigate: (nav: NavigateFn) =>
+                  nav({ to: "/projects/$projectId/network/floatingips", params: { projectId } }),
+                params: { projectId },
+              },
+            ]
+          : []),
+        ...(isEnabled("securitygroups")
+          ? [
+              {
+                service: "securitygroups",
+                label: t`Security Groups`,
+                navigate: (nav: NavigateFn) =>
+                  nav({ to: "/projects/$projectId/network/securitygroups", params: { projectId } }),
                 params: { projectId },
               },
             ]
@@ -177,7 +177,7 @@ export function buildNavSections(
       ? [
           {
             service: "volumes",
-            label: t`Volumes`,
+            label: t`Volumes & Snapshots`,
             navigate: (nav: NavigateFn) => nav({ to: "/projects/$projectId/volumes", params: { projectId } }),
             params: { projectId },
           },

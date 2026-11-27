@@ -1,5 +1,7 @@
 import {
+  Button,
   Container,
+  Message,
   Stack,
   DataGrid,
   DataGridHeadCell,
@@ -8,6 +10,7 @@ import {
   Pill,
   Status,
 } from "@cloudoperators/juno-ui-components"
+import { useState } from "react"
 import { useLingui } from "@lingui/react/macro"
 import type { Server } from "@/server/Compute/types/server"
 import ClipboardText from "@/client/components/ClipboardText"
@@ -20,6 +23,47 @@ import { StatusLabel } from "@/client/components/StatusLabel"
 interface InstanceDetailsViewProps {
   instance: Server
   projectId: string
+}
+
+/**
+ * Error banner for an instance in the ERROR state. Nova reports the reason in `fault`;
+ * show its message (and code when present). The optional, often lengthy `details`
+ * (a stack trace) is tucked behind a toggle so it does not flood the view.
+ */
+function FaultMessage({ instance }: { instance: Server }) {
+  const { t } = useLingui()
+  const [showDetails, setShowDetails] = useState(false)
+  const message = instance.fault?.message?.trim()
+  if (instance.status !== "ERROR" || !message) return null
+
+  const code = instance.fault?.code
+  const details = instance.fault?.details?.trim()
+
+  return (
+    <Message variant="error" title={code != null ? t`Error ${code}` : t`Error`} data-testid="instance-fault">
+      <Stack direction="vertical" gap="2" alignment="start">
+        <span>{message}</span>
+        {details && (
+          <>
+            <Button
+              size="xs"
+              variant="subdued"
+              label={showDetails ? t`Hide Details` : t`Show Details`}
+              onClick={() => setShowDetails((v) => !v)}
+            />
+            {showDetails && (
+              <pre
+                data-testid="instance-fault-details"
+                className="text-theme-default bg-theme-background-lvl-1 max-h-64 w-full overflow-auto rounded p-2 text-xs whitespace-pre-wrap"
+              >
+                {details}
+              </pre>
+            )}
+          </>
+        )}
+      </Stack>
+    </Message>
+  )
 }
 
 /**
@@ -173,6 +217,7 @@ function AddressesSection({ instance }: { instance: Server }) {
 export function InstanceDetailsView({ instance, projectId }: InstanceDetailsViewProps) {
   return (
     <Stack direction="vertical" gap="6">
+      <FaultMessage instance={instance} />
       <OverviewSection instance={instance} projectId={projectId} />
       <StateSection instance={instance} />
       <HostSection instance={instance} />

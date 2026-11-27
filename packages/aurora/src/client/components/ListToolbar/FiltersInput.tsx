@@ -62,7 +62,7 @@ export const FiltersInput = ({
     className: cn("w-full sm:min-w-0 sm:flex-1", selectClassName),
     name: "filter",
     "data-testid": "select-filterValue",
-    label: t`Filter by`,
+    label: t`Filter By`,
     value: selectedFilterName,
     onChange: (value: string | number | string[] | undefined) => {
       setSelectedFilterName(String(value))

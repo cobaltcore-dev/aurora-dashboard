@@ -1,25 +1,14 @@
 /**
- * Formats a timestamp as relative time (e.g., "5 minutes ago", "2 hours ago").
- * @param timestamp - The timestamp in milliseconds
- * @param locale - The locale for formatting
- * @param now - The current time in milliseconds (defaults to Date.now(), overridable for tests)
- * @returns A formatted relative time string
+ * Format a past timestamp as a short, localized "time ago" string relative to now
+ * (e.g. "2 minutes ago"), used for the "Last updated" info in DataGrid headers.
+ *
+ * Granularity is capped at hours: under a minute → seconds, under an hour → minutes,
+ * otherwise hours. `locale` is passed to `Intl.RelativeTimeFormat`.
  */
-export function formatRelativeTime(timestamp: number, locale: string, now: number = Date.now()): string {
-  const diffInSeconds = Math.max(0, Math.floor((now - timestamp) / 1000))
-
-  const formatter = new Intl.RelativeTimeFormat(locale, { numeric: "auto" })
-
-  if (diffInSeconds < 60) {
-    return formatter.format(-diffInSeconds, "seconds")
-  } else if (diffInSeconds < 3600) {
-    const diffInMinutes = Math.floor(diffInSeconds / 60)
-    return formatter.format(-diffInMinutes, "minutes")
-  } else if (diffInSeconds < 86400) {
-    const diffInHours = Math.floor(diffInSeconds / 3600)
-    return formatter.format(-diffInHours, "hours")
-  } else {
-    const diffInDays = Math.floor(diffInSeconds / 86400)
-    return formatter.format(-diffInDays, "days")
-  }
+export const formatRelativeTime = (timestamp: number, locale: string): string => {
+  const diffSeconds = Math.floor((Date.now() - timestamp) / 1000)
+  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: "auto" })
+  if (diffSeconds < 60) return rtf.format(-diffSeconds, "second")
+  if (diffSeconds < 3600) return rtf.format(-Math.floor(diffSeconds / 60), "minute")
+  return rtf.format(-Math.floor(diffSeconds / 3600), "hour")
 }

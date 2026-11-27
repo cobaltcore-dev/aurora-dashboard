@@ -77,6 +77,15 @@ describe("SecurityGroupTableRow", () => {
   const mockOnDelete = vi.fn()
   const mockOnViewDetails = vi.fn()
 
+  // The row now renders a ClipboardText copy button for the ID before the popup
+  // menu toggle, so select the menu toggle explicitly rather than the first button.
+  const getMenuToggle = (row: HTMLElement) => {
+    const buttons = Array.from(row.querySelectorAll("button")).filter(
+      (b) => b.getAttribute("data-testid") !== "clipboard-copy-trigger"
+    )
+    return buttons[buttons.length - 1]
+  }
+
   afterEach(() => {
     cleanup()
     vi.clearAllMocks()
@@ -99,8 +108,8 @@ describe("SecurityGroupTableRow", () => {
       })
 
       expect(screen.getByText("Security group for web servers")).toBeInTheDocument()
-      // The name is rendered directly in its cell, without a wrapper element
-      expect(screen.getByText("web-servers")).toHaveClass("juno-datagrid-cell")
+      // The ID is rendered beneath the name with a copy affordance
+      expect(screen.getByRole("button", { name: /copy sg-123 to clipboard/i })).toBeInTheDocument()
     })
 
     it("renders a missing stateful flag as Yes, matching Neutron's default", async () => {
@@ -181,7 +190,7 @@ describe("SecurityGroupTableRow", () => {
       })
 
       const row = screen.getByTestId("security-group-row-sg-123")
-      const popupButton = row.querySelector("button")
+      const popupButton = getMenuToggle(row)
       await user.click(popupButton!)
 
       await waitFor(() => {
@@ -211,7 +220,7 @@ describe("SecurityGroupTableRow", () => {
       })
 
       const row = screen.getByTestId("security-group-row-sg-123")
-      const popupButton = row.querySelector("button")
+      const popupButton = getMenuToggle(row)
       await user.click(popupButton!)
 
       await waitFor(() => {
@@ -240,7 +249,7 @@ describe("SecurityGroupTableRow", () => {
       })
 
       const row = screen.getByTestId("security-group-row-sg-123")
-      const popupButton = row.querySelector("button")
+      const popupButton = getMenuToggle(row)
       await user.click(popupButton!)
 
       await waitFor(() => {
@@ -272,7 +281,7 @@ describe("SecurityGroupTableRow", () => {
       })
 
       const row = screen.getByTestId("security-group-row-sg-123")
-      const popupButton = row.querySelector("button")
+      const popupButton = getMenuToggle(row)
       await user.click(popupButton!)
 
       await waitFor(() => {
@@ -300,7 +309,7 @@ describe("SecurityGroupTableRow", () => {
       })
 
       const row = screen.getByTestId("security-group-row-sg-123")
-      const popupButton = row.querySelector("button")
+      const popupButton = getMenuToggle(row)
       await user.click(popupButton!)
 
       await waitFor(() => {
@@ -328,7 +337,7 @@ describe("SecurityGroupTableRow", () => {
       })
 
       const row = screen.getByTestId("security-group-row-sg-123")
-      const popupButton = row.querySelector("button")
+      const popupButton = getMenuToggle(row)
       await user.click(popupButton!)
 
       await waitFor(() => {
@@ -365,7 +374,7 @@ describe("SecurityGroupTableRow", () => {
       })
 
       const row = screen.getByTestId("security-group-row-sg-123")
-      const popupButton = row.querySelector("button")
+      const popupButton = getMenuToggle(row)
       await user.click(popupButton!)
 
       await waitFor(() => {
@@ -393,7 +402,7 @@ describe("SecurityGroupTableRow", () => {
       })
 
       const row = screen.getByTestId("security-group-row-sg-123")
-      await user.click(row.querySelector("button")!)
+      await user.click(getMenuToggle(row)!)
 
       await waitFor(() => {
         expect(screen.getByText("Show Details")).toBeInTheDocument()

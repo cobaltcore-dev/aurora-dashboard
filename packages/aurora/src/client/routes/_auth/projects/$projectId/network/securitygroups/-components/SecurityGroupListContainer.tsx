@@ -125,7 +125,7 @@ export const SecurityGroupListContainer = ({
       <DataGrid columns={columnCount} minContentColumns={hasAnyBulkAction ? [5] : [4]}>
         <DataGridRow>
           {hasAnyBulkAction && <DataGridHeadCell />}
-          {[t`Name`, t`Description`, t`Shared`, t`Stateful`, ""].map((label) => (
+          {[t`Name / ID`, t`Description`, t`Shared`, t`Stateful`, ""].map((label) => (
             <DataGridHeadCell key={label}>{label}</DataGridHeadCell>
           ))}
         </DataGridRow>
