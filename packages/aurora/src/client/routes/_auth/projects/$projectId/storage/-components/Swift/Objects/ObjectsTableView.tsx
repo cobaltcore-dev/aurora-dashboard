@@ -443,7 +443,6 @@ export const ObjectsTableView = ({
                               onClick={() => setTempUrlTarget(row as ObjectRow)}
                               data-testid={`temp-url-action-${row.name}`}
                             />
-                            <PopupMenuSectionSeparator />
                             <PopupMenuItem
                               label={t`Edit/Preview Metadata`}
                               disabled={isStreaming}
@@ -462,13 +461,13 @@ export const ObjectsTableView = ({
                               onClick={() => setMoveRenameObjectTarget(row as ObjectRow)}
                               data-testid={`move-rename-action-${row.name}`}
                             />
-                            <PopupMenuSectionSeparator />
                             <PopupMenuItem
                               label={t`Schedule Deletion`}
                               disabled={isStreaming}
                               onClick={() => setScheduleDeletionTarget(row as ObjectRow)}
                               data-testid={`schedule-deletion-action-${row.name}`}
                             />
+                            <PopupMenuSectionSeparator />
                             <PopupMenuItem
                               label={t`Delete Object`}
                               disabled={isStreaming}
