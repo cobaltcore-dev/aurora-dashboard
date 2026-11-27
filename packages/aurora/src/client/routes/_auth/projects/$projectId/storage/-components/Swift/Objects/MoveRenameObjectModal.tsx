@@ -353,7 +353,7 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
       onConfirm={handleMove}
       cancelButtonLabel={t`Cancel`}
       size="xl"
-      disableConfirmButton={isPending || isLoadingContainers || isUnchanged}
+      disableConfirmButton={isPending || isLoadingContainers || isUnchanged || !!newObjectNameError}
       disableCancelButton={isPending || isLoadingContainers}
     >
       {isPending ? (
@@ -372,12 +372,14 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
             label={t`New object name`}
             value={newObjectName}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              setNewObjectName(e.target.value)
-              if (newObjectNameError) setNewObjectNameError(null)
+              const value = e.target.value
+              setNewObjectName(value)
+              if (newObjectNameError) validateObjectName(value)
             }}
+            onBlur={(e: React.FocusEvent<HTMLInputElement>) => validateObjectName(e.target.value)}
             invalid={!!newObjectNameError}
             errortext={newObjectNameError ?? undefined}
-            helptext={t`You can rename the object by changing the name here.`}
+            helptext={t`No slashes or leading/trailing spaces allowed.`}
             required
           />
 

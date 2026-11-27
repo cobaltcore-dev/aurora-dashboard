@@ -1,6 +1,6 @@
 import React from "react"
 import { describe, test, expect, vi, beforeEach } from "vitest"
-import { render, screen, act } from "@testing-library/react"
+import { render, screen, act, waitFor, fireEvent } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
@@ -373,6 +373,36 @@ describe("MoveRenameObjectModal", () => {
       expect(screen.getByText(/Object name is required/i)).toBeInTheDocument()
       await user.type(nameInput, "a")
       expect(screen.queryByText(/Object name is required/i)).not.toBeInTheDocument()
+    })
+
+    test("renders helptext explaining naming constraints", () => {
+      renderModal({ object: makeObject("report.pdf", "report.pdf") })
+      expect(screen.getByText(/No slashes or leading\/trailing spaces allowed\./i)).toBeInTheDocument()
+    })
+
+    test("shows error on blur when name contains a slash", async () => {
+      const user = userEvent.setup()
+      renderModal({ object: makeObject("report.pdf", "report.pdf") })
+      const nameInput = screen.getByLabelText(/New object name/i)
+      await user.clear(nameInput)
+      await user.type(nameInput, "invalid/name")
+      fireEvent.blur(nameInput)
+      await waitFor(() => {
+        expect(screen.getByText(/cannot contain slashes/i)).toBeInTheDocument()
+      })
+    })
+
+    test("Move button is disabled while a name validation error is active", async () => {
+      const user = userEvent.setup()
+      renderModal({ object: makeObject("report.pdf", "report.pdf") })
+      const nameInput = screen.getByLabelText(/New object name/i)
+      await user.clear(nameInput)
+      await user.type(nameInput, "bad/name")
+      fireEvent.blur(nameInput)
+      await waitFor(() => {
+        expect(screen.getByText(/cannot contain slashes/i)).toBeInTheDocument()
+      })
+      expect(screen.getByRole("button", { name: /^Move\/Rename Object$/i })).toBeDisabled()
     })
   })
 
