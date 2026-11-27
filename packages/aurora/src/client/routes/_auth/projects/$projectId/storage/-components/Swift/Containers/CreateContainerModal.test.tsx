@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach } from "vitest"
-import { render, screen, waitFor, act } from "@testing-library/react"
+import { render, screen, waitFor, act, fireEvent } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
@@ -297,7 +297,7 @@ describe("CreateContainerModal", () => {
       renderModal()
       const input = screen.getByLabelText(/Container name/i)
       await user.type(input, "invalid/name")
-      await user.tab()
+      fireEvent.blur(input)
       await waitFor(() => {
         expect(screen.getByText(/Container name cannot contain slashes/i)).toBeInTheDocument()
       })
