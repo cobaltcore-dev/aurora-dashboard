@@ -156,27 +156,19 @@ export const EditContainerMetadataModal = ({
   })
 
   // ── Validation ────────────────────────────────────────────────────────────
+  const validateQuotaValue = (value: string): string | null => {
+    if (value === "") return null
+    if (isNaN(Number(value)) || !Number.isInteger(Number(value)) || Number(value) < 0)
+      return t`Must be a whole number, 0 or greater`
+    return null
+  }
+
   const validateQuotas = (): boolean => {
-    let valid = true
-    if (
-      quotaBytes !== "" &&
-      (isNaN(Number(quotaBytes)) || !Number.isInteger(Number(quotaBytes)) || Number(quotaBytes) < 0)
-    ) {
-      setQuotaBytesError(t`Must be a whole number, 0 or greater`)
-      valid = false
-    } else {
-      setQuotaBytesError(null)
-    }
-    if (
-      quotaCount !== "" &&
-      (isNaN(Number(quotaCount)) || !Number.isInteger(Number(quotaCount)) || Number(quotaCount) < 0)
-    ) {
-      setQuotaCountError(t`Must be a whole number, 0 or greater`)
-      valid = false
-    } else {
-      setQuotaCountError(null)
-    }
-    return valid
+    const bytesErr = validateQuotaValue(quotaBytes)
+    const countErr = validateQuotaValue(quotaCount)
+    setQuotaBytesError(bytesErr)
+    setQuotaCountError(countErr)
+    return !bytesErr && !countErr
   }
 
   const validateMetaKey = (key: string, originalKey?: string): string | null => {
@@ -359,7 +351,9 @@ export const EditContainerMetadataModal = ({
       onConfirm={handleSubmit}
       cancelButtonLabel={t`Cancel`}
       size="xl"
-      disableConfirmButton={isBusy || isAddingNew || hasEditing || isUnchanged || isMetaFailed}
+      disableConfirmButton={
+        isBusy || isAddingNew || hasEditing || isUnchanged || isMetaFailed || !!quotaBytesError || !!quotaCountError
+      }
     >
       {isLoading ? (
         <Status status="progress" title={t`Loading Container Properties...`} className="mt-0" />
@@ -430,6 +424,9 @@ export const EditContainerMetadataModal = ({
                     setQuotaCount(e.target.value)
                     if (quotaCountError) setQuotaCountError(null)
                   }}
+                  onBlur={(e: React.FocusEvent<HTMLInputElement>) =>
+                    setQuotaCountError(validateQuotaValue(e.target.value))
+                  }
                   placeholder={t`e.g. 1000`}
                   invalid={!!quotaCountError}
                   errortext={quotaCountError ?? undefined}
@@ -445,6 +442,9 @@ export const EditContainerMetadataModal = ({
                     setQuotaBytes(e.target.value)
                     if (quotaBytesError) setQuotaBytesError(null)
                   }}
+                  onBlur={(e: React.FocusEvent<HTMLInputElement>) =>
+                    setQuotaBytesError(validateQuotaValue(e.target.value))
+                  }
                   placeholder={t`e.g. 10737418240`}
                   invalid={!!quotaBytesError}
                   errortext={quotaBytesError ?? undefined}

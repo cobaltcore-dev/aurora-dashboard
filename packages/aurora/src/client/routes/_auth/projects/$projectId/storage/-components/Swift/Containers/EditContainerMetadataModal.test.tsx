@@ -351,4 +351,69 @@ describe("EditContainerMetadataModal", () => {
     await user.click(screen.getByRole("button", { name: /Cancel/i }))
     expect(onClose).toHaveBeenCalled()
   })
+
+  // ── Quota validation ────────────────────────────────────────────────────────
+
+  describe("Quota validation", () => {
+    test("shows error on blur when object count quota is not a whole number", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      const countInput = screen.getByLabelText(/Object count quota/i)
+      await user.type(countInput, "1.5")
+      await user.tab()
+      await waitFor(() => {
+        expect(screen.getByText(/Must be a whole number, 0 or greater/i)).toBeInTheDocument()
+      })
+    })
+
+    test("shows error on blur when total size quota is not a whole number", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      const bytesInput = screen.getByLabelText(/Total size quota/i)
+      await user.type(bytesInput, "-5")
+      await user.tab()
+      await waitFor(() => {
+        expect(screen.getByText(/Must be a whole number, 0 or greater/i)).toBeInTheDocument()
+      })
+    })
+
+    test("blurring one quota field does not show an error on the other field", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      const countInput = screen.getByLabelText(/Object count quota/i)
+      await user.type(countInput, "abc")
+      await user.tab()
+      await waitFor(() => {
+        expect(screen.getAllByText(/Must be a whole number, 0 or greater/i)).toHaveLength(1)
+      })
+    })
+
+    test("Save button is disabled while a quota error is active", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      const countInput = screen.getByLabelText(/Object count quota/i)
+      await user.type(countInput, "bad")
+      await user.tab()
+      await waitFor(() => {
+        expect(screen.getByText(/Must be a whole number, 0 or greater/i)).toBeInTheDocument()
+      })
+      expect(getModalSaveButton()).toBeDisabled()
+    })
+
+    test("clears error when quota field is corrected", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      const countInput = screen.getByLabelText(/Object count quota/i)
+      await user.type(countInput, "bad")
+      await user.tab()
+      await waitFor(() => {
+        expect(screen.getByText(/Must be a whole number, 0 or greater/i)).toBeInTheDocument()
+      })
+      await user.clear(countInput)
+      await user.type(countInput, "100")
+      await waitFor(() => {
+        expect(screen.queryByText(/Must be a whole number, 0 or greater/i)).not.toBeInTheDocument()
+      })
+    })
+  })
 })
